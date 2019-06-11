@@ -20,18 +20,14 @@ local function enumerate_entry(entry)
   for _, part in pairs(parts) do
     from, to = string.match(part, '^(%d-)%-(%d*)$')
     if from and to then
-      for i = from, to do
-        table.insert(rv, i)
-      end
+      for i = from, to do table.insert(rv, i) end
     else
       table.insert(rv, part)
     end
   end
 
   -- convert everything into numbers
-  for i in pairs(rv) do
-    rv[i] = 0 + rv[i]
-  end
+  for i in pairs(rv) do rv[i] = 0 + rv[i] end
 
   return rv
 end
@@ -40,9 +36,7 @@ module.test.enumerate_entry = enumerate_entry
 
 local function expand_list(list)
   rv = {}
-  for _, v in pairs(list) do
-    rv[v] = true
-  end
+  for _, v in pairs(list) do rv[v] = true end
 
   return rv
 end
@@ -79,7 +73,7 @@ local function unpack_time(time)
     hour = 0 + os.date('%H', time),
     minute = 0 + os.date('%M', time),
     day = 0 + os.date('%d', time),
-    month = 0 + os.date('%m', time)
+    month = 0 + os.date('%m', time),
   }
 end
 
@@ -87,11 +81,9 @@ end
 -- `parse_cronentry`; `date` is a date as constructed by
 -- `unpack_time`. Checks if `cronentry` should fire at `date`.
 local function match_cronentry_with_date(cronentry, date)
-  local rv =
-    cronentry.weekday[date.weekday] and cronentry.hour[date.hour] and
-    cronentry.minute[date.minute] and
-    cronentry.day[date.day] and
-    cronentry.month[date.month]
+  local rv = cronentry.weekday[date.weekday] and cronentry.hour[date.hour] and
+               cronentry.minute[date.minute] and cronentry.day[date.day] and
+               cronentry.month[date.month]
   return not (not rv)
 end
 
@@ -136,13 +128,8 @@ local function cron(entries, verbose)
     extra[i].cronentry = parse_cronentry(v)
     extra[i].next_activation = next_activation(extra[i].cronentry)
     if verbose then
-      print(
-        string.format(
-          'Entry #%d is activated at %d',
-          i,
-          extra[i].next_activation
-        )
-      )
+      print(string.format('Entry #%d is activated at %d', i,
+                          extra[i].next_activation))
     end
   end
 
@@ -150,9 +137,7 @@ local function cron(entries, verbose)
   while true do
     -- find next entry to run
     local min = math.huge
-    for i = 1, #extra do
-      min = math.min(min, extra[i].next_activation)
-    end
+    for i = 1, #extra do min = math.min(min, extra[i].next_activation) end
 
     -- list of indices into entries that are to be run next
     --
@@ -161,37 +146,27 @@ local function cron(entries, verbose)
     allNextEntries = {}
 
     for i, v in pairs(extra) do
-      if v.next_activation == min then
-        table.insert(allNextEntries, i)
-      end
+      if v.next_activation == min then table.insert(allNextEntries, i) end
     end
 
     local sleepTime = math.max(min - os.time(), 0)
     local withS = 's'
-    if sleepTime == 1 then
-      withS = ''
-    end
+    if sleepTime == 1 then withS = '' end
 
     if verbose then
       print(
-        string.format('Activating next job in %d second%s', sleepTime, withS)
-      )
+        string.format('Activating next job in %d second%s', sleepTime, withS))
     end
 
     sleep(sleepTime)
 
     for _, i in pairs(allNextEntries) do
       extra[i].next_activation = next_activation(extra[i].cronentry)
-      local when_next_activation =
-        math.max(extra[i].next_activation - os.time(), 0)
+      local when_next_activation = math.max(
+                                     extra[i].next_activation - os.time(), 0)
       if verbose then
-        print(
-          string.format(
-            'Activating #%d; next activation in %d seconds',
-            i,
-            when_next_activation
-          )
-        )
+        print(string.format('Activating #%d; next activation in %d seconds', i,
+                            when_next_activation))
       end
 
       entries[i].callback()
