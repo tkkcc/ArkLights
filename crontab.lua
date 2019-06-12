@@ -1,4 +1,4 @@
-require('util ')
+require('util')
 local module = {}
 module.test = {}
 
