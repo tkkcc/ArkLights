@@ -2,22 +2,26 @@ appid = 'com.hypergryph.arknights'
 hudid = createHUD()
 
 insert = table.insert
+
 shallowcopy = function(x)
   local y = {}
   if x == nil then return y end
   for k, v in pairs(x) do y[k] = v end
   return y
 end
+
 update = function(b, x)
   local y = shallowcopy(b)
   if x == nil then return y end
   for k, v in pairs(x) do y[k] = v end
   return y
 end
+
 repeat_last = function(x, n)
   for i = 1, n do insert(x, x[#x]) end
   return x
 end
+
 loop_times = function(x)
   local times, f, n
   local maxlen = 50
@@ -44,7 +48,7 @@ loop_times = function(x)
   end
   return maxtimes
 end
--- f,t f,x1,x2
+
 map = function(...)
   local a = {...}
   local n = select('#', ...)
@@ -71,17 +75,23 @@ map = function(...)
   if ur then return unpack(r, 1, n) end
   return r
 end
+
 sleep = function(x)
   if x == nil then x = 1 end
   mSleep(x * 1000)
 end
-table.clear = function(x) for k, v in pairs(x) do x[k] = nil end end
+
+nop = function() end
+
+stop = function() lua_exit() end
 
 show = function(x)
   print(x)
   showHUD(hudid, x, 24, "0xff444444", "0xffffffff", 2, 0, 1080 - 36, 500, 36)
 end
+
 history = {}
+table.clear = function(x) for k, v in pairs(x) do x[k] = nil end end
 log = function(...)
   local l = {map(tostring, running, ' ', ...)}
   local a = ''
@@ -93,55 +103,30 @@ log = function(...)
   if l > 1 then a = a .. ' x' .. l end
   show(a)
 end
+
 set = function(k, v)
   k, v = map(tostring, k, v)
   setStringConfig(k, v)
 end
+
 get = function(k, v)
   k, v = map(tostring, k, v)
   return getStringConfig(k, v)
 end
--- config={}
-open = function()
-  --	if appIsRunning(appid)==0 then
-  runApp(appid)
-  --	end
-end
-close = function()
-  --	if appIsRunning(appid)==1 then
-  closeApp(appid)
-  --	end
-end
-start = function()
-  open()
-  --	auto(path.移动停止按钮)
-  --		runApp(appid)
-  --	if appIsRunning(appid)==0 then
-  --		runApp(appid)
-  --		sleep(5)
-  --		lua_restart()
-  --	end
-  -- move 叉叉助手按钮
-  --	auto({停止按钮=true})
-  --	local p=find('停止按钮')
-  --	print('移动停止按钮')
-  --	swip(p[1],p[2],1920-p[1],1080/2-p[2])
 
-  --	if get('restart')~='true' then
-  --		ret,config=showUI("ui.json")
-  --		if ret==0 then stop() end
-  --		set('password',config.password)
-  --	else
-  --		config.password=get('password','123456')
-  --	end
-  --	set('restart',false)
-end
+open = function() runApp(appid) end
+
+close = function() closeApp(appid) end
+
+start = function() open() end
+
 restart = function()
   close()
   sleep(1)
   set('restart', true)
   lua_restart()
 end
+
 now = function(...)
   if get('restart') == 'true' then
     set('restart', 'false')
@@ -149,6 +134,7 @@ now = function(...)
     map(run, {...})
   end
 end
+
 conf2task = function(c, m)
   local p, q = 0, 0
   local r = {}
@@ -203,6 +189,7 @@ tap = function(x)
   touchUp(0, x, y)
   sleep()
 end
+
 input = function(x, s)
   tap(x)
   inputText("#CLEAR#")
@@ -211,6 +198,7 @@ input = function(x, s)
   sleep(.5)
   tap(x)
 end
+
 swip = function(x, y, dx, dy)
   local i = 0
   touchDown(i, x, y)
@@ -226,6 +214,7 @@ swip = function(x, y, dx, dy)
   touchUp(i, x, y)
   sleep()
 end
+
 scale = function(o)
   a = {413, 295}
   b = {1537, 872}
@@ -247,6 +236,7 @@ scale = function(o)
   touchUp(1, a[1], a[2])
   touchUp(2, b[1], b[2])
 end
+
 auto = function(p)
   if type(p) == 'function' then return p() end
   if type(p) ~= 'table' then return true end
@@ -287,8 +277,6 @@ run = function(...)
   end
   running = nil
 end
-nop = function() end
-stop = function() lua_exit() end
 
 -- hour crontab
 hc = function(x, h)

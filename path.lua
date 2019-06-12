@@ -40,6 +40,7 @@ path.base = {
   战斗记录未能同步返回 = '战斗记录未能同步返回',
   正在释放神经递质 = function() sleep(5) end,
   传递线索返回 = '传递线索返回',
+  无人机加速确定 = '无人机加速确定',
 }
 path.移动停止按钮 = function()
   sleep()
@@ -63,12 +64,11 @@ path.换人 = function()
       清空 = '清空',
       清空确认 = '清空确认',
       清空完毕进驻 = '清空完毕进驻',
-      --						清空完毕进驻2="清空完毕进驻2",
     })
     auto(p)
-    if index == 4 then
-      auto(update(p,
-                  {
+    after_dormitory = #point.宿舍 + 1
+    if index == after_dormitory then
+      auto(update(p, {
         干员选择确认 = '排序筛选按钮',
         排序筛选确认 = true,
       }))
@@ -77,13 +77,15 @@ path.换人 = function()
         排序筛选未进驻未选中 = '排序筛选未进驻未选中',
       }))
     end
-    if index <= 4 then swip(630, 500, 10000, 0) end
+    if index <= after_dormitory then swip(630, 500, 10000, 0) end
     if index == 2 then
       swip(1000, 500, -470, 0)
     elseif index == 3 then
       swip(1000, 500, -1200, 0)
+    elseif index == 4 then
+      swip(1000, 500, -1650, 0)
     end
-    a = index == 2 and 2 or 1
+    a = (index == 2 or index == 4) and 2 or 1
     b = find('进驻多干员') and 5 or 1
     for i = a, a + b - 1 do tap(point.干员选择[i]) end
     auto(update(path.base, {
@@ -103,7 +105,20 @@ path.订单 = update(path.base, {
   面板 = '面板基建',
   进驻信息选中 = '进驻信息选中',
 })
-
+path.订单加速 = update(path.订单, {
+  无人机协助 = '无人机协助',
+  订单无 = '无人机协助',
+  无人机加速确定 = function()
+    tap('无人机加速最大')
+    if not find('多余加速浪费') then
+      tap('无人机加速确定')
+      return true
+    end
+    tap('无人机加速减一')
+    tap('无人机加速确定')
+    sleep(60)
+  end,
+})
 path.制造站补充 = update(path.base, {
   制造站进驻信息 = '制造站进驻信息',
   制造站设施列表 = function()
@@ -139,13 +154,10 @@ path.作战 = function()
     return true
   end
   repeat tick = (tick % num) + 1 until bl[tick]
-  -- 123
   if tick <= #(point.物资筹备) then
-    -- 4567
     tap('作战物资筹备')
     tap(point.物资筹备[tick])
   elseif tick <= #(point.物资筹备) + #(point.芯片搜索) * 2 then
-    -- 89
     tap('作战芯片搜索')
     local t = tick - #(point.物资筹备)
     if t > #(point.芯片搜索) then
@@ -188,8 +200,7 @@ path.作战 = function()
 end
 path.任务 = function()
   for _, i in pairs({'日常任务', '周常任务'}) do
-    local p = update(path.base,
-                     {
+    local p = update(path.base, {
       面板 = '面板任务',
       见习任务 = i,
       日常任务 = i,
@@ -199,12 +210,7 @@ path.任务 = function()
     auto(p)
     p[i] = nil
     auto(
-                    update(p,
-                           {
-        任务蓝 = '任务蓝',
-        任务黑 = true,
-        任务灰 = true,
-      }))
+      update(p, {任务蓝 = '任务蓝', 任务黑 = true, 任务灰 = true}))
   end
 end
 
@@ -292,23 +298,24 @@ path.线索接收 = update(path.base, {
   面板 = '面板基建',
   会客厅进驻信息选中 = '会客厅进驻信息选中',
 })
-path.信用购买 = update(path.base, {
+path.信用购买 = function()
+  for _, i in pairs(point.信用交易所列表) do
+    auto(update(path.base, {
+      面板 = '面板采购中心',
+      可露希尔推荐 = '信用交易所',
+      信用交易所 = true,
+    }))
+    tap(i)
+    if find('购买物品') then tap('购买物品') end
+    if find('信用不足') then return true end
+  end
+  return true
+end
+path.信用收取 = update(path.base, {
   面板 = '面板采购中心',
   可露希尔推荐 = '信用交易所',
   收取信用 = '收取信用',
-  收取信用无 = function()
-    for _, i in pairs(point.信用交易所列表) do
-      tap(i)
-      if find('购买物品') then tap('购买物品') end
-      auto(update(path.base, {
-        面板 = '面板采购中心',
-        可露希尔推荐 = '信用交易所',
-        信用交易所 = true,
-        信用不足 = true,
-      }))
-    end
-    return true
-  end,
+  收取信用无 = true,
 })
 -- path.公开招募=function()
 --		auto(path.base)
