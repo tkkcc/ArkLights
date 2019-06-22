@@ -1,4 +1,4 @@
-require('util')
+require("util")
 local module = {}
 module.test = {}
 
@@ -7,8 +7,8 @@ local function enumerate_entry(entry)
   local parts = {}
 
   -- split into parts separated by comma
-  while string.match(entry, ',') do
-    head, entry = string.match(entry, '^(.-),(.*)$')
+  while string.match(entry, ",") do
+    head, entry = string.match(entry, "^(.-),(.*)$")
     table.insert(parts, head)
   end
 
@@ -18,7 +18,7 @@ local function enumerate_entry(entry)
 
   -- deal with ranges
   for _, part in pairs(parts) do
-    from, to = string.match(part, '^(%d-)%-(%d*)$')
+    from, to = string.match(part, "^(%d-)%-(%d*)$")
     if from and to then
       for i = from, to do table.insert(rv, i) end
     else
@@ -54,11 +54,11 @@ module.test.expand_list = expand_list
 -- `parse_cronentry` returns a version more easily used
 local function parse_cronentry(entry)
   local rv = {}
-  rv.weekday = expand_list(enumerate_entry(entry.weekday or '0-6'))
-  rv.hour = expand_list(enumerate_entry(entry.hour or '0-23'))
-  rv.minute = expand_list(enumerate_entry(entry.minute or '0-59'))
-  rv.day = expand_list(enumerate_entry(entry.day or '1-31'))
-  rv.month = expand_list(enumerate_entry(entry.month or '1-12'))
+  rv.weekday = expand_list(enumerate_entry(entry.weekday or "0-6"))
+  rv.hour = expand_list(enumerate_entry(entry.hour or "0-23"))
+  rv.minute = expand_list(enumerate_entry(entry.minute or "0-59"))
+  rv.day = expand_list(enumerate_entry(entry.day or "1-31"))
+  rv.month = expand_list(enumerate_entry(entry.month or "1-12"))
 
   return rv
 end
@@ -69,11 +69,11 @@ module.test.parse_cronentry = parse_cronentry
 -- format of `parse_cronentry`
 local function unpack_time(time)
   return {
-    weekday = 0 + os.date('%w', time),
-    hour = 0 + os.date('%H', time),
-    minute = 0 + os.date('%M', time),
-    day = 0 + os.date('%d', time),
-    month = 0 + os.date('%m', time),
+    weekday = 0 + os.date("%w", time),
+    hour = 0 + os.date("%H", time),
+    minute = 0 + os.date("%M", time),
+    day = 0 + os.date("%d", time),
+    month = 0 + os.date("%m", time),
   }
 end
 
@@ -128,7 +128,7 @@ local function cron(entries, verbose)
     extra[i].cronentry = parse_cronentry(v)
     extra[i].next_activation = next_activation(extra[i].cronentry)
     if verbose then
-      print(string.format('Entry #%d is activated at %d', i,
+      print(string.format("Entry #%d is activated at %d", i,
                           extra[i].next_activation))
     end
   end
@@ -150,12 +150,12 @@ local function cron(entries, verbose)
     end
 
     local sleepTime = math.max(min - os.time(), 0)
-    local withS = 's'
-    if sleepTime == 1 then withS = '' end
+    local withS = "s"
+    if sleepTime == 1 then withS = "" end
 
     if verbose then
       print(
-        string.format('Activating next job in %d second%s', sleepTime, withS))
+        string.format("Activating next job in %d second%s", sleepTime, withS))
     end
 
     sleep(sleepTime)
@@ -165,7 +165,7 @@ local function cron(entries, verbose)
       local when_next_activation = math.max(
                                      extra[i].next_activation - os.time(), 0)
       if verbose then
-        print(string.format('Activating #%d; next activation in %d seconds', i,
+        print(string.format("Activating #%d; next activation in %d seconds", i,
                             when_next_activation))
       end
 
