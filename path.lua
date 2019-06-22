@@ -52,7 +52,7 @@ path.base = {
 path.移动停止按钮 = function()
   sleep()
   local p = find("停止按钮")
-  if p then swip(p[1], p[2], 1920 - p[1], 1080 / 2 - p[2]) end
+  if p then swip(p[1], p[2], 1920 - p[1], 1080 / 2 - p[2], .2) end
   return true
 end
 
@@ -60,6 +60,7 @@ path.换人 = function()
   auto(path.base)
   local a, b, p
   for index, i in ipairs(la) do
+    if index == #la then break end
     p = update(path.base, {
       干员选择确认 = true,
       面板 = "面板基建",
@@ -84,14 +85,7 @@ path.换人 = function()
         排序筛选未进驻未选中 = "排序筛选未进驻未选中",
       }))
     end
-    if index <= after_dormitory then swip(630, 500, 10000, 0) end
-    if index == 2 then
-      swip(1000, 500, -470, 0)
-    elseif index == 3 then
-      swip(1000, 500, -1200, 0)
-    elseif index == 4 then
-      swip(1000, 500, -1650, 0)
-    end
+    swipq('dorm' .. index)
     a = (index == 2 or index == 4) and 2 or 1
     b = find("进驻多干员") and 5 or 1
     for i = a, a + b - 1 do tap(point.干员选择[i]) end
@@ -191,13 +185,13 @@ path.信用奖励 = update(path.base, {
       面板 = "面板基建",
       进驻总览 = "会客厅",
       会客厅进驻信息 = "线索",
-      会客厅传递线索 = "会客厅传递线索",
+      会客厅传递线索 = function()
+        tap("会客厅传递线索")
+        sleep()
+      end,
       传递线索返回 = function()
-        sleep()
         tap(point.线索列表[1])
-        sleep()
         tap(point.传递列表[3])
-        sleep()
         tap("传递线索返回")
         return true
       end,
@@ -236,7 +230,10 @@ path.线索接收 = update(path.base, {
   会客厅进驻信息 = "线索",
   线索全部收取有 = "线索全部收取有",
   线索全部收取无 = true,
-  会客厅信用奖励 = "会客厅线索接收",
+  会客厅信用奖励 = function()
+    tap("会客厅线索接收")
+    sleep()
+  end,
   进驻总览 = "会客厅",
   面板 = "面板基建",
   会客厅进驻信息选中 = "会客厅进驻信息选中",
@@ -513,8 +510,12 @@ path.访问好友基建 = update(path.base, {
     -- no friends
     if not find('访问基建') then return true end
     tap('访问基建')
+    sleep(6)
   end,
-  访问下位 = '访问下位',
+  访问下位 = function()
+    tap('访问下位')
+    sleep(6)
+  end,
   访问下位无 = true,
 })
 

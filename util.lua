@@ -219,7 +219,9 @@ tap = function(x)
   keepScreen(false)
   if isFrontApp(appid) == 0 then
     show("应用不在前台")
-    restart()
+    open()
+    sleep(5)
+    return
   end
   y = x
   if x == true then return true end
@@ -240,7 +242,7 @@ tap = function(x)
   touchDown(0, x, y)
   sleep(0.2)
   touchUp(0, x, y)
-  sleep()
+  sleep(.5)
 end
 
 input = function(x, s)
@@ -279,7 +281,7 @@ swipq = function(t)
   if not t then return end
   -- multiple swip
   if type(t) ~= "table" then t = {t} end
-  for k, v in pairs(t) do swip(500, 500, v, 0, .4) end
+  for k, v in pairs(t) do swip(1000, 500, v, 0, .4) end
   -- wait for extra moving
   if #t > 1 then sleep() end
 end
@@ -288,7 +290,7 @@ scale = function(o)
   b = {1537, 872}
   touchDown(1, a[1], a[2])
   touchDown(2, b[1], b[2])
-  t = 20
+  t = 2
   l = 150
   s = l / t
   if o then s = s * -1 end
