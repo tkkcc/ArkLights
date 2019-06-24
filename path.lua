@@ -17,6 +17,12 @@ path.base = {
     input("账号", u)
     input("密码", p)
     tap("登陆")
+    -- 被抢占,需重新更新基建
+    -- if already_update_station_list then
+    update_station_list()
+    -- end
+    -- already_update_station_list = false
+
   end,
   登入错误 = restart,
   我知道了 = restart,
@@ -56,10 +62,54 @@ path.移动停止按钮 = function()
   return true
 end
 
+update_station_list = function()
+  -- if already_update_station_list then return end
+  auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
+  sleep()
+  local a = point.基建标识
+  local b = a.base
+  keepScreen(true)
+  for k, v in pairs({"制造站", "贸易站", "发电站", "宿舍"}) do
+    point[v .. '列表'] = table.filter((v == "宿舍" and a.中间设施 or
+                                          a.左侧设施), function(x)
+      return find(x[1] .. '|' .. x[2] .. '|' .. a[v] .. ',' .. b)
+    end)
+  end
+  for k, v in pairs({"会客厅", "控制中枢", "加工站", "训练室",
+                     "办公室"}) do point[v] = find(a[v] .. ',' .. b) end
+  keepScreen(false)
+  -- log('sss')
+  -- log(point["制造站列表"])
+  -- log(point["贸易站列表"])
+  -- log(point["发电站列表"])
+  -- log(point["宿舍列表"])
+  -- log(point["控制中枢"])
+  -- log(point["会客厅"])
+  -- log(point["加工站"])
+  -- log(point["办公室"])
+  -- log(point["训练室"])
+  -- log('eee')
+
+  -- all department
+  la = {}
+  table.extend(la, point.宿舍列表)
+  table.extend(la, point.制造站列表)
+  table.extend(la, point.贸易站列表)
+  table.extend(la, point.发电站列表)
+  table.insert(la, "控制中枢")
+  table.insert(la, "贸易站")
+  table.insert(la, "会客厅")
+  table.insert(la, "加工站")
+  table.insert(la, "办公室")
+  table.insert(la, "训练室")
+end
+
 path.换人 = function()
-  auto(path.base)
+  auto(update(path.base, {进驻总览 = true}))
   local a, b, p
+  already_after_dormitory = false
   for index, i in ipairs(la) do
+    -- ignore 训练室
     if index == #la then break end
     p = update(path.base, {
       干员选择确认 = true,
@@ -69,26 +119,37 @@ path.换人 = function()
       宿舍进驻信息 = "宿舍进驻信息",
       会客厅进驻信息 = "会客厅进驻信息",
       控制中枢进驻信息 = "控制中枢进驻信息",
-      清空 = "清空",
-      清空确认 = "清空确认",
-      清空完毕进驻 = "清空完毕进驻",
+      有人清空 = function()
+        -- 人满不清
+        if index > #point.宿舍列表 and
+          table.any(point.进驻人数满, find) then return true end
+        tap("有人清空")
+      end,
+      清空完毕进驻 = function()
+        -- check 进驻人数
+        b = table.find(point.进驻人数, find)
+        tap("清空完毕进驻")
+        -- toggle tag after 宿舍
+        if index > #point.宿舍 and not already_after_dormitory then
+          auto(update(p, {
+            干员选择确认 = "排序筛选按钮",
+            排序筛选确认 = true,
+          }))
+          auto(update(p, {
+            排序筛选未进驻选中 = "排序筛选确认",
+            排序筛选未进驻未选中 = "排序筛选未进驻未选中",
+          }))
+          already_after_dormitory = true
+        end
+        swipq('dorm' .. index)
+        a = 1
+        if (index == 2 or index == 4) and index <= #point.宿舍列表 then
+          a = 2
+        end
+        for i = a, a + b - 1 do tap(point.干员选择[i]) end
+      end,
     })
     auto(p)
-    after_dormitory = #point.宿舍 + 1
-    if index == after_dormitory then
-      auto(update(p, {
-        干员选择确认 = "排序筛选按钮",
-        排序筛选确认 = true,
-      }))
-      auto(update(p, {
-        排序筛选未进驻选中 = "排序筛选确认",
-        排序筛选未进驻未选中 = "排序筛选未进驻未选中",
-      }))
-    end
-    swipq('dorm' .. index)
-    a = (index == 2 or index == 4) and 2 or 1
-    b = find("进驻多干员") and 5 or 1
-    for i = a, a + b - 1 do tap(point.干员选择[i]) end
     auto(update(path.base, {
       面板 = "面板基建",
       进驻总览 = true,
@@ -98,71 +159,6 @@ path.换人 = function()
   return true
 end
 
-path.订单 = update(path.base, {
-  订单无 = true,
-  进驻总览 = "贸易站",
-  订单 = "订单",
-  订单蓝 = "订单蓝",
-  面板 = "面板基建",
-  进驻信息选中 = "进驻信息选中",
-})
-path.订单加速 = update(path.订单, {
-  无人机协助 = "无人机协助",
-  订单无 = "无人机协助",
-  无人机加速确定 = function()
-    tap("无人机加速最大")
-    if not find("多余加速浪费") then
-      tap("无人机加速确定")
-      return true
-    end
-    tap("无人机加速减一")
-    tap("无人机加速确定")
-    sleep(60)
-  end,
-})
-path.制造站补充 = update(path.base, {
-  制造站进驻信息 = "制造站进驻信息",
-  制造站设施列表 = function()
-    for _, i in pairs(point.制造站列表) do
-      tap(i)
-      tap("制造站最多")
-      findTap("执行更改")
-    end
-    return true
-  end,
-  进驻总览 = point.制造站[1],
-  面板 = "面板基建",
-  进驻信息选中 = "进驻信息选中",
-})
-
-path.任务 = function()
-  for _, i in pairs({"日常任务", "周常任务"}) do
-    local p = update(path.base, {
-      面板 = "面板任务",
-      见习任务 = i,
-      日常任务 = i,
-      周常任务 = i,
-    })
-    p[i] = true
-    auto(p)
-    p[i] = nil
-    auto(
-      update(p, {任务蓝 = "任务蓝", 任务黑 = true, 任务灰 = true}))
-  end
-end
-
-path.取消进驻信息选中 = update(path.base, {
-  面板 = "面板基建",
-  进驻总览 = 会客厅,
-  进驻信息 = true,
-  进驻信息选中 = "进驻信息选中",
-  宿舍进驻信息 = true,
-  宿舍进驻信息选中 = "宿舍进驻信息选中",
-  会客厅进驻信息 = true,
-  会客厅进驻信息选中 = "会客厅进驻信息选中",
-  控制中枢进驻信息 = true,
-  控制中枢进驻信息选中 = "控制中枢进驻信息选中",
-})
 path.戳人 = function()
   local o
   for _, i in pairs(la) do
@@ -178,34 +174,100 @@ path.戳人 = function()
   end
 end
 
-path.信用奖励 = update(path.base, {
-  已达线索上限 = function()
-    --		保证有好友
-    auto(update(path.base, {
-      面板 = "面板基建",
-      进驻总览 = "会客厅",
-      会客厅进驻信息 = "线索",
-      会客厅传递线索 = function()
-        tap("会客厅传递线索")
-        sleep()
-      end,
-      传递线索返回 = function()
-        tap(point.线索列表[1])
-        tap(point.传递列表[3])
-        tap("传递线索返回")
+path.订单 = function()
+  if #point.贸易站列表 == 0 then return end
+  auto(update(path.base, {
+    订单无 = true,
+    进驻总览 = point.贸易站列表[1],
+    订单 = "订单",
+    订单蓝 = "订单蓝",
+    面板 = "面板基建",
+    进驻信息选中 = "进驻信息选中",
+  }))
+end
+
+path.订单加速 = function()
+  -- update_station_list()
+  if #point.贸易站列表 == 0 then return end
+  auto(update(path.base, {
+    进驻总览 = point.贸易站列表[1],
+    订单 = "订单",
+    订单蓝 = "订单蓝",
+    面板 = "面板基建",
+    进驻信息选中 = "进驻信息选中",
+    无人机协助 = "无人机协助",
+    订单无 = "无人机协助",
+    无人机加速确定 = function()
+      tap("无人机加速最大")
+      if not find("多余加速浪费") then
+        tap("无人机加速确定")
         return true
-      end,
-    }))
-  end,
-  信用奖励有 = "信用奖励有",
-  会客厅信用奖励 = "会客厅信用奖励",
-  会客厅进驻信息 = "线索",
-  进驻总览 = "会客厅",
-  信用奖励无 = true,
+      end
+      tap("无人机加速减一")
+      tap("无人机加速确定")
+      sleep(20)
+    end,
+  }))
+end
+
+path.订单交付 = function()
+  if #point.贸易站列表 == 0 then return end
+  auto(path.订单)
+  for i = 1, #point.贸易站列表 do
+    tap(point.设施列表[i])
+    auto(path.订单)
+  end
+end
+
+path.制造站补充 = function()
+  if #point.制造站列表 == 0 then return end
+  auto(update(path.base, {
+    制造站进驻信息 = "制造站进驻信息",
+    制造站设施 = function()
+      for i = 1, #point.制造站列表 do
+        tap(point.设施列表[i])
+        tap("制造站最多")
+        findTap("执行更改")
+      end
+      return true
+    end,
+    进驻总览 = point.制造站列表[1],
+    面板 = "面板基建",
+    进驻信息选中 = "进驻信息选中",
+  }))
+end
+
+path.取消进驻信息选中 = update(path.base, {
   面板 = "面板基建",
+  进驻总览 = 会客厅,
+  进驻信息 = true,
+  进驻信息选中 = "进驻信息选中",
+  宿舍进驻信息 = true,
+  宿舍进驻信息选中 = "宿舍进驻信息选中",
+  会客厅进驻信息 = true,
   会客厅进驻信息选中 = "会客厅进驻信息选中",
+  控制中枢进驻信息 = true,
+  控制中枢进驻信息选中 = "控制中枢进驻信息选中",
 })
+
+path.线索接收 = function()
+  if not point.会客厅 then return end
+  auto(update(path.base, {
+    会客厅进驻信息 = "线索",
+    线索全部收取有 = "线索全部收取有",
+    线索全部收取无 = true,
+    会客厅信用奖励 = function()
+      tap("会客厅线索接收")
+      sleep()
+    end,
+    进驻总览 = "会客厅",
+    面板 = "面板基建",
+    会客厅进驻信息选中 = "会客厅进驻信息选中",
+  }))
+end
+
 path.线索布置 = function()
+  if not point.会客厅 then return end
   for k, v in pairs(point.线索布置) do
     k = "线索布置" .. k
     auto(update(path.base, {
@@ -226,18 +288,54 @@ path.线索布置 = function()
   end
   findTap("解锁线索")
 end
-path.线索接收 = update(path.base, {
-  会客厅进驻信息 = "线索",
-  线索全部收取有 = "线索全部收取有",
-  线索全部收取无 = true,
-  会客厅信用奖励 = function()
-    tap("会客厅线索接收")
-    sleep()
-  end,
-  进驻总览 = "会客厅",
-  面板 = "面板基建",
-  会客厅进驻信息选中 = "会客厅进驻信息选中",
-})
+
+path.信用奖励 = function()
+  if not point.会客厅 then return end
+  auto(update(path.base, {
+    已达线索上限 = function()
+      -- 保证有好友
+      auto(update(path.base, {
+        面板 = "面板基建",
+        进驻总览 = "会客厅",
+        会客厅进驻信息 = "线索",
+        会客厅传递线索 = function()
+          tap("会客厅传递线索")
+          sleep()
+        end,
+        传递线索返回 = function()
+          tap(point.线索列表[1])
+          tap(point.传递列表[3])
+          tap("传递线索返回")
+          return true
+        end,
+      }))
+    end,
+    信用奖励有 = "信用奖励有",
+    会客厅信用奖励 = "会客厅信用奖励",
+    会客厅进驻信息 = "线索",
+    进驻总览 = "会客厅",
+    信用奖励无 = true,
+    面板 = "面板基建",
+    会客厅进驻信息选中 = "会客厅进驻信息选中",
+  }))
+end
+
+path.任务 = function()
+  for _, i in pairs({"日常任务", "周常任务"}) do
+    local p = update(path.base, {
+      面板 = "面板任务",
+      见习任务 = i,
+      日常任务 = i,
+      周常任务 = i,
+    })
+    p[i] = true
+    auto(p)
+    p[i] = nil
+    auto(
+      update(p, {任务蓝 = "任务蓝", 任务黑 = true, 任务灰 = true}))
+  end
+end
+
 path.信用购买 = function()
   for _, i in pairs(point.信用交易所列表) do
     auto(update(path.base, {
@@ -247,10 +345,12 @@ path.信用购买 = function()
     }))
     tap(i)
     findTap("购买物品")
+    sleep(.5)
     if find("信用不足") then return true end
   end
   return true
 end
+
 path.信用收取 = update(path.base, {
   面板 = "面板采购中心",
   可露希尔推荐 = "信用交易所",
@@ -280,13 +380,13 @@ path.干员强化 = update(path.base, {
   等级递增 = point.干员列表[1],
   EXP = "EXP",
   提升等级确认 = function()
-    -- tap(point.经验书列表[1])
     findTap("基础作战记录", "初级作战记录", "中级作战记录",
             "高级作战记录")
     tap("提升等级确认")
     return true
   end,
 })
+
 path.活动任务 = function()
   auto(path.base)
   tap("面板作战")
@@ -313,7 +413,7 @@ path.免费强化包 = update(path.base, {
   end,
 })
 
-local tick = 0
+tick = 27
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
@@ -351,7 +451,6 @@ path.开始游戏 = function(x)
       end
       tap("代理指挥关")
     end,
-    -- 代理指挥无锁关 = "代理指挥无锁关",
     代理指挥开 = function()
       tap("开始行动蓝")
       sleep()
@@ -440,9 +539,9 @@ ls_open_time_r = table.reverseIndex(ls_open_time)
 -- move LS to first, CE to last
 local lotr = ls_open_time_r
 for k, v in pairs(lotr) do
-  table.remove(lotr[k], table.find(lotr[k], "LS"))
+  table.remove(lotr[k], table.find(lotr[k], equalX("LS")))
   table.insert(lotr[k], 1, "LS")
-  local p = table.find(lotr[k], "CE")
+  local p = table.find(lotr[k], equalX("CE"))
   if p then
     table.remove(lotr[k], p)
     table.insert(lotr[k], "CE")
@@ -466,9 +565,7 @@ path.物资芯片 = function(x)
   if not table.includes(open_time, cur_time) then return end
   -- get the index in 芯片搜索
   local cur_open = prls_open_time_r[cur_time]
-  local index = table.find(cur_open, x1)
-  --	log(cur_open,' ' ,index)
-
+  local index = table.find(cur_open, equalX(x1))
   -- 面板=>开始游戏
   local p = update(path.base, {
     面板 = function()

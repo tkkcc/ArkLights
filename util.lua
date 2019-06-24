@@ -2,11 +2,14 @@ appid = "com.hypergryph.arknights"
 hudid = createHUD()
 
 insert = table.insert
+
 string.startsWith = function(str, prefix)
   return string.sub(str, 1, string.len(prefix)) == prefix
 end
+
 startsWithX = function(x) return
   function(prefix) return x:startsWith(prefix) end end
+
 string.lpad = function(str, len, char)
   if char == nil then char = " " end
   return str .. string.rep(char, len - #str)
@@ -19,10 +22,22 @@ table.any = function(t, f)
   end
   return false
 end
+table.filter = function(t, f)
+  local a = {}
+  for k, v in pairs(t) do if f(v) then a[k] = v end end
+  return a
+end
+-- a,a+1,...b
+range = function(a, b)
+  local t = {}
+  for i = a, b do table.insert(i) end
+  return t
+end
 table.includes = function(t, e)
   return table.any(t, function(x) return x == e end)
 end
 
+table.extend = function(t, e) for k, v in pairs(e) do table.insert(t, v) end end
 --	in = {
 --		"A" = {1,4,5,7},
 --		"B" = {1,2,5,6},
@@ -44,9 +59,10 @@ table.reverseIndex = function(t)
   for k, v in pairs(r) do table.sort(v) end
   return r
 end
-table.find = function(t, x)
-  for k, v in pairs(t) do if v == x then return k end end
-end
+table.find =
+  function(t, f) for k, v in pairs(t) do if f(v) then return k end end end
+
+equalX = function(x) return function(y) return x == y end end
 
 shallowcopy = function(x)
   local y = {}
@@ -140,19 +156,35 @@ show = function(x, h)
   h = not h and 36 or h
   showHUD(hudid, x, 24, "0xff444444", "0xffffffff", 2, 0, 1080 - 36, 500, h)
 end
-showBL = function(x)
-  local a = ""
+showBL = function()
+  local a = "已完成: " .. tick .. ' ' .. fight_type[tick] .. '  \n失败: '
   for k, v in pairs(bl) do if not v then a = a .. k .. " " end end
   show(a, 500)
 end
-
+table.join = function(t, d)
+  d = not d and ',' or d
+  local a = ''
+  for i = 1, #t do
+    a = a .. t[i]
+    if i ~= #t then a = a .. d end
+  end
+  return a
+end
 history = {}
 table.clear = function(x) for k, v in pairs(x) do x[k] = nil end end
 removeFuncHash =
   function(x) return x:startsWith('function') and 'function' or x end
+table2string = function(t)
+  if type(t) == 'table' then
+    local a = table.join(map(tostring, t))
+    return a
+  end
+  return t
+end
 log = function(...)
-  local l = {map(tostring, running, " ", ...)}
+  local l = {map(tostring, running, " ", unpack(map(table2string, {...})))}
   l = map(removeFuncHash, l)
+  l = map(table2string, l)
   local a = ""
   for _, v in pairs(l) do a = a .. v end
   if #history > 6000 then history:clear() end
@@ -161,6 +193,7 @@ log = function(...)
   if l > 100 then stop() end
   if l > 1 then a = a .. " x" .. l end
   show(a)
+  fileLogWrite('arknights', 0, "info", a)
 end
 
 set = function(k, v)
@@ -213,7 +246,11 @@ find = function(x)
   end
   if type(x) == "number" and x > -1 then return {x, y} end
 end
-
+-- findColors
+finds = function(x)
+  if not x:find("|") then x = point[x] end
+  return findColors({0, 0, 1919, 1079}, x, 100, 0, 0, 0)
+end
 -- x={2,3} "信用" func nil
 tap = function(x)
   keepScreen(false)
