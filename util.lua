@@ -7,6 +7,10 @@ string.startsWith = function(str, prefix)
   return string.sub(str, 1, string.len(prefix)) == prefix
 end
 
+string.endsWith = function(str, suffix)
+  return string.sub(str, #str - string.len(suffix) + 1) == suffix
+end
+
 startsWithX = function(x) return
   function(prefix) return x:startsWith(prefix) end end
 
@@ -22,22 +26,24 @@ table.any = function(t, f)
   end
   return false
 end
+
 table.filter = function(t, f)
   local a = {}
-  for k, v in pairs(t) do if f(v) then a[k] = v end end
+  for k, v in pairs(t) do if f(v) then insert(a, v) end end
   return a
 end
 -- a,a+1,...b
 range = function(a, b)
   local t = {}
-  for i = a, b do table.insert(i) end
+  for i = a, b do insert(t, i) end
   return t
 end
+
 table.includes = function(t, e)
   return table.any(t, function(x) return x == e end)
 end
 
-table.extend = function(t, e) for k, v in pairs(e) do table.insert(t, v) end end
+table.extend = function(t, e) for k, v in pairs(e) do insert(t, v) end end
 --	in = {
 --		"A" = {1,4,5,7},
 --		"B" = {1,2,5,6},
@@ -53,12 +59,13 @@ table.reverseIndex = function(t)
   for k, v in pairs(s) do
     r[k] = {}
     for k2, v2 in pairs(t) do
-      if table.includes(v2, k) then table.insert(r[k], k2) end
+      if table.includes(v2, k) then insert(r[k], k2) end
     end
   end
   for k, v in pairs(r) do table.sort(v) end
   return r
 end
+
 table.find =
   function(t, f) for k, v in pairs(t) do if f(v) then return k end end end
 
@@ -144,6 +151,7 @@ end
 
 nop = function() end
 
+-- restart after 1h
 stop = function()
   close()
   sleep(3600)
@@ -156,11 +164,13 @@ show = function(x, h)
   h = not h and 36 or h
   showHUD(hudid, x, 24, "0xff444444", "0xffffffff", 2, 0, 1080 - 36, 500, h)
 end
+
 showBL = function()
   local a = "已完成: " .. tick .. ' ' .. fight_type[tick] .. '  \n失败: '
   for k, v in pairs(bl) do if not v then a = a .. k .. " " end end
   show(a, 500)
 end
+
 table.join = function(t, d)
   d = not d and ',' or d
   local a = ''
@@ -170,10 +180,13 @@ table.join = function(t, d)
   end
   return a
 end
+
 history = {}
 table.clear = function(x) for k, v in pairs(x) do x[k] = nil end end
+
 removeFuncHash =
   function(x) return x:startsWith('function') and 'function' or x end
+
 table2string = function(t)
   if type(t) == 'table' then
     local a = table.join(map(tostring, t))
@@ -181,6 +194,7 @@ table2string = function(t)
   end
   return t
 end
+
 log = function(...)
   local l = {map(tostring, running, " ", unpack(map(table2string, {...})))}
   l = map(removeFuncHash, l)
@@ -214,7 +228,6 @@ start = function() open() end
 
 restart = function()
   close()
-  sleep(1)
   set("restart", true)
   lua_restart()
 end
@@ -228,10 +241,10 @@ conf2task = function(c, m)
   while true do
     q = c:find("@", p + 1)
     if q == nil then break end
-    table.insert(r, c:sub(p + 1, q - 1))
+    insert(r, c:sub(p + 1, q - 1))
     p = q
   end
-  table.insert(r, c:sub(p + 1))
+  insert(r, c:sub(p + 1))
   r = map(function(x) return x + 1 end, map(tonumber, r))
   if m == nil then return r end
   return map(m, r)
@@ -260,13 +273,14 @@ tap = function(x)
     sleep(5)
     return
   end
-  y = x
+  local x0, y = x, x
   if x == true then return true end
   if type(x) == "function" then return x() end
   if type(x) == "string" then
     y = find(x)
     if not y then
       x = point[x]
+      if not x then return end
       if type(x) == "table" and type(x[1]) == "string" then x = x[1] end
       local p = x:find("|")
       local q = x:find("|", p + 1)
@@ -279,7 +293,7 @@ tap = function(x)
   touchDown(0, x, y)
   sleep(0.2)
   touchUp(0, x, y)
-  sleep(.5)
+  sleep(.5 + (tap_delay[x0] or 0))
 end
 
 input = function(x, s)
@@ -320,7 +334,7 @@ swipq = function(t)
   if type(t) ~= "table" then t = {t} end
   for k, v in pairs(t) do swip(1000, 500, v, 0, .4) end
   -- wait for extra moving
-  if #t > 1 then sleep() end
+  if #t > 1 then sleep(1.2) end
 end
 scale = function(o)
   a = {413, 295}
@@ -364,7 +378,6 @@ auto = function(p)
       log(k, "=>", v)
       tap(v)
     end
-    sleep(.5)
   end
 end
 

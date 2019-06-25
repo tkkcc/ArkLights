@@ -18,18 +18,12 @@ path.base = {
     input("密码", p)
     tap("登陆")
     -- 被抢占,需重新更新基建
-    -- if already_update_station_list then
+    already_update_station_list = false
     update_station_list()
-    -- end
-    -- already_update_station_list = false
-
   end,
   登入错误 = restart,
   我知道了 = restart,
-  密码错误 = function()
-    tap("密码错误")
-    stop()
-  end,
+  密码错误 = stop,
   删除缓存返回 = "删除缓存返回",
   登陆认证失效 = "登陆认证失效",
   今日配给 = "今日配给",
@@ -50,7 +44,7 @@ path.base = {
   代理失误放弃行动 = "代理失误放弃行动",
   提示关闭 = 提示关闭,
   战斗记录未能同步返回 = "战斗记录未能同步返回",
-  正在释放神经递质 = function() sleep(5) end,
+  正在释放神经递质 = "正在释放神经递质",
   传递线索返回 = "传递线索返回",
   无人机加速确定 = "无人机加速确定",
 }
@@ -63,46 +57,35 @@ path.移动停止按钮 = function()
 end
 
 update_station_list = function()
-  -- if already_update_station_list then return end
+  if already_update_station_list then return end
   auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
-  sleep()
   local a = point.基建标识
   local b = a.base
+  local l = {"宿舍", "制造站", "贸易站", "发电站"}
+  local r = {"会客厅", "控制中枢", "加工站", "训练室", "办公室"}
   keepScreen(true)
-  for k, v in pairs({"制造站", "贸易站", "发电站", "宿舍"}) do
+  for k, v in pairs(l) do
     point[v .. '列表'] = table.filter((v == "宿舍" and a.中间设施 or
                                           a.左侧设施), function(x)
       return find(x[1] .. '|' .. x[2] .. '|' .. a[v] .. ',' .. b)
     end)
   end
-  for k, v in pairs({"会客厅", "控制中枢", "加工站", "训练室",
-                     "办公室"}) do point[v] = find(a[v] .. ',' .. b) end
+  for k, v in pairs(r) do point[v] = find(a[v] .. ',' .. b) end
   keepScreen(false)
-  -- log('sss')
-  -- log(point["制造站列表"])
-  -- log(point["贸易站列表"])
-  -- log(point["发电站列表"])
-  -- log(point["宿舍列表"])
-  -- log(point["控制中枢"])
-  -- log(point["会客厅"])
-  -- log(point["加工站"])
-  -- log(point["办公室"])
-  -- log(point["训练室"])
-  -- log('eee')
-
   -- all department
   la = {}
-  table.extend(la, point.宿舍列表)
-  table.extend(la, point.制造站列表)
-  table.extend(la, point.贸易站列表)
-  table.extend(la, point.发电站列表)
-  table.insert(la, "控制中枢")
-  table.insert(la, "贸易站")
-  table.insert(la, "会客厅")
-  table.insert(la, "加工站")
-  table.insert(la, "办公室")
-  table.insert(la, "训练室")
+  -- flatten
+  for k, v in pairs(l) do
+    v = v .. '列表'
+    for i = 1, #point[v] do
+      point[v .. i] = point[v][i]
+      insert(la, v .. i)
+    end
+  end
+  table.extend(la, r)
+  already_update_station_list = true
 end
+path.更新设备列表 = update_station_list
 
 path.换人 = function()
   auto(update(path.base, {进驻总览 = true}))
@@ -162,7 +145,12 @@ end
 path.戳人 = function()
   local o
   for _, i in pairs(la) do
-    auto(update(path.取消进驻信息选中, {进驻总览 = i}))
+    auto(update(path.取消进驻信息选中, {
+      进驻总览 = function()
+        tap(i)
+        sleep()
+      end,
+    }))
     o = i == "控制中枢" and true or false
     scale(o)
     auto(update(path.base, {
@@ -178,7 +166,7 @@ path.订单 = function()
   if #point.贸易站列表 == 0 then return end
   auto(update(path.base, {
     订单无 = true,
-    进驻总览 = point.贸易站列表[1],
+    进驻总览 = "贸易站列表1",
     订单 = "订单",
     订单蓝 = "订单蓝",
     面板 = "面板基建",
@@ -190,7 +178,7 @@ path.订单加速 = function()
   -- update_station_list()
   if #point.贸易站列表 == 0 then return end
   auto(update(path.base, {
-    进驻总览 = point.贸易站列表[1],
+    进驻总览 = "贸易站列表1",
     订单 = "订单",
     订单蓝 = "订单蓝",
     面板 = "面板基建",
@@ -231,7 +219,7 @@ path.制造站补充 = function()
       end
       return true
     end,
-    进驻总览 = point.制造站列表[1],
+    进驻总览 = "制造站列表1",
     面板 = "面板基建",
     进驻信息选中 = "进驻信息选中",
   }))
@@ -256,10 +244,7 @@ path.线索接收 = function()
     会客厅进驻信息 = "线索",
     线索全部收取有 = "线索全部收取有",
     线索全部收取无 = true,
-    会客厅信用奖励 = function()
-      tap("会客厅线索接收")
-      sleep()
-    end,
+    会客厅信用奖励 = "会客厅线索接收",
     进驻总览 = "会客厅",
     面板 = "面板基建",
     会客厅进驻信息选中 = "会客厅进驻信息选中",
@@ -276,7 +261,6 @@ path.线索布置 = function()
         if find(k) then
           tap(k)
           tap("线索库列表1")
-          sleep()
           tap("解锁线索右")
         end
         return true
@@ -298,13 +282,10 @@ path.信用奖励 = function()
         面板 = "面板基建",
         进驻总览 = "会客厅",
         会客厅进驻信息 = "线索",
-        会客厅传递线索 = function()
-          tap("会客厅传递线索")
-          sleep()
-        end,
+        会客厅传递线索 = "会客厅传递线索",
         传递线索返回 = function()
-          tap(point.线索列表[1])
-          tap(point.传递列表[3])
+          tap("线索列表1")
+          tap("传递列表3")
           tap("传递线索返回")
           return true
         end,
@@ -345,7 +326,6 @@ path.信用购买 = function()
     }))
     tap(i)
     findTap("购买物品")
-    sleep(.5)
     if find("信用不足") then return true end
   end
   return true
@@ -357,29 +337,38 @@ path.信用收取 = update(path.base, {
   收取信用 = "收取信用",
   收取信用无 = true,
 })
--- path.公开招募 = function()
---   auto(path.base)
---   tap("面板公开招募")
---   auto(update(path.base, {
---     聘用候选人 = "聘用候选人",
---     开包skip = "开包skip",
---     面板 = true,
---   }))
--- end
-path.邮件 = function()
-  auto(path.base)
-  tap("面板邮件")
-  sleep()
-  tap("收取全部邮件有")
-  return true
+path.公开招募聘用 = function()
+  for k, v in pairs(point.聘用候选人列表) do
+    auto(update(path.base, {
+      面板 = function()
+        if not findTap("面板公开招募有") then return true end
+      end,
+      公开招募 = function()
+        if findTap(v) then
+          sleep(4)
+          findTap("开包skip")
+        end
+        return true
+      end,
+    }))
+  end
 end
+path.邮件 = update(path.base, {
+  面板 = "面板邮件",
+  收取所有邮件 = function()
+    tap("收取所有邮件")
+    return true
+  end,
+})
+
 -- todo 30级限定
 path.干员强化 = update(path.base, {
   面板 = "面板干员",
   等级递减 = "等级递增",
-  等级递增 = point.干员列表[1],
+  等级递增 = "干员列表1",
   EXP = "EXP",
   提升等级确认 = function()
+    sleep(.5)
     findTap("基础作战记录", "初级作战记录", "中级作战记录",
             "高级作战记录")
     tap("提升等级确认")
@@ -413,7 +402,7 @@ path.免费强化包 = update(path.base, {
   end,
 })
 
-tick = 27
+tick = tick or 0
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
@@ -451,10 +440,7 @@ path.开始游戏 = function(x)
       end
       tap("代理指挥关")
     end,
-    代理指挥开 = function()
-      tap("开始行动蓝")
-      sleep()
-    end,
+    代理指挥开 = "开始行动蓝",
     开始行动红 = "开始行动红",
     未能同步到相关战斗记录 = function()
       bl[x] = false
@@ -540,11 +526,11 @@ ls_open_time_r = table.reverseIndex(ls_open_time)
 local lotr = ls_open_time_r
 for k, v in pairs(lotr) do
   table.remove(lotr[k], table.find(lotr[k], equalX("LS")))
-  table.insert(lotr[k], 1, "LS")
+  insert(lotr[k], 1, "LS")
   local p = table.find(lotr[k], equalX("CE"))
   if p then
     table.remove(lotr[k], p)
-    table.insert(lotr[k], "CE")
+    insert(lotr[k], "CE")
   end
 end
 
@@ -605,16 +591,11 @@ path.访问好友基建 = update(path.base, {
   个人名片 = '好友列表',
   好友列表 = function()
     -- no friends
-    if not find('访问基建') then return true end
-    tap('访问基建')
-    sleep(6)
+    if not findTap('访问基建') then return true end
+    tap("访问下位")
   end,
-  访问下位 = function()
-    tap('访问下位')
-    sleep(6)
-  end,
+  访问下位 = "访问下位",
   访问下位无 = true,
 })
-
 -- path.基建升级设备 = nil
 -- 专精问题：宿舍换人 专精换人 专精完成
