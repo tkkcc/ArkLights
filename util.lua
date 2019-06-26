@@ -71,7 +71,7 @@ table.find =
 
 equalX = function(x) return function(y) return x == y end end
 
-shallowcopy = function(x)
+shallowCopy = function(x)
   local y = {}
   if x == nil then return y end
   for k, v in pairs(x) do y[k] = v end
@@ -79,7 +79,7 @@ shallowcopy = function(x)
 end
 
 update = function(b, x)
-  local y = shallowcopy(b)
+  local y = shallowCopy(b)
   if x == nil then return y end
   for k, v in pairs(x) do y[k] = v end
   return y
@@ -151,13 +151,6 @@ end
 
 nop = function() end
 
--- restart after 1h
-stop = function()
-  close()
-  sleep(3600)
-  lua_restart()
-  --	lua_exit() 
-end
 -- content height
 show = function(x, h)
   print(x)
@@ -204,10 +197,10 @@ log = function(...)
   if #history > 6000 then history:clear() end
   history[#history + 1] = a
   l = loop_times(history)
-  if l > 100 then stop() end
+  if l > 100 then restart() end
   if l > 1 then a = a .. " x" .. l end
   show(a)
-  fileLogWrite('arknights', 0, "info", a)
+  -- fileLogWrite('arknights', 0, "info", a)
 end
 
 set = function(k, v)
@@ -226,8 +219,15 @@ close = function() closeApp(appid) end
 
 start = function() open() end
 
+-- restart after 1h
+stop = function()
+  close()
+  lua_exit()
+end
+
 restart = function()
   close()
+  sleep(3600)
   set("restart", true)
   lua_restart()
 end
@@ -334,7 +334,7 @@ swipq = function(t)
   if type(t) ~= "table" then t = {t} end
   for k, v in pairs(t) do swip(1000, 500, v, 0, .4) end
   -- wait for extra moving
-  if #t > 1 then sleep(1.2) end
+  if #t > 1 then sleep() end
 end
 scale = function(o)
   a = {413, 295}

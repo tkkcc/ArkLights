@@ -14,13 +14,14 @@ path.base = {
   登陆 = function()
     local u = "..."
     local p = "..."
-    input("账号", u)
+    if u then input("账号", u) end
     input("密码", p)
     tap("登陆")
-    -- 被抢占,需重新更新基建
+    -- reset state
     already_update_station_list = false
-    update_station_list()
+    no_friend = false
   end,
+  -- 维护
   登入错误 = restart,
   我知道了 = restart,
   密码错误 = stop,
@@ -59,10 +60,11 @@ end
 update_station_list = function()
   if already_update_station_list then return end
   auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
+  sleep(2)
   local a = point.基建标识
   local b = a.base
   local l = {"宿舍", "制造站", "贸易站", "发电站"}
-  local r = {"会客厅", "控制中枢", "加工站", "训练室", "办公室"}
+  local r = {"会客厅", "控制中枢", "加工站", "办公室", "训练室"}
   keepScreen(true)
   for k, v in pairs(l) do
     point[v .. '列表'] = table.filter((v == "宿舍" and a.中间设施 or
@@ -72,6 +74,7 @@ update_station_list = function()
   end
   for k, v in pairs(r) do point[v] = find(a[v] .. ',' .. b) end
   keepScreen(false)
+
   -- all department
   la = {}
   -- flatten
@@ -88,16 +91,17 @@ end
 path.更新设备列表 = update_station_list
 
 path.换人 = function()
+  update_station_list()
   auto(update(path.base, {进驻总览 = true}))
   local a, b, p
   already_after_dormitory = false
-  for index, i in ipairs(la) do
-    -- ignore 训练室
-    if index == #la then break end
+  for index, v in pairs(la) do
+    -- ignore the last one(训练室)
+    if v == "训练室" then break end
     p = update(path.base, {
       干员选择确认 = true,
       面板 = "面板基建",
-      进驻总览 = i,
+      进驻总览 = v,
       进驻信息 = "进驻信息",
       宿舍进驻信息 = "宿舍进驻信息",
       会客厅进驻信息 = "会客厅进驻信息",
@@ -124,11 +128,10 @@ path.换人 = function()
           }))
           already_after_dormitory = true
         end
-        swipq('dorm' .. index)
+        local dorm_index = #point.宿舍列表 - index + 1
+        swipq('dorm' .. dorm_index)
         a = 1
-        if (index == 2 or index == 4) and index <= #point.宿舍列表 then
-          a = 2
-        end
+        if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
         for i = a, a + b - 1 do tap(point.干员选择[i]) end
       end,
     })
@@ -143,15 +146,16 @@ path.换人 = function()
 end
 
 path.戳人 = function()
+  update_station_list()
   local o
-  for _, i in pairs(la) do
+  for k, v in pairs(la) do
     auto(update(path.取消进驻信息选中, {
       进驻总览 = function()
-        tap(i)
+        tap(v)
         sleep()
       end,
     }))
-    o = i == "控制中枢" and true or false
+    o = v == "控制中枢" and true or false
     scale(o)
     auto(update(path.base, {
       面板 = "面板基建",
@@ -163,57 +167,60 @@ path.戳人 = function()
 end
 
 path.订单 = function()
+  update_station_list()
   if #point.贸易站列表 == 0 then return end
   auto(update(path.base, {
     订单无 = true,
     进驻总览 = "贸易站列表1",
-    订单 = "订单",
+    贸易站进度 = "贸易站进度",
     订单蓝 = "订单蓝",
     面板 = "面板基建",
     进驻信息选中 = "进驻信息选中",
   }))
 end
 
-path.订单加速 = function()
-  -- update_station_list()
+path.订单交付 = function()
+  update_station_list()
+  if #point.贸易站列表 == 0 then return end
+  auto(path.订单)
+  for i = 1, #point.贸易站列表 do
+    tap("设施列表" .. i)
+    auto(path.订单)
+  end
+end
+
+path.贸易站加速 = function()
+  update_station_list()
   if #point.贸易站列表 == 0 then return end
   auto(update(path.base, {
-    进驻总览 = "贸易站列表1",
-    订单 = "订单",
-    订单蓝 = "订单蓝",
     面板 = "面板基建",
+    进驻总览 = "贸易站列表1",
     进驻信息选中 = "进驻信息选中",
+    贸易站进度 = "贸易站进度",
+    订单蓝 = "订单蓝",
     无人机协助 = "无人机协助",
     订单无 = "无人机协助",
-    无人机加速确定 = function()
+    无人机加速获取订单确定 = function()
       tap("无人机加速最大")
       if not find("多余加速浪费") then
-        tap("无人机加速确定")
+        tap("无人机加速获取订单确定")
         return true
       end
       tap("无人机加速减一")
-      tap("无人机加速确定")
+      tap("无人机加速获取订单确定")
       sleep(20)
     end,
   }))
 end
 
-path.订单交付 = function()
-  if #point.贸易站列表 == 0 then return end
-  auto(path.订单)
-  for i = 1, #point.贸易站列表 do
-    tap(point.设施列表[i])
-    auto(path.订单)
-  end
-end
-
 path.制造站补充 = function()
+  update_station_list()
   if #point.制造站列表 == 0 then return end
   auto(update(path.base, {
-    制造站进驻信息 = "制造站进驻信息",
+    制造站进度 = "制造站进度",
     制造站设施 = function()
       for i = 1, #point.制造站列表 do
-        tap(point.设施列表[i])
+        tap("设施列表" .. i)
         tap("制造站最多")
         findTap("执行更改")
       end
@@ -225,6 +232,22 @@ path.制造站补充 = function()
   }))
 end
 
+path.制造站加速 = function()
+  update_station_list()
+  if #point.制造站列表 == 0 then return end
+  auto(update(path.base, {
+    进驻总览 = "制造站列表1",
+    面板 = "面板基建",
+    制造站进度 = "制造站进度",
+    制造站设施 = "制造站加速",
+    无人机加速制造确定 = function()
+      tap("无人机加速最大")
+      if find("多余加速浪费") then tap("无人机加速减一") end
+      tap("无人机加速制造确定")
+      return true
+    end,
+  }))
+end
 path.取消进驻信息选中 = update(path.base, {
   面板 = "面板基建",
   进驻总览 = 会客厅,
@@ -239,6 +262,7 @@ path.取消进驻信息选中 = update(path.base, {
 })
 
 path.线索接收 = function()
+  update_station_list()
   if not point.会客厅 then return end
   auto(update(path.base, {
     会客厅进驻信息 = "线索",
@@ -252,6 +276,7 @@ path.线索接收 = function()
 end
 
 path.线索布置 = function()
+  update_station_list()
   if not point.会客厅 then return end
   for k, v in pairs(point.线索布置) do
     k = "线索布置" .. k
@@ -274,10 +299,12 @@ path.线索布置 = function()
 end
 
 path.信用奖励 = function()
+  update_station_list()
   if not point.会客厅 then return end
+  no_friend = false
   auto(update(path.base, {
     已达线索上限 = function()
-      -- 保证有好友
+      if no_friend then return true end
       auto(update(path.base, {
         面板 = "面板基建",
         进驻总览 = "会客厅",
@@ -285,8 +312,13 @@ path.信用奖励 = function()
         会客厅传递线索 = "会客厅传递线索",
         传递线索返回 = function()
           tap("线索列表1")
-          tap("传递列表3")
-          tap("传递线索返回")
+          local a = finds("传递列表标识")
+          if #a == 0 then
+            no_friend = true
+          else
+            tap(a[math.random(#a)])
+            tap("传递线索返回")
+          end
           return true
         end,
       }))
@@ -337,8 +369,11 @@ path.信用收取 = update(path.base, {
   收取信用 = "收取信用",
   收取信用无 = true,
 })
+
 path.公开招募聘用 = function()
   for k, v in pairs(point.聘用候选人列表) do
+    -- stop shortcut
+    if find('面板') and not find('面板公开招募有') then break end
     auto(update(path.base, {
       面板 = function()
         if not findTap("面板公开招募有") then return true end
@@ -353,6 +388,7 @@ path.公开招募聘用 = function()
     }))
   end
 end
+
 path.邮件 = update(path.base, {
   面板 = "面板邮件",
   收取所有邮件 = function()
@@ -368,9 +404,7 @@ path.干员强化 = update(path.base, {
   等级递增 = "干员列表1",
   EXP = "EXP",
   提升等级确认 = function()
-    sleep(.5)
-    findTap("基础作战记录", "初级作战记录", "中级作战记录",
-            "高级作战记录")
+    tap("作战记录列表1")
     tap("提升等级确认")
     return true
   end,
@@ -586,6 +620,7 @@ path.剿灭 = function(x)
   if find("报酬合成玉满") then return end
   path.开始游戏(x)
 end
+
 path.访问好友基建 = update(path.base, {
   面板 = '面板好友',
   个人名片 = '好友列表',
@@ -597,5 +632,6 @@ path.访问好友基建 = update(path.base, {
   访问下位 = "访问下位",
   访问下位无 = true,
 })
+
 -- path.基建升级设备 = nil
 -- 专精问题：宿舍换人 专精换人 专精完成

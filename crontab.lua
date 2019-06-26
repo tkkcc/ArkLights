@@ -176,4 +176,4 @@ end
 
 module.cron = cron
 
-return module
+return cron
