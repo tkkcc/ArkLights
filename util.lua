@@ -159,8 +159,10 @@ show = function(x, h)
 end
 
 showBL = function()
-  local a = "已完成: " .. tick .. ' ' .. fight_type[tick] .. '  \n失败: '
-  for k, v in pairs(bl) do if not v then a = a .. k .. " " end end
+  local a = "已完成: " .. tick .. ' ' .. fight_type[tick]
+  local b = ''
+  for k, v in pairs(bl) do if not v then b = b .. k .. " " end end
+  if #b > 0 then a = a .. '\n失败: ' .. b end
   show(a, 500)
 end
 
@@ -266,6 +268,7 @@ finds = function(x)
 end
 -- x={2,3} "信用" func nil
 tap = function(x)
+  log(x)
   keepScreen(false)
   if isFrontApp(appid) == 0 then
     show("应用不在前台")
@@ -416,3 +419,6 @@ findTap = function(...)
     end
   end
 end
+
+-- {x:2,y:3} => {2,3}
+xy2arr = function(t) return {t.x, t.y} end

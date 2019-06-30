@@ -475,15 +475,14 @@ tap_delay = {
   信赖圈蓝 = .5,
   信用交易所 = .5,
 }
-
 -- flatten
-for k, v in pairs(point.线索布置) do point["线索布置" .. k] = v end
-for k, v in pairs(point.当前进度) do point["当前进度" .. (k - 1)] = v end
 for k, v in pairs(point) do
   if k:endsWith('列表') and type(v) == 'table' then
     for k2, v2 in pairs(v) do point[k .. k2] = v2 end
   end
 end
+for k, v in pairs(point.线索布置) do point["线索布置" .. k] = v end
+for k, v in pairs(point.当前进度) do point["当前进度" .. (k - 1)] = v end
 -- all fight type in order
 fight_type_all = {"0-1", "0-2", "0-3", "0-4", "0-5", "0-6", "0-7", "0-8", "0-9",
                   "0-10", "0-11", "1-1", "1-2", "1-3", "1-4", "1-5", "1-6",

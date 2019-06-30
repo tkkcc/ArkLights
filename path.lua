@@ -316,7 +316,9 @@ path.信用奖励 = function()
           if #a == 0 then
             no_friend = true
           else
-            tap(a[math.random(#a)])
+            -- bug todo
+            --            tap(xy2arr(a[math.random(#a)]))
+            tap('传递列表3')
             tap("传递线索返回")
           end
           return true
@@ -603,8 +605,21 @@ path.物资芯片 = function(x)
   path.开始游戏(x)
 end
 
+jwf = {full = false, week = nil}
 -- 龙门外环 切尔诺伯格
 path.剿灭 = function(x)
+  -- 周一4点
+  local start_week_time = os.time({
+    year = 2019,
+    month = 6,
+    day = 17,
+    hour = 4,
+    min = 0,
+    sec = 0,
+  })
+  local cur_week = math.ceil((os.time() - start_week_time) / (7 * 24 * 3600))
+  if jwf.week ~= cur_week then jwf = {full = false, week = cur_week} end
+  if jwf.full then return end
   -- 面板=>开始游戏
   local p = update(path.base, {
     面板 = function()
@@ -617,7 +632,10 @@ path.剿灭 = function(x)
     end,
   })
   auto(p)
-  if find("报酬合成玉满") then return end
+  if find("报酬合成玉满") then
+    jwf.full = true
+    return
+  end
   path.开始游戏(x)
 end
 
