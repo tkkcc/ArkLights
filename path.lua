@@ -4,6 +4,8 @@ require("point")
 -- set bl true
 bl = {}
 for k, v in pairs(fight_type_all) do bl[v] = true end
+cl = {}
+for k, v in pairs(fight_type_all) do cl[v] = 0 end
 
 path = {}
 path.base = {
@@ -60,7 +62,7 @@ end
 update_station_list = function()
   if already_update_station_list then return end
   auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
-  sleep(2)
+  sleep(3)
   local a = point.基建标识
   local b = a.base
   local l = {"宿舍", "制造站", "贸易站", "发电站"}
@@ -74,7 +76,7 @@ update_station_list = function()
   end
   for k, v in pairs(r) do point[v] = find(a[v] .. ',' .. b) end
   keepScreen(false)
-
+  --	showSL()
   -- all department
   la = {}
   -- flatten
@@ -198,7 +200,7 @@ path.贸易站加速 = function()
     进驻信息选中 = "进驻信息选中",
     贸易站进度 = "贸易站进度",
     订单蓝 = "订单蓝",
-    无人机协助 = "无人机协助",
+    --    无人机协助 = "无人机协助",
     订单无 = "无人机协助",
     无人机加速获取订单确定 = function()
       tap("无人机加速最大")
@@ -248,6 +250,7 @@ path.制造站加速 = function()
     end,
   }))
 end
+
 path.取消进驻信息选中 = update(path.base, {
   面板 = "面板基建",
   进驻总览 = 会客厅,
@@ -438,11 +441,11 @@ path.免费强化包 = update(path.base, {
   end,
 })
 
-tick = tick or 0
+tick = tick or 1
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
-    log(tick, ' ', fight_type[tick])
+    --    log(tick, ' ', fight_type[tick])
     path.作战(fight_type[tick])
   end
 end
@@ -487,7 +490,12 @@ path.开始游戏 = function(x)
       while true do
         sleep(5)
         if not find("接管作战") then
-          if find("代理失误放弃行动") then bl[x] = false end
+          if find("代理失误放弃行动") then
+            bl[x] = false
+          else
+            cl[x] = cl[x] + 1
+
+          end
           return true
         end
       end
@@ -508,8 +516,11 @@ path.主线 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战")
-      swipq(x1)
-      tap(x1)
+      -- avoid new chapter
+      --      swipq(x1)
+      --      tap(x1)
+      swipq('1')
+      tap('1')
     end,
     ["当前进度" .. x1] = function()
       swipq(x0)
@@ -651,5 +662,44 @@ path.访问好友基建 = update(path.base, {
   访问下位无 = true,
 })
 
+-- show station list
+showSL = function(not_show)
+  local a = ''
+  local l = {"宿舍", "制造站", "贸易站", "发电站"}
+  local r = {"会客厅", "控制中枢", "加工站", "办公室", "训练室"}
+  for k, v in pairs(l) do
+    if point[v .. '列表'] then
+      a = a .. v .. 'x' .. #point[v .. '列表'] .. ' '
+    end
+  end
+  for k, v in pairs(r) do if point[v] then a = a .. v .. 'x1 ' end end
+  if not_show then return a end
+  show(a, 500)
+  sleep(3)
+end
+-- show failed fight
+showBL = function(not_show)
+  local a = ''
+  local b = ''
+  for k, v in pairs(bl) do if not v then b = b .. k .. " " end end
+  if #b > 0 then a = a .. '失败：' .. b end
+  if not_show then return a end
+  show(a, 500)
+  sleep(3)
+end
+-- show success fight
+showCL = function(not_show)
+  local a = ''
+  for k, v in pairs(cl) do if v > 0 then a = a .. k .. "x" .. v .. ' ' end end
+  if #a > 0 then a = '已完成：' .. a end
+  if not_show then return a end
+  show(a, 500)
+  sleep(3)
+end
+-- show all info
+showALL = function()
+  show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
+  sleep(3)
+end
 -- path.基建升级设备 = nil
 -- 专精问题：宿舍换人 专精换人 专精完成

@@ -158,14 +158,6 @@ show = function(x, h)
   showHUD(hudid, x, 24, "0xff444444", "0xffffffff", 2, 0, 1080 - 36, 500, h)
 end
 
-showBL = function()
-  local a = "已完成: " .. tick .. ' ' .. fight_type[tick]
-  local b = ''
-  for k, v in pairs(bl) do if not v then b = b .. k .. " " end end
-  if #b > 0 then a = a .. '\n失败: ' .. b end
-  show(a, 500)
-end
-
 table.join = function(t, d)
   d = not d and ',' or d
   local a = ''
@@ -268,7 +260,6 @@ finds = function(x)
 end
 -- x={2,3} "信用" func nil
 tap = function(x)
-  log(x)
   keepScreen(false)
   if isFrontApp(appid) == 0 then
     show("应用不在前台")
