@@ -62,7 +62,7 @@ end
 update_station_list = function()
   if already_update_station_list then return end
   auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
-  sleep(3)
+  sleep(5)
   local a = point.基建标识
   local b = a.base
   local l = {"宿舍", "制造站", "贸易站", "发电站"}

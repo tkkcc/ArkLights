@@ -21,6 +21,7 @@ repeat_last(fight_type_ext, 2)
 -- fight_type = shallowCopy(fight_type_all)
 -- table.extend(fight_type,fight_type_ext)
 fight_type = fight_type_ext
+now("更新设备列表", background, showALL)
 -- now(作战, 基建, 任务, background)
 cron(map(hc, {{作战, "2,8,14,20"}, {基建, "2,14"}, {任务, 3},
               {background}, {showALL}}), true)
