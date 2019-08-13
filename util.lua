@@ -69,6 +69,13 @@ end
 table.find =
   function(t, f) for k, v in pairs(t) do if f(v) then return k end end end
 
+table.shuffle = function(tbl)
+  for i = #tbl, 2, -1 do
+    local j = math.random(i)
+    tbl[i], tbl[j] = tbl[j], tbl[i]
+  end
+  return tbl
+end
 equalX = function(x) return function(y) return x == y end end
 
 shallowCopy = function(x)
@@ -188,7 +195,7 @@ log = function(...)
   l = map(table2string, l)
   local a = ""
   for _, v in pairs(l) do a = a .. v end
-  if #history > 6000 then history:clear() end
+  if #history > 6000 then table.clear(history) end
   history[#history + 1] = a
   l = loop_times(history)
   if l > 100 then restart() end
@@ -287,7 +294,7 @@ tap = function(x)
   touchDown(0, x, y)
   sleep(0.2)
   touchUp(0, x, y)
-  sleep(.5 + (tap_delay[x0] or 0))
+  sleep(tap_delay + (tap_extra_delay[x0] or 0))
 end
 
 input = function(x, s)

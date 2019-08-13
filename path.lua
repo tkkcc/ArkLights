@@ -9,6 +9,11 @@ for k, v in pairs(fight_type_all) do cl[v] = 0 end
 
 path = {}
 path.base = {
+  植物种植返回 = function()
+    sleep(2)
+    for k, v in pairs(point.植物种植列表) do tap(v) end
+    tap('植物种植返回')
+  end,
   面板 = true,
   start黄框 = "删除缓存返回",
   进入游戏 = "进入游戏",
@@ -43,6 +48,16 @@ path.base = {
     tap("理智兑换取消")
     return true
   end,
+  药剂恢复理智取消 = function()
+    running = "理智不足"
+    tap("药剂恢复理智取消")
+    return true
+  end,
+  源石恢复理智取消 = function()
+    running = "理智不足"
+    tap("药剂恢复理智取消")
+    return true
+  end,
   新手任务 = "右返回",
   代理失误放弃行动 = "代理失误放弃行动",
   提示关闭 = 提示关闭,
@@ -69,14 +84,18 @@ update_station_list = function()
   local r = {"会客厅", "控制中枢", "加工站", "办公室", "训练室"}
   keepScreen(true)
   for k, v in pairs(l) do
-    point[v .. '列表'] = table.filter((v == "宿舍" and a.中间设施 or
-                                          a.左侧设施), function(x)
+    local t = table.filter((v == "宿舍" and a.中间设施 or a.左侧设施),
+                           function(x)
       return find(x[1] .. '|' .. x[2] .. '|' .. a[v] .. ',' .. b)
     end)
+    if #t > 0 then point[v .. '列表'] = t end
   end
-  for k, v in pairs(r) do point[v] = find(a[v] .. ',' .. b) end
+  for k, v in pairs(r) do
+    local t = find(a[v] .. ',' .. b)
+    if t then point[v] = t end
+  end
   keepScreen(false)
-  --	showSL()
+
   -- all department
   la = {}
   -- flatten
@@ -91,10 +110,24 @@ update_station_list = function()
   already_update_station_list = true
 end
 path.更新设备列表 = update_station_list
-
+path.植物种植 = update(path.base, {
+  面板 = function()
+    if not findTap('面板限时活动') then return true end
+    auto(path.base)
+  end,
+})
+path.基建点击全部 = function()
+  auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
+  sleep(5)
+  if not findTap('基建灯泡蓝') then return end
+  sleep()
+  if findTap('点击全部收获') then sleep(3) end
+  findTap('点击全部收取')
+  auto(path.base)
+end
 path.换人 = function()
   update_station_list()
-  auto(update(path.base, {进驻总览 = true}))
+  auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
   local a, b, p
   already_after_dormitory = false
   for index, v in pairs(la) do
@@ -119,7 +152,7 @@ path.换人 = function()
         b = table.find(point.进驻人数, find)
         tap("清空完毕进驻")
         -- toggle tag after 宿舍
-        if index > #point.宿舍 and not already_after_dormitory then
+        if index > #point.宿舍列表 and not already_after_dormitory then
           auto(update(p, {
             干员选择确认 = "排序筛选按钮",
             排序筛选确认 = true,
@@ -363,6 +396,7 @@ path.信用购买 = function()
     }))
     tap(i)
     findTap("购买物品")
+    sleep()
     if find("信用不足") then return true end
   end
   return true
@@ -445,7 +479,7 @@ tick = tick or 1
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
-    --    log(tick, ' ', fight_type[tick])
+    log(tick, ' ', fight_type[tick])
     path.作战(fight_type[tick])
   end
 end
@@ -468,10 +502,10 @@ path.开始游戏 = function(x)
   --	if not bl[x] then return end
   return auto(update(path.base, {
     面板 = true,
-    代理指挥无 = function()
-      bl[x] = false
-      return true
-    end,
+    --    代理指挥无 = function()
+    --      bl[x] = false
+    --      return true
+    --    end,
     代理指挥关 = function()
       if find("代理指挥锁") then
         bl[x] = false
@@ -481,6 +515,10 @@ path.开始游戏 = function(x)
     end,
     代理指挥开 = "开始行动蓝",
     开始行动红 = "开始行动红",
+    -- 开始行动红 =function()
+    --   log('ok')
+    --   return true
+    -- end,
     未能同步到相关战斗记录 = function()
       bl[x] = false
       return true
@@ -516,11 +554,8 @@ path.主线 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战")
-      -- avoid new chapter
-      --      swipq(x1)
-      --      tap(x1)
-      swipq('1')
-      tap('1')
+      swipq(x1)
+      tap(x1)
     end,
     ["当前进度" .. x1] = function()
       swipq(x0)
@@ -595,6 +630,8 @@ path.物资芯片 = function(x)
   -- check if open now
   local open_time = prls_open_time[x1]
   local cur_time = tonumber(os.date("%w", os.time() - 4 * 3600))
+  if cur_time == 0 then cur_time = 7 end
+
   if not table.includes(open_time, cur_time) then return end
   -- get the index in 芯片搜索
   local cur_open = prls_open_time_r[cur_time]
@@ -604,7 +641,7 @@ path.物资芯片 = function(x)
     面板 = function()
       tap("面板作战")
       tap("作战" .. name)
-      tap(point[name .. "列表"][index])
+      tap(name .. "列表" .. index)
     end,
     [x] = function()
       tap(x)
@@ -703,3 +740,7 @@ showALL = function()
 end
 -- path.基建升级设备 = nil
 -- 专精问题：宿舍换人 专精换人 专精完成
+-- 理智
+path.base.药剂恢复理智确认 =
+  function() tap('药剂恢复理智确认') end
+path.base.药剂恢复理智取消 = nil
