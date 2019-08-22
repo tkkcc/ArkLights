@@ -120,8 +120,7 @@ path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
   sleep(5)
   if not findTap('基建灯泡蓝') then return end
-  sleep()
-  if findTap('点击全部收获') then sleep(3) end
+  if findTap('点击全部收获') then sleep(6) end
   findTap('点击全部收取')
   auto(path.base)
 end
@@ -373,17 +372,23 @@ end
 
 path.任务 = function()
   for _, i in pairs({"日常任务", "周常任务"}) do
+    log(i)
     local p = update(path.base, {
       面板 = "面板任务",
       见习任务 = i,
       日常任务 = i,
       周常任务 = i,
     })
-    p[i] = true
+    p[i] = function()
+      findTap('任务蓝')
+      if table.any({'任务黑', '任务黑黑', '任务灰'}, find) then
+        return true
+      end
+    end
     auto(p)
-    p[i] = nil
-    auto(
-      update(p, {任务蓝 = "任务蓝", 任务黑 = true, 任务灰 = true}))
+    -- p[i] = nil
+    -- auto(
+    --   update(p, {任务蓝 = "任务蓝", 任务黑 = true,任务黑黑=true, 任务灰 = true}))
   end
 end
 
@@ -397,7 +402,7 @@ path.信用购买 = function()
     tap(i)
     findTap("购买物品")
     sleep()
-    if find("信用不足") then return true end
+    if find("信用不足") or find("信用不足2") then return true end
   end
   return true
 end
