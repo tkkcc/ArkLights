@@ -82,19 +82,19 @@ update_station_list = function()
   local b = a.base
   local l = {"宿舍", "制造站", "贸易站", "发电站"}
   local r = {"会客厅", "控制中枢", "加工站", "办公室", "训练室"}
-  keepScreen(true)
-  for k, v in pairs(l) do
-    local t = table.filter((v == "宿舍" and a.中间设施 or a.左侧设施),
-                           function(x)
-      return find(x[1] .. '|' .. x[2] .. '|' .. a[v] .. ',' .. b)
-    end)
-    if #t > 0 then point[v .. '列表'] = t end
-  end
-  for k, v in pairs(r) do
-    local t = find(a[v] .. ',' .. b)
-    if t then point[v] = t end
-  end
-  keepScreen(false)
+  -- keepScreen(true)
+  -- for k, v in pairs(l) do
+  --   local t = table.filter((v == "宿舍" and a.中间设施 or a.左侧设施),
+  --                          function(x)
+  --     return find(x[1] .. '|' .. x[2] .. '|' .. a[v] .. ',' .. b)
+  --   end)
+  --   if #t > 0 then point[v .. '列表'] = t end
+  -- end
+  -- for k, v in pairs(r) do
+  --   local t = find(a[v] .. ',' .. b)
+  --   if t then point[v] = t end
+  -- end
+  -- keepScreen(false)
 
   -- all department
   la = {}
@@ -116,6 +116,18 @@ path.植物种植 = update(path.base, {
     auto(path.base)
   end,
 })
+path.火蓝之心任务里程碑 = function()
+  auto('面板')
+  tap('面板作战')
+  tap('作战火蓝之心')
+  tap('火蓝之心任务里程碑')
+  if not find('火蓝之心DDD') then return true end
+  for k, v in pairs(point.火蓝之心DDD列表) do
+    tap(v)
+    tap(v)
+  end
+  return true
+end
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
   sleep(5)
@@ -255,6 +267,7 @@ path.制造站补充 = function()
     制造站设施 = function()
       for i = 1, #point.制造站列表 do
         tap("设施列表" .. i)
+        sleep()
         tap("制造站最多")
         findTap("执行更改")
       end
@@ -371,12 +384,13 @@ path.信用奖励 = function()
 end
 
 path.任务 = function()
-  for _, i in pairs({"日常任务", "周常任务"}) do
+  for _, i in pairs({"活动任务", "周常任务"}) do
     log(i)
     local p = update(path.base, {
       面板 = "面板任务",
       见习任务 = i,
       日常任务 = i,
+      活动任务 = i,
       周常任务 = i,
     })
     p[i] = function()
@@ -498,6 +512,8 @@ path.作战 = function(x)
     path.物资芯片(x)
   elseif table.any({'龙门外环', '切尔诺伯格'}, f) then
     path.剿灭(x)
+  elseif table.any({"OF"}, f) then
+    path.火蓝之心(x)
   else
     path.主线(x)
   end
@@ -512,18 +528,22 @@ path.开始游戏 = function(x)
     --      return true
     --    end,
     代理指挥关 = function()
-      if find("代理指挥锁") then
-        bl[x] = false
-        return true
-      end
+      -- if find("代理指挥锁") then
+      --   bl[x] = false
+      --   return true
+      -- end
       tap("代理指挥关")
     end,
-    代理指挥开 = "开始行动蓝",
+    代理指挥开 = function()
+      tap("开始行动蓝")
+      if find("火蓝之心无门票") then
+        running = '门票不足'
+        return true
+      end
+    end,
     开始行动红 = "开始行动红",
-    -- 开始行动红 =function()
-    --   log('ok')
-    --   return true
-    -- end,
+    -- 代理指挥关粉 = "代理指挥关粉",
+    -- 代理指挥开粉 = "代理指挥开粉",
     未能同步到相关战斗记录 = function()
       bl[x] = false
       return true
@@ -536,8 +556,7 @@ path.开始游戏 = function(x)
           if find("代理失误放弃行动") then
             bl[x] = false
           else
-            cl[x] = cl[x] + 1
-
+            cl[x] = (cl[x] or 0) + 1
           end
           return true
         end
@@ -692,6 +711,49 @@ path.剿灭 = function(x)
   path.开始游戏(x)
 end
 
+fbi = {full = false, day = nil}
+-- 龙门外环 切尔诺伯格
+path.火蓝之心 = function(x)
+  -- 周一4点
+  local start_day_time = os.time({
+    year = 2019,
+    month = 6,
+    day = 17,
+    hour = 4,
+    min = 0,
+    sec = 0,
+  })
+  local cur_day = math.ceil((os.time() - start_day_time) / (24 * 3600))
+  if fbi.day ~= cur_day then
+    fbi = {full = false, day = cur_day}
+    tick = 0
+  end
+  if fbi.full then return end
+  -- 面板=>开始游戏
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战")
+      tap("作战火蓝之心")
+      tap(x:sub(4, 4) ~= 'F' and '火蓝之心主舞台' or
+            '火蓝之心嘉年华')
+      sleep(1)
+      swipq(x)
+    end,
+    [x] = function()
+      tap(x)
+      return true
+    end,
+  })
+  auto(p)
+  if find("报酬合成玉满") then
+    jwf.full = true
+    return
+  end
+
+  path.开始游戏(x)
+end
+path.火蓝之心嘉年华轮次作战 =
+  function() while running ~= '门票不足' do path.火蓝之心('OF-F3') end end
 path.访问好友基建 = update(path.base, {
   面板 = '面板好友',
   个人名片 = '好友列表',
