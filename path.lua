@@ -48,6 +48,18 @@ path.base = {
     tap("理智兑换取消")
     return true
   end,
+  源石理智兑换次数上限 = function()
+    running = "理智不足"
+    tap("理智兑换取消")
+    return true
+  end,
+  源石不足 = function()
+    running = "理智不足"
+    tap('返回')
+    -- tap("理智兑换取消")
+    return true
+  end,
+
   药剂恢复理智取消 = function()
     running = "理智不足"
     tap("药剂恢复理智取消")
@@ -65,6 +77,7 @@ path.base = {
   正在释放神经递质 = "正在释放神经递质",
   传递线索返回 = "传递线索返回",
   无人机加速确定 = "无人机加速确定",
+  无人机加速获取订单确定 = "无人机加速获取订单确定",
 }
 
 path.移动停止按钮 = function()
@@ -385,7 +398,6 @@ end
 
 path.任务 = function()
   for _, i in pairs({"活动任务", "周常任务"}) do
-    log(i)
     local p = update(path.base, {
       面板 = "面板任务",
       见习任务 = i,
@@ -498,7 +510,7 @@ tick = tick or 1
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
-    log(tick, ' ', fight_type[tick])
+    -- log(tick, ' ', fight_type[tick])
     path.作战(fight_type[tick])
   end
 end
@@ -536,10 +548,10 @@ path.开始游戏 = function(x)
     end,
     代理指挥开 = function()
       tap("开始行动蓝")
-      if find("火蓝之心无门票") then
-        running = '门票不足'
-        return true
-      end
+      -- if find("火蓝之心无门票") then
+      --   running = '门票不足'
+      --   return true
+      -- end
     end,
     开始行动红 = "开始行动红",
     -- 代理指挥关粉 = "代理指挥关粉",
@@ -554,8 +566,10 @@ path.开始游戏 = function(x)
         sleep(5)
         if not find("接管作战") then
           if find("代理失误放弃行动") then
+            log('代理失误', x)
             bl[x] = false
           else
+            log('代理成功', x)
             cl[x] = (cl[x] or 0) + 1
           end
           return true
@@ -601,7 +615,7 @@ path.主线 = function(x)
     end
   end
   auto(p)
-  if not find("三星通关") then return end
+  -- if not find("三星通关") then return end
   path.开始游戏(x)
 end
 
@@ -673,7 +687,7 @@ path.物资芯片 = function(x)
     end,
   })
   auto(p)
-  if not find("三星通关") then return end
+  -- if not find("三星通关") then return end
   path.开始游戏(x)
 end
 
@@ -725,8 +739,8 @@ path.火蓝之心 = function(x)
   })
   local cur_day = math.ceil((os.time() - start_day_time) / (24 * 3600))
   if fbi.day ~= cur_day then
+    if fbi.day ~= nil then tick = 0 end
     fbi = {full = false, day = cur_day}
-    tick = 0
   end
   if fbi.full then return end
   -- 面板=>开始游戏
@@ -811,3 +825,6 @@ end
 path.base.药剂恢复理智确认 =
   function() tap('药剂恢复理智确认') end
 path.base.药剂恢复理智取消 = nil
+-- path.base.源石恢复理智取消 =
+--   function() tap('药剂恢复理智确认') end
+-- path.base.药剂恢复理智取消 = nil
