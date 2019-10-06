@@ -198,7 +198,7 @@ log = function(...)
   if #history > 6000 then table.clear(history) end
   history[#history + 1] = a
   l = loop_times(history)
-  if l > 100 then restart() end
+  if l > 50 then restart() end
   if l > 1 then a = a .. " x" .. l end
   show(a)
   -- fileLogWrite('arknights', 0, "info", a)

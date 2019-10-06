@@ -397,7 +397,7 @@ path.信用奖励 = function()
 end
 
 path.任务 = function()
-  for _, i in pairs({"活动任务", "周常任务"}) do
+  for _, i in pairs({"日常任务", "周常任务"}) do
     local p = update(path.base, {
       面板 = "面板任务",
       见习任务 = i,
@@ -561,7 +561,7 @@ path.开始游戏 = function(x)
       return true
     end,
     接管作战 = function()
-      bl[x] = true
+      -- bl[x] = true
       while true do
         sleep(5)
         if not find("接管作战") then
@@ -718,7 +718,7 @@ path.剿灭 = function(x)
     end,
   })
   auto(p)
-  if find("报酬合成玉满") then
+  if not find("报酬合成玉未满") then
     jwf.full = true
     return
   end
@@ -759,11 +759,6 @@ path.火蓝之心 = function(x)
     end,
   })
   auto(p)
-  if find("报酬合成玉满") then
-    jwf.full = true
-    return
-  end
-
   path.开始游戏(x)
 end
 path.火蓝之心嘉年华轮次作战 =
