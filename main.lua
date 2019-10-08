@@ -18,8 +18,8 @@ tick = 0
 fight_type_ext = {"CA-5", "PR-A-2", "PR-B-2", "PR-C-2", "PR-D-2"}
 insert(fight_type_ext, "CE-5")
 repeat_last(fight_type_ext, 500)
--- insert(fight_type_ext,"龙门外环")
--- repeat_last(fight_type_ext, 10)
+insert(fight_type_ext, "龙门市区")
+repeat_last(fight_type_ext, 10)
 
 fight_type = fight_type_ext
 -- fight_type = {"CE-5"}
@@ -34,7 +34,8 @@ table.shuffle(fight_type)
 -- repeat_last(fight_type, 230)
 -- fight_type={'龙门外环'}
 -- now("贸易站加速")
--- now("任务")
+-- fight_type={"龙门市区","CE-5"}
+now("轮次作战")
 cron(map(hc,
          {{作战, "0,6,8,16"}, {基建, "0,6,8,16"}, {任务, "0,6,8,16"},
           {close}, {background}, {showALL}}), true)

@@ -522,7 +522,7 @@ path.作战 = function(x)
   local f = startsWithX(x)
   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
-  elseif table.any({'龙门外环', '切尔诺伯格'}, f) then
+  elseif table.any({'龙门外环', '切尔诺伯格', '龙门市区'}, f) then
     path.剿灭(x)
   elseif table.any({"OF"}, f) then
     path.火蓝之心(x)
@@ -819,7 +819,7 @@ end
 -- 理智
 path.base.药剂恢复理智确认 =
   function() tap('药剂恢复理智确认') end
-path.base.药剂恢复理智取消 = nil
--- path.base.源石恢复理智取消 =
---   function() tap('药剂恢复理智确认') end
+-- path.base.药剂恢复理智取消 = nil
+path.base.源石恢复理智取消 =
+  function() tap('药剂恢复理智确认') end
 -- path.base.药剂恢复理智取消 = nil
