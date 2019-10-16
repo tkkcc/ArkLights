@@ -20,10 +20,7 @@ string.lpad = function(str, len, char)
 end
 -- return true if there is an x s.t. f(x) is true
 table.any = function(t, f)
-  for k, v in pairs(t) do
-    --	log(v," ",f(v))
-    if f(v) then return true end
-  end
+  for k, v in pairs(t) do if f(v) then return true end end
   return false
 end
 
@@ -307,13 +304,12 @@ input = function(x, s)
 end
 
 swip = function(x, y, dx, dy, t)
-  --	log(x," ",y, " ",dx," ",dy,"  ")
   if not (x and y and dx and dy) then return end
   local i = 0
   touchDown(i, x, y)
   local times = 20
   local interval = .2
-  if t then times = t / interval end
+  if t then times = math.floor(t / interval) end
   local sx = dx / times
   local sy = dy / times
   for j = 1, times do
@@ -324,7 +320,7 @@ swip = function(x, y, dx, dy, t)
   end
   sleep(interval)
   touchUp(i, x, y)
-  sleep()
+  sleep(interval)
 end
 -- quick multiple horizontal swip 
 swipq = function(t)
@@ -333,10 +329,13 @@ swipq = function(t)
   if not t then return end
   -- multiple swip
   if type(t) ~= "table" then t = {t} end
-  for k, v in pairs(t) do swip(1000, 500, v, 0, .4) end
-  -- wait for extra moving
+  for k, v in pairs(t) do swip(1000, 500, v, 0, .401) end
+  -- wait for inertia
   if #t > 1 then sleep() end
 end
+
+-- put (a,b) to (x,y)
+
 scale = function(o)
   a = {413, 295}
   b = {1537, 872}
@@ -420,3 +419,37 @@ end
 
 -- {x:2,y:3} => {2,3}
 xy2arr = function(t) return {t.x, t.y} end
+
+deploy = function(x1, x2, y2, d)
+  local y1 = 1000
+  local t = .201
+  d = d or 2
+  d = ({{0, -1}, {1, 0}, {0, 1}, {-1, 0}})[d]
+  d = {d[1] * 500, d[2] * 500}
+  swip(x1, y1, x2 - x1, y2 - y1, t)
+  swip(x2, y2, x2 + d[1], y2 + d[2], t)
+end
+
+-- todo: make a map
+retreat = function(x1, y1, x2, y2)
+  local t = .201
+  touchDown(0, x1, y1)
+  sleep(t)
+  touchUp(0, x1, y1)
+  sleep(t)
+  touchDown(0, x2, y2)
+  sleep(t)
+  touchUp(0, x2, y2)
+end
+
+wait = function(t, timeout, interval)
+  timeout = timeout or 30
+  interval = interval or .5
+  local count = 0
+  local max_count = math.floor(timeout / interval)
+  while not find(t) and count < max_count do
+    count = count + 1
+    sleep(interval)
+  end
+  if count < max_count then return true end
+end

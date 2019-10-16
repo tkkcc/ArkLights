@@ -56,7 +56,6 @@ path.base = {
   源石不足 = function()
     running = "理智不足"
     tap('返回')
-    -- tap("理智兑换取消")
     return true
   end,
 
@@ -81,7 +80,7 @@ path.base = {
 }
 
 path.移动停止按钮 = function()
-  sleep()
+  sleep(2)
   local p = find("停止按钮")
   if p then swip(p[1], p[2], 1920 - p[1], 1080 / 2 - p[2], .2) end
   return true
@@ -90,7 +89,7 @@ end
 update_station_list = function()
   if already_update_station_list then return end
   auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
-  sleep(5)
+  -- sleep(5)
   local a = point.基建标识
   local b = a.base
   local l = {"宿舍", "制造站", "贸易站", "发电站"}
@@ -129,26 +128,32 @@ path.植物种植 = update(path.base, {
     auto(path.base)
   end,
 })
-path.火蓝之心任务里程碑 = function()
-  auto('面板')
-  tap('面板作战')
-  tap('作战火蓝之心')
-  tap('火蓝之心任务里程碑')
-  if not find('火蓝之心DDD') then return true end
-  for k, v in pairs(point.火蓝之心DDD列表) do
-    tap(v)
-    tap(v)
-  end
-  return true
-end
+
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  sleep(5)
+  sleep(3)
   if not findTap('基建灯泡蓝') then return end
   if findTap('点击全部收获') then sleep(6) end
   findTap('点击全部收取')
   auto(path.base)
 end
+-- 制造站
+path.基建点击全部收获 = function()
+  auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
+  sleep(3)
+  if not findTap('基建灯泡蓝') then return end
+  findTap('点击全部收获')
+  auto(path.base)
+end
+-- 信赖
+path.基建点击全部收取 = function()
+  auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
+  sleep(3)
+  if not findTap('基建灯泡蓝') then return end
+  findTap('点击全部收取')
+  auto(path.base)
+end
+
 path.换人 = function()
   update_station_list()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
@@ -161,14 +166,17 @@ path.换人 = function()
       干员选择确认 = true,
       面板 = "面板基建",
       进驻总览 = v,
-      进驻信息 = "进驻信息",
-      宿舍进驻信息 = "宿舍进驻信息",
-      会客厅进驻信息 = "会客厅进驻信息",
-      控制中枢进驻信息 = "控制中枢进驻信息",
+      进驻信息2 = "进驻信息2",
+      进驻信息3 = "进驻信息3",
+      进驻信息4 = "进驻信息4",
       有人清空 = function()
         -- 人满不清
         if index > #point.宿舍列表 and
-          table.any(point.进驻人数满, find) then return true end
+          table.any(point.进驻人数满, find) then
+          -- TODO :控制中枢bug
+          log(v .. "人满不清")
+          return true
+        end
         tap("有人清空")
       end,
       清空完毕进驻 = function()
@@ -234,7 +242,7 @@ path.订单 = function()
     贸易站进度 = "贸易站进度",
     订单蓝 = "订单蓝",
     面板 = "面板基建",
-    进驻信息选中 = "进驻信息选中",
+    进驻信息2选中 = "进驻信息2选中",
   }))
 end
 
@@ -254,20 +262,23 @@ path.贸易站加速 = function()
   auto(update(path.base, {
     面板 = "面板基建",
     进驻总览 = "贸易站列表1",
-    进驻信息选中 = "进驻信息选中",
+    进驻信息2选中 = "进驻信息2选中",
     贸易站进度 = "贸易站进度",
     订单蓝 = "订单蓝",
-    --    无人机协助 = "无人机协助",
     订单无 = "无人机协助",
     无人机加速获取订单确定 = function()
       tap("无人机加速最大")
-      if not find("多余加速浪费") then
+      if find("无人机加速获取订单剩余时间零") then
+        tap("无人机加速获取订单取消")
+      else
+        if not find("多余加速浪费") then
+          tap("无人机加速获取订单确定")
+          return true
+        end
+        tap("无人机加速减一")
         tap("无人机加速获取订单确定")
-        return true
+        sleep(20)
       end
-      tap("无人机加速减一")
-      tap("无人机加速获取订单确定")
-      sleep(20)
     end,
   }))
 end
@@ -283,12 +294,13 @@ path.制造站补充 = function()
         sleep()
         tap("制造站最多")
         findTap("执行更改")
+        sleep(.5)
       end
       return true
     end,
     进驻总览 = "制造站列表1",
     面板 = "面板基建",
-    进驻信息选中 = "进驻信息选中",
+    进驻信息2选中 = "进驻信息2选中",
   }))
 end
 
@@ -312,27 +324,25 @@ end
 path.取消进驻信息选中 = update(path.base, {
   面板 = "面板基建",
   进驻总览 = 会客厅,
-  进驻信息 = true,
-  进驻信息选中 = "进驻信息选中",
-  宿舍进驻信息 = true,
-  宿舍进驻信息选中 = "宿舍进驻信息选中",
-  会客厅进驻信息 = true,
-  会客厅进驻信息选中 = "会客厅进驻信息选中",
-  控制中枢进驻信息 = true,
-  控制中枢进驻信息选中 = "控制中枢进驻信息选中",
+  进驻信息2 = true,
+  进驻信息2选中 = "进驻信息2选中",
+  进驻信息3 = true,
+  进驻信息3选中 = "进驻信息3选中",
+  进驻信息4 = true,
+  进驻信息4选中 = "进驻信息4选中",
 })
 
 path.线索接收 = function()
   update_station_list()
   if not point.会客厅 then return end
   auto(update(path.base, {
-    会客厅进驻信息 = "线索",
+    会客厅线索搜集中 = "会客厅线索搜集中",
     线索全部收取有 = "线索全部收取有",
     线索全部收取无 = true,
     会客厅信用奖励 = "会客厅线索接收",
     进驻总览 = "会客厅",
     面板 = "面板基建",
-    会客厅进驻信息选中 = "会客厅进驻信息选中",
+    进驻信息3选中 = "进驻信息3选中",
   }))
 end
 
@@ -342,10 +352,16 @@ path.线索布置 = function()
   for k, v in pairs(point.线索布置) do
     k = "线索布置" .. k
     auto(update(path.base, {
-      会客厅进驻信息 = "线索",
+      进驻信息3 = "线索",
       会客厅信用奖励 = function()
         if find(k) then
-          tap(k)
+          -- offset -50,50
+          local t = point[k]
+          local x = t:find('|')
+          local y = t:sub(x + 1, t:find('|', x + 1) - 1)
+          x = tonumber(t:sub(1, x - 1))
+          y = tonumber(y)
+          tap({x - 50, y + 50})
           tap("线索库列表1")
           tap("解锁线索右")
         end
@@ -353,11 +369,29 @@ path.线索布置 = function()
       end,
       进驻总览 = "会客厅",
       面板 = "面板基建",
-      会客厅进驻信息选中 = "会客厅进驻信息选中",
+      进驻信息3选中 = "进驻信息3选中",
     }))
   end
   findTap("解锁线索")
 end
+
+path.传递线索 = update(path.base, {
+  面板 = "面板基建",
+  进驻总览 = "会客厅",
+  进驻信息3 = "线索",
+  会客厅信用奖励 = "会客厅传递线索",
+  传递线索返回 = function()
+    tap("线索列表1")
+    local a = finds("传递列表标识")
+    if #a == 0 then
+      no_friend = true
+    else
+      tap('传递列表' .. math.random(#a))
+      tap("传递线索返回")
+    end
+    return true
+  end,
+})
 
 path.信用奖励 = function()
   update_station_list()
@@ -366,33 +400,15 @@ path.信用奖励 = function()
   auto(update(path.base, {
     已达线索上限 = function()
       if no_friend then return true end
-      auto(update(path.base, {
-        面板 = "面板基建",
-        进驻总览 = "会客厅",
-        会客厅进驻信息 = "线索",
-        会客厅传递线索 = "会客厅传递线索",
-        传递线索返回 = function()
-          tap("线索列表1")
-          local a = finds("传递列表标识")
-          if #a == 0 then
-            no_friend = true
-          else
-            -- bug todo
-            --            tap(xy2arr(a[math.random(#a)]))
-            tap('传递列表3')
-            tap("传递线索返回")
-          end
-          return true
-        end,
-      }))
+      auto(path.传递线索)
     end,
     信用奖励有 = "信用奖励有",
     会客厅信用奖励 = "会客厅信用奖励",
-    会客厅进驻信息 = "线索",
+    进驻信息3 = "线索",
     进驻总览 = "会客厅",
     信用奖励无 = true,
     面板 = "面板基建",
-    会客厅进驻信息选中 = "会客厅进驻信息选中",
+    进驻信息3选中 = "进驻信息3选中",
   }))
 end
 
@@ -407,14 +423,13 @@ path.任务 = function()
     })
     p[i] = function()
       findTap('任务蓝')
-      if table.any({'任务黑', '任务黑黑', '任务灰'}, find) then
+      if table.any({'任务黑', '任务黑黑', '任务灰',
+                    "任务报酬已领取"}, find) then
+        if find("任务报酬已领取") then log(i .. "完成") end
         return true
       end
     end
     auto(p)
-    -- p[i] = nil
-    -- auto(
-    --   update(p, {任务蓝 = "任务蓝", 任务黑 = true,任务黑黑=true, 任务灰 = true}))
   end
 end
 
@@ -427,8 +442,7 @@ path.信用购买 = function()
     }))
     tap(i)
     findTap("购买物品")
-    sleep()
-    if find("信用不足") or find("信用不足2") then return true end
+    if find("信用不足") then return true end
   end
   return true
 end
@@ -442,17 +456,13 @@ path.信用收取 = update(path.base, {
 
 path.公开招募聘用 = function()
   for k, v in pairs(point.聘用候选人列表) do
-    -- stop shortcut
     if find('面板') and not find('面板公开招募有') then break end
     auto(update(path.base, {
       面板 = function()
         if not findTap("面板公开招募有") then return true end
       end,
       公开招募 = function()
-        if findTap(v) then
-          sleep(4)
-          findTap("开包skip")
-        end
+        if findTap(v) then findTap("开包skip") end
         return true
       end,
     }))
@@ -467,11 +477,10 @@ path.邮件 = update(path.base, {
   end,
 })
 
--- todo 30级限定
 path.干员强化 = update(path.base, {
   面板 = "面板干员",
   等级递减 = "等级递增",
-  等级递增 = "干员列表1",
+  等级递增 = "干员列表11",
   EXP = "EXP",
   提升等级确认 = function()
     tap("作战记录列表1")
@@ -479,21 +488,6 @@ path.干员强化 = update(path.base, {
     return true
   end,
 })
-
-path.活动任务 = function()
-  auto(path.base)
-  tap("面板作战")
-  tap("作战骑兵与猎人")
-  tap("骑兵与猎人集市")
-  sleep()
-  tap("骑兵与猎人支线任务")
-  sleep()
-  while find("活动任务领取") do
-    tap("活动任务领取")
-    sleep()
-    tap("返回")
-  end
-end
 
 path.免费强化包 = update(path.base, {
   面板 = "面板采购中心",
@@ -510,7 +504,6 @@ tick = tick or 1
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
-    -- log(tick, ' ', fight_type[tick])
     path.作战(fight_type[tick])
   end
 end
@@ -518,50 +511,28 @@ end
 -- S2-10 PR-A-2 LS-5 AP-5
 path.作战 = function(x)
   -- 代理失误或未同步战斗记录
-  --  if not bl[x] then return end
   local f = startsWithX(x)
   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
   elseif table.any({'龙门外环', '切尔诺伯格', '龙门市区'}, f) then
     path.剿灭(x)
-  elseif table.any({"OF"}, f) then
-    path.火蓝之心(x)
   else
     path.主线(x)
   end
 end
 
 path.开始游戏 = function(x)
-  --	if not bl[x] then return end
+  if x == "1-11" then return auto(path["1-11"]) end
   return auto(update(path.base, {
     面板 = true,
-    --    代理指挥无 = function()
-    --      bl[x] = false
-    --      return true
-    --    end,
-    代理指挥关 = function()
-      -- if find("代理指挥锁") then
-      --   bl[x] = false
-      --   return true
-      -- end
-      tap("代理指挥关")
-    end,
-    代理指挥开 = function()
-      tap("开始行动蓝")
-      -- if find("火蓝之心无门票") then
-      --   running = '门票不足'
-      --   return true
-      -- end
-    end,
+    代理指挥关 = function() tap("代理指挥关") end,
+    代理指挥开 = function() tap("开始行动蓝") end,
     开始行动红 = "开始行动红",
-    -- 代理指挥关粉 = "代理指挥关粉",
-    -- 代理指挥开粉 = "代理指挥开粉",
     未能同步到相关战斗记录 = function()
       bl[x] = false
       return true
     end,
     接管作战 = function()
-      -- bl[x] = true
       while true do
         sleep(5)
         if not find("接管作战") then
@@ -615,7 +586,6 @@ path.主线 = function(x)
     end
   end
   auto(p)
-  -- if not find("三星通关") then return end
   path.开始游戏(x)
 end
 
@@ -687,12 +657,10 @@ path.物资芯片 = function(x)
     end,
   })
   auto(p)
-  -- if not find("三星通关") then return end
   path.开始游戏(x)
 end
 
 jwf = {full = false, week = nil}
--- 龙门外环 切尔诺伯格
 path.剿灭 = function(x)
   -- 周一4点
   local start_week_time = os.time({
@@ -706,7 +674,6 @@ path.剿灭 = function(x)
   local cur_week = math.ceil((os.time() - start_week_time) / (7 * 24 * 3600))
   if jwf.week ~= cur_week then jwf = {full = false, week = cur_week} end
   if jwf.full then return end
-  -- 面板=>开始游戏
   local p = update(path.base, {
     面板 = function()
       tap("面板作战")
@@ -726,48 +693,11 @@ path.剿灭 = function(x)
 end
 
 fbi = {full = false, day = nil}
--- 龙门外环 切尔诺伯格
-path.火蓝之心 = function(x)
-  -- 周一4点
-  local start_day_time = os.time({
-    year = 2019,
-    month = 6,
-    day = 17,
-    hour = 4,
-    min = 0,
-    sec = 0,
-  })
-  local cur_day = math.ceil((os.time() - start_day_time) / (24 * 3600))
-  if fbi.day ~= cur_day then
-    if fbi.day ~= nil then tick = 0 end
-    fbi = {full = false, day = cur_day}
-  end
-  if fbi.full then return end
-  -- 面板=>开始游戏
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战")
-      tap("作战火蓝之心")
-      tap(x:sub(4, 4) ~= 'F' and '火蓝之心主舞台' or
-            '火蓝之心嘉年华')
-      sleep(1)
-      swipq(x)
-    end,
-    [x] = function()
-      tap(x)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
-end
-path.火蓝之心嘉年华轮次作战 =
-  function() while running ~= '门票不足' do path.火蓝之心('OF-F3') end end
+
 path.访问好友基建 = update(path.base, {
   面板 = '面板好友',
   个人名片 = '好友列表',
   好友列表 = function()
-    -- no friends
     if not findTap('访问基建') then return true end
     tap("访问下位")
   end,
@@ -790,6 +720,7 @@ showSL = function(not_show)
   show(a, 500)
   sleep(3)
 end
+
 -- show failed fight
 showBL = function(not_show)
   local a = ''
@@ -800,6 +731,7 @@ showBL = function(not_show)
   show(a, 500)
   sleep(3)
 end
+
 -- show success fight
 showCL = function(not_show)
   local a = ''
@@ -809,17 +741,72 @@ showCL = function(not_show)
   show(a, 500)
   sleep(3)
 end
+
 -- show all info
 showALL = function()
   show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
   sleep(3)
 end
--- path.基建升级设备 = nil
--- 专精问题：宿舍换人 专精换人 专精完成
--- 理智
+
+path["1-11"] = function()
+  local x = "1-11"
+  tap("开始行动蓝")
+  -- wait 安德切尔
+  if not findTap("开始行动红") then return end
+  sleep(10)
+  if not wait("跳过剧情") then
+    log('代理失误', x)
+    bl[x] = false
+    return false
+  end
+  tap("跳过剧情")
+  findTap("跳过剧情确认")
+  -- start
+  sleep(22)
+  tap("速度2")
+  -- 芬
+  deploy(591, 807, 522)
+  -- 翎羽
+  deploy(447, 948, 516)
+  -- 杰西卡
+  sleep(2)
+  deploy(585, 939, 373)
+  -- 安塞尔
+  sleep(6)
+  deploy(1299, 801, 384)
+  -- 玫兰莎
+  sleep(10)
+  deploy(945, 1227, 368)
+  -- 黑角
+  deploy(1122, 1216, 269)
+  -- 米格鲁
+  sleep(11)
+  -- 黑角
+  retreat(1110, 263, 894, 323)
+  deploy(1482, 813, 314)
+  -- 史都华德
+  deploy(1656, 669, 407)
+  sleep(5)
+  -- 玫兰莎
+  retreat(1110, 368, 894, 323)
+  if wait("行动结束", 60, 5) then
+    log('代理成功', x)
+    cl[x] = (cl[x] or 0) + 1
+  else
+    log('代理失误', x)
+    bl[x] = false
+  end
+end
+
 path.base.药剂恢复理智确认 =
   function() tap('药剂恢复理智确认') end
 -- path.base.药剂恢复理智取消 = nil
-path.base.源石恢复理智取消 =
-  function() tap('药剂恢复理智确认') end
+-- path.base.源石恢复理智取消 =
+--   function() tap('药剂恢复理智确认') end
 -- path.base.药剂恢复理智取消 = nil
+
+path["作战1-11"] = function()
+  -- 45x14=630
+  for i = 1, 14 do path.作战("1-11") end
+end
+
