@@ -20,7 +20,12 @@ string.lpad = function(str, len, char)
 end
 -- return true if there is an x s.t. f(x) is true
 table.any = function(t, f)
-  for k, v in pairs(t) do if f(v) then return true end end
+  for k, v in pairs(t) do
+    if f(v) then
+      -- log('any', ' ', v)
+      return true
+    end
+  end
   return false
 end
 
@@ -195,8 +200,9 @@ log = function(...)
   if #history > 6000 then table.clear(history) end
   history[#history + 1] = a
   l = loop_times(history)
-  if l > 50 then restart() end
+  if l > 100 then restart() end
   if l > 1 then a = a .. " x" .. l end
+  -- if a:find("其它=>返回") then return end
   show(a)
   -- fileLogWrite('arknights', 0, "info", a)
 end
@@ -442,14 +448,23 @@ retreat = function(x1, y1, x2, y2)
   touchUp(0, x2, y2)
 end
 
-wait = function(t, timeout, interval)
+wait = function(t, func, timeout, interval)
   timeout = timeout or 30
   interval = interval or .5
   local count = 0
   local max_count = math.floor(timeout / interval)
-  while not find(t) and count < max_count do
+  while func(t) and count < max_count do
     count = count + 1
     sleep(interval)
   end
   if count < max_count then return true end
+end
+
+appear = function(t, timeout, interval)
+  local f = function(x) return not find(x) end
+  return wait(t, f, timeout, interval)
+end
+disappear = function(t, timeout, interval)
+  local f = function(x) return find(x) end
+  return wait(t, f, timeout, interval)
 end

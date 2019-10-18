@@ -10,8 +10,8 @@ for k, v in pairs(fight_type_all) do cl[v] = 0 end
 path = {}
 path.base = {
   植物种植返回 = function()
-    sleep(2)
-    for k, v in pairs(point.植物种植列表) do tap(v) end
+    local t = "植物种植列表"
+    for i = 1, #point[t] do tap(t .. i) end
     tap('植物种植返回')
   end,
   面板 = true,
@@ -80,9 +80,10 @@ path.base = {
 }
 
 path.移动停止按钮 = function()
-  sleep(2)
-  local p = find("停止按钮")
-  if p then swip(p[1], p[2], 1920 - p[1], 1080 / 2 - p[2], .2) end
+  local t = "停止按钮"
+  if not appear(t, 10) then log(t .. "未找到,忽略") end
+  t = find(t)
+  swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
   return true
 end
 
@@ -131,25 +132,8 @@ path.植物种植 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  sleep(3)
   if not findTap('基建灯泡蓝') then return end
   if findTap('点击全部收获') then sleep(6) end
-  findTap('点击全部收取')
-  auto(path.base)
-end
--- 制造站
-path.基建点击全部收获 = function()
-  auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  sleep(3)
-  if not findTap('基建灯泡蓝') then return end
-  findTap('点击全部收获')
-  auto(path.base)
-end
--- 信赖
-path.基建点击全部收取 = function()
-  auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  sleep(3)
-  if not findTap('基建灯泡蓝') then return end
   findTap('点击全部收取')
   auto(path.base)
 end
@@ -199,7 +183,7 @@ path.换人 = function()
         swipq('dorm' .. dorm_index)
         a = 1
         if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
-        for i = a, a + b - 1 do tap(point.干员选择[i]) end
+        for i = a, a + b - 1 do tap("干员选择列表" .. i) end
       end,
     })
     auto(p)
@@ -216,12 +200,7 @@ path.戳人 = function()
   update_station_list()
   local o
   for k, v in pairs(la) do
-    auto(update(path.取消进驻信息选中, {
-      进驻总览 = function()
-        tap(v)
-        sleep()
-      end,
-    }))
+    auto(update(path.取消进驻信息选中, {进驻总览 = v}))
     o = v == "控制中枢" and true or false
     scale(o)
     auto(update(path.base, {
@@ -258,7 +237,9 @@ end
 
 path.贸易站加速 = function()
   update_station_list()
-  if #point.贸易站列表 == 0 then return end
+  local i = 1
+  local l = #point.贸易站列表
+  if l == 0 then return end
   auto(update(path.base, {
     面板 = "面板基建",
     进驻总览 = "贸易站列表1",
@@ -267,18 +248,21 @@ path.贸易站加速 = function()
     订单蓝 = "订单蓝",
     订单无 = "无人机协助",
     无人机加速获取订单确定 = function()
-      tap("无人机加速最大")
       if find("无人机加速获取订单剩余时间零") then
         tap("无人机加速获取订单取消")
-      else
-        if not find("多余加速浪费") then
-          tap("无人机加速获取订单确定")
-          return true
-        end
-        tap("无人机加速减一")
-        tap("无人机加速获取订单确定")
-        sleep(20)
+        log("剩余时间零")
+        return
       end
+      tap("无人机加速最大")
+      if not find("多余加速浪费") then
+        tap("无人机加速获取订单确定")
+        return true
+      end
+      tap("无人机加速减一")
+      tap("无人机加速获取订单确定")
+      if i == l then sleep(10) end
+      i = i % l + 1
+      tap("设施列表" .. i)
     end,
   }))
 end
@@ -291,10 +275,8 @@ path.制造站补充 = function()
     制造站设施 = function()
       for i = 1, #point.制造站列表 do
         tap("设施列表" .. i)
-        sleep()
         tap("制造站最多")
         findTap("执行更改")
-        sleep(.5)
       end
       return true
     end,
@@ -349,17 +331,17 @@ end
 path.线索布置 = function()
   update_station_list()
   if not point.会客厅 then return end
-  for k, v in pairs(point.线索布置) do
-    k = "线索布置" .. k
+  local t = "线索布置列表"
+  for k, v in pairs(point[t]) do
+    k = t .. k
     auto(update(path.base, {
       进驻信息3 = "线索",
       会客厅信用奖励 = function()
         if find(k) then
           -- offset -50,50
-          local t = point[k]
-          local x = t:find('|')
-          local y = t:sub(x + 1, t:find('|', x + 1) - 1)
-          x = tonumber(t:sub(1, x - 1))
+          local x = v:find('|')
+          local y = v:sub(x + 1, v:find('|', x + 1) - 1)
+          x = tonumber(v:sub(1, x - 1))
           y = tonumber(y)
           tap({x - 50, y + 50})
           tap("线索库列表1")
@@ -423,9 +405,10 @@ path.任务 = function()
     })
     p[i] = function()
       findTap('任务蓝')
-      if table.any({'任务黑', '任务黑黑', '任务灰',
-                    "任务报酬已领取"}, find) then
-        if find("任务报酬已领取") then log(i .. "完成") end
+      if table.any({'任务黑', '任务黑黑', "任务灰"}, find) then
+        if find("任务黑") then log("任务黑") end
+        if find("任务黑黑") then log("任务黑黑") end
+        if find("任务灰") then log(i .. "完成") end
         return true
       end
     end
@@ -434,13 +417,15 @@ path.任务 = function()
 end
 
 path.信用购买 = function()
-  for _, i in pairs(point.信用交易所列表) do
+  -- todo: slow
+  local t = "信用交易所列表"
+  for i = 1, #point[t] do
     auto(update(path.base, {
       面板 = "面板采购中心",
       可露希尔推荐 = "信用交易所",
       信用交易所 = true,
     }))
-    tap(i)
+    tap(t .. i)
     findTap("购买物品")
     if find("信用不足") then return true end
   end
@@ -455,14 +440,15 @@ path.信用收取 = update(path.base, {
 })
 
 path.公开招募聘用 = function()
-  for k, v in pairs(point.聘用候选人列表) do
+  local t = "聘用候选人列表"
+  for i = 1, #point[t] do
     if find('面板') and not find('面板公开招募有') then break end
     auto(update(path.base, {
       面板 = function()
         if not findTap("面板公开招募有") then return true end
       end,
       公开招募 = function()
-        if findTap(v) then findTap("开包skip") end
+        if findTap(t .. i) then findTap("开包skip") end
         return true
       end,
     }))
@@ -480,10 +466,10 @@ path.邮件 = update(path.base, {
 path.干员强化 = update(path.base, {
   面板 = "面板干员",
   等级递减 = "等级递增",
-  等级递增 = "干员列表11",
+  等级递增 = "干员列表1",
   EXP = "EXP",
   提升等级确认 = function()
-    tap("作战记录列表1")
+    tap("作战记录列表2")
     tap("提升等级确认")
     return true
   end,
@@ -533,32 +519,30 @@ path.开始游戏 = function(x)
       return true
     end,
     接管作战 = function()
-      while true do
-        sleep(5)
-        if not find("接管作战") then
-          if find("代理失误放弃行动") then
-            log('代理失误', x)
-            bl[x] = false
-          else
-            log('代理成功', x)
-            cl[x] = (cl[x] or 0) + 1
-          end
-          return true
-        end
+      -- todo: 记录不能同步到服务器
+      if disappear("接管作战", 60 * 60, 5) and
+        not find("代理失误放弃行动") then
+        log('代理成功', x)
+        cl[x] = (cl[x] or 0) + 1
+      else
+        log('代理失误', x)
+        bl[x] = false
       end
+      return true
     end,
   }))
 end
 
 path.主线 = function(x)
-  local p
   -- split s2-9 to 2 and 9
   local x0 = x
   local x1 = x0:find("-")
   local x2
+  local t = "当前进度列表"
   if not x1 then return end
   x1, x2 = x0:sub(1, x1 - 1), x0:sub(x1 + 1)
   x1 = (x1:startsWith("S")) and x1:sub(2) or x1
+  local x3 = tonumber(x1) + 1
   -- 面板=>开始游戏
   local p = update(path.base, {
     面板 = function()
@@ -566,10 +550,11 @@ path.主线 = function(x)
       swipq(x1)
       tap(x1)
     end,
-    ["当前进度" .. x1] = function()
+    [t .. x3] = function()
       swipq(x0)
       if not find(x) then
         -- distance or point error
+        log(x .. "未找到")
         bl[x] = false
       else
         tap(x)
@@ -578,12 +563,8 @@ path.主线 = function(x)
     end,
   })
   -- switch chapter
-  x3 = tonumber(x1)
-  for k, v in pairs(point.当前进度) do
-    if x3 ~= (k - 1) then
-      p["当前进度" .. (k - 1)] = "当前进度" ..
-                                       (k - 1 > x3 and "左" or "右")
-    end
+  for i = 1, #point[t] do
+    if x3 ~= i then p[t .. i] = t .. (i > x3 and "左" or "右") end
   end
   auto(p)
   path.开始游戏(x)
@@ -718,7 +699,6 @@ showSL = function(not_show)
   for k, v in pairs(r) do if point[v] then a = a .. v .. 'x1 ' end end
   if not_show then return a end
   show(a, 500)
-  sleep(3)
 end
 
 -- show failed fight
@@ -729,7 +709,6 @@ showBL = function(not_show)
   if #b > 0 then a = a .. '失败：' .. b end
   if not_show then return a end
   show(a, 500)
-  sleep(3)
 end
 
 -- show success fight
@@ -739,13 +718,11 @@ showCL = function(not_show)
   if #a > 0 then a = '已完成：' .. a end
   if not_show then return a end
   show(a, 500)
-  sleep(3)
 end
 
 -- show all info
 showALL = function()
   show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
-  sleep(3)
 end
 
 path["1-11"] = function()
@@ -754,7 +731,7 @@ path["1-11"] = function()
   -- wait 安德切尔
   if not findTap("开始行动红") then return end
   sleep(10)
-  if not wait("跳过剧情") then
+  if not appear("跳过剧情") then
     log('代理失误', x)
     bl[x] = false
     return false
@@ -789,7 +766,7 @@ path["1-11"] = function()
   sleep(5)
   -- 玫兰莎
   retreat(1110, 368, 894, 323)
-  if wait("行动结束", 60, 5) then
+  if appear("行动结束", 60, 5) then
     log('代理成功', x)
     cl[x] = (cl[x] or 0) + 1
   else
