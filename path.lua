@@ -25,7 +25,7 @@ path.base = {
     input("密码", p)
     tap("登陆")
     -- reset state
-    already_update_station_list = false
+    already_update_station_list = true
     no_friend = false
   end,
   -- 维护
@@ -90,7 +90,6 @@ end
 update_station_list = function()
   if already_update_station_list then return end
   auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
-  -- sleep(5)
   local a = point.基建标识
   local b = a.base
   local l = {"宿舍", "制造站", "贸易站", "发电站"}
@@ -134,6 +133,7 @@ path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
   if not findTap('基建灯泡蓝') then return end
   if findTap('点击全部收获') then sleep(6) end
+  if find("点击全部收取") then log("点击全部收取") end
   findTap('点击全部收取')
   auto(path.base)
 end
@@ -157,7 +157,6 @@ path.换人 = function()
         -- 人满不清
         if index > #point.宿舍列表 and
           table.any(point.进驻人数满, find) then
-          -- TODO :控制中枢bug
           log(v .. "人满不清")
           return true
         end
@@ -228,16 +227,24 @@ end
 path.订单交付 = function()
   update_station_list()
   if #point.贸易站列表 == 0 then return end
-  auto(path.订单)
-  for i = 1, #point.贸易站列表 do
+  local p = update(path.base, {
+    订单无 = true,
+    进驻总览 = "贸易站列表1",
+    贸易站进度 = "贸易站进度",
+    订单蓝 = "订单蓝",
+    面板 = "面板基建",
+    进驻信息2选中 = "进驻信息2选中",
+  })
+  auto(p)
+  for i = 2, #point.贸易站列表 do
     tap("设施列表" .. i)
-    auto(path.订单)
+    p.进驻总览 = "贸易站列表" .. i
+    auto(p)
   end
 end
 
 path.贸易站加速 = function()
   update_station_list()
-  local i = 1
   local l = #point.贸易站列表
   if l == 0 then return end
   auto(update(path.base, {
@@ -260,9 +267,7 @@ path.贸易站加速 = function()
       end
       tap("无人机加速减一")
       tap("无人机加速获取订单确定")
-      if i == l then sleep(10) end
-      i = i % l + 1
-      tap("设施列表" .. i)
+      sleep(20)
     end,
   }))
 end
@@ -380,11 +385,13 @@ path.信用奖励 = function()
   if not point.会客厅 then return end
   no_friend = false
   auto(update(path.base, {
-    已达线索上限 = function()
-      if no_friend then return true end
-      auto(path.传递线索)
+    信用奖励有 = function()
+      if find("已达线索上限") then
+        if no_friend then return true end
+        auto(path.传递线索)
+      end
+      tap("信用奖励有")
     end,
-    信用奖励有 = "信用奖励有",
     会客厅信用奖励 = "会客厅信用奖励",
     进驻信息3 = "线索",
     进驻总览 = "会客厅",
@@ -405,10 +412,9 @@ path.任务 = function()
     })
     p[i] = function()
       findTap('任务蓝')
-      if table.any({'任务黑', '任务黑黑', "任务灰"}, find) then
+      if table.any({'任务黑', "任务灰"}, find) then
         if find("任务黑") then log("任务黑") end
-        if find("任务黑黑") then log("任务黑黑") end
-        if find("任务灰") then log(i .. "完成") end
+        if find("任务灰") then log("任务灰") end
         return true
       end
     end

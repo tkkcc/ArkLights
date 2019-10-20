@@ -155,7 +155,7 @@ end
 
 sleep = function(x)
   if x == nil then x = 1 end
-  mSleep(x * 1000 * default_delay)
+  mSleep(x * 1000)
 end
 
 nop = function() end
