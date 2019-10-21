@@ -38,6 +38,7 @@ point = {
   ["AP-3"] = "1028|608|0xffffff,1228|431|0xffffff,1408|258|0xffffff,1419|261|0xffffff,1405|271|0xffffff,1405|283|0xffffff,1395|281|0xffffff,1381|271|0xffffff,1388|258|0xffffff,1445|258|0xffffff,1452|258|0xffffff,1447|267|0xffffff,1457|280|0xffffff,1443|281|0xffffff,1306|393|0xffffff,1236|446|0x333333,1003|618|0x333333,206|823|0x000000",
   ["AP-4"] = "1228|431|0xffffff,1408|258|0xffffff,1419|261|0xffffff,1405|271|0xffffff,1405|283|0xffffff,1395|281|0xffffff,1381|271|0xffffff,1388|258|0xffffff,1445|258|0xffffff,1452|258|0xffffff,1447|267|0xffffff,1457|280|0xffffff,1443|281|0xffffff,1306|393|0xffffff,1236|446|0x333333,1003|618|0x333333,206|823|0x000000",
   ["AP-5"] = "1408|258|0xffffff,1419|261|0xffffff,1405|271|0xffffff,1405|283|0xffffff,1395|281|0xffffff,1381|271|0xffffff,1388|258|0xffffff,1445|258|0xffffff,1452|258|0xffffff,1447|267|0xffffff,1457|280|0xffffff,1443|281|0xffffff,1306|393|0xffffff,1236|446|0x333333,1003|618|0x333333,206|823|0x000000",
+  ["AP-5"] = "1386|257|0xffffff,1393|274|0xffffff,1377|283|0xffffff,1407|257|0xffffff,1421|262|0xffffff,1405|271|0xffffff,1405|282|0xffffff,1446|257|0xffffff,1456|257|0xffffff,1455|269|0xffffff,1452|283|0xffffff,1243|429|0xffffff,983|595|0xffffff,693|768|0xffffff,291|841|0xffffff",
   ["LS-1"] = "336|860|0xffffff,1403|260|0xffffff,1413|272|0xffffff,1443|257|0xffffff,1403|281|0xffffff,1451|270|0xffffff,1390|283|0xffffff,1249|453|0x333333,1012|600|0x333333,1019|604|0xffffff,265|870|0x333333,273|851|0xffffff",
   ["LS-2"] = "744|772|0x333333,1403|260|0xffffff,1413|272|0xffffff,1443|257|0xffffff,1403|281|0xffffff,1451|270|0xffffff,1390|283|0xffffff,1249|453|0x333333,1012|600|0x333333,1019|604|0xffffff,265|870|0x333333,273|851|0xffffff",
   ["LS-3"] = "1040|613|0xffffff,1403|260|0xffffff,1413|272|0xffffff,1443|257|0xffffff,1403|281|0xffffff,1451|270|0xffffff,1390|283|0xffffff,1249|453|0x333333,1012|600|0x333333,1019|604|0xffffff,265|870|0x333333,273|851|0xffffff",
@@ -317,7 +318,8 @@ point = {
   日常任务 = "837|37|0xbebebe,831|49|0x868686,849|61|0xe1e1e1,866|37|0xdfdfdf,883|48|0xe0e0e0,880|61|0x707070,891|81|0x0098dc,915|38|0xe1e1e1,936|48|0xe0e0e0,950|55|0xbfbfbf",
   周常任务 = "1240|38|0xd3d3d3,1246|45|0xa5a5a5,1250|49|0xbababa,1250|59|0xbfbfbf,1258|62|0xe1e1e1,1236|62|0x737373,1236|51|0xd3d3d3,1276|40|0xcacaca,1287|50|0xe0e0e0,1310|40|0xdbdbdb,1354|54|0xdfdfdf",
   -- 基建
-  进驻总览 = "624|41|0xffffff,1725|38|0x333333,298|895|0xf1f0f1,98|895|0xf1f0f1,273|148|0xffffff,308|213|0xffffff,238|218|0xffffff,278|213|0xffffff,130|188|0xffffff,111|172|0xffffff,125|310|0xffffff,233|318|0xffffff",
+  -- 进驻总览 = "624|41|0xffffff,1725|38|0x333333,298|895|0xf1f0f1,98|895|0xf1f0f1,273|148|0xffffff,308|213|0xffffff,238|218|0xffffff,278|213|0xffffff,130|188|0xffffff,111|172|0xffffff,125|310|0xffffff,233|318|0xffffff",
+  进驻总览 = "1099|45|0xdc92ff,1366|36|0xcbec47,1666|42|0x22bbff,1054|34|0x522f64,1136|74|0x522f64,267|156|0xffffff,234|213|0xffffff,273|213|0xffffff,306|213|0xffffff,234|315|0xffffff,269|184|0xffffff",
   -- 按建造顺序
   贸易站列表 = {{404, 466}, {68, 457}},
   制造站列表 = {{26, 625}, {80, 772}, {404, 769}, {724, 769}},
@@ -575,6 +577,7 @@ tap_extra_delay = {
   当前进度列表左 = 1,
   当前进度列表右 = 1,
   无人机加速获取订单确定 = 1,
+  返回 = .5,
 }
 -- flatten
 for k, v in pairs(point) do

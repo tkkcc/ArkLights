@@ -25,7 +25,7 @@ path.base = {
     input("密码", p)
     tap("登陆")
     -- reset state
-    already_update_station_list = true
+    already_update_station_list = false
     no_friend = false
   end,
   -- 维护
@@ -89,7 +89,7 @@ end
 
 update_station_list = function()
   if already_update_station_list then return end
-  auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
+  -- auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
   local a = point.基建标识
   local b = a.base
   local l = {"宿舍", "制造站", "贸易站", "发电站"}
@@ -226,20 +226,19 @@ end
 
 path.订单交付 = function()
   update_station_list()
-  if #point.贸易站列表 == 0 then return end
+  local l = #point.贸易站列表
+  if l == 0 then return end
   local p = update(path.base, {
     订单无 = true,
-    进驻总览 = "贸易站列表1",
     贸易站进度 = "贸易站进度",
     订单蓝 = "订单蓝",
     面板 = "面板基建",
     进驻信息2选中 = "进驻信息2选中",
   })
-  auto(p)
-  for i = 2, #point.贸易站列表 do
-    tap("设施列表" .. i)
+  for i = 1, l do
     p.进驻总览 = "贸易站列表" .. i
     auto(p)
+    auto(update(path.base, {进驻总览 = true, 面板 = "面板基建"}))
   end
 end
 
@@ -496,6 +495,7 @@ tick = tick or 1
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
+    -- log(tick, ' ', fight_type[tick])
     path.作战(fight_type[tick])
   end
 end
