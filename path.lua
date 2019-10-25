@@ -80,10 +80,14 @@ path.base = {
 }
 
 path.移动停止按钮 = function()
+  if getScreenDirection() == 0 then
+    background()
+    sleep(5)
+  end
   local t = "停止按钮"
   if not appear(t, 10) then log(t .. "未找到,忽略") end
   t = find(t)
-  swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
+  swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .201)
   return true
 end
 
@@ -114,7 +118,7 @@ update_station_list = function()
   for k, v in pairs(l) do
     v = v .. '列表'
     for i = 1, #point[v] do
-      point[v .. i] = point[v][i]
+      -- point[v .. i] = point[v][i]
       insert(la, v .. i)
     end
   end
@@ -133,7 +137,6 @@ path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
   if not findTap('基建灯泡蓝') then return end
   if findTap('点击全部收获') then sleep(6) end
-  if find("点击全部收取") then log("点击全部收取") end
   findTap('点击全部收取')
   auto(path.base)
 end
@@ -156,10 +159,7 @@ path.换人 = function()
       有人清空 = function()
         -- 人满不清
         if index > #point.宿舍列表 and
-          table.any(point.进驻人数满, find) then
-          log(v .. "人满不清")
-          return true
-        end
+          table.any(point.进驻人数满, find) then return true end
         tap("有人清空")
       end,
       清空完毕进驻 = function()
@@ -256,7 +256,6 @@ path.贸易站加速 = function()
     无人机加速获取订单确定 = function()
       if find("无人机加速获取订单剩余时间零") then
         tap("无人机加速获取订单取消")
-        log("剩余时间零")
         return
       end
       tap("无人机加速最大")
@@ -343,6 +342,7 @@ path.线索布置 = function()
       会客厅信用奖励 = function()
         if find(k) then
           -- offset -50,50
+          v = point[v]
           local x = v:find('|')
           local y = v:sub(x + 1, v:find('|', x + 1) - 1)
           x = tonumber(v:sub(1, x - 1))
@@ -368,13 +368,11 @@ path.传递线索 = update(path.base, {
   会客厅信用奖励 = "会客厅传递线索",
   传递线索返回 = function()
     tap("线索列表1")
-    local a = finds("传递列表标识")
-    if #a == 0 then
-      no_friend = true
-    else
-      tap('传递列表' .. math.random(#a))
-      tap("传递线索返回")
-    end
+    local a = point.传递列表
+    a = a[math.random(#a)]
+    tap(a)
+    tap("传递线索返回")
+    auto(path.线索布置)
     return true
   end,
 })
@@ -411,11 +409,7 @@ path.任务 = function()
     })
     p[i] = function()
       findTap('任务蓝')
-      if table.any({'任务黑', "任务灰"}, find) then
-        if find("任务黑") then log("任务黑") end
-        if find("任务灰") then log("任务灰") end
-        return true
-      end
+      if table.any({'任务黑', "任务灰"}, find) then return true end
     end
     auto(p)
   end
@@ -444,21 +438,17 @@ path.信用收取 = update(path.base, {
   收取信用无 = true,
 })
 
-path.公开招募聘用 = function()
-  local t = "聘用候选人列表"
-  for i = 1, #point[t] do
-    if find('面板') and not find('面板公开招募有') then break end
-    auto(update(path.base, {
-      面板 = function()
-        if not findTap("面板公开招募有") then return true end
-      end,
-      公开招募 = function()
-        if findTap(t .. i) then findTap("开包skip") end
-        return true
-      end,
-    }))
-  end
-end
+path.公开招募聘用 = update(path.base, {
+  面板 = function()
+    if not findTap("面板公开招募有") then return true end
+    for i = 1, 4 do
+      if findTap(unpack(point["聘用候选人列表"])) then
+        findTap("开包skip")
+        tap("返回")
+      end
+    end
+  end,
+})
 
 path.邮件 = update(path.base, {
   面板 = "面板邮件",
@@ -495,7 +485,7 @@ tick = tick or 1
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
-    -- log(tick, ' ', fight_type[tick])
+    -- log(tick,' ',fight_type[tick])
     path.作战(fight_type[tick])
   end
 end
@@ -575,41 +565,100 @@ path.主线 = function(x)
   auto(p)
   path.开始游戏(x)
 end
+update_open_time = function()
+  -- 芯片搜索
+  pr_open_time = {
+    A = {1, 4, 5, 7},
+    B = {1, 2, 5, 6},
+    C = {3, 4, 6, 7},
+    D = {2, 3, 6, 7},
+  }
+  pr_open_time_r = table.reverseIndex(pr_open_time)
+  -- pr_open_time_r[1]={"A","B"}
+  -- pr_open_time_r[2]={"B","D"}
+  -- pr_open_time_r[3]={"C","D"}
+  -- pr_open_time_r[4]={"A","C"}
+  -- pr_open_time_r[5]={"A","B"}
+  -- pr_open_time_r[6]={"B","C","D"}
+  -- pr_open_time_r[7]={"A","C","D}
+  -- 物资筹备
+  ls_open_time = {
+    LS = {1, 2, 3, 4, 5, 6, 7},
+    AP = {1, 4, 6, 7},
+    CA = {2, 3, 5, 7},
+    CE = {2, 4, 6, 7},
+    SK = {1, 3, 5, 6},
+  }
+  ls_open_time_r = table.reverseIndex(ls_open_time)
+  -- ls_open_time_r[1]={"LS","AP","SK"}
+  -- ls_open_time_r[2]={"LS","CA","CE"}
+  -- ls_open_time_r[3]={"LS","CA","SK"}
+  -- ls_open_time_r[4]={"LS","AP","CE"}
+  -- ls_open_time_r[5]={"LS","CA","SK"}
+  -- ls_open_time_r[6]={"LS","AP","SK","CE"}
+  -- ls_open_time_r[7]={"LS","AP","CA","CE"}
+  -- move CE to last
+  local lotr = ls_open_time_r
+  for k, v in pairs(lotr) do
+    table.remove(lotr[k], table.find(lotr[k], equalX("LS")))
+    insert(lotr[k], 1, "LS")
+    local p = table.find(lotr[k], equalX("CE"))
+    if p then
+      table.remove(lotr[k], p)
+      insert(lotr[k], "CE")
+    end
+  end
+  local a = os.time({
+    year = 2019,
+    month = 11,
+    day = 1,
+    hour = 4,
+    min = 0,
+    sec = 0,
+  })
+  local b = os.time({
+    year = 2019,
+    month = 11,
+    day = 10,
+    hour = 4,
+    min = 0,
+    sec = 0,
+  })
+  local t = os.time()
+  if a <= t and t < b then
+    log("全天开启时间表")
+    pr_open_time = {
+      A = {1, 2, 3, 4, 5, 6, 7},
+      B = {1, 2, 3, 4, 5, 6, 7},
+      C = {1, 2, 3, 4, 5, 6, 7},
+      D = {1, 2, 3, 4, 5, 6, 7},
+    }
+    pr_open_time_r[1] = {"A", "B", "C", "D"}
+    pr_open_time_r[2] = {"B", "D", "A", "C"}
+    pr_open_time_r[3] = {"C", "D", "A", "B"}
+    pr_open_time_r[4] = {"A", "C", "B", "D"}
+    pr_open_time_r[5] = {"A", "B", "C", "D"}
+    pr_open_time_r[6] = {"B", "C", "D", "A"}
+    pr_open_time_r[7] = {"A", "C", "D", "B"}
 
--- 芯片搜索
-pr_open_time = {
-  A = {1, 4, 5, 7},
-  B = {1, 2, 5, 6},
-  C = {3, 4, 6, 7},
-  D = {2, 3, 6, 7},
-}
-pr_open_time_r = table.reverseIndex(pr_open_time)
--- 物资筹备
-ls_open_time = {
-  LS = {1, 2, 3, 4, 5, 6, 7},
-  CA = {2, 3, 5, 7},
-  CE = {2, 4, 6, 7},
-  SK = {1, 3, 5, 6},
-  AP = {1, 4, 6, 7},
-}
-ls_open_time_r = table.reverseIndex(ls_open_time)
--- ls_open_time_r[1]={"LS","AP","SK"}
--- ls_open_time_r[3]={"LS","CA","SK"}
--- ls_open_time_r[5]={"LS","CA","SK"}
--- ls_open_time_r[6]={"LS","AP","SK","CE"}
--- ls_open_time_r[7]={"LS","AP","CA","CE"}
-
--- move LS to first, CE to last
-local lotr = ls_open_time_r
-for k, v in pairs(lotr) do
-  table.remove(lotr[k], table.find(lotr[k], equalX("LS")))
-  insert(lotr[k], 1, "LS")
-  local p = table.find(lotr[k], equalX("CE"))
-  if p then
-    table.remove(lotr[k], p)
-    insert(lotr[k], "CE")
+    ls_open_time = {
+      LS = {1, 2, 3, 4, 5, 6, 7},
+      CA = {1, 2, 3, 4, 5, 6, 7},
+      CE = {1, 2, 3, 4, 5, 6, 7},
+      SK = {1, 2, 3, 4, 5, 6, 7},
+      AP = {1, 2, 3, 4, 5, 6, 7},
+    }
+    ls_open_time_r[1] = {"LS", "AP", "SK", "CA", "CE"}
+    ls_open_time_r[2] = {"LS", "CA", "CE", "AP", "SK"}
+    ls_open_time_r[3] = {"LS", "CA", "SK", "AP", "CE"}
+    ls_open_time_r[4] = {"LS", "AP", "CE", "CA", "SK"}
+    ls_open_time_r[5] = {"LS", "CA", "SK", "AP", "CE"}
+    ls_open_time_r[6] = {"LS", "AP", "SK", "CE", "CA"}
+    ls_open_time_r[7] = {"LS", "AP", "CA", "CE", "SK"}
   end
 end
+update_open_time()
+path.更新开启时间 = update_open_time
 
 path.物资芯片 = function(x)
   -- split PR-A-1 to A and 1, split LS-1 to LS and 1

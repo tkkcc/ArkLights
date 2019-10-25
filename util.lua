@@ -400,7 +400,6 @@ run = function(...)
     if type(arg[1]) == "function" then return arg[1]() end
     if type(arg[1]) == "table" then arg = arg[1] end
   end
-  open()
   running = "移动停止按钮"
   auto(path[running])
   for k, v in pairs(arg) do
