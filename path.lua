@@ -8,6 +8,7 @@ cl = {}
 for k, v in pairs(fight_type_all) do cl[v] = 0 end
 
 path = {}
+
 path.base = {
   植物种植返回 = function()
     local t = "植物种植列表"
@@ -87,7 +88,7 @@ path.移动停止按钮 = function()
   local t = "停止按钮"
   if not appear(t, 10) then log(t .. "未找到,忽略") end
   t = find(t)
-  swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .201)
+  swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
   return true
 end
 
@@ -717,6 +718,7 @@ path.剿灭 = function(x)
     end,
     [x] = function()
       tap(x)
+
       return true
     end,
   })
@@ -781,6 +783,7 @@ showALL = function()
 end
 
 path["1-11"] = function()
+  sleep(.5)
   local x = "1-11"
   tap("开始行动蓝")
   -- wait 安德切尔
@@ -842,3 +845,5 @@ path["作战1-11"] = function()
   for i = 1, 14 do path.作战("1-11") end
 end
 
+path.关闭 = close
+path.显示全部 = showALL

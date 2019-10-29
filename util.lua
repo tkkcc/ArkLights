@@ -309,13 +309,14 @@ input = function(x, s)
   tap(x)
 end
 
-swip = function(x, y, dx, dy, t)
+swip = function(x, y, dx, dy, t, interval)
   if not (x and y and dx and dy) then return end
   local i = 0
   touchDown(i, x, y)
   local times = 20
-  local interval = .2
-  if t then times = math.floor(t / interval) end
+  local e = 1e-6
+  interval = interval or .2
+  if t then times = math.floor((t + e) / interval) end
   local sx = dx / times
   local sy = dy / times
   for j = 1, times do
@@ -335,7 +336,7 @@ swipq = function(t)
   if not t then return end
   -- multiple swip
   if type(t) ~= "table" then t = {t} end
-  for k, v in pairs(t) do swip(1000, 500, v, 0, .401) end
+  for k, v in pairs(t) do swip(1000, 500, v, 0, .4) end
   -- wait for inertia
   if #t > 1 then sleep() end
 end
@@ -391,7 +392,7 @@ now = function(...)
   if get("restart") == "true" then
     set("restart", "false")
   else
-    map(run, {...})
+    map(run, arg)
   end
 end
 
@@ -402,19 +403,24 @@ run = function(...)
   end
   running = "移动停止按钮"
   auto(path[running])
-  for k, v in pairs(arg) do
-    running = v
-    auto(path[v])
+  for k, v in ipairs(arg) do
+    if type(v) == 'function' then
+      v()
+    else
+      running = v
+      log(path[v])
+      auto(path[v])
+    end
   end
 end
 -- hour crontab
 hc = function(x, h)
   if type(x) == "table" then x, h = x[1], x[2] end
-  return {callback = function() run(x) end, hour = h, minute = 30}
+  return {callback = function() run(x) end, hour = h, minute = 32}
 end
 -- if find then tap with fallback
 findTap = function(...)
-  for k, v in pairs({...}) do
+  for k, v in ipairs(arg) do
     if find(v) then
       tap(v)
       return true
@@ -427,17 +433,17 @@ xy2arr = function(t) return {t.x, t.y} end
 
 deploy = function(x1, x2, y2, d)
   local y1 = 1000
-  local t = .201
+  local t = .3
   d = d or 2
   d = ({{0, -1}, {1, 0}, {0, 1}, {-1, 0}})[d]
   d = {d[1] * 500, d[2] * 500}
-  swip(x1, y1, x2 - x1, y2 - y1, t)
-  swip(x2, y2, x2 + d[1], y2 + d[2], t)
+  swip(x1, y1, x2 - x1, y2 - y1, t, t)
+  swip(x2, y2, x2 + d[1], y2 + d[2], .2)
 end
 
 -- todo: make a map
 retreat = function(x1, y1, x2, y2)
-  local t = .201
+  local t = .2
   touchDown(0, x1, y1)
   sleep(t)
   touchUp(0, x1, y1)
