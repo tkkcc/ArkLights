@@ -10,10 +10,10 @@ for k, v in pairs(fight_type_all) do cl[v] = 0 end
 path = {}
 
 path.base = {
-  植物种植返回 = function()
-    local t = "植物种植列表"
+  限时活动返回 = function()
+    local t = "限时活动列表"
     for i = 1, #point[t] do tap(t .. i) end
-    tap('植物种植返回')
+    tap('限时活动返回')
   end,
   面板 = true,
   start黄框 = "删除缓存返回",
@@ -127,7 +127,7 @@ update_station_list = function()
   already_update_station_list = true
 end
 path.更新设备列表 = update_station_list
-path.植物种植 = update(path.base, {
+path.限时活动 = update(path.base, {
   面板 = function()
     if not findTap('面板限时活动') then return true end
     auto(path.base)
