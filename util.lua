@@ -299,7 +299,7 @@ tap = function(x)
   touchDown(0, x, y)
   sleep(0.2)
   touchUp(0, x, y)
-  sleep(tap_delay + (tap_extra_delay[x0] or 0))
+  sleep(.5 + (tap_extra_delay[x0] or 0))
 end
 
 input = function(x, s)

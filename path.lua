@@ -384,32 +384,50 @@ path.线索传递 = update(path.base, {
   进驻信息3 = "线索",
   会客厅信用奖励 = "会客厅线索传递",
   线索传递返回 = function()
+    -- todo: find duplication
     tap("线索列表1")
     local a = point.传递列表
-    local p = find("线索传递橙框")
-    if p then
-      p = p[2]
-      if 100 < p and p < 300 then
-        a = a[1]
-        log('给1')
-      elseif p < 500 then
-        a = a[2]
-        log('给2')
-      elseif p < 700 then
-        a = a[3]
-        log('给3')
-      else
-        a = a[4]
-        log('给4')
+    local count = 0
+    local f = function(random)
+      local p = find("线索传递橙框")
+      local t
+      if p then
+        p = p[2]
+        if 100 < p and p < 300 then
+          t = a[1]
+          log('给1')
+        elseif p < 500 then
+          t = a[2]
+          log('给2')
+        elseif p < 700 then
+          t = a[3]
+          log('给3')
+        else
+          t = a[4]
+          log('给4')
+        end
+      elseif random then
+        for i = 1, math.random(0, count) do findTap("线索传递左白") end
+        t = a[math.random(#a)]
+        log('给随机')
       end
-    else
-      a = a[math.random(#a)]
-      log('给随机')
+      if t then
+        tap(t)
+        tap("线索传递返回")
+        return true
+      end
     end
-    tap(a)
-    tap("线索传递返回")
-    auto(path.线索布置)
-    return true
+    while 1 do
+      -- 当前页看看有没有缺的
+      if f() then return true end
+      -- 翻到末尾就随机给
+      if not findTap("线索传递右白") and
+        not findTap("线索传递右白2") then
+        f(true)
+        return true
+      end
+      count = count + 1
+    end
   end,
 })
 
@@ -422,6 +440,7 @@ path.信用奖励 = function()
       if find("已达线索上限") then
         if no_friend then return true end
         auto(path.线索传递)
+        auto(path.线索布置)
       end
       tap("信用奖励有")
     end,
@@ -515,7 +534,7 @@ path.免费强化包 = update(path.base, {
   end,
 })
 
-tick = tick or 1
+tick = 0
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
