@@ -87,8 +87,8 @@ shallowCopy = function(x)
   return y
 end
 
-update = function(b, x)
-  local y = shallowCopy(b)
+update = function(b, x, inplace)
+  local y = inplace and b or shallowCopy(b)
   if x == nil then return y end
   for k, v in pairs(x) do y[k] = v end
   return y
@@ -200,7 +200,7 @@ log = function(...)
   if #history > 6000 then table.clear(history) end
   history[#history + 1] = a
   l = loop_times(history)
-  if l > 100 then restart() end
+  if l > 150 then restart() end
   if l > 1 then a = a .. " x" .. l end
   -- if a:find("其它=>返回") then return end
   show(a)
@@ -230,6 +230,8 @@ stop = function()
 end
 
 restart = function()
+  -- 100 hours
+  sleep(360000)
   close()
   sleep(3600)
   set("restart", true)
@@ -416,7 +418,7 @@ end
 -- hour crontab
 hc = function(x, h)
   if type(x) == "table" then x, h = x[1], x[2] end
-  return {callback = function() run(x) end, hour = h, minute = 32}
+  return {callback = function() run(x) end, hour = h, minute = 10}
 end
 -- if find then tap with fallback
 findTap = function(...)
