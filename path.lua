@@ -148,7 +148,26 @@ path.基建点击全部 = function()
   findTap('点击全部收取')
   auto(path.base)
 end
-
+-- 换信赖最低的5人
+path.基建副手换人 = function()
+  update_station_list()
+  local p = update(path.base, {
+    面板 = '面板基建',
+    进驻总览 = "控制中枢",
+    进驻信息3选中 = "进驻信息3选中",
+    控制中枢界面 = "控制中枢基建副手",
+    基建副手简报 = true,
+  })
+  for k, v in pairs(point.基建副手列表) do
+    auto(p)
+    tap(v)
+    if not find("干员选择无选中") then tap("干员选择列表1") end
+    tap("排序信赖")
+    tap("排序信赖")
+    tap("干员选择列表1")
+    tap("干员选择确认")
+  end
+end
 path.换人 = function()
   update_station_list()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
@@ -200,7 +219,6 @@ path.换人 = function()
       干员选择确认 = "干员选择确认",
     }))
   end
-  return true
 end
 
 path.戳人 = function()

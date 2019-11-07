@@ -9,7 +9,8 @@ cron = require("crontab")
                 "信用收取", "信用购买", "公开招募聘用",
                 "干员强化", "任务", "关闭", "显示全部"}
 每日开始 = {"更新开启时间", "限时活动", "作战1-11",
-                "基建点击全部", "任务", "关闭", "显示全部"}
+                "基建点击全部", "基建副手换人", "任务", "关闭",
+                "显示全部"}
 
 fight_type_ext = {"PR-A-2", "PR-B-2", "PR-C-2", "PR-D-2"}
 fight_type_ext = {"LS-5", "CA-5", "AP-5", "龙门市区"}
@@ -17,6 +18,5 @@ insert(fight_type_ext, "CE-5")
 repeat_last(fight_type_ext, 500)
 fight_type = fight_type_ext
 table.shuffle(fight_type)
--- now()
 show("开始")
 cron(map(hc, {{每日开始, 4}, {每八小时, "2,10,18"}}))
