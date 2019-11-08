@@ -19,4 +19,5 @@ repeat_last(fight_type_ext, 500)
 fight_type = fight_type_ext
 table.shuffle(fight_type)
 show("开始")
+-- now("线索布置")
 cron(map(hc, {{每日开始, 4}, {每八小时, "2,10,18"}}))

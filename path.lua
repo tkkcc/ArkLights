@@ -166,6 +166,8 @@ path.基建副手换人 = function()
     tap("排序信赖")
     tap("干员选择列表1")
     tap("干员选择确认")
+    tap("返回")
+    sleep(.5)
   end
 end
 path.换人 = function()
@@ -369,30 +371,27 @@ end
 path.线索布置 = function()
   update_station_list()
   if not point.会客厅 then return end
-  local t = "线索布置列表"
-  for k, v in pairs(point[t]) do
-    k = t .. k
-    auto(update(path.base, {
-      进驻信息3 = "线索",
-      会客厅信用奖励 = function()
-        if find(k) then
-          -- offset -50,50
-          v = point[v]
-          local x = v:find('|')
-          local y = v:sub(x + 1, v:find('|', x + 1) - 1)
-          x = tonumber(v:sub(1, x - 1))
-          y = tonumber(y)
-          tap({x - 50, y + 50})
-          tap("线索库列表1")
-          tap("解锁线索右")
-        end
-        return true
-      end,
-      进驻总览 = "会客厅",
-      面板 = "面板基建",
-      进驻信息3选中 = "进驻信息3选中",
-    }))
-  end
+  auto(update(path.base, {
+    进驻信息3 = "线索",
+    会客厅信用奖励 = function()
+      keepScreen(true)
+      local v = table.findv(point.线索布置列表, find)
+      keepScreen(false)
+      if not v then return true end
+      -- offset -50,50
+      v = point[v]
+      local x = v:find('|')
+      local y = v:sub(x + 1, v:find('|', x + 1) - 1)
+      x = tonumber(v:sub(1, x - 1))
+      y = tonumber(y)
+      tap({x - 50, y + 50})
+      tap("线索库列表1")
+      tap("解锁线索右")
+    end,
+    进驻总览 = "会客厅",
+    面板 = "面板基建",
+    进驻信息3选中 = "进驻信息3选中",
+  }))
   if findTap("解锁线索") then auto(path.线索布置) end
 end
 -- todo: find red 
@@ -458,9 +457,9 @@ path.信用奖励 = function()
       if find("已达线索上限") then
         if no_friend then return true end
         auto(path.线索传递)
-        auto(path.线索布置)
       end
       tap("信用奖励有")
+      auto(path.线索布置)
     end,
     会客厅信用奖励 = "会客厅信用奖励",
     进驻信息3 = "线索",

@@ -20,13 +20,10 @@ string.lpad = function(str, len, char)
 end
 -- return true if there is an x s.t. f(x) is true
 table.any = function(t, f)
-  for k, v in pairs(t) do
-    if f(v) then
-      -- log('any', ' ', v)
-      return true
-    end
-  end
-  return false
+  for k, v in pairs(t) do if f(v) then return true end end
+end
+table.findv = function(t, f)
+  for k, v in pairs(t) do if f(v) then return v end end
 end
 
 table.filter = function(t, f)
@@ -422,6 +419,7 @@ hc = function(x, h)
 end
 -- if find then tap with fallback
 findTap = function(...)
+  keepScreen(true)
   for k, v in ipairs(arg) do
     if find(v) then
       tap(v)
