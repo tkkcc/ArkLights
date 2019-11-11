@@ -11,7 +11,7 @@ path = {}
 
 path.base = {
   限时活动返回 = function()
-    local t = "限时活动列表"
+    local t = "限时活动横列表"
     for i = 1, #point[t] do tap(t .. i) end
     tap('限时活动返回')
   end,
@@ -144,8 +144,8 @@ path.限时活动 = update(path.base, {
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
   if not findTap('基建灯泡蓝') then return end
-  if findTap('点击全部收获') then sleep(6) end
-  findTap('点击全部收取')
+  -- if findTap('点击全部收获') then sleep(6) end
+  if findTap('点击全部收取') then log('基建信赖') end
   auto(path.base)
 end
 -- 换信赖最低的5人
@@ -394,7 +394,7 @@ path.线索布置 = function()
   }))
   if findTap("解锁线索") then auto(path.线索布置) end
 end
--- todo: find red 
+
 path.线索传递 = update(path.base, {
   面板 = "面板基建",
   进驻总览 = "会客厅",
@@ -402,10 +402,20 @@ path.线索传递 = update(path.base, {
   会客厅信用奖励 = "会客厅线索传递",
   线索传递返回 = function()
     -- todo: find duplication
-    tap("线索列表1")
-    local a = point.传递列表
+    local a = point.线索传递数字列表
+    for k, v in pairs(a) do
+      tap(v)
+      if find("线索传递数字重复") or k == #a then
+        tap("线索列表1")
+        break
+      end
+    end
+    -- tap("线索列表1")
+
+    a = point.传递列表
     local count = 0
     local f = function(random)
+      -- 橙框 on one
       local p = find("线索传递橙框")
       local t
       if p then
@@ -472,7 +482,18 @@ path.信用奖励 = function()
 end
 
 path.任务 = function()
-  for _, i in pairs({"日常任务", "周常任务"}) do
+  local l = {"日常任务", "周常任务"}
+  local b = os.time({
+    year = 2019,
+    month = 11,
+    day = 25,
+    hour = 4,
+    min = 0,
+    sec = 0,
+  })
+  local t = os.time()
+  if t < b then l = {"活动任务", "周常任务"} end
+  for _, i in pairs(l) do
     local p = update(path.base, {
       面板 = "面板任务",
       见习任务 = i,
@@ -929,3 +950,4 @@ end
 
 path.关闭 = close
 path.显示全部 = showALL
+path.后台 = background
