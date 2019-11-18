@@ -33,6 +33,11 @@ path.base = {
   登入错误 = restart,
   我知道了 = restart,
   密码错误 = stop,
+  网络异常稍后重试 = function()
+    -- tap("确认")
+    close()
+    -- sleep(600)
+  end,
   删除缓存返回 = "删除缓存返回",
   登陆认证失效 = "登陆认证失效",
   今日配给 = "今日配给",
@@ -73,7 +78,7 @@ path.base = {
   新手任务 = "右返回",
   代理失误放弃行动 = "代理失误放弃行动",
   提示关闭 = 提示关闭,
-  战斗记录未能同步返回 = "战斗记录未能同步返回",
+  战斗记录未能同步重试 = "左返回",
   正在释放神经递质 = "正在释放神经递质",
   线索传递返回 = "线索传递返回",
   无人机加速确定 = "无人机加速确定",
@@ -143,6 +148,7 @@ path.限时活动 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
+  sleep(5)
   if not findTap('基建灯泡蓝') then return end
   -- if findTap('点击全部收获') then sleep(6) end
   if findTap('点击全部收取') then log('基建信赖') end
@@ -893,6 +899,7 @@ path["1-11"] = function()
   if not findTap("开始行动红") then return end
   sleep(10)
   if not appear("跳过剧情") then
+    log("没找到跳过剧情")
     log('代理失误', x)
     bl[x] = false
     return false
@@ -913,7 +920,7 @@ path["1-11"] = function()
   sleep(6)
   deploy(1299, 801, 384)
   -- 玫兰莎
-  sleep(10)
+  sleep(8)
   deploy(945, 1227, 368)
   -- 黑角
   deploy(1122, 1216, 269)
