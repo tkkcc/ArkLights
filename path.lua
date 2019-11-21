@@ -10,6 +10,7 @@ for k, v in pairs(fight_type_all) do cl[v] = 0 end
 path = {}
 
 path.base = {
+  客户端过时 = function() stop() end,
   限时活动返回 = function()
     local t = "限时活动横列表"
     for i = 1, #point[t] do tap(t .. i) end
@@ -708,15 +709,15 @@ update_open_time = function()
   local a = os.time({
     year = 2019,
     month = 11,
-    day = 1,
-    hour = 4,
+    day = 19,
+    hour = 16,
     min = 0,
     sec = 0,
   })
   local b = os.time({
     year = 2019,
-    month = 11,
-    day = 10,
+    month = 12,
+    day = 3,
     hour = 4,
     min = 0,
     sec = 0,
@@ -888,7 +889,8 @@ end
 
 -- show all info
 showALL = function()
-  show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
+  -- show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
+  show(showBL(true))
 end
 
 path["1-11"] = function()
