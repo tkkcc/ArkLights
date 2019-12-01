@@ -32,7 +32,11 @@ path.base = {
   end,
   -- 维护
   登入错误 = restart,
-  我知道了 = restart,
+  我知道了 = function()
+    background()
+    return true
+  end,
+  -- restart,
   密码错误 = stop,
   网络异常稍后重试 = function()
     -- tap("确认")
@@ -149,8 +153,8 @@ path.限时活动 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  sleep(5)
-  if not findTap('基建灯泡蓝') then return end
+  if not appear('基建灯泡蓝', 20, 1) then return end
+  tap("基建灯泡蓝")
   -- if findTap('点击全部收获') then sleep(6) end
   if findTap('点击全部收取') then log('基建信赖') end
   auto(path.base)
@@ -408,7 +412,6 @@ path.线索传递 = update(path.base, {
   进驻信息3 = "线索",
   会客厅信用奖励 = "会客厅线索传递",
   线索传递返回 = function()
-    -- todo: find duplication
     local a = point.线索传递数字列表
     for k, v in pairs(a) do
       tap(v)
@@ -417,12 +420,9 @@ path.线索传递 = update(path.base, {
         break
       end
     end
-    -- tap("线索列表1")
-
     a = point.传递列表
     local count = 0
     local f = function(random)
-      -- 橙框 on one
       local p = find("线索传递橙框")
       local t
       if p then
@@ -481,7 +481,11 @@ path.信用奖励 = function()
     会客厅信用奖励 = "会客厅信用奖励",
     进驻信息3 = "线索",
     进驻总览 = "会客厅",
-    信用奖励无 = true,
+    信用奖励无 = function()
+      if not find("已达线索上限") then return true end
+      if no_friend then return true end
+      auto(path.线索传递)
+    end,
     面板 = "面板基建",
     进驻信息3选中 = "进驻信息3选中",
   }))
