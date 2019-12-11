@@ -43,6 +43,11 @@ path.base = {
     close()
     -- sleep(600)
   end,
+  -- 断网
+  获取网络配置失败 = function()
+    tap("获取网络配置失败")
+    return true
+  end,
   删除缓存返回 = "删除缓存返回",
   登陆认证失效 = "登陆认证失效",
   今日配给 = "今日配给",
@@ -493,17 +498,17 @@ path.信用奖励 = function()
 end
 
 path.任务 = function()
-  local l = {"日常任务", "周常任务"}
+  local l = {"活动任务", "周常任务"}
   local b = os.time({
     year = 2019,
-    month = 11,
-    day = 25,
+    month = 12,
+    day = 24,
     hour = 4,
     min = 0,
     sec = 0,
   })
   local t = os.time()
-  if t < b then l = {"活动任务", "周常任务"} end
+  if t > b then l = {"日常任务", "周常任务"} end
   for _, i in pairs(l) do
     local p = update(path.base, {
       面板 = "面板任务",
