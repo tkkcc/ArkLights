@@ -302,9 +302,9 @@ end
 input = function(x, s)
   tap(x)
   inputText("#CLEAR#")
-  -- sleep(.5)
+  sleep(.5)
   inputText(s)
-  -- sleep(.5)
+  sleep(.5)
   tap(x)
 end
 

@@ -158,9 +158,9 @@ path.限时活动 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  if not appear('基建灯泡蓝', 20, 1) then return end
+  if not appear('基建灯泡蓝', 10, 1) then return end
   tap("基建灯泡蓝")
-  -- if findTap('点击全部收获') then sleep(6) end
+  if findTap('点击全部收获') then sleep(6) end
   if findTap('点击全部收取') then log('基建信赖') end
   auto(path.base)
 end
@@ -616,7 +616,11 @@ path.开始游戏 = function(x)
     面板 = true,
     代理指挥关 = "代理指挥关",
     代理指挥开 = "开始行动蓝",
-    开始行动红 = "开始行动红",
+    开始行动红 = function()
+      -- log(x)
+      -- if true then return true end
+      tap("开始行动红")
+    end,
     未能同步到相关战斗记录 = function()
       bl[x] = false
       return true
@@ -855,7 +859,7 @@ path.访问好友基建 = function()
             loop_end = true
             return false
           end
-          return not findTap("访问下位")
+          return not findTap("访问下位橘") and not findTap("访问下位")
         end, 10, 1) or comm_enough or loop_end then return true end
       end
     end,
