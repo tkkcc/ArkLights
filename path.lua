@@ -13,7 +13,10 @@ path.base = {
   客户端过时 = function() stop() end,
   限时活动返回 = function()
     local t = "限时活动列表"
-    for i = 1, #point[t] do tap(t .. i) end
+    for i = 1, #point[t] do
+      log(t .. i)
+      tap(t .. i)
+    end
     tap('限时活动返回')
   end,
   面板 = true,
@@ -958,17 +961,12 @@ path["1-11"] = function()
   end
 end
 
-path.base.药剂恢复理智确认 =
+path.base.药剂恢复理智取消 =
   function() tap('药剂恢复理智确认') end
--- path.base.药剂恢复理智取消 = nil
 -- path.base.源石恢复理智取消 =
 --   function() tap('药剂恢复理智确认') end
--- path.base.药剂恢复理智取消 = nil
 
-path["作战1-11"] = function()
-  -- 45x14=630
-  for i = 1, 14 do path.作战("1-11") end
-end
+path["作战1-11"] = function() for i = 1, 3 do path.作战("1-11") end end
 
 path.关闭 = close
 path.显示全部 = showALL
