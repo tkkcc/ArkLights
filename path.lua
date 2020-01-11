@@ -966,7 +966,7 @@ path.base.药剂恢复理智取消 =
 -- path.base.源石恢复理智取消 =
 --   function() tap('药剂恢复理智确认') end
 
-path["作战1-11"] = function() for i = 1, 3 do path.作战("1-11") end end
+path["作战1-11"] = function() for i = 1, 4 do path.作战("1-11") end end
 
 path.关闭 = close
 path.显示全部 = showALL
