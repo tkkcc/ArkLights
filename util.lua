@@ -3,6 +3,10 @@ hudid = createHUD()
 
 insert = table.insert
 
+string.trim = function(s)
+  return s:match'^%s*(.*%S)' or ''
+end
+
 string.startsWith = function(str, prefix)
   return string.sub(str, 1, string.len(prefix)) == prefix
 end

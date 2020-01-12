@@ -1,5 +1,6 @@
 require("util")
 require("point")
+require("tag")
 
 -- set bl true
 bl = {}
@@ -8,7 +9,9 @@ cl = {}
 for k, v in pairs(fight_type_all) do cl[v] = 0 end
 
 path = {}
-
+path.关闭 = close
+path.显示全部 = showALL
+path.后台 = background
 path.base = {
   客户端过时 = function() stop() end,
   限时活动返回 = function()
@@ -961,13 +964,72 @@ path["1-11"] = function()
   end
 end
 
+path.公开招募刷新 = function()
+  -- auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
+  -- if find("公开招募联络次数0") then return end
+  local ocr, msg = createOCR({
+    type = "tesseract",
+    path = "[external]",
+    lang = "chi_sim",
+  })
+  for i = 1, #point.公开招募列表 do
+    -- auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
+    auto(update(path.base, {
+      面板 = "面板公开招募",
+      公开招募 = function()
+        -- if find("公开招募联络次数0") then return true end
+        if not findTap('公开招募列表' .. i) then return true end
+      end,
+      公开招募确认 = function()
+        local code, text
+        local a = {}
+        for k, v in pairs(point.公开招募标签列表) do
+          v = point[v]
+          local colorTbl = binarizeImage(
+                             {rect = v, diff = {"0xffffff-0x444444"}})
+          for k, v in pairs(colorTbl) do print(table.concat(v)) end
+          code, text = ocr:getText({
+            -- rect = v,
+            data = colorTbl,
+            -- diff = {"0xffffff-0x444444"},
+            -- diff = {"0xffffff-0x555555"},
+            -- diff = {"0xbbbbbb-0x222222"},
+            whitelist = tagw,
+            psm = 7,
+          })
+          insert(a, text)
+        end
+        log(i, a)
+        local flag
+        local t = {}
+        for k, v in pairs(tagk) do
+          flag = true
+          for k1, v1 in pairs(v) do
+            if not table.includes(a, v1) then
+              flag = false
+              break
+            end
+          end
+          if flag then insert(t, k) end
+        end
+        if #t ~= 0 then
+          for k, v in pairs(t) do log(tagk[v], '=>', tagv[v]) end
+        else
+          if findTap("公开招募标签刷新蓝") then
+            tap("消耗一次联络机会确认")
+            return false
+          end
+        end
+        return true
+      end,
+    }))
+  end
+  ocr:release()
+end
+
+path["作战1-11"] = function() for i = 1, 6 do path.作战("1-11") end end
+
 path.base.药剂恢复理智取消 =
   function() tap('药剂恢复理智确认') end
 -- path.base.源石恢复理智取消 =
 --   function() tap('药剂恢复理智确认') end
-
-path["作战1-11"] = function() for i = 1, 4 do path.作战("1-11") end end
-
-path.关闭 = close
-path.显示全部 = showALL
-path.后台 = background
