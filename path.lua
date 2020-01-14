@@ -969,8 +969,10 @@ path.公开招募刷新 = function()
   -- if find("公开招募联络次数0") then return end
   local ocr, msg = createOCR({
     type = "tesseract",
-    path = "[external]",
-    lang = "chi_sim",
+    -- path = "res/", 
+    -- lang = 'ark'，
+    path = '[external]',
+    lang = 'chi_sim',
   })
   for i = 1, #point.公开招募列表 do
     -- auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
@@ -990,14 +992,12 @@ path.公开招募刷新 = function()
           for k, v in pairs(colorTbl) do print(table.concat(v)) end
           code, text = ocr:getText({
             -- rect = v,
-            data = colorTbl,
             -- diff = {"0xffffff-0x444444"},
-            -- diff = {"0xffffff-0x555555"},
-            -- diff = {"0xbbbbbb-0x222222"},
-            whitelist = tagw,
+            data = colorTbl
+            -- whitelist = tagw,
             psm = 7,
           })
-          insert(a, text)
+          insert(a, trim(text))
         end
         log(i, a)
         local flag
@@ -1027,7 +1027,7 @@ path.公开招募刷新 = function()
   ocr:release()
 end
 
-path["作战1-11"] = function() for i = 1, 6 do path.作战("1-11") end end
+path["作战1-11"] = function() for i = 1, 7 do path.作战("1-11") end end
 
 path.base.药剂恢复理智取消 =
   function() tap('药剂恢复理智确认') end

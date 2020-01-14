@@ -2,9 +2,9 @@ appid = "com.hypergryph.arknights"
 hudid = createHUD()
 
 insert = table.insert
-
-string.trim = function(s)
-  return s:match'^%s*(.*%S)' or ''
+-- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
+function trim(s)
+  return s:match'^()%s*$' and '' or s:match'^%s*(.*%S)'
 end
 
 string.startsWith = function(str, prefix)
