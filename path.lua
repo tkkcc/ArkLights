@@ -967,14 +967,8 @@ end
 path.公开招募刷新 = function()
   -- auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
   -- if find("公开招募联络次数0") then return end
-  local ocr, msg = createOCR({
-    type = "tesseract",
-    -- path = "res/", 
-    -- lang = 'ark'，
-    path = '[external]',
-    lang = 'chi_sim',
-  })
-  for i = 1, #point.公开招募列表 do
+
+  for i = 4, #point.公开招募列表 do
     -- auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
     auto(update(path.base, {
       面板 = "面板公开招募",
@@ -983,21 +977,16 @@ path.公开招募刷新 = function()
         if not findTap('公开招募列表' .. i) then return true end
       end,
       公开招募确认 = function()
-        local code, text
         local a = {}
         for k, v in pairs(point.公开招募标签列表) do
           v = point[v]
-          local colorTbl = binarizeImage(
-                             {rect = v, diff = {"0xffffff-0x444444"}})
-          for k, v in pairs(colorTbl) do print(table.concat(v)) end
-          code, text = ocr:getText({
-            -- rect = v,
-            -- diff = {"0xffffff-0x444444"},
-            data = colorTbl
-            -- whitelist = tagw,
-            psm = 7,
+          local t = binarizeImage({
+            rect = v,
+            diff = {"0xffffff-0x989898"}, -- background<=0x66
           })
-          insert(a, trim(text))
+          -- for k, v in pairs(t) do print(table.concat(v)) end
+          insert(a, ocr(t))
+          -- lua_exit()
         end
         log(i, a)
         local flag
@@ -1016,15 +1005,15 @@ path.公开招募刷新 = function()
           for k, v in pairs(t) do log(tagk[v], '=>', tagv[v]) end
         else
           if findTap("公开招募标签刷新蓝") then
-            tap("消耗一次联络机会确认")
-            return false
+            -- tap("消耗一次联络机会确认")
+            -- return false
+
           end
         end
         return true
       end,
     }))
   end
-  ocr:release()
 end
 
 path["作战1-11"] = function() for i = 1, 7 do path.作战("1-11") end end
