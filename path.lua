@@ -9,9 +9,7 @@ cl = {}
 for k, v in pairs(fight_type_all) do cl[v] = 0 end
 
 path = {}
-path.关闭 = close
-path.显示全部 = showALL
-path.后台 = background
+
 path.base = {
   客户端过时 = function() stop() end,
   限时活动返回 = function()
@@ -909,8 +907,11 @@ end
 -- show all info
 showALL = function()
   -- show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
-  show(showBL(true))
+  show(taglog .. '\n' .. showBL(true), 500)
 end
+path.关闭 = close
+path.显示全部 = showALL
+path.后台 = background
 
 path["1-11"] = function()
   sleep(.5)
@@ -964,12 +965,13 @@ path["1-11"] = function()
   end
 end
 
+taglog = ''
 path.公开招募刷新 = function()
-  -- auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
+  auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
   -- if find("公开招募联络次数0") then return end
-
-  for i = 4, #point.公开招募列表 do
-    -- auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
+  local a, tt, t, flag
+  for i = 1, #point.公开招募列表 do
+    auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
     auto(update(path.base, {
       面板 = "面板公开招募",
       公开招募 = function()
@@ -977,10 +979,11 @@ path.公开招募刷新 = function()
         if not findTap('公开招募列表' .. i) then return true end
       end,
       公开招募确认 = function()
-        local a = {}
-        for k, v in pairs(point.公开招募标签列表) do
+        a = {}
+        b = {}
+        for k, v in pairs(point.公开招募标签框列表) do
           v = point[v]
-          local t = binarizeImage({
+          t = binarizeImage({
             rect = v,
             diff = {"0xffffff-0x989898"}, -- background<=0x66
           })
@@ -988,9 +991,26 @@ path.公开招募刷新 = function()
           insert(a, ocr(t))
           -- lua_exit()
         end
-        log(i, a)
-        local flag
-        local t = {}
+
+        -- check if all tags are valid
+        flag = true
+        for k, v in pairs(a) do
+          if not table.includes(tag, v) then
+            flag = false
+            break
+          end
+        end
+
+        -- log(a)
+        if not flag then
+          tt = 'invalid tag ' .. table.concat(a, ',')
+          log(tt)
+          taglog = taglog .. tt .. '\n'
+          return true
+        end
+
+        -- discover at least 4 stars tags
+        t = {}
         for k, v in pairs(tagk) do
           flag = true
           for k1, v1 in pairs(v) do
@@ -1002,12 +1022,24 @@ path.公开招募刷新 = function()
           if flag then insert(t, k) end
         end
         if #t ~= 0 then
-          for k, v in pairs(t) do log(tagk[v], '=>', tagv[v]) end
+          for k, v in pairs(t) do
+            tt = table.concat(tagk[v], ',') .. '=>' .. tagv[v]
+            log(tt)
+            taglog = taglog .. tt .. '\n'
+          end
+          if #t == 1 then
+            tt = tagk[t[1]]
+            for k, v in pairs(tt) do
+              p = table.find(a, function(x) return x == v end)
+              tap("公开招募标签列表" .. p)
+            end
+            for i = 1, 8 do tap("公开招募时间加") end
+            tap("公开招募确认")
+          end
         else
           if findTap("公开招募标签刷新蓝") then
-            -- tap("消耗一次联络机会确认")
-            -- return false
-
+            tap("消耗一次联络机会确认")
+            return false
           end
         end
         return true

@@ -9,10 +9,12 @@ tag = {"新手", "资深干员", "高级资深干员", "远程位", "近战位",
 tagw =
   "位先减出击削助医卫发召员唤回场复存师干弱快战手护控援支攻新术机械治活深爆特狙生用疗种移程级群装费资辅输近远速重锋防高"
 
--- https://www.taptap.com/topic/6542004
+-- https://www.taptap.com/topic/5828806 12月24日
 tag4 = [[
   资深干员：5星
+  资深干员+资深干员：5星
   高级资深干员：6星
+  高级资深干员+高级资深干员：6星
   近战位+治疗：古米（4星）、临光（5星）
   近战位+支援：杜宾（4星）、凛冬（5星）
   近战位+群攻：艾丝黛尔（4星）、幽灵鲨（5星）
@@ -156,16 +158,58 @@ for k, v in tag4:gmatch('([^\r\n%s]+)：([^\r\n%s]+)') do
     if not i then log('tag map error', k) end
     insert(t, tag[i])
   end
-  insert(tagk, t)
-  insert(tagv, v)
+  -- ignore duplication
+  flag = true
+  for k, v in pairs(tagk) do
+    if #v == #t and
+      not table.any(v, function(x) return not table.includes(t, x) end) then
+      flag = false
+      break
+    end
+  end
+  if flag then
+    -- log(t)
+    insert(tagk, t)
+    insert(tagv, v)
+  end
 end
 -- for k, v in pairs(tagk) do log(v) end
 
--- x: binary image 
--- out: text string
+-- return bottom/right blank line num
+detect_blank_line = function(s, ah, aw)
+  local flag = true
+  local bza = 0 -- bottom zero line num
+  local rza = 0 -- right zero line num
+  for i = ah, 1, -1 do
+    for j = 1, aw do
+      if s[(i - 1) * aw + j] then
+        flag = false
+        break
+      end
+    end
+    if not flag then break end
+    bza = bza + 1
+  end
+  flag = true
+  for j = aw, 1, -1 do
+    for i = 1, ah do
+      if s[(i - 1) * aw + j] then
+        flag = false
+        break
+      end
+    end
+    if not flag then break end
+    rza = rza + 1
+  end
+  return {bza, rza}
+end
+
+fm_blank_line = {}
+-- x: binary image
+-- out: string
 ocr = function(x)
   -- bounding box of whole text
-  local h_noise_max = 4
+  local h_noise_max = 6
   local w_noise_max = h_noise_max * 2
   local h, w = #x, #x[1]
   -- log(h, w)
@@ -179,8 +223,8 @@ ocr = function(x)
       ws[i] = ws[i] + x[i][j]
     end
   end
-  local hsb = {unpack(hs)}
-  local wsb = {unpack(ws)}
+  -- local hsb = {unpack(hs)}
+  -- local wsb = {unpack(ws)}
   for i = 1, w do if hs[i] < h_noise_max then hs[i] = 0 end end
   for i = 1, h do if ws[i] < w_noise_max then ws[i] = 0 end end
   local top = 1
@@ -191,10 +235,10 @@ ocr = function(x)
   while ws[bottom] == 0 do bottom = bottom - 1 end
   while hs[left] == 0 do left = left + 1 end
   while hs[right] == 0 do right = right - 1 end
-  top = top - 1
-  bottom = bottom - 1
-  left = left - 1
-  right = right - 1
+  -- top = top - 1
+  -- bottom = bottom - 1
+  -- left = left - 1
+  -- right = right - 1
   -- while wsb[top] ~= 0 do top = top - 1 end
   -- while wsb[bottom] ~= 0 do bottom = bottom + 1 end
   -- while hsb[left] ~= 0 do left = left - 1 end
@@ -207,10 +251,10 @@ ocr = function(x)
   local ah = 30
   local aw = 28
   -- similarity threshold
-  local sim_max = 40
+  -- local sim_max = 40
   local result = ''
   -- loop each word
-  log(h, ' ', w)
+  -- log(h, ' ', w)
   if bottom <= top or right <= left then return result end
   -- offset
   local of = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 0}, {0, 1}, {1, -1},
@@ -220,14 +264,17 @@ ocr = function(x)
         {-0, 2}, {1, -2}, {1, -1}, {1, -0}, {1, 1}, {1, 2}, {2, -2}, {2, -1},
         {2, -0}, {2, 1}, {2, 2}}
   -- of = {{-1, 0}, {0, 0}, {-2, 0}}
-  -- of = {{0, 0}}
+  of = {{0, 0}}
+  local cps = 2 -- compare point step
+  local s, t, a, t1, err_min_total, target, err_min, err, dx, dy, cx, cy, ofa,
+        ofb, bza, bzb, rza, rzb, flag
 
   for i = top, bottom, bh do
     for j = left, right, bw do
       -- log("word ", i, ' ', j)
-      local t = {}
-      local a = false
-      -- local t1 = '\n'
+      t = {}
+      a = false
+      t1 = '\n'
       for k = 0, ah - 1 do
         for l = 0, aw - 1 do
           a = x[i + k][j + l] == 1 and true or false
@@ -241,25 +288,35 @@ ocr = function(x)
         log("error: single word size error ", #t)
         lua_exit()
       end
-      local err_min_total = 0x3f3f3f3f, target
+
+      -- match bottom line of s and t
+      bzb, rzb = unpack(detect_blank_line(t, ah, aw))
+      -- log(bzb, rzb)
+      -- cache blank of fm
+      if not fm_blank_line.辅 then
+        for k, v in pairs(fm) do
+          fm_blank_line[k] = detect_blank_line(v, ah, aw)
+        end
+      end
+
       -- loop each target
+      err_min_total = 0x3f3f3f3f
       for k, v in pairs(fm) do
         -- calculator similarity
-        -- local err_min = 0x3f3f3f3f
-        local err_min = 0
-        local y = fm[k]
-
-        local err, dx, dy, cx, cy, ofa, ofb
+        err_min = 0
+        s = fm[k]
+        bza, rza = unpack(fm_blank_line[k])
+        -- loop each offset
         for l = 1, #of do
           err = 0
-          dx, dy = of[l][1], of[l][2]
-          for ki = 1, ah do
-            for kj = 1, aw do
+          dx, dy = of[l][1] - bzb + bza, of[l][2] - rzb + rza
+          for ki = 1, ah - bza do
+            for kj = 1, aw - rza do
               cx, cy = dx + ki, dy + kj
               if not (cx < 1 or cx > ah or cy < 1 or cy > aw) then
                 ofa = (ki - 1) * aw + kj
                 ofb = (cx - 1) * aw + cy
-                if y[ofa] ~= t[ofb] then err = err + 1 end
+                if s[ofa] ~= t[ofb] then err = err + 1 end
               end
             end
           end
@@ -271,7 +328,7 @@ ocr = function(x)
           target = k
         end
       end
-      log(target, ' ', err_min_total)
+      -- log(target, ' ', err_min_total)
       -- lua_exit()
       result = result .. target
     end
@@ -348,6 +405,7 @@ fm = {
   防 = "000000000000000000000000000000000000000000001111000000001111111110000000011100000000111111111110000001111000000011111111110000000111100000001111001111000000011100000000111100111111111111111111111111110011101111111111111111111111001110111111111111111111111101111000001111000000000011110111000000111100000000001111011100000011110000000000111101110000001110000000000011110111100000111111111111001111001110000011111111111100111100111100001111111111110011110001110001111000001111001111000111000111100000111100111100011100011110000011110011110001110001111000001111001111001111000111000000111100111111111100111100000011110011110111100011110000001111001111011100011110000000111100111100000011111000000011100011110000011111000000001110001111000011111100000001111000111100011111100001111111100011110000111100000011111110001111000011100000001111110000",
   高 = "000000000000000000000000000000000000000111100000000000000000000000011110000000000000000000000000111100000000000011111111111111111111111111101111111111111111111111111110111111111111111111111111111000000000000000000000000000000000111111111111111111100000000011111111111111111110000000001111000000000001111000000000111100000000000011100000000011110000000000011110000000001111111111111111111000000000111111111111111111100000000000000000000000000000000001111111111111111111111111000111111111111111111111111100011111111111111111111111110001110000000000000000000111000111000111111111111100011100011100011111111111110001110001110001111111111111000111000111000111000000011100011100011100011100000001110001110001110001111111111111000111000111000111111111111100011100011100011111111111111111110001110001110000000001111111000111000000000000000011111000",
 }
+-- string to bool table
 for k, v in pairs(fm) do
   fm[k] = {}
   local a = false
