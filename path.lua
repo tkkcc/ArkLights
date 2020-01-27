@@ -97,6 +97,7 @@ path.base = {
   线索传递返回 = "线索传递返回",
   无人机加速确定 = "无人机加速确定",
   无人机加速获取订单确定 = "无人机加速获取订单确定",
+  接管作战 = function() disappear("接管作战", 60 * 60, 5) end,
 }
 
 path.移动停止按钮 = function()
@@ -190,6 +191,7 @@ path.基建副手换人 = function()
     sleep(.5)
   end
 end
+
 path.换人 = function()
   update_station_list()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
@@ -231,6 +233,8 @@ path.换人 = function()
         swipq('dorm' .. dorm_index)
         a = 1
         if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
+        -- TODO: 控制中枢漏人: 检测人数错误?还是根本就没点进去
+        if v == "控制中枢" then log(v, ' ', a, ' ', b) end
         for i = a, a + b - 1 do tap("干员选择列表" .. i) end
       end,
     })
@@ -502,17 +506,25 @@ path.信用奖励 = function()
 end
 
 path.任务 = function()
-  local l = {"活动任务", "周常任务"}
+  local l = {"日常任务", "周常任务"}
+  local a = os.time({
+    year = 2020,
+    month = 2,
+    day = 6,
+    hour = 4,
+    min = 0,
+    sec = 0,
+  })
   local b = os.time({
-    year = 2019,
-    month = 12,
-    day = 24,
+    year = 2020,
+    month = 2,
+    day = 20,
     hour = 4,
     min = 0,
     sec = 0,
   })
   local t = os.time()
-  if t > b then l = {"日常任务", "周常任务"} end
+  if a <= t and t < b then l = {"活动任务", "周常任务"} end
   for _, i in pairs(l) do
     local p = update(path.base, {
       面板 = "面板任务",
@@ -907,7 +919,8 @@ end
 -- show all info
 showALL = function()
   -- show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
-  show(taglog .. '\n' .. showBL(true), 500)
+  -- local _, count = str:gsub('\n', '\n')
+  show(taglog .. '\n' .. showBL(true), 36)
 end
 path.关闭 = close
 path.显示全部 = showALL
@@ -967,6 +980,7 @@ end
 
 taglog = ''
 path.公开招募刷新 = function()
+  taglog = ''
   auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
   -- if find("公开招募联络次数0") then return end
   local a, tt, t, flag
@@ -981,6 +995,7 @@ path.公开招募刷新 = function()
       公开招募确认 = function()
         a = {}
         b = {}
+        keepScreen(true)
         for k, v in pairs(point.公开招募标签框列表) do
           v = point[v]
           t = binarizeImage({
@@ -991,6 +1006,7 @@ path.公开招募刷新 = function()
           insert(a, ocr(t))
           -- lua_exit()
         end
+        keepScreen(false)
 
         -- check if all tags are valid
         flag = true
@@ -1005,7 +1021,7 @@ path.公开招募刷新 = function()
         if not flag then
           tt = 'invalid tag ' .. table.concat(a, ',')
           log(tt)
-          taglog = taglog .. tt .. '\n'
+          taglog = taglog .. '\n' .. tt
           return true
         end
 
@@ -1025,14 +1041,18 @@ path.公开招募刷新 = function()
           for k, v in pairs(t) do
             tt = table.concat(tagk[v], ',') .. '=>' .. tagv[v]
             log(tt)
-            taglog = taglog .. tt .. '\n'
+            taglog = taglog .. '\n' .. tt
           end
           if #t == 1 then
             tt = tagk[t[1]]
+            -- debug
+            log('debug ', a)
             for k, v in pairs(tt) do
               p = table.find(a, function(x) return x == v end)
+              log('debug ', v, ' ', p)
               tap("公开招募标签列表" .. p)
             end
+            -- if true then return true end
             for i = 1, 8 do tap("公开招募时间加") end
             tap("公开招募确认")
           end

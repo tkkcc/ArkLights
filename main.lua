@@ -17,7 +17,7 @@ fight_type_ext = {"PR-A-2", "PR-B-2", "PR-C-2", "PR-D-2", "PR-A-1", "PR-B-1",
                   "PR-C-1", "PR-D-1"}
 table.extend(fight_type_ext,
              {"4-8", "LS-5", "CA-5", "AP-5", "CE-5", "龙门市区"})
-fight_type_ext = {"4-10", "4-8"}
+table.extend(fight_type_ext, {"4-2", "4-10", "4-8"})
 insert(fight_type_ext, "CE-5")
 repeat_last(fight_type_ext, 500)
 insert(fight_type_ext, "龙门市区")
@@ -44,4 +44,6 @@ table.shuffle(fight_type)
 -- now(unpack(每八小时))
 -- path.公开招募刷新()
 -- lua_exit()
+-- now("公开招募刷新","后台")
+-- now("限时活动")
 cron(map(hc, {{每日开始, 4}, {每八小时, "2,10,18"}}))

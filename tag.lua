@@ -269,8 +269,8 @@ ocr = function(x)
   local s, t, a, t1, err_min_total, target, err_min, err, dx, dy, cx, cy, ofa,
         ofb, bza, bzb, rza, rzb, flag
 
-  for i = top, bottom, bh do
-    for j = left, right, bw do
+  for i = top, bottom - math.floor(ah / 2), bh do
+    for j = left, right - math.floor(aw / 2), bw do
       -- log("word ", i, ' ', j)
       t = {}
       a = false
@@ -291,6 +291,7 @@ ocr = function(x)
 
       -- match bottom line of s and t
       bzb, rzb = unpack(detect_blank_line(t, ah, aw))
+
       -- log(bzb, rzb)
       -- cache blank of fm
       if not fm_blank_line.辅 then
@@ -298,34 +299,40 @@ ocr = function(x)
           fm_blank_line[k] = detect_blank_line(v, ah, aw)
         end
       end
-
-      -- loop each target
-      err_min_total = 0x3f3f3f3f
-      for k, v in pairs(fm) do
-        -- calculator similarity
-        err_min = 0
-        s = fm[k]
-        bza, rza = unpack(fm_blank_line[k])
-        -- loop each offset
-        for l = 1, #of do
-          err = 0
-          dx, dy = of[l][1] - bzb + bza, of[l][2] - rzb + rza
-          for ki = 1, ah - bza do
-            for kj = 1, aw - rza do
-              cx, cy = dx + ki, dy + kj
-              if not (cx < 1 or cx > ah or cy < 1 or cy > aw) then
-                ofa = (ki - 1) * aw + kj
-                ofb = (cx - 1) * aw + cy
-                if s[ofa] ~= t[ofb] then err = err + 1 end
+      -- calulate sum
+      t1 = 0
+      for k = 1, #t do if t[k] then t1 = t1 + 1 end end
+      if t1 < 4 * aw then
+        target = ""
+      else
+        -- loop each target
+        err_min_total = 0x3f3f3f3f
+        for k, v in pairs(fm) do
+          -- calculator similarity
+          err_min = 0
+          s = fm[k]
+          bza, rza = unpack(fm_blank_line[k])
+          -- loop each offset
+          for l = 1, #of do
+            err = 0
+            dx, dy = of[l][1] - bzb + bza, of[l][2] - rzb + rza
+            for ki = 1, ah - bza do
+              for kj = 1, aw - rza do
+                cx, cy = dx + ki, dy + kj
+                if not (cx < 1 or cx > ah or cy < 1 or cy > aw) then
+                  ofa = (ki - 1) * aw + kj
+                  ofb = (cx - 1) * aw + cy
+                  if s[ofa] ~= t[ofb] then err = err + 1 end
+                end
               end
             end
+            -- if err_min > err then err_min = err end
+            err_min = err_min + err
           end
-          -- if err_min > err then err_min = err end
-          err_min = err_min + err
-        end
-        if err_min_total > err_min then
-          err_min_total = err_min
-          target = k
+          if err_min_total > err_min then
+            err_min_total = err_min
+            target = k
+          end
         end
       end
       -- log(target, ' ', err_min_total)
