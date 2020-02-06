@@ -507,24 +507,6 @@ end
 
 path.任务 = function()
   local l = {"日常任务", "周常任务"}
-  local a = os.time({
-    year = 2020,
-    month = 2,
-    day = 8,
-    hour = 4,
-    min = 0,
-    sec = 0,
-  })
-  local b = os.time({
-    year = 2020,
-    month = 2,
-    day = 22,
-    hour = 4,
-    min = 0,
-    sec = 0,
-  })
-  local t = os.time()
-  if a <= t and t < b then l = {"活动任务", "周常任务"} end
   for _, i in pairs(l) do
     local p = update(path.base, {
       面板 = "面板任务",
@@ -537,6 +519,7 @@ path.任务 = function()
       findTap('任务蓝')
       if table.any({'任务黑', "任务灰"}, find) then return true end
     end
+    p['活动任务'] = p["日常任务"]
     auto(p)
   end
 end
@@ -736,17 +719,17 @@ update_open_time = function()
     end
   end
   local a = os.time({
-    year = 2019,
-    month = 11,
-    day = 19,
-    hour = 16,
+    year = 2020,
+    month = 2,
+    day = 8,
+    hour = 4,
     min = 0,
     sec = 0,
   })
   local b = os.time({
-    year = 2019,
-    month = 12,
-    day = 3,
+    year = 2020,
+    month = 2,
+    day = 22,
     hour = 4,
     min = 0,
     sec = 0,
