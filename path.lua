@@ -187,7 +187,6 @@ path.基建副手换人 = function()
     tap("排序信赖")
     tap("干员选择列表1")
     tap("干员选择确认")
-    tap("返回")
     sleep(.5)
   end
 end
@@ -234,7 +233,7 @@ path.换人 = function()
         a = 1
         if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
         -- TODO: 控制中枢漏人: 检测人数错误?还是根本就没点进去
-        if v == "控制中枢" then log(v, ' ', a, ' ', b) end
+        -- if v == "控制中枢" then log(v, ' ', a, ' ', b) end
         for i = a, a + b - 1 do tap("干员选择列表" .. i) end
       end,
     })

@@ -27,6 +27,6 @@ table.shuffle(fight_type)
 -- fight_type={"4-10"}
 -- insert(fight_type, "CE-5")
 -- repeat_last(fight_type, 500)
-now(unpack(每八小时))
+-- now(unpack(每八小时))
 -- now(unpack(每日开始))
 cron(map(hc, {{每日开始, 4}, {每八小时, "2,10,18"}}))
