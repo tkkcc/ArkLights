@@ -13,7 +13,7 @@ path = {}
 path.base = {
   客户端过时 = function() stop() end,
   限时活动返回 = function()
-    local t = "限时活动横列表"
+    local t = "限时活动列表"
     for i = 1, #point[t] do
       log(t .. i)
       tap(t .. i)
@@ -38,6 +38,7 @@ path.base = {
   登入错误 = restart,
   我知道了 = function()
     background()
+    sleep(3600)
     return true
   end,
   -- restart,
