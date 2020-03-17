@@ -3,9 +3,7 @@ hudid = createHUD()
 
 insert = table.insert
 -- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
-function trim(s)
-  return s:match'^()%s*$' and '' or s:match'^%s*(.*%S)'
-end
+function trim(s) return s:match '^()%s*$' and '' or s:match '^%s*(.*%S)' end
 
 string.startsWith = function(str, prefix)
   return string.sub(str, 1, string.len(prefix)) == prefix
@@ -95,8 +93,10 @@ update = function(b, x, inplace)
   return y
 end
 
-repeat_last = function(x, n)
-  for i = 1, n do insert(x, x[#x]) end
+-- n: num, a: alternative element
+repeat_last = function(x, n, a)
+  if a == nil then a = x[#x] end
+  for i = 1, n do insert(x, a) end
   return x
 end
 
@@ -477,3 +477,4 @@ disappear = function(t, timeout, interval)
   local f = function(x) return find(x) end
   return wait(t, f, timeout, interval)
 end
+

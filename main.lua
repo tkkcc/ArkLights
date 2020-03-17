@@ -13,20 +13,11 @@ cron = require("crontab")
                 "基建点击全部", "基建副手换人", "任务", "后台",
                 "显示全部"}
 
-fight_type_ext = {"PR-A-2", "PR-B-2", "PR-C-2", "PR-D-2"}
-table.extend(fight_type_ext,
-             {"4-8", "LS-5", "CA-5", "AP-5", "CE-5", "龙门市区"})
-table.extend(fight_type_ext, {"4-2", "4-10", "4-8"})
-insert(fight_type_ext, "CE-5")
-repeat_last(fight_type_ext, 500)
-insert(fight_type_ext, "龙门市区")
-repeat_last(fight_type_ext, 10)
-fight_type = fight_type_ext
+fight_type = {"PR-A-2", "PR-B-2", "PR-C-2", "PR-D-2"}
+table.extend(fight_type, {"1-7"})
+repeat_last(fight_type, 500, "CE-5")
+repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
--- fight_type={"4-10"}
--- insert(fight_type, "CE-5")
--- repeat_last(fight_type, 500)
--- now(unpack(每日开始))
 now(unpack(每八小时))
--- path.作战("1-11")
+now(unpack(每日开始))
 cron(map(hc, {{每日开始, 4}, {每八小时, "2,10,18"}}))

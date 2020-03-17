@@ -43,11 +43,7 @@ path.base = {
   end,
   -- restart,
   密码错误 = stop,
-  网络异常稍后重试 = function()
-    -- tap("确认")
-    close()
-    -- sleep(600)
-  end,
+  网络异常稍后重试 = close,
   -- 断网
   获取网络配置失败 = function()
     tap("获取网络配置失败")
@@ -99,6 +95,7 @@ path.base = {
   无人机加速确定 = "无人机加速确定",
   无人机加速获取订单确定 = "无人机加速获取订单确定",
   接管作战 = function() disappear("接管作战", 60 * 60, 5) end,
+  未能同步到相关战斗记录 = close,
 }
 
 path.移动停止按钮 = function()
@@ -587,11 +584,13 @@ path.免费强化包 = update(path.base, {
   end,
 })
 
-tick = 0
+tick = tonumber(get("tick")) or 0
+-- print("tick: "..tick)
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
-    -- log(tick,' ',fight_type[tick])
+    set("tick", tick)
+    log(tick, ' ', fight_type[tick])
     path.作战(fight_type[tick])
   end
 end
@@ -620,10 +619,10 @@ path.开始游戏 = function(x)
       -- if true then return true end
       tap("开始行动红")
     end,
-    未能同步到相关战斗记录 = function()
-      bl[x] = false
-      return true
-    end,
+    -- 未能同步到相关战斗记录 = function()
+    --   bl[x] = false
+    --   return true
+    -- end,
     接管作战 = function()
       -- todo: 记录不能同步到服务器
       if disappear("接管作战", 60 * 60, 5) and
@@ -720,16 +719,16 @@ update_open_time = function()
   end
   local a = os.time({
     year = 2020,
-    month = 2,
-    day = 8,
-    hour = 4,
+    month = 3,
+    day = 17,
+    hour = 16,
     min = 0,
     sec = 0,
   })
   local b = os.time({
     year = 2020,
-    month = 2,
-    day = 22,
+    month = 3,
+    day = 31,
     hour = 4,
     min = 0,
     sec = 0,
