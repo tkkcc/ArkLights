@@ -151,6 +151,7 @@ path.更新参与交流次数 = update_comm
 path.每日更新 = function()
   update_station_list()
   update_comm()
+  update_open_time()
 end
 path.限时活动 = update(path.base, {
   面板 = function()

@@ -419,7 +419,7 @@ end
 -- hour crontab
 hc = function(x, h)
   if type(x) == "table" then x, h = x[1], x[2] end
-  return {callback = function() run(x) end, hour = h, minute = 10}
+  return {callback = function() run(x) end, hour = h, minute = 30}
 end
 -- if find then tap with fallback
 findTap = function(...)
