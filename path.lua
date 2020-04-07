@@ -36,12 +36,7 @@ path.base = {
   end,
   -- 维护
   登入错误 = restart,
-  我知道了 = function()
-    background()
-    sleep(3600)
-    return true
-  end,
-  -- restart,
+  我知道了 = restart,
   密码错误 = stop,
   网络异常稍后重试 = close,
   -- 断网
@@ -591,7 +586,7 @@ path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
     set("tick", tick)
-    log(tick, ' ', fight_type[tick])
+    -- log(tick, ' ', fight_type[tick])
     path.作战(fight_type[tick])
   end
 end
@@ -610,6 +605,7 @@ path.作战 = function(x)
 end
 
 path.开始游戏 = function(x)
+  log(tick, ' ', x)
   if x == "1-11" then return auto(path["1-11"]) end
   return auto(update(path.base, {
     面板 = true,
@@ -827,7 +823,6 @@ path.剿灭 = function(x)
     end,
     [x] = function()
       tap(x)
-
       return true
     end,
   })
@@ -859,7 +854,7 @@ path.访问好友基建 = function()
             return false
           end
           return not findTap("访问下位橘") and not findTap("访问下位")
-        end, 10, 1) or comm_enough or loop_end then return true end
+        end, 10, 2) or comm_enough or loop_end then return true end
       end
     end,
   }))

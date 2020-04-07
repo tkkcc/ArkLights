@@ -201,7 +201,7 @@ log = function(...)
   if #history > 6000 then table.clear(history) end
   history[#history + 1] = a
   l = loop_times(history)
-  if l > 150 then restart() end
+  if l > 50 then restart() end
   if l > 1 then a = a .. " x" .. l end
   -- if a:find("其它=>返回") then return end
   show(a)
@@ -229,12 +229,13 @@ stop = function()
   close()
   lua_exit()
 end
-
-restart = function()
-  -- 100 hours
-  sleep(360000)
-  close()
+pause = function()
+  background()
   sleep(3600)
+end
+restart = function()
+  pause()
+  close()
   set("restart", true)
   lua_restart()
 end
