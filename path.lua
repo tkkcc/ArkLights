@@ -973,34 +973,26 @@ path.公开招募刷新 = function()
       公开招募确认 = function()
         a = {}
         b = {}
-        keepScreen(true)
+        mr = 5
         for k, v in pairs(point.公开招募标签框列表) do
-          v = point[v]
-          t = binarizeImage({
-            rect = v,
-            diff = {"0xffffff-0x989898"}, -- background<=0x66
-          })
-          -- for k, v in pairs(t) do print(table.concat(v)) end
-          insert(a, ocr(t))
-          -- lua_exit()
-        end
-        keepScreen(false)
-
-        -- check if all tags are valid
-        flag = true
-        for k, v in pairs(a) do
-          if not table.includes(tag, v) then
-            flag = false
-            break
+          t = ""
+          r = 1
+          while not table.includes(tag, t) and r < mr do
+            r = r + 1
+            v = point[v]
+            t = binarizeImage({
+              rect = v,
+              diff = {"0xffffff-0x989898"}, -- background<=0x66
+            })
+            t = ocr(t)
           end
-        end
-
-        -- log(a)
-        if not flag then
-          tt = 'invalid tag ' .. table.concat(a, ',')
-          log(tt)
-          taglog = taglog .. '\n' .. tt
-          return true
+          if r == mr then
+            tt = 'invalid tag: ' .. table.concat(a, ',') .. ',' .. tostring(t)
+            log(tt)
+            taglog = taglog .. '\n' .. tt
+            return true
+          end
+          insert(a, t)
         end
 
         -- discover at least 4 stars tags

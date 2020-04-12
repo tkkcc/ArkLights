@@ -479,3 +479,45 @@ disappear = function(t, timeout, interval)
   return wait(t, f, timeout, interval)
 end
 
+-- faster than table.sort when #a>=25
+median = function(a)
+  local l = 1
+  local r = #a
+  local lo, am
+  while l < r do
+    lo = l - 1
+    am = a[r]
+    for i = l, r - 1 do
+      if a[i] < am then
+        lo = lo + 1
+        a[lo], a[i] = a[i], a[lo]
+      end
+    end
+    lo = lo + 1
+    a[lo], a[r] = a[r], a[lo]
+    if math.floor(#a / 2) + 1 <= lo then
+      r = lo - 1
+    else
+      l = lo + 1
+    end
+  end
+  if #a % 2 == 0 then
+    return (a[math.floor(#a / 2) + 1] + a[math.floor(#a / 2)]) / 2
+  else
+    return a[math.floor(#a / 2) + 1]
+  end
+end
+max = function(a, b)
+  if a > b then
+    return a
+  else
+    return b
+  end
+end
+min = function(a, b)
+  if a < b then
+    return a
+  else
+    return b
+  end
+end

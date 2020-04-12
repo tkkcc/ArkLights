@@ -265,7 +265,7 @@ ocr = function(x)
         {2, -0}, {2, 1}, {2, 2}}
   -- of = {{-1, 0}, {0, 0}, {-2, 0}}
   of = {{0, 0}}
-  local cps = 2 -- compare point step
+  local cps = 1 -- compare point step
   local s, t, a, t1, err_min_total, target, err_min, err, dx, dy, cx, cy, ofa,
         ofb, bza, bzb, rza, rzb, flag
 
@@ -316,8 +316,8 @@ ocr = function(x)
           for l = 1, #of do
             err = 0
             dx, dy = of[l][1] - bzb + bza, of[l][2] - rzb + rza
-            for ki = 1, ah - bza do
-              for kj = 1, aw - rza do
+            for ki = 1, ah - bza, cps do
+              for kj = 1, aw - rza, cps do
                 cx, cy = dx + ki, dy + kj
                 if not (cx < 1 or cx > ah or cy < 1 or cy > aw) then
                   ofa = (ki - 1) * aw + kj
