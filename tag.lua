@@ -212,7 +212,6 @@ ocr = function(x)
   local h_noise_max = 6
   local w_noise_max = h_noise_max * 2
   local h, w = #x, #x[1]
-  -- log(h, w)
   local hs = {0}
   local ws = {0}
   repeat_last(hs, w - 1)
@@ -223,8 +222,6 @@ ocr = function(x)
       ws[i] = ws[i] + x[i][j]
     end
   end
-  -- local hsb = {unpack(hs)}
-  -- local wsb = {unpack(ws)}
   for i = 1, w do if hs[i] < h_noise_max then hs[i] = 0 end end
   for i = 1, h do if ws[i] < w_noise_max then ws[i] = 0 end end
   local top = 1
@@ -235,26 +232,13 @@ ocr = function(x)
   while ws[bottom] == 0 do bottom = bottom - 1 end
   while hs[left] == 0 do left = left + 1 end
   while hs[right] == 0 do right = right - 1 end
-  -- top = top - 1
-  -- bottom = bottom - 1
-  -- left = left - 1
-  -- right = right - 1
-  -- while wsb[top] ~= 0 do top = top - 1 end
-  -- while wsb[bottom] ~= 0 do bottom = bottom + 1 end
-  -- while hsb[left] ~= 0 do left = left - 1 end
-  -- while hsb[right] ~= 0 do right = right + 1 end
-
-  -- log(top, ' ', bottom)
   -- single word size
   local bh = 45
   local bw = 31
   local ah = 30
   local aw = 28
-  -- similarity threshold
-  -- local sim_max = 40
   local result = ''
   -- loop each word
-  -- log(h, ' ', w)
   if bottom <= top or right <= left then return result end
   -- offset
   local of = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 0}, {0, 1}, {1, -1},
@@ -271,7 +255,6 @@ ocr = function(x)
 
   for i = top, bottom - math.floor(ah / 2), bh do
     for j = left, right - math.floor(aw / 2), bw do
-      -- log("word ", i, ' ', j)
       t = {}
       a = false
       t1 = '\n'
@@ -288,11 +271,8 @@ ocr = function(x)
         log("error: single word size error ", #t)
         lua_exit()
       end
-
       -- match bottom line of s and t
       bzb, rzb = unpack(detect_blank_line(t, ah, aw))
-
-      -- log(bzb, rzb)
       -- cache blank of fm
       if not fm_blank_line.辅 then
         for k, v in pairs(fm) do
@@ -326,7 +306,6 @@ ocr = function(x)
                 end
               end
             end
-            -- if err_min > err then err_min = err end
             err_min = err_min + err
           end
           if err_min_total > err_min then
@@ -335,8 +314,6 @@ ocr = function(x)
           end
         end
       end
-      -- log(target, ' ', err_min_total)
-      -- lua_exit()
       result = result .. target
     end
   end

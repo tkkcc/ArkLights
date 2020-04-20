@@ -975,18 +975,18 @@ path.公开招募刷新 = function()
         b = {}
         mr = 5
         for k, v in pairs(point.公开招募标签框列表) do
+          v = point[v]
           t = ""
           r = 1
           while not table.includes(tag, t) and r < mr do
             r = r + 1
-            v = point[v]
             t = binarizeImage({
               rect = v,
               diff = {"0xffffff-0x989898"}, -- background<=0x66
             })
             t = ocr(t)
           end
-          if r == mr then
+          if not table.includes(tag, t) then
             tt = 'invalid tag: ' .. table.concat(a, ',') .. ',' .. tostring(t)
             log(tt)
             taglog = taglog .. '\n' .. tt
@@ -994,7 +994,8 @@ path.公开招募刷新 = function()
           end
           insert(a, t)
         end
-
+        tt = table.concat(a, ',')
+        log(tt)
         -- discover at least 4 stars tags
         t = {}
         for k, v in pairs(tagk) do
