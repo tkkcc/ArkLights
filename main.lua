@@ -20,7 +20,7 @@ repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
 -- fight_type = {"DM-1", "DM-2", "DM-3", "DM-4", "DM-5", "DM-6", "DM-7", "DM-8"}
 fight_type = {"DM-8"}
--- now("轮次作战")
+now("轮次作战","后台")
 -- now("基建点击全部")
 -- now(unpack(每八小时))
 -- now(unpack(每日开始))

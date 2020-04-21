@@ -601,7 +601,12 @@ path.作战 = function(x)
   elseif table.any({'龙门外环', '切尔诺伯格', '龙门市区'}, f) then
     path.剿灭(x)
   elseif f("DM") then
-    path.生于黑夜(x)
+    if os.time() <
+      os.time({year = 2020, month = 5, day = 5, hour = 4, min = 0, sec = 0}) then
+      path.生于黑夜(x)
+    else
+      path.物资芯片("CE-5")
+    end
   else
     path.主线(x)
   end
