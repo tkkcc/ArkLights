@@ -156,11 +156,12 @@ path.限时活动 = update(path.base, {
 })
 
 path.基建点击全部 = function()
-  auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  if not appear('基建灯泡蓝', 10, 1) then return end
-  tap("基建灯泡蓝")
-  if findTap('点击全部收获') then sleep(6) end
-  if findTap('点击全部收取') then log('基建信赖') end
+  for i = 1, 10 do
+    auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
+    if not appear('基建灯泡蓝', 10, 1) then return end
+    tap("基建灯泡蓝")
+    if not findTap('点击全部收获') then break end
+  end
   auto(path.base)
 end
 -- 换信赖最低的5人
@@ -599,6 +600,8 @@ path.作战 = function(x)
     path.物资芯片(x)
   elseif table.any({'龙门外环', '切尔诺伯格', '龙门市区'}, f) then
     path.剿灭(x)
+  elseif f("DM") then
+    path.生于黑夜(x)
   else
     path.主线(x)
   end
@@ -1045,3 +1048,21 @@ path.base.药剂恢复理智取消 =
   function() tap('药剂恢复理智确认') end
 -- path.base.源石恢复理智取消 =
 --   function() tap('药剂恢复理智确认') end
+
+path.生于黑夜 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战")
+      tap("作战生于黑夜")
+      sleep(1)
+      tap("生于黑夜阵中往事")
+      sleep(1)
+    end,
+    [x] = function()
+      tap(x)
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
