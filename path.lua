@@ -158,7 +158,7 @@ path.限时活动 = update(path.base, {
 path.基建点击全部 = function()
   for i = 1, 10 do
     auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-    if not appear('基建灯泡蓝', 10, 1) then return end
+    if not appear('基建灯泡蓝', 5, 1) then return end
     tap("基建灯泡蓝")
     if not findTap('点击全部收获') then break end
   end
@@ -605,7 +605,7 @@ path.作战 = function(x)
       os.time({year = 2020, month = 5, day = 5, hour = 4, min = 0, sec = 0}) then
       path.生于黑夜(x)
     else
-      path.物资芯片("CE-5")
+      path.主线("1-7")
     end
   else
     path.主线(x)
