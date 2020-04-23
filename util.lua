@@ -259,13 +259,13 @@ conf2task = function(c, m)
 end
 
 find = function(x)
-  local y = {0, 0, 0}
+  local y
   if not x:find("|") then x = point[x] end
-  if type(x) == "table" then x, y = x[1], x[2] end
+  if type(x) == "table" then return x end
   if type(x) == "string" then
-    x, y = findColor({0, 0, 1919, 1079}, x, 100, y[1], y[2], y[3])
+    x, y = findColor({0, 0, 1919, 1079}, x, 100)
+    if x ~= -1 then return {x, y} end
   end
-  if type(x) == "number" and x > -1 then return {x, y} end
 end
 -- findColors
 finds = function(x)
@@ -301,7 +301,7 @@ tap = function(x)
   touchDown(0, x, y)
   sleep(0.2)
   touchUp(0, x, y)
-  sleep(.5 + (tap_extra_delay[x0] or 0))
+  sleep(tap_extra_delay[x0] or 0)
 end
 
 input = function(x, s)
@@ -369,21 +369,27 @@ scale = function(o)
   touchUp(2, b[1], b[2])
 end
 
-auto = function(p)
+auto = function(p, timeout, interval)
   if type(p) == "function" then return p() end
   if type(p) ~= "table" then return true end
   while true do
-    keepScreen(true)
-    f = false
-    for k, v in pairs(p) do
-      if find(k) then
-        f = true
-        log(k, "=>", v)
-        if tap(v) then return true end
-        break
+    local f = false
+    local check = function()
+      keepScreen(true)
+      for k, v in pairs(p) do
+        if find(k) then
+          log(k, "=>", v)
+          if tap(v) then f = true end
+          return true
+        end
       end
+      keepScreen(false)
     end
-    if f == false then
+    local e = wait(nil, check, timeout or 0, interval or 1)
+    -- tap true
+    if f then return true end
+    -- tap false or timout
+    if not e then
       local k = "其它"
       local v = p[k]
       log(k, "=>", v)
@@ -457,25 +463,26 @@ retreat = function(x1, y1, x2, y2)
   sleep(t)
   touchUp(0, x2, y2)
 end
-
+-- until f true
 wait = function(t, func, timeout, interval)
   timeout = timeout or 30
   interval = interval or .5
   local count = 0
   local max_count = math.floor(timeout / interval)
-  while func(t) and count < max_count do
+  while not func(t) do
     count = count + 1
+    if count > max_count then break end
     sleep(interval)
   end
-  if count < max_count then return true end
+  if count <= max_count then return true end
 end
 
 appear = function(t, timeout, interval)
-  local f = function(x) return not find(x) end
+  local f = function(x) return find(x) end
   return wait(t, f, timeout, interval)
 end
 disappear = function(t, timeout, interval)
-  local f = function(x) return find(x) end
+  local f = function(x) return not find(x) end
   return wait(t, f, timeout, interval)
 end
 

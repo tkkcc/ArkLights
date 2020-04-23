@@ -70,7 +70,6 @@ path.base = {
     tap('返回')
     return true
   end,
-
   药剂恢复理智取消 = function()
     running = "理智不足"
     tap("药剂恢复理智取消")
@@ -91,6 +90,7 @@ path.base = {
   无人机加速获取订单确定 = "无人机加速获取订单确定",
   接管作战 = function() disappear("接管作战", 60 * 60, 5) end,
   未能同步到相关战斗记录 = close,
+  排序筛选确认 = 排序筛选确认,
 }
 
 path.移动停止按钮 = function()
@@ -156,11 +156,15 @@ path.限时活动 = update(path.base, {
 })
 
 path.基建点击全部 = function()
-  for i = 1, 10 do
-    auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-    if not appear('基建灯泡蓝', 5, 1) then return end
-    tap("基建灯泡蓝")
-    if not findTap('点击全部收获') then break end
+  auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
+  if not appear('基建灯泡蓝', 3, 1) then return end
+  findTap("基建灯泡蓝")
+  -- TODO 仓满、疲劳、专精 still again?
+  local i = 1
+  while i <= 5 and appear("点击全部收取", 3, 1) do
+    findTap("点击全部收取")
+    sleep(3)
+    i = i + 1
   end
   auto(path.base)
 end
@@ -182,138 +186,66 @@ path.基建副手换人 = function()
     tap("排序信赖")
     tap("干员选择列表1")
     tap("干员选择确认")
-    sleep(.5)
+    sleep(1)
   end
 end
 
 path.换人 = function()
   update_station_list()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  local a, b, p
   already_after_dormitory = false
+  local p, f
   for index, v in pairs(la) do
     -- ignore the last one(训练室)
     if v == "训练室" then break end
+    f = function()
+      -- 人满不清
+      keepScreen(true)
+      if index > #point.宿舍列表 and table.any(point.进驻人数满, find) then
+        keepScreen(false)
+        return true
+      end
+      -- check 进驻人数
+      local b = table.find(point.进驻人数, find)
+      log(find("清空完毕进驻"))
+      tap("有人清空")
+      if not appear("清空完毕进驻", 3, 1) then return end
+      tap("清空完毕进驻")
+      if not appear("干员选择确认", 3, 1) then return end
+      -- toggle tag after 宿舍
+      if index > #point.宿舍列表 and not already_after_dormitory then
+        tap("排序筛选按钮")
+        sleep(1)
+        findTap("排序筛选未进驻未选中")
+        sleep(1)
+        tap("排序筛选确认")
+        sleep(1)
+        already_after_dormitory = true
+      end
+      local dorm_index = #point.宿舍列表 - index + 1
+      swipq('dorm' .. dorm_index)
+      local a = 1
+      if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
+      for i = a, a + b - 1 do tap("干员选择列表" .. i) end
+      tap("干员选择确认")
+      if appear("撤下干员确认", .4, .2) then
+        tap("撤下干员确认")
+      end
+      return true
+    end
     p = update(path.base, {
-      干员选择确认 = true,
       面板 = "面板基建",
       进驻总览 = v,
       进驻信息2 = "进驻信息2",
       进驻信息3 = "进驻信息3",
       进驻信息4 = "进驻信息4",
-      有人清空 = function()
-        -- 人满不清
-        if index > #point.宿舍列表 and
-          table.any(point.进驻人数满, find) then return true end
-        tap("有人清空")
-      end,
-      清空完毕进驻 = function()
-        -- check 进驻人数
-        b = table.find(point.进驻人数, find)
-        tap("清空完毕进驻")
-        -- toggle tag after 宿舍
-        if index > #point.宿舍列表 and not already_after_dormitory then
-          auto(update(p, {
-            干员选择确认 = "排序筛选按钮",
-            排序筛选确认 = true,
-          }))
-          auto(update(p, {
-            排序筛选未进驻选中 = "排序筛选确认",
-            排序筛选未进驻未选中 = "排序筛选未进驻未选中",
-          }))
-          already_after_dormitory = true
-        end
-        local dorm_index = #point.宿舍列表 - index + 1
-        swipq('dorm' .. dorm_index)
-        a = 1
-        if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
-        -- TODO: 控制中枢漏人: 检测人数错误?还是根本就没点进去
-        -- if v == "控制中枢" then log(v, ' ', a, ' ', b) end
-        for i = a, a + b - 1 do tap("干员选择列表" .. i) end
-      end,
+      进驻信息2选中 = f,
+      进驻信息3选中 = f,
+      进驻信息4选中 = f,
     })
     auto(p)
-    auto(update(path.base, {
-      面板 = "面板基建",
-      进驻总览 = true,
-      干员选择确认 = "干员选择确认",
-    }))
+    auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
   end
-end
-
-path.戳人 = function()
-  update_station_list()
-  local o
-  for k, v in pairs(la) do
-    auto(update(path.取消进驻信息选中, {进驻总览 = v}))
-    o = v == "控制中枢" and true or false
-    scale(o)
-    auto(update(path.base, {
-      面板 = "面板基建",
-      信赖圈蓝 = "信赖圈蓝",
-      信赖圈红 = "信赖圈红",
-      进驻总览 = true,
-    }))
-  end
-end
-
-path.订单 = function()
-  update_station_list()
-  if #point.贸易站列表 == 0 then return end
-  auto(update(path.base, {
-    订单无 = true,
-    进驻总览 = "贸易站列表1",
-    贸易站进度 = "贸易站进度",
-    订单蓝 = "订单蓝",
-    面板 = "面板基建",
-    进驻信息2选中 = "进驻信息2选中",
-  }))
-end
-
-path.订单交付 = function()
-  update_station_list()
-  local l = #point.贸易站列表
-  if l == 0 then return end
-  local p = update(path.base, {
-    订单无 = true,
-    贸易站进度 = "贸易站进度",
-    订单蓝 = "订单蓝",
-    面板 = "面板基建",
-    进驻信息2选中 = "进驻信息2选中",
-  })
-  for i = 1, l do
-    p.进驻总览 = "贸易站列表" .. i
-    auto(p)
-    auto(update(path.base, {进驻总览 = true, 面板 = "面板基建"}))
-  end
-end
-
-path.贸易站加速 = function()
-  update_station_list()
-  local l = #point.贸易站列表
-  if l == 0 then return end
-  auto(update(path.base, {
-    面板 = "面板基建",
-    进驻总览 = "贸易站列表1",
-    进驻信息2选中 = "进驻信息2选中",
-    贸易站进度 = "贸易站进度",
-    订单蓝 = "订单蓝",
-    订单无 = "无人机协助",
-    无人机加速获取订单确定 = function()
-      if find("无人机加速获取订单剩余时间零") then
-        tap("无人机加速获取订单取消")
-        return
-      end
-      tap("无人机加速最大")
-      if not find("多余加速浪费") then
-        tap("无人机加速获取订单确定")
-        return true
-      end
-      tap("无人机加速减一")
-      tap("无人机加速获取订单确定")
-      sleep(20)
-    end,
-  }))
 end
 
 path.制造站补充 = function()
@@ -325,7 +257,7 @@ path.制造站补充 = function()
       for i = 1, #point.制造站列表 do
         tap("设施列表" .. i)
         tap("制造站最多")
-        findTap("执行更改")
+        if appear("执行更改", .4, .2) then tap("执行更改") end
       end
       return true
     end,
@@ -346,7 +278,6 @@ path.制造站加速 = function()
     进驻信息2选中 = "进驻信息2选中",
     无人机加速制造确定 = function()
       tap("无人机加速最大")
-      if find("多余加速浪费") then tap("无人机加速减一") end
       tap("无人机加速制造确定")
       return true
     end,
@@ -387,6 +318,7 @@ path.线索接收 = function()
 end
 
 path.线索布置 = function()
+  log("线索布置")
   update_station_list()
   if not point.会客厅 then return end
   auto(update(path.base, {
@@ -403,8 +335,10 @@ path.线索布置 = function()
       x = tonumber(v:sub(1, x - 1))
       y = tonumber(y)
       tap({x - 50, y + 50})
+      sleep(.5)
       tap("线索库列表1")
       tap("解锁线索右")
+      sleep(.5)
     end,
     进驻总览 = "会客厅",
     面板 = "面板基建",
@@ -551,50 +485,25 @@ path.公开招募聘用 = update(path.base, {
 })
 
 path.邮件 = update(path.base, {
-  面板 = "面板邮件",
-  收取所有邮件 = function()
-    tap("收取所有邮件")
-    return true
-  end,
-})
-
-path.干员强化 = update(path.base, {
-  面板 = "面板干员",
-  等级递减 = "等级递增",
-  等级递增 = "干员列表1",
-  EXP = "EXP",
-  提升等级确认 = function()
-    tap("作战记录列表2")
-    tap("提升等级确认")
-    return true
-  end,
-})
-
-path.免费强化包 = update(path.base, {
-  面板 = "面板采购中心",
-  可露希尔推荐 = "组合包",
-  组合包 = function()
-    swipq(-10000)
-    findTap("免费强化包")
-    findTap("购买强化包")
-    return true
+  面板 = function()
+    tap("面板邮件")
+    if appear("收取所有邮件", 3, 1) then
+      tap("收取所有邮件")
+      return true
+    end
   end,
 })
 
 tick = tonumber(get("tick")) or 0
--- print("tick: "..tick)
 path.轮次作战 = function()
   while running ~= "理智不足" do
     tick = tick % #fight_type + 1
     set("tick", tick)
-    -- log(tick, ' ', fight_type[tick])
     path.作战(fight_type[tick])
   end
 end
 
--- S2-10 PR-A-2 LS-5 AP-5
 path.作战 = function(x)
-  -- 代理失误或未同步战斗记录
   local f = startsWithX(x)
   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
@@ -613,6 +522,7 @@ path.作战 = function(x)
 end
 
 path.开始游戏 = function(x)
+  sleep(.5)
   log(tick, ' ', x)
   if x == "1-11" then return auto(path["1-11"]) end
   return auto(update(path.base, {
@@ -624,12 +534,8 @@ path.开始游戏 = function(x)
       -- if true then return true end
       tap("开始行动红")
     end,
-    -- 未能同步到相关战斗记录 = function()
-    --   bl[x] = false
-    --   return true
-    -- end,
     接管作战 = function()
-      -- todo: 记录不能同步到服务器
+      -- TODO: 记录不能同步到服务器
       if disappear("接管作战", 60 * 60, 5) and
         not find("代理失误放弃行动") then
         log('代理成功', x)
@@ -849,19 +755,19 @@ path.访问好友基建 = function()
     面板 = '面板好友',
     个人名片 = '好友列表',
     好友列表 = function()
-      if not findTap('访问基建') then return true end
-      tap("访问下位")
+      if not appear('访问基建', 3, 1) then return true end
+      tap("访问基建")
       while 1 do
         if not wait(nil, function()
           if find("今日参与交流已达上限") then
             comm_enough = true
-            return false
+            return true
           end
           if find("访问下位无") then
             loop_end = true
-            return false
+            return true
           end
-          return not findTap("访问下位橘") and not findTap("访问下位")
+          return findTap("访问下位橘", "访问下位")
         end, 10, 2) or comm_enough or loop_end then return true end
       end
     end,
@@ -905,8 +811,7 @@ end
 -- show all info
 showALL = function()
   -- show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
-  -- local _, count = str:gsub('\n', '\n')
-  show(taglog .. '\n' .. showBL(true), 36)
+  show(showBL(true), 36)
 end
 path.关闭 = close
 path.显示全部 = showALL
@@ -926,9 +831,10 @@ path["1-11"] = function()
     return false
   end
   tap("跳过剧情")
+  sleep(.5)
   findTap("跳过剧情确认")
   -- start
-  sleep(22)
+  sleep(23)
   tap("速度2")
   -- 芬
   deploy(591, 807, 522)
@@ -952,12 +858,15 @@ path["1-11"] = function()
   deploy(1482, 813, 314)
   -- 史都华德
   deploy(1656, 669, 407)
-  sleep(5)
+  sleep(6)
   -- 玫兰莎
   retreat(1110, 368, 894, 323)
   if appear("行动结束", 60, 5) then
     log('代理成功', x)
     cl[x] = (cl[x] or 0) + 1
+    sleep(1)
+    tap("返回")
+    sleep(4)
   else
     log('代理失误', x)
     bl[x] = false
@@ -1024,14 +933,10 @@ path.公开招募刷新 = function()
           end
           if #t == 1 then
             tt = tagk[t[1]]
-            -- debug
-            log('debug ', a)
             for k, v in pairs(tt) do
               p = table.find(a, function(x) return x == v end)
-              log('debug ', v, ' ', p)
               tap("公开招募标签列表" .. p)
             end
-            -- if true then return true end
             for i = 1, 8 do tap("公开招募时间加") end
             tap("公开招募确认")
           end
@@ -1061,7 +966,6 @@ path.生于黑夜 = function(x)
       tap("作战生于黑夜")
       sleep(1)
       tap("生于黑夜阵中往事")
-      sleep(1)
     end,
     [x] = function()
       tap(x)
