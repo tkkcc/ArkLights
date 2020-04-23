@@ -281,26 +281,21 @@ tap = function(x)
     sleep(5)
     return
   end
-  local x0, y = x, x
+  local x0 = x
   if x == true then return true end
   if type(x) == "function" then return x() end
-  if type(x) == "string" then
-    y = find(x)
-    if not y then
-      x = point[x]
-      if not x then return end
-      if type(x) == "table" and type(x[1]) == "string" then x = x[1] end
+  if type(x) == "string" and not x:find("|") then
+    x = point[x]
+    if type(x) == "string" then
       local p = x:find("|")
       local q = x:find("|", p + 1)
-      x, y = x:sub(1, p - 1), x:sub(p + 1, q - 1)
-      y = map(tonumber, {x, y})
+      x = map(tonumber, {x:sub(1, p - 1), x:sub(p + 1, q - 1)})
     end
   end
-  if type(y) ~= "table" then return end
-  x, y = y[1], y[2]
-  touchDown(0, x, y)
+  if type(x) ~= "table" then return end
+  touchDown(0, x[1], x[2])
   sleep(0.2)
-  touchUp(0, x, y)
+  touchUp(0, x[1], x[2])
   sleep(tap_extra_delay[x0] or 0)
 end
 
@@ -346,7 +341,6 @@ swipq = function(t)
 end
 
 -- put (a,b) to (x,y)
-
 scale = function(o)
   a = {413, 295}
   b = {1537, 872}
@@ -397,6 +391,8 @@ auto = function(p, timeout, interval)
     end
   end
 end
+-- find tap for auto
+ft = function(x) return findTap(x) end
 
 now = function(...)
   if get("restart") == "true" then
@@ -430,15 +426,22 @@ hc = function(x, h)
 end
 -- if find then tap with fallback
 findTap = function(...)
-  keepScreen(true)
   for k, v in ipairs(arg) do
-    if find(v) then
-      tap(v)
+    local x = find(v)
+    if x then
+      tap(x)
+      sleep(tap_extra_delay[v] or 0)
       return true
     end
   end
 end
 
+appearTap = function(x, timeout, interval)
+  if appear(x, timeout, interval) then
+    tap(x)
+    return true
+  end
+end
 -- {x:2,y:3} => {2,3}
 xy2arr = function(t) return {t.x, t.y} end
 
@@ -465,8 +468,8 @@ retreat = function(x1, y1, x2, y2)
 end
 -- until f true
 wait = function(t, func, timeout, interval)
-  timeout = timeout or 30
-  interval = interval or .5
+  timeout = timeout or 60
+  interval = interval or 1
   local count = 0
   local max_count = math.floor(timeout / interval)
   while not func(t) do

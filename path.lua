@@ -87,7 +87,6 @@ path.base = {
   正在释放神经递质 = "正在释放神经递质",
   线索传递返回 = "线索传递返回",
   无人机加速确定 = "无人机加速确定",
-  无人机加速获取订单确定 = "无人机加速获取订单确定",
   接管作战 = function() disappear("接管作战", 60 * 60, 5) end,
   未能同步到相关战斗记录 = close,
   排序筛选确认 = 排序筛选确认,
@@ -99,7 +98,7 @@ path.移动停止按钮 = function()
     sleep(5)
   end
   local t = "停止按钮"
-  if not appear(t, 10) then log(t .. "未找到,忽略") end
+  if not appear(t, 10, 1) then log(t .. "未找到,忽略") end
   t = find(t)
   swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
   return true
@@ -157,13 +156,12 @@ path.限时活动 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  if not appear('基建灯泡蓝', 3, 1) then return end
-  findTap("基建灯泡蓝")
-  -- TODO 仓满、疲劳、专精 still again?
+  if not appearTap('基建灯泡蓝', 3, 1) then return end
+  -- TODO 人未满、仓满、疲劳、专精 still again?
   local i = 1
-  while i <= 5 and appear("点击全部收取", 3, 1) do
+  while i <= 5 and appearTap("点击全部收取", 3, 1) do
     findTap("点击全部收取")
-    sleep(3)
+    sleep(2)
     i = i + 1
   end
   auto(path.base)
@@ -198,50 +196,47 @@ path.换人 = function()
   for index, v in pairs(la) do
     -- ignore the last one(训练室)
     if v == "训练室" then break end
-    f = function()
-      -- 人满不清
-      keepScreen(true)
-      if index > #point.宿舍列表 and table.any(point.进驻人数满, find) then
-        keepScreen(false)
-        return true
-      end
-      -- check 进驻人数
-      local b = table.find(point.进驻人数, find)
-      log(find("清空完毕进驻"))
-      tap("有人清空")
-      if not appear("清空完毕进驻", 3, 1) then return end
-      tap("清空完毕进驻")
-      if not appear("干员选择确认", 3, 1) then return end
-      -- toggle tag after 宿舍
-      if index > #point.宿舍列表 and not already_after_dormitory then
-        tap("排序筛选按钮")
-        sleep(1)
-        findTap("排序筛选未进驻未选中")
-        sleep(1)
-        tap("排序筛选确认")
-        sleep(1)
-        already_after_dormitory = true
-      end
-      local dorm_index = #point.宿舍列表 - index + 1
-      swipq('dorm' .. dorm_index)
-      local a = 1
-      if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
-      for i = a, a + b - 1 do tap("干员选择列表" .. i) end
-      tap("干员选择确认")
-      if appear("撤下干员确认", .4, .2) then
-        tap("撤下干员确认")
-      end
-      return true
-    end
     p = update(path.base, {
       面板 = "面板基建",
       进驻总览 = v,
       进驻信息2 = "进驻信息2",
       进驻信息3 = "进驻信息3",
       进驻信息4 = "进驻信息4",
-      进驻信息2选中 = f,
-      进驻信息3选中 = f,
-      进驻信息4选中 = f,
+      有人清空 = function()
+        -- 人满不清
+        keepScreen(true)
+        if index > #point.宿舍列表 and
+          table.any(point.进驻人数满, find) then
+          keepScreen(false)
+          return true
+        end
+        tap("有人清空")
+      end,
+      清空完毕进驻 = function()
+        -- check 进驻人数
+        keepScreen(true)
+        b = table.find(point.进驻人数, find)
+        keepScreen(false)
+        tap("清空完毕进驻")
+        if not appear("干员选择确认", 3, 1) then return end
+        -- toggle tag after 宿舍
+        if index > #point.宿舍列表 and not already_after_dormitory then
+          tap("排序筛选按钮")
+          sleep(1)
+          findTap("排序筛选未进驻未选中")
+          sleep(1)
+          tap("排序筛选确认")
+          sleep(1)
+          already_after_dormitory = true
+        end
+        local dorm_index = #point.宿舍列表 - index + 1
+        swipq('dorm' .. dorm_index)
+        a = 1
+        if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
+        for i = a, a + b - 1 do tap("干员选择列表" .. i) end
+        tap("干员选择确认")
+        return true
+      end,
     })
     auto(p)
     auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
@@ -318,7 +313,6 @@ path.线索接收 = function()
 end
 
 path.线索布置 = function()
-  log("线索布置")
   update_station_list()
   if not point.会客厅 then return end
   auto(update(path.base, {
@@ -344,7 +338,10 @@ path.线索布置 = function()
     面板 = "面板基建",
     进驻信息3选中 = "进驻信息3选中",
   }))
-  if findTap("解锁线索") then auto(path.线索布置) end
+  if findTap("解锁线索") then
+    sleep(2)
+    auto(path.线索布置)
+  end
 end
 
 path.线索传递 = update(path.base, {
@@ -356,6 +353,7 @@ path.线索传递 = update(path.base, {
     local a = point.线索传递数字列表
     for k, v in pairs(a) do
       tap(v)
+      sleep(.5)
       if find("线索传递数字重复") or k == #a then
         tap("线索列表1")
         break
@@ -388,19 +386,18 @@ path.线索传递 = update(path.base, {
       end
       if t then
         tap(t)
-        tap("线索传递返回")
         return true
       end
     end
     while 1 do
-      -- 当前页看看有没有缺的
-      if f() then return true end
       -- 翻到末尾就随机给
-      if not findTap("线索传递右白") and
-        not findTap("线索传递右白2") then
+      if not find("线索传递右白") and not find("线索传递右白2") then
         f(true)
         return true
       end
+      -- 当前页看看有没有缺的
+      if f() then return true end
+      tap("线索传递右白")
       count = count + 1
     end
   end,
@@ -457,7 +454,12 @@ path.信用购买 = function()
     面板 = "面板采购中心",
     可露希尔推荐 = "信用交易所",
     信用交易所 = function()
-      if not findTap(unpack(point.信用交易所列表)) then return true end
+      keepScreen(true)
+      if not findTap(unpack(point.信用交易所列表)) then
+        keepScreen(false)
+        return true
+      end
+      keepScreen(false)
       findTap("购买物品")
       if find("信用不足") then return true end
     end,
@@ -470,18 +472,6 @@ path.信用收取 = update(path.base, {
   可露希尔推荐 = "信用交易所",
   收取信用 = "收取信用",
   收取信用无 = true,
-})
-
-path.公开招募聘用 = update(path.base, {
-  面板 = function()
-    if not findTap("面板公开招募有") then return true end
-    for i = 1, 4 do
-      if findTap(unpack(point["聘用候选人列表"])) then
-        findTap("开包skip")
-        tap("返回")
-      end
-    end
-  end,
 })
 
 path.邮件 = update(path.base, {
@@ -537,9 +527,12 @@ path.开始游戏 = function(x)
     接管作战 = function()
       -- TODO: 记录不能同步到服务器
       if disappear("接管作战", 60 * 60, 5) and
-        not find("代理失误放弃行动") then
+        not find("代理失误放弃行动") and appear("行动结束", 10, 1) then
         log('代理成功', x)
         cl[x] = (cl[x] or 0) + 1
+        sleep(2)
+        tap("返回")
+        sleep(4)
       else
         log('代理失误', x)
         bl[x] = false
@@ -568,12 +561,10 @@ path.主线 = function(x)
     end,
     [t .. x3] = function()
       swipq(x0)
-      if not find(x) then
+      if not findTap(x) then
         -- distance or point error
         log(x .. "未找到")
         bl[x] = false
-      else
-        tap(x)
       end
       return true
     end,
@@ -824,13 +815,12 @@ path["1-11"] = function()
   -- wait 安德切尔
   if not findTap("开始行动红") then return end
   sleep(10)
-  if not appear("跳过剧情") then
+  if not findTap("跳过剧情") then
     log("没找到跳过剧情")
     log('代理失误', x)
     bl[x] = false
     return false
   end
-  tap("跳过剧情")
   sleep(.5)
   findTap("跳过剧情确认")
   -- start
@@ -864,7 +854,7 @@ path["1-11"] = function()
   if appear("行动结束", 60, 5) then
     log('代理成功', x)
     cl[x] = (cl[x] or 0) + 1
-    sleep(1)
+    sleep(2)
     tap("返回")
     sleep(4)
   else
@@ -872,6 +862,20 @@ path["1-11"] = function()
     bl[x] = false
   end
 end
+
+path.公开招募聘用 = update(path.base, {
+  面板 = function()
+    if not findTap("面板公开招募有") then return true end
+  end,
+  公开招募 = function()
+    keepScreen(true)
+    if findTap(unpack(point["聘用候选人列表"])) then
+      keepScreen(false)
+      findTap("开包skip")
+    end
+    tap("返回")
+  end,
+})
 
 taglog = ''
 path.公开招募刷新 = function()
@@ -890,7 +894,7 @@ path.公开招募刷新 = function()
       公开招募确认 = function()
         a = {}
         b = {}
-        mr = 5
+        mr = 5 -- max retries for one tag
         for k, v in pairs(point.公开招募标签框列表) do
           v = point[v]
           t = ""
@@ -966,6 +970,7 @@ path.生于黑夜 = function(x)
       tap("作战生于黑夜")
       sleep(1)
       tap("生于黑夜阵中往事")
+      sleep(1)
     end,
     [x] = function()
       tap(x)
