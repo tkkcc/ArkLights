@@ -13,13 +13,14 @@ cron = require("crontab")
                 "基建点击全部", "基建副手换人", "任务", "后台",
                 "显示全部"}
 
-fight_type = {"S4-1", "3-4", "4-4", "4-8", "4-9"}
-table.extend(fight_type, {"1-7"})
+fight_type = {"3-4", "4-8", "1-7"}
 repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
-fight_type = {"DM-7", "DM-8"}
 -- now("轮次作战", "后台")
+-- fight_type = {"DM-7", "DM-8"}
 -- now("基建点击全部","显示全部")
 -- now("公开招募刷新")
-cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"}}))
+-- now("作战1-11")
+now(unpack(每八小时))
+cron(map(hc, {{每日开始, 4}, {每八小时, "2,10,16"}}))

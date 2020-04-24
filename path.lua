@@ -4,9 +4,9 @@ require("tag")
 
 -- set bl true
 bl = {}
-for k, v in pairs(fight_type_all) do bl[v] = true end
+-- for k, v in pairs(fight_type_all) do bl[v] = true end
 cl = {}
-for k, v in pairs(fight_type_all) do cl[v] = 0 end
+-- for k, v in pairs(fight_type_all) do cl[v] = 0 end
 
 path = {}
 
@@ -523,14 +523,15 @@ path.开始游戏 = function(x)
       -- log(x)
       -- if true then return true end
       tap("开始行动红")
+      sleep(10)
     end,
     接管作战 = function()
       -- TODO: 记录不能同步到服务器
-      if disappear("接管作战", 60 * 60, 5) and
+      if disappear("接管作战", 60 * 60, 1) and
         not find("代理失误放弃行动") and appear("行动结束", 10, 1) then
         log('代理成功', x)
         cl[x] = (cl[x] or 0) + 1
-        sleep(2)
+        sleep(4)
         tap("返回")
         sleep(4)
       else
@@ -844,17 +845,17 @@ path["1-11"] = function()
   -- 米格鲁
   sleep(11)
   -- 黑角
-  retreat(1110, 263, 894, 323)
+  -- retreat(1110, 263, 894, 323)
   deploy(1482, 813, 314)
   -- 史都华德
   deploy(1656, 669, 407)
   sleep(6)
   -- 玫兰莎
   retreat(1110, 368, 894, 323)
-  if appear("行动结束", 60, 5) then
+  if appear("行动结束", 60, 1) then
     log('代理成功', x)
     cl[x] = (cl[x] or 0) + 1
-    sleep(2)
+    sleep(4)
     tap("返回")
     sleep(4)
   else
@@ -958,10 +959,8 @@ end
 
 path["作战1-11"] = function() for i = 1, 14 do path.作战("1-11") end end
 
-path.base.药剂恢复理智取消 =
-  function() tap('药剂恢复理智确认') end
--- path.base.源石恢复理智取消 =
---   function() tap('药剂恢复理智确认') end
+path.base.药剂恢复理智取消 = "药剂恢复理智确认"
+-- path.base.源石恢复理智取消 = "药剂恢复理智确认"
 
 path.生于黑夜 = function(x)
   local p = update(path.base, {
