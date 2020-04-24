@@ -259,18 +259,15 @@ conf2task = function(c, m)
 end
 
 find = function(x)
+  local x0 = x
   local y
   if not x:find("|") then x = point[x] end
   if type(x) == "table" then return x end
   if type(x) == "string" then
-    x, y = findColor({0, 0, 1919, 1079}, x, 100)
+    -- if rfl[x0] == nil then log("findColor globally ", x0) end
+    x, y = findColor(rfl[x0] or {0, 0, 1919, 1079}, x, 100)
     if x ~= -1 then return {x, y} end
   end
-end
--- findColors
-finds = function(x)
-  if not x:find("|") then x = point[x] end
-  return findColors({0, 0, 1919, 1079}, x, 100, 0, 0, 0)
 end
 -- x={2,3} "信用" func nil
 tap = function(x)
@@ -414,7 +411,7 @@ run = function(...)
       v()
     else
       running = v
-      log(path[v])
+      -- log(path[v])
       auto(path[v])
     end
   end
@@ -517,17 +514,6 @@ median = function(a)
     return a[math.floor(#a / 2) + 1]
   end
 end
-max = function(a, b)
-  if a > b then
-    return a
-  else
-    return b
-  end
-end
-min = function(a, b)
-  if a < b then
-    return a
-  else
-    return b
-  end
-end
+
+max = math.max
+min = math.min

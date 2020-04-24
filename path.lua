@@ -157,7 +157,7 @@ path.限时活动 = update(path.base, {
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
   if not appearTap('基建灯泡蓝', 3, 1) then return end
-  -- TODO 人未满、仓满、疲劳、专精 still again?
+  -- TODO 仓满、疲劳 still work?
   local i = 1
   while i <= 5 and appearTap("点击全部收取", 3, 1) do
     findTap("点击全部收取")
@@ -206,7 +206,7 @@ path.换人 = function()
         -- 人满不清
         keepScreen(true)
         if index > #point.宿舍列表 and
-          table.any(point.进驻人数满, find) then
+          table.any(point.进驻人数满列表, find) then
           keepScreen(false)
           return true
         end
@@ -215,7 +215,7 @@ path.换人 = function()
       清空完毕进驻 = function()
         -- check 进驻人数
         keepScreen(true)
-        b = table.find(point.进驻人数, find)
+        b = table.find(point.进驻人数列表, find)
         keepScreen(false)
         tap("清空完毕进驻")
         if not appear("干员选择确认", 3, 1) then return end
@@ -512,7 +512,6 @@ path.作战 = function(x)
 end
 
 path.开始游戏 = function(x)
-  sleep(.5)
   log(tick, ' ', x)
   if x == "1-11" then return auto(path["1-11"]) end
   return auto(update(path.base, {
@@ -526,12 +525,13 @@ path.开始游戏 = function(x)
       sleep(10)
     end,
     接管作战 = function()
-      -- TODO: 记录不能同步到服务器
       if disappear("接管作战", 60 * 60, 1) and
-        not find("代理失误放弃行动") and appear("行动结束", 10, 1) then
+        not find("代理失误放弃行动") and
+        not appear("战斗记录未能同步重试", 2, 1) and
+        appear("行动结束", 10, 1) then
         log('代理成功', x)
         cl[x] = (cl[x] or 0) + 1
-        sleep(4)
+        sleep(3)
         tap("返回")
         sleep(4)
       else
@@ -558,11 +558,11 @@ path.主线 = function(x)
     面板 = function()
       tap("面板作战")
       swipq(x1)
-      tap(x1)
+      tap("作战主线章节列表" .. x1)
     end,
     [t .. x3] = function()
       swipq(x0)
-      if not findTap(x) then
+      if not findTap("作战列表" .. x) then
         -- distance or point error
         log(x .. "未找到")
         bl[x] = false
@@ -699,8 +699,8 @@ path.物资芯片 = function(x)
       tap("作战" .. name)
       tap(name .. "列表" .. index)
     end,
-    [x] = function()
-      tap(x)
+    ["作战列表" .. x] = function()
+      tap("作战列表" .. x)
       return true
     end,
   })
@@ -727,8 +727,8 @@ path.剿灭 = function(x)
       tap("面板作战")
       tap("作战剿灭")
     end,
-    [x] = function()
-      tap(x)
+    ["作战列表" .. x] = function()
+      tap("作战列表" .. x)
       return true
     end,
   })
@@ -810,7 +810,6 @@ path.显示全部 = showALL
 path.后台 = background
 
 path["1-11"] = function()
-  sleep(.5)
   local x = "1-11"
   tap("开始行动蓝")
   -- wait 安德切尔
@@ -855,7 +854,7 @@ path["1-11"] = function()
   if appear("行动结束", 60, 1) then
     log('代理成功', x)
     cl[x] = (cl[x] or 0) + 1
-    sleep(4)
+    sleep(3)
     tap("返回")
     sleep(4)
   else
@@ -959,9 +958,6 @@ end
 
 path["作战1-11"] = function() for i = 1, 14 do path.作战("1-11") end end
 
-path.base.药剂恢复理智取消 = "药剂恢复理智确认"
--- path.base.源石恢复理智取消 = "药剂恢复理智确认"
-
 path.生于黑夜 = function(x)
   local p = update(path.base, {
     面板 = function()
@@ -971,8 +967,8 @@ path.生于黑夜 = function(x)
       tap("生于黑夜阵中往事")
       sleep(1)
     end,
-    [x] = function()
-      tap(x)
+    ["作战列表" .. x] = function()
+      tap("作战列表" .. x)
       return true
     end,
   })

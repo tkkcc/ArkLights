@@ -12,15 +12,12 @@ cron = require("crontab")
 每日开始 = {"关闭", "限时活动", "每日更新", "作战1-11",
                 "基建点击全部", "基建副手换人", "任务", "后台",
                 "显示全部"}
-
-fight_type = {"3-4", "4-8", "1-7"}
+path.base.药剂恢复理智取消 = "药剂恢复理智确认"
+-- path.base.源石恢复理智取消 = "药剂恢复理智确认"
+fight_type = {"3-4", "4-8"}
 repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
--- now("轮次作战", "后台")
 -- fight_type = {"DM-7", "DM-8"}
--- now("基建点击全部","显示全部")
--- now("公开招募刷新")
--- now("作战1-11")
-now(unpack(每八小时))
-cron(map(hc, {{每日开始, 4}, {每八小时, "2,10,16"}}))
+-- now(unpack(每八小时))
+cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"}}))
