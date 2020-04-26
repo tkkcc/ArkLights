@@ -501,7 +501,7 @@ path.作战 = function(x)
     path.剿灭(x)
   elseif f("DM") then
     if os.time() <
-      os.time({year = 2020, month = 5, day = 5, hour = 4, min = 0, sec = 0}) then
+      os.time({year = 2020, month = 5, day = 15, hour = 4, min = 0, sec = 0}) then
       path.生于黑夜(x)
     else
       path.主线("1-7")
