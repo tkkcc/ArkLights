@@ -23,13 +23,13 @@ path.base = {
   面板 = true,
   start黄框 = "删除缓存返回",
   进入游戏 = "进入游戏",
-  账号登陆 = "账号登陆",
-  登陆 = function()
+  账号登录 = "账号登录",
+  登录 = function()
     local u = "..."
     local p = "..."
     if u then input("账号", u) end
     input("密码", p)
-    tap("登陆")
+    tap("登录")
     -- reset state
     already_update_station_list = false
     no_friend = false
@@ -45,7 +45,7 @@ path.base = {
     return true
   end,
   删除缓存返回 = "删除缓存返回",
-  登陆认证失效 = "登陆认证失效",
+  登录认证失效 = "登录认证失效",
   今日配给 = "今日配给",
   签到返回 = "签到返回",
   活动公告返回 = "活动公告返回",
@@ -622,16 +622,16 @@ update_open_time = function()
   end
   local a = os.time({
     year = 2020,
-    month = 3,
-    day = 17,
+    month = 5,
+    day = 1,
     hour = 16,
     min = 0,
     sec = 0,
   })
   local b = os.time({
     year = 2020,
-    month = 3,
-    day = 31,
+    month = 5,
+    day = 15,
     hour = 4,
     min = 0,
     sec = 0,
