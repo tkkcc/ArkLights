@@ -100,10 +100,11 @@ repeat_last = function(x, n, a)
   return x
 end
 
+-- TODO: better algorithms
 loop_times = function(x)
   local times, f, n
-  local maxlen = 50
-  local maxtimes = 1
+  local maxlen = 40 -- of one piece
+  local maxtimes = 1 -- of same pieces
   if x == nil or #x == 0 then return 0 end
   for i = 1, maxlen do
     f = true
@@ -198,10 +199,10 @@ log = function(...)
   l = map(table2string, l)
   local a = ""
   for _, v in pairs(l) do a = a .. v end
-  if #history > 6000 then table.clear(history) end
+  if #history > 1000 then table.clear(history) end
   history[#history + 1] = a
   l = loop_times(history)
-  if l > 50 then restart() end
+  if l > 25 then error() end -- 130理智打全打1-7
   if l > 1 then a = a .. " x" .. l end
   -- if a:find("其它=>返回") then return end
   show(a)
@@ -269,10 +270,12 @@ find = function(x)
     if x ~= -1 then return {x, y} end
   end
 end
+
+out_of_app = false
 -- x={2,3} "信用" func nil
 tap = function(x)
   keepScreen(false)
-  if isFrontApp(appid) == 0 then
+  if not out_of_app and isFrontApp(appid) == 0 then
     show("应用不在前台")
     open()
     sleep(5)

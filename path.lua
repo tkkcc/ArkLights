@@ -11,7 +11,10 @@ cl = {}
 path = {}
 
 path.base = {
-  客户端过时 = function() stop() end,
+  客户端过时 = function()
+    stop()
+    if not update_app() then stop() end
+  end,
   限时活动返回 = function()
     local t = "限时活动列表"
     for i = 1, #point[t] do
@@ -84,6 +87,7 @@ path.base = {
   代理失误放弃行动 = "代理失误放弃行动",
   提示关闭 = 提示关闭,
   战斗记录未能同步重试 = "左返回",
+  -- TODO: not work
   正在释放神经递质 = "正在释放神经递质",
   线索传递返回 = "线索传递返回",
   无人机加速确定 = "无人机加速确定",
@@ -974,4 +978,62 @@ path.生于黑夜 = function(x)
   })
   auto(p)
   path.开始游戏(x)
+end
+
+error = function()
+  log("error")
+  local retry = 0, t
+  local retry_m = 3
+  while find("返回x") and retry < retry_m do
+    t = "限时活动列表"
+    for i = 1, #point[t] do tap(t .. i) end
+    t = "限时活动横列表"
+    for i = 1, #point[t] do tap(t .. i) end
+    if findTap('返回x') then break end
+    retry = retry + 1
+  end
+  if retry_m == retry then restart() end
+end
+
+update_app = function()
+  out_of_app = true
+  -- delete app
+  runApp("com.android.settings")
+  if not appear("settings", 15, 1) then return end
+  swip(1000, 500, 0, 10000, .4)
+  swip(1000, 500, 0, -200, 1)
+  tap("settings_Apps")
+  if not appear("Apps", 15, 1) then return end
+  if not findTap("Apps_arknights") then return end
+  if not appear("Appinfo", 15, 1) then return end
+  tap("Appinfo_uninstall")
+  if not appear("uninstall", 15, 1) then return end
+  tap("uninstall_ok")
+  -- delete apk
+  runApp("com.android.providers.downloads.ui")
+  while 1 do
+    if not appear("downloads", 15, 1) then return end
+    touchDown(0, 1000, 300)
+    sleep(3)
+    touchUp(0, 1000, 300)
+    if not findTap("downloads_delete") then break end
+  end
+  -- download
+  runApp("com.android.browser")
+  if not appear("download", 15, 1) then return end
+  tap({1000, 150}) -- address bar
+  inputText("#CLEAR#")
+  inputText("https://ak.hypergryph.com/downloads/android_lastest")
+  inputText("#ENTER#")
+  -- install
+  runApp("com.android.providers.downloads.ui")
+  if not appear("downloads", 15, 1) then return end
+  if not wait(nil, function()
+    tap({1000, 300})
+    sleep(5)
+    if findTap("install") then return true end
+  end, 4096, 60) then return end
+  sleep(60)
+  out_of_app = false
+  return true
 end
