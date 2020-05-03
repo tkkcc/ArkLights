@@ -487,11 +487,11 @@ path.邮件 = update(path.base, {
   end,
 })
 
-tick = tonumber(get("tick")) or 0
+tick = 0
 path.轮次作战 = function()
   while running ~= "理智不足" do
-    tick = tick % #fight_type + 1
     set("tick", tick)
+    tick = tick % #fight_type + 1
     path.作战(fight_type[tick])
   end
 end
@@ -565,6 +565,9 @@ path.主线 = function(x)
     end,
     [t .. x3] = function()
       swipq(x0)
+      local v = point.滑动距离[x0]
+      v = v[#v]
+      sleep(math.abs(v) / 500)
       if not findTap("作战列表" .. x) then
         -- distance or point error
         log(x .. "未找到")

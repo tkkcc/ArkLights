@@ -14,11 +14,10 @@ cron = require("crontab")
 
 path.base.药剂恢复理智取消 = "药剂恢复理智确认"
 -- path.base.源石恢复理智取消 = "药剂恢复理智确认"
-
 fight_type = {"3-4", "4-8"}
 repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
 fight_type = {"DM-7", "DM-8"}
--- now(unpack(每八小时))
+now(unpack(每八小时))
 cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"}, {"后台", "0-23"}}))
