@@ -11,10 +11,7 @@ cl = {}
 path = {}
 
 path.base = {
-  客户端过时 = function()
-    stop()
-    if not update_app() then stop() end
-  end,
+  客户端过时 = function() if not update_app() then stop() end end,
   限时活动返回 = function()
     local t = "限时活动列表"
     for i = 1, #point[t] do
@@ -88,7 +85,9 @@ path.base = {
   提示关闭 = 提示关闭,
   战斗记录未能同步重试 = "左返回",
   -- TODO: not work
-  正在释放神经递质 = "正在释放神经递质",
+  正在释放神经递质 = function()
+    disappear("正在释放神经递质", 60 * 60, 5)
+  end,
   线索传递返回 = "线索传递返回",
   无人机加速确定 = "无人机加速确定",
   接管作战 = function() disappear("接管作战", 60 * 60, 5) end,
@@ -996,44 +995,78 @@ error = function()
 end
 
 update_app = function()
+
   out_of_app = true
+
   -- delete app
+  closeApp("com.android.settings")
   runApp("com.android.settings")
   if not appear("settings", 15, 1) then return end
   swip(1000, 500, 0, 10000, .4)
   swip(1000, 500, 0, -200, 1)
   tap("settings_Apps")
   if not appear("Apps", 15, 1) then return end
-  if not findTap("Apps_arknights") then return end
-  if not appear("Appinfo", 15, 1) then return end
-  tap("Appinfo_uninstall")
-  if not appear("uninstall", 15, 1) then return end
-  tap("uninstall_ok")
-  -- delete apk
-  runApp("com.android.providers.downloads.ui")
-  while 1 do
-    if not appear("downloads", 15, 1) then return end
-    touchDown(0, 1000, 300)
-    sleep(3)
-    touchUp(0, 1000, 300)
-    if not findTap("downloads_delete") then break end
+  if findTap("Apps_arknights") then
+    if not appear("Appinfo", 15, 1) then return end
+    tap("Appinfo_uninstall")
+    if not appear("uninstall", 15, 1) then return end
+    tap("uninstall_ok")
+    sleep(15)
   end
+
+  -- delete apk
+  closeApp("com.cyanogenmod.filemanager")
+  runApp("com.cyanogenmod.filemanager")
+  if not appearTap("filemanager_search", 15, 1) then return end
+  sleep(3)
+  inputText("#CLEAR#")
+  inputText("ark")
+  inputText("#ENTER#")
+  while appear("filemanager_search_ark", 15, 1) do
+    touchDown(1, 200, 260)
+    sleep(3)
+    touchUp(1, 200, 260)
+    tap("filemanager_delete")
+    sleep(3)
+    tap({1260, 740})
+    sleep(3)
+  end
+
   -- download
+  -- closeApp("com.android.providers.downloads.ui")
+  -- closeApp("com.android.providers.downloads")
+
+  closeApp("com.android.browser")
   runApp("com.android.browser")
   if not appear("download", 15, 1) then return end
   tap({1000, 150}) -- address bar
   inputText("#CLEAR#")
   inputText("https://ak.hypergryph.com/downloads/android_lastest")
   inputText("#ENTER#")
+  swip(290, 34, 0, 300, .4, .2)
+  sleep(1)
+  for i = 1, 5 do
+    swip(446, 316, 10000, 0, .4, .2)
+    sleep(1)
+  end
+  if not appear("downloading", 15, 1) then return end
+  if not disappear("downloading", 4096, 60) then return end
+  tap("返回")
+
   -- install
-  runApp("com.android.providers.downloads.ui")
-  if not appear("downloads", 15, 1) then return end
-  if not wait(nil, function()
-    tap({1000, 300})
-    sleep(5)
-    if findTap("install") then return true end
-  end, 4096, 60) then return end
-  sleep(60)
+  closeApp("com.cyanogenmod.filemanager")
+  runApp("com.cyanogenmod.filemanager")
+  if not appearTap("filemanager_search", 15, 1) then return end
+  sleep(3)
+  inputText("#CLEAR#")
+  inputText("ark")
+  inputText("#ENTER#")
+  if not appearTap("filemanager_search_ark", 15, 1) then return end
+  while appear("install", 15, 1) do
+    tap("install_btn")
+    sleep(3)
+  end
+  sleep(30)
   out_of_app = false
   return true
 end
