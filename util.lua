@@ -199,10 +199,10 @@ log = function(...)
   l = map(table2string, l)
   local a = ""
   for _, v in pairs(l) do a = a .. v end
-  if #history > 1000 then table.clear(history) end
+  if #history > 2000 then table.clear(history) end
   history[#history + 1] = a
   l = loop_times(history)
-  if l > 25 then error() end -- 130理智打全打1-7
+  if l > 50 then error() end
   if l > 1 then a = a .. " x" .. l end
   -- if a:find("其它=>返回") then return end
   show(a)
@@ -225,14 +225,13 @@ close = function() closeApp(appid) end
 
 start = function() open() end
 
--- restart after 1h
 stop = function()
-  close()
+  pause(math.huge)
   lua_exit()
 end
-pause = function()
+pause = function(t)
   background()
-  sleep(3600)
+  sleep(t or 3600)
 end
 restart = function()
   pause()

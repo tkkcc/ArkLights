@@ -11,7 +11,12 @@ cl = {}
 path = {}
 
 path.base = {
-  客户端过时 = function() if not update_app() then stop() end end,
+  客户端过时 = function()
+    if not update_app() then
+      log("更新客户端失败")
+      stop()
+    end
+  end,
   限时活动返回 = function()
     local t = "限时活动列表"
     for i = 1, #point[t] do
@@ -25,9 +30,13 @@ path.base = {
   进入游戏 = "进入游戏",
   账号登录 = "账号登录",
   登录 = function()
-    local u = "..."
-    local p = "..."
-    if u then input("账号", u) end
+    local u = 用户名
+    local p = 密码
+    if u and #u > 0 then input("账号", u) end
+    if not p or #p == 0 then
+      log("未设置密码")
+      stop()
+    end
     input("密码", p)
     tap("登录")
     -- reset state
@@ -37,8 +46,8 @@ path.base = {
   -- 维护
   登入错误 = restart,
   我知道了 = restart,
-  密码错误 = stop,
-  网络异常稍后重试 = close,
+  密码错误 = function() tap("密码错误") stop() end,
+  网络异常稍后重试 = stop,
   -- 断网
   获取网络配置失败 = function()
     tap("获取网络配置失败")
@@ -110,35 +119,34 @@ comm_enough = false
 update_comm = function() comm_enough = false end
 update_station_list = function()
   if already_update_station_list then return end
-  -- auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
   local a = point.基建标识
   local b = a.base
   local l = {"宿舍", "制造站", "贸易站", "发电站"}
   local r = {"会客厅", "控制中枢", "加工站", "办公室", "训练室"}
-  -- unstable: adaptive
-  -- keepScreen(true)
-  -- for k, v in pairs(l) do
-  --   local t = table.filter((v == "宿舍" and a.中间设施 or a.左侧设施),
-  --                          function(x)
-  --     return find(x[1] .. '|' .. x[2] .. '|' .. a[v] .. ',' .. b)
-  --   end)
-  --   if #t > 0 then point[v .. '列表'] = t end
-  -- end
-  -- for k, v in pairs(r) do
-  --   local t = find(a[v] .. ',' .. b)
-  --   if t then point[v] = t end
-  -- end
-  -- keepScreen(false)
-
   -- all department
   la = {}
   -- flatten
   for k, v in pairs(l) do
     v = v .. '列表'
-    for i = 1, #point[v] do
-      -- point[v .. i] = point[v][i]
-      insert(la, v .. i)
+    if point[v] == nil then
+      local a = 基建左侧
+      local tx = {"贸易站", "发电站", "制造站"}
+      local ix = {1, 1, 1}
+      for i = 1, #tx do point[tx[i] .. "列表"] = {} end
+      for i = 1, math.ceil(#a / 3) do
+        local b = a:sub(3 * i - 2, 3 * i)
+        local j = table.find(tx, function(x) return x:startsWith(b) end)
+        if j then
+          local k1 = tx[j] .. "列表"
+          local k2 = k1 .. ix[j]
+          insert(point[k1], k2)
+          point[k2] = point.基建左侧[i]
+          tap_extra_delay[k2] = tap_extra_delay[k1]
+          ix[j] = ix[j] + 1
+        end
+      end
     end
+    for i = 1, #point[v] do insert(la, v .. i) end
   end
   table.extend(la, r)
   already_update_station_list = true
@@ -528,7 +536,7 @@ path.开始游戏 = function(x)
       sleep(10)
     end,
     接管作战 = function()
-      if disappear("接管作战", 60 * 60, 1) and
+      if disappear("接管作战", 60 * 60, 5) and
         not find("代理失误放弃行动") and
         not appear("战斗记录未能同步重试", 2, 1) and
         appear("行动结束", 10, 1) then
@@ -809,7 +817,7 @@ end
 -- show all info
 showALL = function()
   -- show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
-  show(showBL(true), 36)
+  show(taglog .. (#taglog and "\n" or "") .. showBL(true), 36)
 end
 path.关闭 = close
 path.显示全部 = showALL
@@ -983,24 +991,31 @@ path.生于黑夜 = function(x)
 end
 
 error = function()
-  log("error")
-  local retry = 0, t
-  local retry_m = 3
-  while find("返回x") and retry < retry_m do
-    t = "限时活动列表"
-    for i = 1, #point[t] do tap(t .. i) end
-    t = "限时活动横列表"
-    for i = 1, #point[t] do tap(t .. i) end
-    if findTap('返回x') then break end
-    retry = retry + 1
+  if find("返回x") then
+    log("限时活动")
+    local retry = 0, t
+    local retry_m = 3
+    while find("返回x") and retry < retry_m do
+      t = "限时活动列表"
+      for i = 1, #point[t] do tap(t .. i) end
+      t = "限时活动横列表"
+      for i = 1, #point[t] do tap(t .. i) end
+      if findTap('返回x') then break end
+      retry = retry + 1
+    end
+    if retry_m == retry then
+      log("限时活动执行失败")
+      stop()
+    end
+  else
+    log("未知状态")
+    stop()
   end
-  if retry_m == retry then restart() end
 end
 
 update_app = function()
 
   out_of_app = true
-
   -- delete app
   closeApp("com.android.settings")
   runApp("com.android.settings")
