@@ -202,11 +202,9 @@ log = function(...)
   if #history > 2000 then table.clear(history) end
   history[#history + 1] = a
   l = loop_times(history)
-  if l > 50 then error() end
   if l > 1 then a = a .. " x" .. l end
-  -- if a:find("其它=>返回") then return end
   show(a)
-  -- fileLogWrite('arknights', 0, "info", a)
+  if l > 50 then error() end
 end
 
 set = function(k, v)

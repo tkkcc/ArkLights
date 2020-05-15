@@ -25,7 +25,7 @@ fight_type = {"3-4", "4-8"}
 repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
-fight_type = {"DM-7", "DM-8"}
+-- fight_type = {"DM-7", "DM-8"}
 -- 立即执行
 now(unpack(每八小时))
 -- 半点执行

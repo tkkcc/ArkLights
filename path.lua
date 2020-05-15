@@ -46,7 +46,10 @@ path.base = {
   -- 维护
   登入错误 = restart,
   我知道了 = restart,
-  密码错误 = function() tap("密码错误") stop() end,
+  密码错误 = function()
+    tap("密码错误")
+    stop()
+  end,
   网络异常稍后重试 = stop,
   -- 断网
   获取网络配置失败 = function()
@@ -92,7 +95,13 @@ path.base = {
   新手任务 = "右返回",
   代理失误放弃行动 = "代理失误放弃行动",
   提示关闭 = 提示关闭,
-  战斗记录未能同步重试 = "左返回",
+  战斗记录未能同步返回 = function()
+    local i = 0
+    while i < 5 do
+      tap("右确认")
+      if disappear("战斗记录未能同步返回", 30, 5) then break end
+    end
+  end,
   -- TODO: not work
   正在释放神经递质 = function()
     disappear("正在释放神经递质", 60 * 60, 5)
