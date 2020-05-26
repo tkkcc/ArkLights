@@ -235,7 +235,7 @@ path.换人 = function()
       清空完毕进驻 = function()
         -- check 进驻人数
         keepScreen(true)
-        b = table.find(point.进驻人数列表, find)
+        b = table.find(point.进驻人数列表, find) or 5
         keepScreen(false)
         tap("清空完毕进驻")
         if not appear("干员选择确认", 3, 1) then return end
