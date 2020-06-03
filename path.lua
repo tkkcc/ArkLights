@@ -391,7 +391,7 @@ path.线索传递 = update(path.base, {
         return true
       end
     end
-    while 1 do
+    while count < 50 / 4 do
       -- 翻到末尾就随机给
       if not find("线索传递右白") and not find("线索传递右白2") then
         f(true)

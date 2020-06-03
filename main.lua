@@ -26,8 +26,6 @@ repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
 -- 立即执行
--- now("信用购买")
--- now("基建副手换人")
 now(unpack(每八小时))
 -- 半点执行
 cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"}, {"后台", "0-23"}}))
