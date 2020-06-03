@@ -98,6 +98,7 @@ path.base = {
   战斗记录未能同步返回 = function()
     local i = 0
     while i < 5 do
+      log("战斗记录同步重试")
       tap("右确认")
       if disappear("战斗记录未能同步返回", 30, 5) then break end
     end
@@ -261,25 +262,6 @@ path.换人 = function()
     auto(p)
     auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
   end
-end
-
-path.制造站补充 = function()
-  update_station_list()
-  if #point.制造站列表 == 0 then return end
-  auto(update(path.base, {
-    制造站进度 = "制造站进度",
-    制造站设施 = function()
-      for i = 1, #point.制造站列表 do
-        tap("设施列表" .. i)
-        tap("制造站最多")
-        if appear("执行更改", .4, .2) then tap("执行更改") end
-      end
-      return true
-    end,
-    进驻总览 = "制造站列表1",
-    面板 = "面板基建",
-    进驻信息2选中 = "进驻信息2选中",
-  }))
 end
 
 path.制造站加速 = function()
@@ -476,10 +458,11 @@ path.信用购买 = function()
     信用交易所 = function()
       keepScreen(true)
       if not findTap(unpack(point.信用交易所列表)) then
+        -- if not findTap("信用交易所商品") then
         keepScreen(false)
         return true
       end
-      keepScreen(false)
+      -- keepScreen(false)
       findTap("购买物品")
       if find("信用不足") then return true end
     end,
@@ -547,7 +530,7 @@ path.开始游戏 = function(x)
     接管作战 = function()
       if disappear("接管作战", 60 * 60, 5) and
         not find("代理失误放弃行动") and
-        not appear("战斗记录未能同步重试", 2, 1) and
+        not appear("战斗记录未能同步返回", 2, 1) and
         appear("行动结束", 10, 1) then
         log('代理成功', x)
         cl[x] = (cl[x] or 0) + 1
@@ -645,16 +628,16 @@ update_open_time = function()
   end
   local a = os.time({
     year = 2020,
-    month = 5,
-    day = 1,
+    month = 6,
+    day = 2,
     hour = 16,
     min = 0,
     sec = 0,
   })
   local b = os.time({
     year = 2020,
-    month = 5,
-    day = 15,
+    month = 6,
+    day = 16,
     hour = 4,
     min = 0,
     sec = 0,
@@ -751,15 +734,16 @@ path.剿灭 = function(x)
       tap("作战剿灭")
     end,
     ["作战列表" .. x] = function()
+      if not find("报酬合成玉未满") then
+        jwf.full = true
+        log("本周合成玉已满")
+      end
       tap("作战列表" .. x)
       return true
     end,
   })
   auto(p)
-  if not find("报酬合成玉未满") then
-    jwf.full = true
-    return
-  end
+  if jwf.full then return end
   path.开始游戏(x)
 end
 
