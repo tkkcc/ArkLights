@@ -201,6 +201,13 @@ path.基建副手换人 = function()
     auto(p)
     tap(v)
     if not find("干员选择无选中") then tap("干员选择列表1") end
+    tap("干员选择确认")
+    sleep(1)
+  end
+  for k, v in pairs(point.基建副手列表) do
+    auto(p)
+    tap(v)
+    if not find("干员选择无选中") then tap("干员选择列表1") end
     tap("排序信赖")
     tap("排序信赖")
     tap("干员选择列表1")
