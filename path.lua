@@ -537,8 +537,7 @@ path.开始游戏 = function(x)
     接管作战 = function()
       if disappear("接管作战", 60 * 60, 5) and
         not find("代理失误放弃行动") and
-        not appear("战斗记录未能同步返回", 2, 1) and
-        appear("行动结束", 10, 1) then
+        not appear("战斗记录未能同步返回", 2, 1) then
         log('代理成功', x)
         cl[x] = (cl[x] or 0) + 1
         sleep(3)
