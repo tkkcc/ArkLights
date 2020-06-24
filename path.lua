@@ -50,7 +50,7 @@ path.base = {
     tap("密码错误")
     stop()
   end,
-  网络异常稍后重试 = stop,
+  网络异常稍后重试 = restart,
   -- 断网
   获取网络配置失败 = function()
     tap("获取网络配置失败")

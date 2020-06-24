@@ -28,7 +28,7 @@ table.shuffle(fight_type)
 -- 立即执行
 -- now("基建副手换人")
 -- now(unpack(每日开始))
--- now(unpack(每八小时))
+now(unpack(每八小时))
 -- now("基建点击全部")
 -- 半点执行
 cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"}, {"后台", "0-23"}}))
