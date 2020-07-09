@@ -29,6 +29,9 @@ path.base = {
   start黄框 = "删除缓存返回",
   进入游戏 = "进入游戏",
   账号登录 = "账号登录",
+  正在加载网络配置 = function()
+    if not disappear("正在加载网络配置", 300, 5) then restart() end
+  end,
   登录 = function()
     local u = 用户名
     local p = 密码
@@ -828,14 +831,15 @@ path["1-11"] = function()
   -- wait 安德切尔
   if not findTap("开始行动红") then return end
   sleep(10)
-  if not findTap("跳过剧情") then
-    log("没找到跳过剧情")
-    log('代理失误', x)
-    bl[x] = false
-    return false
-  end
-  sleep(.5)
-  findTap("跳过剧情确认")
+  tap("跳过剧情")
+  -- if not findTap("跳过剧情") then
+  --   log("没找到跳过剧情")
+  --   log('代理失误', x)
+  --   bl[x] = false
+  --   return false
+  -- end
+  sleep(1)
+  tap("跳过剧情确认")
   -- start
   sleep(23)
   tap("速度2")
