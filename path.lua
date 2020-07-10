@@ -512,9 +512,9 @@ path.作战 = function(x)
     path.物资芯片(x)
   elseif table.any({'龙门外环', '切尔诺伯格', '龙门市区'}, f) then
     path.剿灭(x)
-  elseif f("DM") then
+  elseif f("TW") then
     if os.time() <
-      os.time({year = 2020, month = 5, day = 15, hour = 4, min = 0, sec = 0}) then
+      os.time({year = 2020, month = 7, day = 30, hour = 4, min = 0, sec = 0}) then
       path.生于黑夜(x)
     else
       path.主线("1-7")
@@ -978,14 +978,17 @@ path["作战1-11"] = function() for i = 1, 14 do path.作战("1-11") end end
 path.生于黑夜 = function(x)
   local p = update(path.base, {
     面板 = function()
-      tap("面板作战")
-      tap("作战生于黑夜")
-      sleep(1)
-      tap("生于黑夜阵中往事")
+      tap("面板作战活动")
+      tap("议事大厅")
       sleep(1)
     end,
-    ["作战列表" .. x] = function()
-      tap("作战列表" .. x)
+    前往八月集市 = function()
+      swipq(x)
+      sleep(1)
+      if not findTap("作战列表" .. x) then
+        log(x .. "未找到")
+        bl[x] = false
+      end
       return true
     end,
   })
