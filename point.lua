@@ -626,12 +626,12 @@ point = {
   filemanager_search_ark = "183|226|0xfbfb00,201|244|0x666600,261|148|0xfbfbfb,327|142|0x646464,129|124|0x3a73d3,93|130|0x3a73d3,105|130|0xffffff,165|250|0x8c8c00,159|256|0xffff00",
   download_finish = "48|38|0xe5e5e5,61|38|0xe5e5e5,54|43|0xe5e5e5,54|27|0xe5e5e5,54|20|0xe5e5e5,54|16|0xe5e5e5,53|15|0x000000,53|51|0x000000",
   filemanager_delete = {1060, 470},
-  downloading = "552|328|0x607d8b,1535|328|0xd1d1d1",
+  downloading = "1535|328|0xd1d1d1,533|315|0xfafafa,503|309|0x607d8b",
 }
 -- sleep more time when tap these
 tap_extra_delay = {
   -- base
-  登录 = 3,
+  登录 = 5,
   返回 = .5,
   -- 作战
   面板作战 = 1,
