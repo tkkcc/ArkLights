@@ -637,16 +637,16 @@ update_open_time = function()
   end
   local a = os.time({
     year = 2020,
-    month = 6,
-    day = 2,
+    month = 7,
+    day = 28,
     hour = 16,
     min = 0,
     sec = 0,
   })
   local b = os.time({
     year = 2020,
-    month = 6,
-    day = 16,
+    month = 8,
+    day = 11,
     hour = 4,
     min = 0,
     sec = 0,
