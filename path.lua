@@ -519,6 +519,13 @@ path.作战 = function(x)
     else
       path.主线("1-7")
     end
+  elseif table.any({"OF"}, f) then
+    if os.time() <
+      os.time({year = 2020, month = 8, day = 25, hour = 4, min = 0, sec = 0}) then
+      path.火蓝之心(x)
+    else
+      path.主线("1-7")
+    end
   else
     path.主线(x)
   end
@@ -531,6 +538,15 @@ path.开始游戏 = function(x)
     面板 = true,
     代理指挥关 = "代理指挥关",
     代理指挥开 = "开始行动蓝",
+    代理指挥关粉 = "代理指挥关粉",
+    代理指挥开粉 = function()
+      tap("开始行动蓝")
+      if find("火蓝之心无门票") then
+        log("无门票")
+        running = '门票不足'
+        return true
+      end
+    end,
     开始行动红 = function()
       -- log(x)
       -- if true then return true end
@@ -554,6 +570,9 @@ path.开始游戏 = function(x)
     end,
   }))
 end
+
+-- path.火蓝之心嘉年华轮次作战 =
+--   function() while running ~= '门票不足' do path.火蓝之心('OF-F4') end end
 
 path.主线 = function(x)
   -- split s2-9 to 2 and 9
@@ -911,7 +930,7 @@ path.公开招募刷新 = function()
       公开招募确认 = function()
         a = {}
         b = {}
-        mr = 5 -- max retries for one tag
+        mr = 10 -- max retries for one tag
         for k, v in pairs(point.公开招募标签框列表) do
           v = point[v]
           t = ""
@@ -923,6 +942,7 @@ path.公开招募刷新 = function()
               diff = {"0xffffff-0x989898"}, -- background<=0x66
             })
             t = ocr(t)
+
           end
           if not table.includes(tag, t) then
             tt = 'invalid tag: ' .. table.concat(a, ',') .. ',' .. tostring(t)
@@ -988,6 +1008,27 @@ path.生于黑夜 = function(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         bl[x] = false
+      end
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
+
+path.火蓝之心 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动")
+      tap(x:sub(4, 4) ~= 'F' and '火蓝之心主舞台' or
+            '火蓝之心嘉年华')
+      sleep(1)
+      swipq(x)
+      sleep(1)
+      if not findTap("作战列表" .. x) then
+        log(x .. "未找到")
+        bl[x] = false
+
       end
       return true
     end,
