@@ -26,18 +26,21 @@ fight_type = {"7-15"}
 repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
-fight_type={}
-repeat_last(fight_type, 3, "OF-6")
-repeat_last(fight_type, 14, "OF-7")
-repeat_last(fight_type, 37, "OF-8")
-repeat_last(fight_type, 1000, "OF-F4")
+-- fight_type={}
+-- repeat_last(fight_type, 3, "OF-6")
+-- repeat_last(fight_type, 14, "OF-7")
+-- repeat_last(fight_type, 30, "OF-8")
+-- repeat_last(fight_type, 300, "OF-F4")
+-- repeat_last(fight_type, 100,"1-7")
 -- fight_type={"OF-F4"}
 -- 立即执行
 -- fight_type = {"4-8"}
 -- findTap("作战列表".."LS-5")
 -- findTap("作战列表" .. "OF-7")
 -- lua_exit()
--- now("轮次作战")
+fight_type={}
+repeat_last(fight_type ,100,"RI-8")
+-- now("轮次作战", "后台")
 -- now(unpack(每日开始))
 now(unpack(每八小时))
 

@@ -180,11 +180,11 @@ path.限时活动 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  if not appearTap('基建灯泡蓝', 3, 1) then return end
+  if not appearTap('基建灯泡蓝', 5, 1) then return end
   -- TODO 仓满、疲劳 still work?
   local i = 1
   while i <= 5 and appearTap("点击全部收取", 3, 1) do
-    findTap("点击全部收取")
+    -- findTap("点击全部收取")
     sleep(2)
     i = i + 1
   end
@@ -525,6 +525,14 @@ path.作战 = function(x)
       path.火蓝之心(x)
     else
       path.主线("1-7")
+    end
+  elseif table.any({"RI"}, f) then
+    if os.time() <
+      os.time({year = 2020, month = 9, day = 15, hour = 4, min = 0, sec = 0}) then
+      path.密林(x)
+    else
+      path.主线("1-7")
+
     end
   else
     path.主线(x)
@@ -994,6 +1002,29 @@ path.公开招募刷新 = function()
 end
 
 path["作战1-11"] = function() for i = 1, 14 do path.作战("1-11") end end
+
+path.密林 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战")
+      sleep(1)
+      tap("作战密林悍将归来")
+      sleep(3)
+      tap("密林大酋长之路")
+    end,
+    大酋长之路 = function()
+      swipq(x)
+      sleep(1)
+      if not findTap("作战列表" .. x) then
+        log(x .. "未找到")
+        bl[x] = false
+      end
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
 
 path.生于黑夜 = function(x)
   local p = update(path.base, {
