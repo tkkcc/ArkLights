@@ -22,29 +22,13 @@ path.base.药剂恢复理智取消 = "药剂恢复理智确认"
 密码 = "..."
 
 fight_type = {"7-15"}
--- fight_type = {"1-7"}
 repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
--- fight_type={}
--- repeat_last(fight_type, 3, "OF-6")
--- repeat_last(fight_type, 14, "OF-7")
--- repeat_last(fight_type, 30, "OF-8")
--- repeat_last(fight_type, 300, "OF-F4")
--- repeat_last(fight_type, 100,"1-7")
--- fight_type={"OF-F4"}
--- 立即执行
--- fight_type = {"4-8"}
--- findTap("作战列表".."LS-5")
--- findTap("作战列表" .. "OF-7")
--- lua_exit()
 fight_type={}
 repeat_last(fight_type ,100,"RI-8")
 -- now("轮次作战", "后台")
+-- now(unpack(每八小时))
 -- now(unpack(每日开始))
-now(unpack(每八小时))
-
--- now("基建副手换人", "显示全部", "后台")
--- now("基建点击全部")
 -- 半点执行
 cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"}, {"后台", "0-23"}}))
