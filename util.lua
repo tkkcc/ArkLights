@@ -435,7 +435,7 @@ end
 
 appearTap = function(x, timeout, interval)
   if appear(x, timeout, interval) then
-    tap(x)
+    findTap(x)
     return true
   end
 end

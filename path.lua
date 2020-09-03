@@ -180,16 +180,12 @@ path.限时活动 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  
-  if not appearTap('基建灯泡蓝', 5, 1) then 
-    log("未找到灯泡")  
+  if not appearTap('基建灯泡蓝', 5, 1) then
+    log("未找到灯泡")
     return
   end
-  findTap('基建灯泡蓝')
-  -- TODO 仓满、疲劳 still work?
-  local i = 1
+  i = 1
   while i <= 5 and appearTap("点击全部收取", 3, 1) do
-    -- findTap("点击全部收取")
     sleep(2)
     i = i + 1
   end

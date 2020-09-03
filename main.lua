@@ -28,7 +28,7 @@ table.shuffle(fight_type)
 fight_type={}
 repeat_last(fight_type ,100,"RI-8")
 -- now("轮次作战", "后台")
--- now(unpack(每八小时))
+now(unpack(每八小时))
 -- now(unpack(每日开始))
 -- 半点执行
 cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"}, {"后台", "0-23"}}))
