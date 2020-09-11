@@ -851,7 +851,13 @@ showALL = function()
 end
 path.关闭 = close
 path.显示全部 = showALL
-path.后台 = background
+-- path.后台 = background
+path.后台 = function()
+   -- TODO
+  close()
+  -- set("restart", true)
+  -- lua_restart()
+end
 
 path["1-11"] = function()
   local x = "1-11"

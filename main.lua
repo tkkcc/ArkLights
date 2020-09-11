@@ -25,8 +25,8 @@ fight_type = {"7-15"}
 repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
-fight_type={}
-repeat_last(fight_type ,100,"RI-8")
+-- fight_type={}
+-- repeat_last(fight_type ,100,"RI-8")
 -- now("轮次作战", "后台")
 now(unpack(每八小时))
 -- now(unpack(每日开始))

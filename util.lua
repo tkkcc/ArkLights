@@ -204,7 +204,7 @@ log = function(...)
   l = loop_times(history)
   if l > 1 then a = a .. " x" .. l end
   show(a)
-  if l > 50 then error() end
+  if l > 500 then error() end
 end
 
 set = function(k, v)
