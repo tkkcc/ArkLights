@@ -224,14 +224,18 @@ close = function() closeApp(appid) end
 start = function() open() end
 
 stop = function()
-  pause(math.huge)
+  log("stop")
+  -- DEBUG
+  sleep(3600*72)
+  pause()
   lua_exit()
 end
 pause = function(t)
   background()
-  sleep(t or 3600)
+  sleep(t or 3600*72)
 end
 restart = function()
+  log("restart")
   pause()
   close()
   set("restart", true)

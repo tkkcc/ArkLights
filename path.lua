@@ -26,7 +26,7 @@ path.base = {
     tap('限时活动返回')
   end,
   面板 = true,
-  start黄框 = "删除缓存返回",
+  start黄框 = "start黄框",
   进入游戏 = "进入游戏",
   账号登录 = "账号登录",
   正在加载网络配置 = function()
@@ -59,7 +59,7 @@ path.base = {
     tap("获取网络配置失败")
     return true
   end,
-  删除缓存返回 = "删除缓存返回",
+  删除缓存返回 = "start黄框",
   登录认证失效 = "登录认证失效",
   今日配给 = "今日配给",
   签到返回 = "签到返回",
@@ -180,12 +180,13 @@ path.限时活动 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
+  sleep(3)
   if not appearTap('基建灯泡蓝', 5, 1) then
     log("未找到灯泡")
     return
   end
   i = 1
-  while i <= 5 and appearTap("点击全部收取", 3, 1) do
+  while i <= 10 and appearTap("点击全部收取", 3, 1) do
     sleep(2)
     i = i + 1
   end
@@ -791,8 +792,7 @@ path.访问好友基建 = function()
     面板 = '面板好友',
     个人名片 = '好友列表',
     好友列表 = function()
-      if not appear('访问基建', 3, 1) then return true end
-      tap("访问基建")
+      if not appearTap('访问基建', 3, 1) then return true end
       while 1 do
         if not wait(nil, function()
           if find("今日参与交流已达上限") then
