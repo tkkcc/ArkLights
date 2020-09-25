@@ -853,7 +853,9 @@ path.关闭 = close
 path.显示全部 = showALL
 -- path.后台 = background
 path.后台 = function()
-   -- TODO
+  -- TODO
+  background()
+  sleep(5)
   close()
   -- set("restart", true)
   -- lua_restart()
