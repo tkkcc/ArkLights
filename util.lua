@@ -204,7 +204,7 @@ log = function(...)
   l = loop_times(history)
   if l > 1 then a = a .. " x" .. l end
   show(a)
-  if l > 500 then error() end
+  if l > 100 then error() end
 end
 
 set = function(k, v)
@@ -224,22 +224,23 @@ close = function() closeApp(appid) end
 start = function() open() end
 
 stop = function()
+
   log("stop")
   -- DEBUG
-  sleep(3600*72)
+  sleep(3600 * 72)
   pause()
   lua_exit()
 end
 pause = function(t)
   background()
-  sleep(t or 3600*72)
+  sleep(t or 3600 * 72)
 end
 restart = function()
   log("restart")
-  pause()
+  -- pause()
   close()
-  set("restart", true)
-  lua_restart()
+  -- set("restart", true)
+  -- lua_restart()
 end
 
 background = function() pressHomeKey() end
@@ -422,8 +423,17 @@ run = function(...)
 end
 -- hour crontab
 hc = function(x, h)
-  if type(x) == "table" then x, h = x[1], x[2] end
-  return {callback = function() run(x) end, hour = h, minute = 30}
+  local m = 30
+  if type(x) == "table" then
+    if #x == 3 then
+      x, h, m = x[1], x[2], x[3]
+      -- log("miniute", m)
+    else
+      x, h = x[1], x[2]
+    end
+
+  end
+  return {callback = function() run(x) end, hour = h, minute = m}
 end
 -- if find then tap with fallback
 findTap = function(...)

@@ -114,7 +114,8 @@ path.base = {
   无人机加速确定 = "无人机加速确定",
   接管作战 = function() disappear("接管作战", 60 * 60, 5) end,
   未能同步到相关战斗记录 = close,
-  排序筛选确认 = 排序筛选确认,
+  排序筛选确认 = "排序筛选确认",
+  退出游戏 = "左返回",
 }
 
 path.移动停止按钮 = function()
@@ -468,15 +469,22 @@ path.信用购买 = function()
     面板 = "面板采购中心",
     可露希尔推荐 = "信用交易所",
     信用交易所 = function()
-      keepScreen(true)
+      -- keepScreen(true)
+      sleep(1)
       if not findTap(unpack(point.信用交易所列表)) then
         -- if not findTap("信用交易所商品") then
-        keepScreen(false)
+        -- keepScreen(false)
         return true
       end
       -- keepScreen(false)
-      findTap("购买物品")
-      if find("信用不足") then return true end
+      if not findTap("购买物品") then return end
+      if find("信用不足") then
+        log("信用不足")
+        return true
+      else
+        tap("返回")
+        sleep(1)
+      end
     end,
   }))
   return true
@@ -514,27 +522,33 @@ path.作战 = function(x)
     path.物资芯片(x)
   elseif table.any({'龙门外环', '切尔诺伯格', '龙门市区'}, f) then
     path.剿灭(x)
-  elseif f("TW") then
+  elseif f("GT-") then
+    if os.time() <
+      os.time({year = 2020, month = 10, day = 11, hour = 4, min = 0, sec = 0}) then
+      path.骑猎(x)
+    else
+      path.主线("1-7")
+    end
+  elseif f("TW-") then
     if os.time() <
       os.time({year = 2020, month = 7, day = 23, hour = 4, min = 0, sec = 0}) then
       path.生于黑夜(x)
     else
       path.主线("1-7")
     end
-  elseif table.any({"OF"}, f) then
+  elseif table.any({"OF-"}, f) then
     if os.time() <
       os.time({year = 2020, month = 8, day = 25, hour = 4, min = 0, sec = 0}) then
       path.火蓝之心(x)
     else
       path.主线("1-7")
     end
-  elseif table.any({"RI"}, f) then
+  elseif table.any({"RI-"}, f) then
     if os.time() <
       os.time({year = 2020, month = 9, day = 15, hour = 4, min = 0, sec = 0}) then
       path.密林(x)
     else
       path.主线("1-7")
-
     end
   else
     path.主线(x)
@@ -547,7 +561,12 @@ path.开始游戏 = function(x)
   return auto(update(path.base, {
     面板 = true,
     代理指挥关 = "代理指挥关",
-    代理指挥开 = "开始行动蓝",
+    代理指挥开 = function()
+      -- TODO test
+      if not findTap("开始行动蓝") then return end
+      if not appearTap("开始行动红", 5, 1) then return end
+      sleep(10)
+    end,
     代理指挥关粉 = "代理指挥关粉",
     代理指挥开粉 = function()
       tap("开始行动蓝")
@@ -847,19 +866,79 @@ end
 -- show all info
 showALL = function()
   -- show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
-  show(taglog .. (#taglog and "\n" or "") .. showBL(true), 36)
+  show(taglog .. showBL(true), 36)
 end
 path.关闭 = close
 path.显示全部 = showALL
 -- path.后台 = background
 path.后台 = function()
+  -- auto(update(path.base, {
+  --   面板 = function() pressKey('BACK', false) end,
+
+  --   退出游戏 = function()
+  --     -- tap("右确认")
+  --     -- wait(nil, function() return isFrontApp(appid) == 0 end)
+  --     -- log("已退出")
+  --     return true
+  --   end,
+  -- }))
+  -- close()
+  -- lua_exit()
+  -- auto(path.base)
+  -- if true then return true end
+
+  -- close()
+  -- set("restart", "true")
+
+  -- lua_restart()
+  -- if true then return true end
+
   -- TODO
+  -- sleep(60)
+  -- log("debug-2")
+  -- auto(update(path.base, {
+  --   面板 = function()
+  --     tap("面板公告")
+  --     return true
+  --   end,
+  -- }))
+  -- tap("返回")
+  -- set("restart", "true")
+  -- close()
+  -- lua_restart()
   background()
-  sleep(5)
-  close()
+  -- sleep(1800)
+  -- log("debug-1")
+  -- if true then return true end
+
+  -- sleep(60)
+  -- close()
   -- set("restart", true)
   -- lua_restart()
+  -- log("debug0")
+
+  -- runApp("com.xxscript.idehelper")
+  -- log("debug1")
+
+  -- sleep(60)
+  -- log("debug2")
+
+  -- -- background()
+  -- log("debug3")
+  -- runApp("com.android.settings")
+
+  -- if isFrontApp(appid) == 0 then return end
+  -- auto(update(path.base, {
+  --   面板 = function() pressKey('BACK', false) end,
+  --   退出游戏 = function()
+  --     tap("右确认")
+  --     wait(nil, function() return isFrontApp(appid) == 0 end)
+  --     log("已退出")
+  --     return true
+  --   end,
+  -- }))
 end
+-- path.后台 = path.后台
 
 path["1-11"] = function()
   local x = "1-11"
@@ -964,7 +1043,7 @@ path.公开招募刷新 = function()
           if not table.includes(tag, t) then
             tt = 'invalid tag: ' .. table.concat(a, ',') .. ',' .. tostring(t)
             log(tt)
-            taglog = taglog .. '\n' .. tt
+            taglog = taglog .. tt .. '\n'
             return true
           end
           insert(a, t)
@@ -987,7 +1066,7 @@ path.公开招募刷新 = function()
           for k, v in pairs(t) do
             tt = table.concat(tagk[v], ',') .. '=>' .. tagv[v]
             log(tt)
-            taglog = taglog .. '\n' .. tt
+            taglog = taglog .. tt .. '\n'
           end
           if #t == 1 then
             tt = tagk[t[1]]
@@ -1049,6 +1128,21 @@ path.生于黑夜 = function(x)
         log(x .. "未找到")
         bl[x] = false
       end
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
+path.骑猎 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动上")
+      tap("滴水湖周边")
+      sleep(1)
+    end,
+    ["作战列表" .. x] = function()
+      tap("作战列表" .. x)
       return true
     end,
   })
