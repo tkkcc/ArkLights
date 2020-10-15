@@ -106,7 +106,6 @@ path.base = {
       if disappear("战斗记录未能同步返回", 30, 5) then break end
     end
   end,
-  -- TODO: not work
   正在释放神经递质 = function()
     disappear("正在释放神经递质", 60 * 60, 5)
   end,
@@ -522,6 +521,13 @@ path.作战 = function(x)
     path.物资芯片(x)
   elseif table.any({'龙门外环', '切尔诺伯格', '龙门市区'}, f) then
     path.剿灭(x)
+  elseif f("MN-") then
+    if os.time() <
+      os.time({year = 2020, month = 10, day = 29, hour = 4, min = 0, sec = 0}) then
+      path.临光(x)
+    else
+      path.主线("1-7")
+    end
   elseif f("GT-") then
     if os.time() <
       os.time({year = 2020, month = 10, day = 11, hour = 4, min = 0, sec = 0}) then
@@ -561,12 +567,7 @@ path.开始游戏 = function(x)
   return auto(update(path.base, {
     面板 = true,
     代理指挥关 = "代理指挥关",
-    代理指挥开 = function()
-      -- TODO test
-      if not findTap("开始行动蓝") then return end
-      if not appearTap("开始行动红", 5, 1) then return end
-      sleep(10)
-    end,
+    代理指挥开 = "开始行动蓝",
     代理指挥关粉 = "代理指挥关粉",
     代理指挥开粉 = function()
       tap("开始行动蓝")
@@ -1024,9 +1025,10 @@ path.公开招募刷新 = function()
         if not findTap('公开招募列表' .. i) then return true end
       end,
       公开招募确认 = function()
-        a = {}
-        b = {}
-        mr = 10 -- max retries for one tag
+        local flag
+        local a = {}
+        local b = {}
+        local mr = 10 -- max retries for one tag
         for k, v in pairs(point.公开招募标签框列表) do
           v = point[v]
           t = ""
@@ -1038,7 +1040,6 @@ path.公开招募刷新 = function()
               diff = {"0xffffff-0x989898"}, -- background<=0x66
             })
             t = ocr(t)
-
           end
           if not table.includes(tag, t) then
             tt = 'invalid tag: ' .. table.concat(a, ',') .. ',' .. tostring(t)
@@ -1062,13 +1063,20 @@ path.公开招募刷新 = function()
           end
           if flag then insert(t, k) end
         end
+
         if #t ~= 0 then
+          -- 判断保底是否只有4星
+          local min_star = 4
           for k, v in pairs(t) do
             tt = table.concat(tagk[v], ',') .. '=>' .. tagv[v]
             log(tt)
-            taglog = taglog .. tt .. '\n'
+            if not tagk[v]:find("4") then
+              min_star = 5
+              taglog = taglog .. tt .. '\n'
+            end
           end
-          if #t == 1 then
+          -- 9小时招募
+          if min_star == 4 then
             tt = tagk[t[1]]
             for k, v in pairs(tt) do
               p = table.find(a, function(x) return x == v end)
@@ -1128,6 +1136,23 @@ path.生于黑夜 = function(x)
         log(x .. "未找到")
         bl[x] = false
       end
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
+path.临光 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动上")
+      sleep(2)
+      tap("大竞技场")
+      sleep(1)
+    end,
+    梅什科竞技证券 = function() swipq(x) end,
+    ["作战列表" .. x] = function()
+      tap("作战列表" .. x)
       return true
     end,
   })

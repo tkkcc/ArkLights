@@ -27,10 +27,10 @@ repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
 fight_type = {}
-repeat_last(fight_type, 100, "GT-6")
+repeat_last(fight_type, 100, "MN-8")
 -- now(unpack(每日开始))
-
-now(unpack(每八小时))
+now("轮次作战")
+-- now(unpack(每八小时))
 
 cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"},
               {{"后台", "显示全部"}, "0-23"}}))
