@@ -29,8 +29,8 @@ table.shuffle(fight_type)
 fight_type = {}
 repeat_last(fight_type, 100, "MN-8")
 -- now(unpack(每日开始))
-now("轮次作战")
--- now(unpack(每八小时))
+now(unpack(每八小时))
+-- now("公开招募聘用","公开招募刷新")
 
 cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"},
               {{"后台", "显示全部"}, "0-23"}}))

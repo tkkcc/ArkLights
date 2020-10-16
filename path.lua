@@ -1070,7 +1070,7 @@ path.公开招募刷新 = function()
           for k, v in pairs(t) do
             tt = table.concat(tagk[v], ',') .. '=>' .. tagv[v]
             log(tt)
-            if not tagk[v]:find("4") then
+            if not tagv[v]:find("4") then
               min_star = 5
               taglog = taglog .. tt .. '\n'
             end
