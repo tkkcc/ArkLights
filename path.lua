@@ -596,7 +596,10 @@ path.开始游戏 = function(x)
         log('代理失误', x)
         bl[x] = false
       end
+      -- background()
+
       return true
+      -- debug 
     end,
   }))
 end
@@ -624,7 +627,7 @@ path.主线 = function(x)
     [t .. x3] = function()
       swipq(x0)
       local v = point.滑动距离[x0]
-      v = v[#v]
+      if type(v) == "table" then v = v[#v] end
       sleep(math.abs(v) / 500)
       if not findTap("作战列表" .. x) then
         -- distance or point error
@@ -686,16 +689,16 @@ update_open_time = function()
   end
   local a = os.time({
     year = 2020,
-    month = 7,
-    day = 28,
+    month = 11,
+    day = 15,
     hour = 16,
     min = 0,
     sec = 0,
   })
   local b = os.time({
     year = 2020,
-    month = 8,
-    day = 11,
+    month = 11,
+    day = 29,
     hour = 4,
     min = 0,
     sec = 0,
@@ -868,6 +871,7 @@ end
 showALL = function()
   -- show(showSL(true) .. '\n' .. showBL(true) .. '\n' .. showCL(true), 500)
   show(taglog .. showBL(true), 36)
+
 end
 path.关闭 = close
 path.显示全部 = showALL
@@ -883,7 +887,6 @@ path.后台 = function()
   --     return true
   --   end,
   -- }))
-  -- close()
   -- lua_exit()
   -- auto(path.base)
   -- if true then return true end
@@ -907,7 +910,14 @@ path.后台 = function()
   -- set("restart", "true")
   -- close()
   -- lua_restart()
+  close()
+  sleep(10)
   background()
+
+  -- log('gc count ', collectgarbage("count"))
+  -- print(collectgarbage("count") * 1024)
+  -- collectgarbage()
+
   -- sleep(1800)
   -- log("debug-1")
   -- if true then return true end
@@ -1146,13 +1156,12 @@ path.临光 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战活动上")
-      sleep(2)
       tap("大竞技场")
       sleep(1)
     end,
     梅什科竞技证券 = function() swipq(x) end,
     ["作战列表" .. x] = function()
-      tap("作战列表" .. x)
+      findTap("作战列表" .. x)
       return true
     end,
   })
@@ -1167,7 +1176,7 @@ path.骑猎 = function(x)
       sleep(1)
     end,
     ["作战列表" .. x] = function()
-      tap("作战列表" .. x)
+      findTap("作战列表" .. x)
       return true
     end,
   })

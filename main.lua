@@ -22,15 +22,19 @@ path.base.药剂恢复理智取消 = "药剂恢复理智确认"
 用户名 = "..."
 密码 = "..."
 
-fight_type = {"7-15"}
+fight_type = {"7-15", "3-1"}
 repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 table.shuffle(fight_type)
-fight_type = {}
-repeat_last(fight_type, 100, "MN-8")
+-- fight_type = {"1-11"}
+
+-- repeat_last(fight_type, 100, "MN-7")
+-- repeat_last(fight_type, 100, "MN-8")
+-- repeat_last(fight_type, 100, "PR-D-2")
+-- now("轮次作战")
 -- now(unpack(每日开始))
 now(unpack(每八小时))
 -- now("公开招募聘用","公开招募刷新")
-
+-- now("后台")
 cron(map(hc, {{每日开始, 4}, {每八小时, "1,9,17"},
               {{"后台", "显示全部"}, "0-23"}}))
