@@ -469,7 +469,7 @@ path.信用购买 = function()
     可露希尔推荐 = "信用交易所",
     信用交易所 = function()
       -- keepScreen(true)
-      sleep(1)
+      -- sleep(1)
       if not findTap(unpack(point.信用交易所列表)) then
         -- if not findTap("信用交易所商品") then
         -- keepScreen(false)
@@ -482,7 +482,7 @@ path.信用购买 = function()
         return true
       else
         tap("返回")
-        sleep(1)
+        -- sleep(1)
       end
     end,
   }))
@@ -568,6 +568,8 @@ path.开始游戏 = function(x)
     面板 = true,
     代理指挥关 = "代理指挥关",
     代理指挥开 = "开始行动蓝",
+    代理指挥龙门关 = "代理指挥龙门关",
+    代理指挥龙门开 = "开始行动蓝",
     代理指挥关粉 = "代理指挥关粉",
     代理指挥开粉 = function()
       tap("开始行动蓝")
@@ -615,20 +617,24 @@ path.主线 = function(x)
   local t = "当前进度列表"
   if not x1 then return end
   x1, x2 = x0:sub(1, x1 - 1), x0:sub(x1 + 1)
-  x1 = (x1:startsWith("S")) and x1:sub(2) or x1
+  x1 = x1:sub(x1:find("%d"))
   local x3 = tonumber(x1) + 1
+  -- log(x1, x2, x0)
   -- 面板=>开始游戏
   local p = update(path.base, {
     面板 = function()
       tap("面板作战")
+      -- print('swipq', x1)
       swipq(x1)
       tap("作战主线章节列表" .. x1)
     end,
     [t .. x3] = function()
       swipq(x0)
       local v = point.滑动距离[x0]
-      if type(v) == "table" then v = v[#v] end
-      sleep(math.abs(v) / 500)
+      if type(v) == "table" then
+        v = v[#v]
+        sleep(math.abs(v) / 500)
+      end
       if not findTap("作战列表" .. x) then
         -- distance or point error
         log(x .. "未找到")
@@ -777,6 +783,10 @@ end
 
 jwf = {full = false, week = nil}
 path.剿灭 = function(x)
+  if not x:startsWith("龙门") then
+    log("仅支持龙门剿灭")
+    return
+  end
   -- 周一4点
   local start_week_time = os.time({
     year = 2019,
@@ -793,6 +803,9 @@ path.剿灭 = function(x)
     面板 = function()
       tap("面板作战")
       tap("作战剿灭")
+      swipq("炎国龙门")
+      tap("炎国龙门")
+      sleep(2)
     end,
     ["作战列表" .. x] = function()
       if not find("报酬合成玉未满") then
