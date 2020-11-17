@@ -28,7 +28,8 @@ path.base = {
   面板 = true,
   start黄框 = "start黄框",
   进入游戏 = "进入游戏",
-  账号登录 = "账号登录",
+  -- 账号登录 = "账号登录",
+  开始唤醒 = "开始唤醒",
   正在加载网络配置 = function()
     if not disappear("正在加载网络配置", 300, 5) then restart() end
   end,
@@ -59,7 +60,11 @@ path.base = {
     tap("获取网络配置失败")
     return true
   end,
-  删除缓存返回 = "start黄框",
+  删除缓存返回 = function()
+    tap("start黄框")
+    sleep(1)
+    tap("start黄框")
+  end,
   登录认证失效 = "登录认证失效",
   今日配给 = "今日配给",
   签到返回 = "签到返回",
@@ -285,7 +290,7 @@ path.制造站加速 = function()
     制造站进度 = "制造站进度",
     制造站设施 = "制造站加速",
     进驻信息2选中 = "进驻信息2选中",
-    无人机加速制造确定 = function()
+    无人机加速制造 = function()
       tap("无人机加速最大")
       tap("无人机加速制造确定")
       return true
@@ -499,7 +504,7 @@ path.信用收取 = update(path.base, {
 path.邮件 = update(path.base, {
   面板 = function()
     tap("面板邮件")
-    if appear("收取所有邮件", 3, 1) then
+    if appear("邮件", 3, 1) then
       tap("收取所有邮件")
       return true
     end
@@ -923,8 +928,8 @@ path.后台 = function()
   -- set("restart", "true")
   -- close()
   -- lua_restart()
-  close()
-  sleep(10)
+  -- close()
+  -- sleep(10)
   background()
 
   -- log('gc count ', collectgarbage("count"))
@@ -969,14 +974,15 @@ path["1-11"] = function()
   tap("开始行动蓝")
   -- wait 安德切尔
   if not findTap("开始行动红") then return end
-  sleep(10)
-  tap("跳过剧情")
-  -- if not findTap("跳过剧情") then
-  --   log("没找到跳过剧情")
-  --   log('代理失误', x)
-  --   bl[x] = false
-  --   return false
-  -- end
+  -- appearTap()
+  -- sleep(13)
+  -- tap("跳过剧情")
+  if not appearTap("跳过剧情", 20, 1) then
+    log("没找到跳过剧情")
+    log('代理失误', x)
+    bl[x] = false
+    return false
+  end
   sleep(1)
   tap("跳过剧情确认")
   -- start
