@@ -22,14 +22,15 @@ path.base.药剂恢复理智取消 = "药剂恢复理智确认"
 -- 从左往右从上往下，未建造位置用其他字
 基建左侧 = "贸贸发制发发制制制"
 
-用户名 = "13771571732"
-密码 = "franxxxx!"
+用户名 = "..."
+密码 = "..."
 fight_type = {"JT8-3"}
 repeat_last(fight_type, 500, "CE-5")
 repeat_last(fight_type, 10, "龙门市区")
 
 -- now(unpack(每日开始))
-now(unpack(每八小时))
+-- now(unpack(每八小时))
+now("制造站加速")
 
 -- 半点执行
 cron(map(hc, {

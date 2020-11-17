@@ -28,7 +28,7 @@ path.base = {
   面板 = true,
   start黄框 = "start黄框",
   进入游戏 = "进入游戏",
-  -- 账号登录 = "账号登录",
+  账号登录 = "账号登录",
   开始唤醒 = "开始唤醒",
   正在加载网络配置 = function()
     if not disappear("正在加载网络配置", 300, 5) then restart() end
@@ -225,12 +225,40 @@ path.基建副手换人 = function()
     sleep(1)
   end
 end
-
+count_people = function()
+  keepScreen(true)
+  local capacity = 5
+  local current = 5
+  local max_retry = 3
+  local retry = 0
+  while retry < max_retry do
+    retry = retry + 1
+    for i = 1, 5 do
+      if not find("进驻人数列表" .. i) then
+        capacity = i - 1
+        break
+      end
+      -- if not find("进驻人数满列表" .. i) then current = i - 1 end
+    end
+    for i = 1, 5 do
+      -- if not find("进驻人数列表" .. i) then capacity = i - 1 end
+      if not find("进驻人数满列表" .. i) then
+        current = i - 1
+        break
+      end
+    end
+    -- log(current, '/', capacity)
+    keepScreen(false)
+    if current <= capacity then return {current, capacity} end
+    sleep(2)
+  end
+  return {0, 5}
+end
 path.换人 = function()
   update_station_list()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
   already_after_dormitory = false
-  local p, f
+  local p, f, a, b, current, capacity
   for index, v in pairs(la) do
     -- ignore the last one(训练室)
     if v == "训练室" then break end
@@ -242,19 +270,15 @@ path.换人 = function()
       进驻信息4 = "进驻信息4",
       有人清空 = function()
         -- 人满不清
-        keepScreen(true)
-        if index > #point.宿舍列表 and
-          table.any(point.进驻人数满列表, find) then
-          keepScreen(false)
-          return true
+        if index > #point.宿舍列表 then
+          current = count_people()
+          current, capacity = current[1], current[2]
+          if current == capacity then return true end
         end
         tap("有人清空")
       end,
       清空完毕进驻 = function()
-        -- check 进驻人数
-        keepScreen(true)
-        b = table.find(point.进驻人数列表, find) or 5
-        keepScreen(false)
+        b = count_people()[2]
         tap("清空完毕进驻")
         if not appear("干员选择确认", 3, 1) then return end
         -- toggle tag after 宿舍
