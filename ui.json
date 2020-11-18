@@ -1,0 +1,141 @@
+{
+  "style": "default",
+  "config": "save_111.dat",
+  "width": 1000,
+  "height": 1080,
+  "cancelname": "退出",
+  "okname": "启动",
+  "cancelscroll": false,
+  "countdown": 0,
+  "views": [
+    {
+      "text": "立即执行",
+      "type": "Page",
+      "views": [
+        {
+          "text": "账号：",
+          "type": "Label"
+        },
+        {
+          "id": "username",
+          "text": "...",
+          "type": "Edit"
+        },
+        {
+          "text": "密码：",
+          "type": "Label"
+        },
+        {
+          "id": "password",
+          "text": "...",
+          "type": "Edit"
+        },
+        {
+          "text": "基建左侧（从左往右从上往下）：",
+          "type": "Label"
+        },
+        {
+          "id": "building",
+          "text": "贸贸发制发发制制制",
+          "type": "Edit"
+        },
+        {
+          "text": "物资芯片全天开启时间段：",
+          "type": "Label"
+        },
+        {
+          "id": "all_open_time",
+          "text": "202011151600,202011290400",
+          "type": "Edit"
+        },
+        {
+          "id": "drug_enable",
+          "list": "吃药,吃石头",
+          "select": "0",
+          "type": "CheckBoxGroup"
+        },
+        {
+          "text": "轮次作战地图（英文逗号隔开）：",
+          "type": "Label"
+        },
+        {
+          "id": "fight",
+          "text": "JT8-3,CE-5,龙门市区",
+          "type": "Edit"
+        },
+        {
+          "id": "now_enable",
+          "list": "立即执行：",
+          "select": "0",
+          "type": "CheckBoxGroup"
+        },
+        {
+          "id": "now",
+          "list": "邮件,轮次作战,基建点击全部,换人,制造站加速,线索接收,信用奖励,访问好友基建,信用收取,信用购买,公开招募聘用,公开招募刷新,每日更新,作战1-11,基建点击全部,基建副手换人,任务,后台,显示全部",
+          "select": "0@1@2@3@4@5@6@7@8@9@10@11@16@17@18",
+          "type": "CheckBoxGroup"
+        },
+        {
+          "id": "cron1_enable",
+          "list": "半点执行1：",
+          "select": "0",
+          "type": "CheckBoxGroup"
+        },
+        {
+          "id": "cron1",
+          "list": "邮件,轮次作战,基建点击全部,换人,制造站加速,线索接收,信用奖励,访问好友基建,信用收取,信用购买,公开招募聘用,公开招募刷新,每日更新,作战1-11,基建点击全部,基建副手换人,任务,后台,显示全部",
+          "select": "0@1@2@3@4@5@6@7@8@9@10@11@16@17@18",
+          "type": "CheckBoxGroup"
+        },
+        {
+          "text": "半点执行1时间（小时）：",
+          "type": "Label"
+        },
+        {
+          "id": "cron1_time",
+          "text": "1,9,17",
+          "type": "Edit"
+        },
+        {
+          "id": "cron2_enable",
+          "list": "半点执行2：",
+          "select": "0",
+          "type": "CheckBoxGroup"
+        },
+        {
+          "id": "cron2",
+          "list": "邮件,轮次作战,基建点击全部,换人,制造站加速,线索接收,信用奖励,访问好友基建,信用收取,信用购买,公开招募聘用,公开招募刷新,每日更新,作战1-11,基建点击全部,基建副手换人,任务,后台,显示全部",
+          "select": "12@13@14@15",
+          "type": "CheckBoxGroup"
+        },
+        {
+          "text": "半点执行2时间（小时）：",
+          "type": "Label"
+        },
+        {
+          "id": "cron2_time",
+          "text": "4",
+          "type": "Edit"
+        },
+        {
+          "extra": [
+            {
+              "goto": "https://www.bilibili.com/video/BV1gJ411p7Ck/",
+              "text": "视频演示"
+            },
+            {
+              "goto": "https://github.com/tkkcc/arknights/",
+              "text": "源码"
+            },
+            {
+              "goto": "https://github.com/tkkcc/arknights/issues/",
+              "text": "反馈"
+            }
+          ],
+          "text": "视频演示 源码 反馈",
+          "type": "Label"
+        }
+      ]
+    }
+  ]
+}

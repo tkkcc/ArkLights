@@ -1,39 +1,46 @@
 init("0", 1)
 setScreenScale(1080, 1920)
-
 require("path")
 require("util")
 cron = require("crontab")
-
-每八小时 = {
-  "邮件", "轮次作战", "基建点击全部", "换人", "制造站加速",
-  "线索接收", "信用奖励", "访问好友基建", "信用收取",
-  "信用购买", "公开招募聘用", "公开招募刷新", "任务",
-  "后台", "显示全部",
-}
-每日开始 = {
-  "关闭", "每日更新", "作战1-11", "基建点击全部",
-  "基建副手换人", "任务", "后台", "显示全部",
-}
-
-path.base.药剂恢复理智取消 = "药剂恢复理智确认"
--- path.base.源石恢复理智取消 = "药剂恢复理智确认"
-
--- 从左往右从上往下，未建造位置用其他字
-基建左侧 = "贸贸发制发发制制制"
-
-用户名 = "..."
-密码 = "..."
-fight_type = {"JT8-3"}
-repeat_last(fight_type, 500, "CE-5")
-repeat_last(fight_type, 10, "龙门市区")
-
--- now(unpack(每日开始))
--- now(unpack(每八小时))
-now("制造站加速")
-
--- 半点执行
-cron(map(hc, {
-  {每日开始, 4}, {每八小时, "1,9,17"},
-  {{"后台", "显示全部"}, "0-23"},
-}))
+ret, opt = showUI('ui.json')
+if ret == 0 then lua_exit() end
+job = getUIContent("ui.json")
+job = string.match(job, '"now".*"list": "([^"]+)",')
+job = string.split(job, ',')
+parse_job = function(cron)
+  cron = string.split(cron, '@')
+  for i = 1, #cron do cron[i] = job[cron[i] + 1] end
+  return cron
+end
+opt.now = parse_job(opt.now)
+opt.cron = {}
+if opt.cron1_enable then
+  insert(opt.cron, hc({parse_job(opt.cron1), opt.cron1_time}))
+end
+if opt.cron2_enable then
+  insert(opt.cron, hc({parse_job(opt.cron2), opt.cron2_time}))
+end
+log(opt.drug_enable)
+if opt.drug_enable:find("0") then
+  path.base.药剂恢复理智取消 = "药剂恢复理智确认"
+end
+if opt.drug_enable:find("1") then
+  path.base.源石恢复理智取消 = "药剂恢复理智确认"
+end
+opt.fight = string.split(opt.fight, ',')
+parse_time = function(a)
+  return os.time({
+    year = tonumber(a:sub(1, 4)),
+    month = tonumber(a:sub(5, 6)),
+    day = tonumber(a:sub(7, 8)),
+    hour = tonumber(a:sub(9, 10)),
+    min = tonumber(a:sub(11, 12)),
+  })
+end
+a = opt.all_open_time:split(',')
+opt.all_open_time_start = parse_time(a[1])
+opt.all_open_time_end = parse_time(a[2])
+update_open_time()
+if opt.now_enable then now(opt.now) end
+cron(opt.cron)

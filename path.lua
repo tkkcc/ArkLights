@@ -34,8 +34,11 @@ path.base = {
     if not disappear("正在加载网络配置", 300, 5) then restart() end
   end,
   登录 = function()
-    local u = 用户名
-    local p = 密码
+    -- local u = opt.username
+    -- local p = opt.password
+    local u = '...'
+    local p = '...'
+    log(u, p)
     if u and #u > 0 then input("账号", u) end
     if not p or #p == 0 then
       log("未设置密码")
@@ -62,7 +65,7 @@ path.base = {
   end,
   删除缓存返回 = function()
     tap("start黄框")
-    sleep(1)
+    sleep(2)
     tap("start黄框")
   end,
   登录认证失效 = "登录认证失效",
@@ -147,7 +150,7 @@ update_station_list = function()
   for k, v in pairs(l) do
     v = v .. '列表'
     if point[v] == nil then
-      local a = 基建左侧
+      local a = opt.building
       local tx = {"贸易站", "发电站", "制造站"}
       local ix = {1, 1, 1}
       for i = 1, #tx do point[tx[i] .. "列表"] = {} end
@@ -195,7 +198,9 @@ path.基建点击全部 = function()
     sleep(2)
     i = i + 1
   end
-  auto(path.base)
+  tap("宿舍列表1")
+  tap("宿舍列表1")
+  -- auto(path.base)
 end
 -- 换信赖最低的5人
 path.基建副手换人 = function()
@@ -317,6 +322,8 @@ path.制造站加速 = function()
     无人机加速制造 = function()
       tap("无人机加速最大")
       tap("无人机加速制造确定")
+      sleep(2)
+      tap("制造站收取")
       return true
     end,
   }))
@@ -529,6 +536,7 @@ path.邮件 = update(path.base, {
   面板 = function()
     tap("面板邮件")
     if appear("邮件", 3, 1) then
+      sleep(2)
       tap("收取所有邮件")
       return true
     end
@@ -539,8 +547,8 @@ tick = 0
 path.轮次作战 = function()
   while running ~= "理智不足" do
     set("tick", tick)
-    tick = tick % #fight_type + 1
-    path.作战(fight_type[tick])
+    tick = tick % #opt.fight + 1
+    path.作战(opt.fight[tick])
   end
 end
 
@@ -597,8 +605,8 @@ path.开始游戏 = function(x)
     面板 = true,
     代理指挥关 = "代理指挥关",
     代理指挥开 = "开始行动蓝",
-    代理指挥龙门关 = "代理指挥龙门关",
-    代理指挥龙门开 = "开始行动蓝",
+    -- 代理指挥龙门关 = "代理指挥龙门关",
+    -- 代理指挥龙门开 = "开始行动蓝",
     代理指挥关粉 = "代理指挥关粉",
     代理指挥开粉 = function()
       tap("开始行动蓝")
@@ -722,24 +730,8 @@ update_open_time = function()
       insert(lotr[k], "CE")
     end
   end
-  local a = os.time({
-    year = 2020,
-    month = 11,
-    day = 15,
-    hour = 16,
-    min = 0,
-    sec = 0,
-  })
-  local b = os.time({
-    year = 2020,
-    month = 11,
-    day = 29,
-    hour = 4,
-    min = 0,
-    sec = 0,
-  })
   local t = os.time()
-  if a <= t and t < b then
+  if opt.all_open_time_start <= t and t < opt.all_open_time_end then
     log("全天开启时间表")
     pr_open_time = {
       A = {1, 2, 3, 4, 5, 6, 7},
@@ -771,7 +763,6 @@ update_open_time = function()
     ls_open_time_r[7] = {"LS", "AP", "CA", "CE", "SK"}
   end
 end
-update_open_time()
 path.更新开启时间 = update_open_time
 
 path.物资芯片 = function(x)
@@ -1272,6 +1263,8 @@ error = function()
 end
 
 update_app = function()
+  -- only support genymotion android 5.1, disable for compatibility
+  if 1 then return end
 
   out_of_app = true
   -- delete app

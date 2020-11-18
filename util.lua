@@ -4,6 +4,12 @@ hudid = createHUD()
 insert = table.insert
 -- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
 function trim(s) return s:match '^()%s*$' and '' or s:match '^%s*(.*%S)' end
+string.split = function(str, sep)
+  if sep == nil then sep = "%s" end
+  local t = {}
+  for str in string.gmatch(str, "([^" .. sep .. "]+)") do table.insert(t, str) end
+  return t
+end
 
 string.startsWith = function(str, prefix)
   return string.sub(str, 1, string.len(prefix)) == prefix
@@ -224,7 +230,6 @@ close = function() closeApp(appid) end
 start = function() open() end
 
 stop = function()
-
   log("stop")
   -- DEBUG
   sleep(3600 * 72)
@@ -267,7 +272,6 @@ find = function(x)
   if not x:find("|") then x = point[x] end
   if type(x) == "table" then return x end
   if type(x) == "string" then
-    -- if rfl[x0] == nil then log("findColor globally ", x0) end
     x, y = findColor(rfl[x0] or {0, 0, 1919, 1079}, x, 100)
     if x ~= -1 then return {x, y} end
   end
@@ -277,10 +281,11 @@ out_of_app = false
 -- x={2,3} "信用" func nil
 tap = function(x)
   keepScreen(false)
-  if not out_of_app and isFrontApp(appid) == 0 then
+  while not out_of_app and isFrontApp(appid) == 0 do
     show("应用不在前台")
     open()
     sleep(5)
+    path.移动停止按钮()
     return
   end
   local x0 = x
@@ -306,8 +311,10 @@ input = function(x, s)
   inputText("#CLEAR#")
   sleep(.5)
   inputText(s)
+  -- inputText('#ENTER#')
   sleep(.5)
-  tap(x)
+  tap('enter')
+  sleep(.5)
 end
 
 swip = function(x, y, dx, dy, t, interval)
@@ -427,12 +434,11 @@ hc = function(x, h)
   if type(x) == "table" then
     if #x == 3 then
       x, h, m = x[1], x[2], x[3]
-      -- log("miniute", m)
     else
       x, h = x[1], x[2]
     end
-
   end
+  --log('hc',x)
   return {callback = function() run(x) end, hour = h, minute = m}
 end
 -- if find then tap with fallback
