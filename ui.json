@@ -18,7 +18,7 @@
         },
         {
           "id": "username",
-          "text": "...",
+          "text": "",
           "type": "Edit"
         },
         {
@@ -27,7 +27,7 @@
         },
         {
           "id": "password",
-          "text": "...",
+          "text": "",
           "type": "Edit"
         },
         {

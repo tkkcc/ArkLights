@@ -34,11 +34,8 @@ path.base = {
     if not disappear("正在加载网络配置", 300, 5) then restart() end
   end,
   登录 = function()
-    -- local u = opt.username
-    -- local p = opt.password
-    local u = '...'
-    local p = '...'
-    log(u, p)
+    local u = opt.username
+    local p = opt.password
     if u and #u > 0 then input("账号", u) end
     if not p or #p == 0 then
       log("未设置密码")

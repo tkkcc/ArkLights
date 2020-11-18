@@ -313,7 +313,7 @@ input = function(x, s)
   inputText(s)
   -- inputText('#ENTER#')
   sleep(.5)
-  tap('enter')
+  tap('返回')
   sleep(.5)
 end
 
@@ -438,7 +438,7 @@ hc = function(x, h)
       x, h = x[1], x[2]
     end
   end
-  --log('hc',x)
+  -- log('hc',x)
   return {callback = function() run(x) end, hour = h, minute = m}
 end
 -- if find then tap with fallback

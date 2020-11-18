@@ -15,13 +15,12 @@ parse_job = function(cron)
 end
 opt.now = parse_job(opt.now)
 opt.cron = {}
-if opt.cron1_enable then
+if opt.cron1_enable:find("0") then
   insert(opt.cron, hc({parse_job(opt.cron1), opt.cron1_time}))
 end
-if opt.cron2_enable then
+if opt.cron2_enable:find("0") then
   insert(opt.cron, hc({parse_job(opt.cron2), opt.cron2_time}))
 end
-log(opt.drug_enable)
 if opt.drug_enable:find("0") then
   path.base.药剂恢复理智取消 = "药剂恢复理智确认"
 end
@@ -42,5 +41,5 @@ a = opt.all_open_time:split(',')
 opt.all_open_time_start = parse_time(a[1])
 opt.all_open_time_end = parse_time(a[2])
 update_open_time()
-if opt.now_enable then now(opt.now) end
-cron(opt.cron)
+if opt.now_enable:find("0") then now(opt.now) end
+if #opt.cron > 0 then cron(opt.cron) end
