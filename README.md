@@ -4,13 +4,14 @@
 - 国服
 - 安卓7.1及以下
 - 已root
-- 1080p分辨率
+- **1080p分辨率**
 
-测试平台：一加三实机，genymotion，mumu
+已测试平台：一加三手机、genymotion模拟器、mumu模拟器  
+适用场景：长期挂机（有24小时亮屏手机或虚拟机，不追求最大化基建收益）、短期刷关卡
 
 ## 功能
 - 邮件：收邮件
-- 轮次作战：代理指定作战，只吃药不吃石头。支持1-11
+- 轮次作战：代理指定作战，可选是否吃药和石头。支持1-11
 - 基建点击全部：官方一键收
 - 换人：按默认序换班
 - 基建副手换人：换最低信赖干员
@@ -21,12 +22,11 @@
 - 任务：收日周常任务奖励
 
 ## 安装
-1. 从发布页面下载开发助手，安装在手机或模拟器上
-2. 从发布页面下载最新xsp，放在/sdcard/xsp/
-3. 在开发助手中运行该xsp
+1. 下载[开发助手](https://github.com/tkkcc/arknights/releases/download/interpreter/com.xxscript.idehelper_1.2.13_1213.apk)，安装在手机或模拟器上
+2. 下载[arknights.xsp](https://github.com/tkkcc/arknights/releases/latest/download/arknights.xsp)，放在/sdcard/xsp/
+3. 在开发助手下拉刷新，运行该xsp
 
 ## 开发
-1. 从发布页面下载叉叉助手开发环境与开发助手，分别安装于windows与android系统
-2. 在开发环境中新建项目，下载代码，运行。与开发助手连通
-3. 修改main.lua中的账号密码、基建左侧
-4. 模拟器需要是genymotion（android7.1，1920x1080，480DPI，时区上海，系统语言英语）
+1. 下载[开发环境](https://github.com/tkkcc/arknights/releases/download/interpreter/CCJCKFIJ_2.0.1.7.exe)与[开发助手](https://github.com/tkkcc/arknights/releases/download/interpreter/com.xxscript.idehelper_1.2.13_1213.apk)，分别安装于windows与android系统
+2. 在开发环境中新建项目，与开发助手连通
+3. 下载全部代码放在项目的src下，将ui.json链接或复制到ui目录下，在开发环境中启动
