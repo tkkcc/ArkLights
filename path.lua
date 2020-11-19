@@ -123,12 +123,11 @@ path.base = {
 }
 
 path.移动停止按钮 = function()
-  if getScreenDirection() == 0 then
-    background()
-    sleep(5)
-  end
   local t = "停止按钮"
-  if not appear(t, 10, 1) then log(t .. "未找到,忽略") end
+  if not find(t) then
+    log(t .. "未找到,忽略")
+    return true
+  end
   t = find(t)
   swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
   return true
