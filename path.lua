@@ -589,6 +589,13 @@ path.作战 = function(x)
     else
       path.主线("1-7")
     end
+  elseif table.any({"MB-"}, f) then
+    if os.time() <
+      os.time({year = 2021, month = 1, day = 7, hour = 4, min = 0, sec = 0}) then
+      path.越狱(x)
+    else
+      path.主线("1-7")
+    end
   else
     path.主线(x)
   end
@@ -1138,6 +1145,23 @@ path.公开招募刷新 = function()
 end
 
 path["作战1-11"] = function() for i = 1, 14 do path.作战("1-11") end end
+
+path.越狱 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动")
+      sleep(2)
+      tap("越狱计划")
+      sleep(3)
+    end,
+    ["作战列表" .. x] = function()
+      findTap("作战列表" .. x)
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
 
 path.密林 = function(x)
   local p = update(path.base, {

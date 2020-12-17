@@ -11,6 +11,7 @@ tagw =
 
 -- https://www.taptap.com/topic/5828806 5月1日
 tag4 = [[
+  支援机械：5星
   资深干员：5星
   高级资深干员：6星
   -
