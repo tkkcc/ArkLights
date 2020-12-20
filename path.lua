@@ -407,29 +407,30 @@ path.线索传递 = update(path.base, {
     end
     a = point.传递列表
     local count = 0
+    local ranges = {100, 300, 500, 700, 900}
     local f = function(random)
-      local p = find("线索传递橙框")
+      keepScreen(true)
+      local points = findAll("线索传递橙框")
       local t
-      if p then
-        p = p[2]
-        if 100 < p and p < 300 then
-          t = a[1]
-          log('给1')
-        elseif p < 500 then
-          t = a[2]
-          log('给2')
-        elseif p < 700 then
-          t = a[3]
-          log('给3')
-        else
-          t = a[4]
-          log('给4')
+      if points then
+        for p in pairs(points) do
+          p = points[p].y
+          for i = 1, 4 do
+            if ranges[i] < p and p < ranges[i + 1] and
+              find("今日登录列表" .. i) then
+              t = a[i]
+              log('给' .. i)
+              break
+            end
+          end
+          if t then break end
         end
       elseif random then
         for i = 1, math.random(0, count) do findTap("线索传递左白") end
         t = a[math.random(#a)]
         log('给随机')
       end
+      keepScreen(false)
       if t then
         tap(t)
         return true
@@ -437,7 +438,7 @@ path.线索传递 = update(path.base, {
     end
     while count < 50 / 4 do
       -- 翻到末尾就随机给
-      if not find("线索传递右白") and not find("线索传递右白2") then
+      if not appear("线索传递右白",2,1) and not find("线索传递右白2") then
         f(true)
         return true
       end

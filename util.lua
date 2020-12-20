@@ -277,6 +277,17 @@ find = function(x)
   end
 end
 
+findAll = function(x)
+  local x0 = x
+  local y
+  if not x:find("|") then x = point[x] end
+  if type(x) == "table" then return x end
+  if type(x) == "string" then
+    points = findColors(rfl[x0] or {0, 0, 1919, 1079}, x, 100)
+    if #points >0  then return points end
+  end
+end
+
 out_of_app = false
 -- x={2,3} "信用" func nil
 tap = function(x)
