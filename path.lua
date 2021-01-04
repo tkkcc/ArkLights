@@ -438,7 +438,8 @@ path.线索传递 = update(path.base, {
     end
     while count < 50 / 4 do
       -- 翻到末尾就随机给
-      if not appear("线索传递右白",2,1) and not find("线索传递右白2") then
+      if not appear("线索传递右白", 2, 1) and
+        not find("线索传递右白2") then
         f(true)
         return true
       end
@@ -553,7 +554,7 @@ path.作战 = function(x)
   local f = startsWithX(x)
   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
-  elseif table.any({'龙门外环', '切尔诺伯格', '龙门市区'}, f) then
+  elseif table.any(table.keys(jmfight2area), f) then
     path.剿灭(x)
   elseif f("MN-") then
     if os.time() <
@@ -806,11 +807,18 @@ path.物资芯片 = function(x)
 end
 
 jwf = {full = false, week = nil}
+jmfight2area = {
+  龙门外环 = "炎国龙门",
+  龙门市区 = "炎国龙门",
+  切尔诺伯格 = "乌萨斯",
+  北原冰封废城 = "乌萨斯",
+  大骑士领郊外 = "卡西米尔",
+}
 path.剿灭 = function(x)
-  if not x:startsWith("龙门") then
-    log("仅支持龙门剿灭")
-    return
-  end
+  -- if not x:startsWith("龙门") then
+  --   log("仅支持龙门剿灭")
+  --   return
+  -- end
   -- 周一4点
   local start_week_time = os.time({
     year = 2019,
@@ -827,12 +835,12 @@ path.剿灭 = function(x)
     面板 = function()
       tap("面板作战")
       tap("作战剿灭")
-      swipq("炎国龙门")
-      tap("炎国龙门")
+      swipq(jmfight2area[x])
+      tap(jmfight2area[x])
       sleep(2)
     end,
     ["作战列表" .. x] = function()
-      if not find("报酬合成玉未满") then
+      if not table.any(point["报酬合成玉未满列表"], find) then
         jwf.full = true
         log("本周合成玉已满")
       end
@@ -1070,7 +1078,9 @@ path.公开招募刷新 = function()
       面板 = "面板公开招募",
       公开招募 = function()
         -- if find("公开招募联络次数0") then return true end
-        if not findTap('公开招募列表' .. i) then return true end
+        if not appearTap('公开招募列表' .. i, 2, 1) then
+          return true
+        end
       end,
       公开招募确认 = function()
         local flag

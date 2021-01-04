@@ -39,6 +39,11 @@ table.filter = function(t, f)
   for k, v in pairs(t) do if f(v) then insert(a, v) end end
   return a
 end
+table.keys = function(t)
+  local a = {}
+  for k, v in pairs(t) do table.insert(a, k) end
+  return a
+end
 -- a,a+1,...b
 range = function(a, b)
   local t = {}
@@ -284,7 +289,7 @@ findAll = function(x)
   if type(x) == "table" then return x end
   if type(x) == "string" then
     points = findColors(rfl[x0] or {0, 0, 1919, 1079}, x, 100)
-    if #points >0  then return points end
+    if #points > 0 then return points end
   end
 end
 
@@ -348,14 +353,20 @@ swip = function(x, y, dx, dy, t, interval)
   touchUp(i, x, y)
   sleep(interval)
 end
--- quick multiple horizontal swip 
+-- quick multiple swip 
 swipq = function(t)
+  local u, v
   if type(t) == "string" then t = point.滑动距离[t] end
   -- no need to swip
   if not t then return end
   -- multiple swip
   if type(t) ~= "table" then t = {t} end
-  for k, v in pairs(t) do swip(1000, 500, v, 0, .4) end
+  for k, u in pairs(t) do
+    v = 0
+    if type(u) == "table" then u, v = u[1], u[2] end
+    -- log(u,v)
+    swip(1000, 500, u, v, .4)
+  end
   -- wait for inertia
   if #t > 1 then sleep() end
 end

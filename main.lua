@@ -41,5 +41,17 @@ a = opt.all_open_time:split(',')
 opt.all_open_time_start = parse_time(a[1])
 opt.all_open_time_end = parse_time(a[2])
 update_open_time()
+-- now("公开招募聘用","公开招募刷新")
+-- sleep(1)
+-- swipq("卡西米尔")
+
+-- lua_exit()
+-- opt.fight[1]="龙门市区"
+-- opt.fight[1]="龙门外环"
+-- opt.fight[1]="切尔诺伯格"
+-- opt.fight[1]="北原冰封废城"
+-- opt.fight[1]="大骑士领郊外"
+-- log(opt.fight)
+-- now("轮次作战")
 if opt.now_enable:find("0") then now(opt.now) end
 if #opt.cron > 0 then cron(opt.cron) end
