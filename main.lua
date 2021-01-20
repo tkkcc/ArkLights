@@ -3,6 +3,14 @@ setScreenScale(1080, 1920)
 require("path")
 require("util")
 cron = require("crontab")
+version = "20210120"
+if get("version", "0") ~= version then
+  toast("版本" .. version .. "，设置已重置")
+  resetUIConfig("save.dat")
+  set("version", version)
+else
+  toast("版本" .. version)
+end
 ret, opt = showUI('ui.json')
 if ret == 0 then lua_exit() end
 job = getUIContent("ui.json")
@@ -52,6 +60,5 @@ update_open_time()
 -- opt.fight[1]="北原冰封废城"
 -- opt.fight[1]="大骑士领郊外"
 -- log(opt.fight)
--- now("轮次作战")
 if opt.now_enable:find("0") then now(opt.now) end
 if #opt.cron > 0 then cron(opt.cron) end

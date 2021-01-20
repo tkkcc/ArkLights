@@ -208,20 +208,20 @@ path.基建副手换人 = function()
     控制中枢界面 = "控制中枢基建副手",
     基建副手简报 = true,
   })
-  for k, v in pairs(point.基建副手列表) do
-    auto(p)
-    tap(v)
-    if not find("干员选择无选中") then tap("干员选择列表1") end
-    tap("干员选择确认")
-    sleep(1)
-  end
+  -- for k, v in pairs(point.基建副手列表) do
+  --   auto(p)
+  --   tap(v)
+  --   if not find("干员选择无选中") then tap("干员选择列表1") end
+  --   tap("干员选择确认")
+  --   sleep(1)
+  -- end
   for k, v in pairs(point.基建副手列表) do
     auto(p)
     tap(v)
     if not find("干员选择无选中") then tap("干员选择列表1") end
     tap("排序信赖")
     tap("排序信赖")
-    tap("干员选择列表1")
+    tap("干员选择列表" .. k)
     tap("干员选择确认")
     sleep(1)
   end
@@ -298,6 +298,7 @@ path.换人 = function()
         if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
         for i = a, a + b - 1 do tap("干员选择列表" .. i) end
         tap("干员选择确认")
+        appearTap("排班调整确认", 1, 0.5)
         return true
       end,
     })
@@ -609,7 +610,10 @@ path.开始游戏 = function(x)
   return auto(update(path.base, {
     面板 = true,
     代理指挥关 = "代理指挥关",
-    代理指挥开 = "开始行动蓝",
+    代理指挥开 = function()
+      tap("开始行动蓝")
+      if appearTap("开始行动红", 4, .5) then sleep(10) end
+    end,
     -- 代理指挥龙门关 = "代理指挥龙门关",
     -- 代理指挥龙门开 = "开始行动蓝",
     代理指挥关粉 = "代理指挥关粉",
