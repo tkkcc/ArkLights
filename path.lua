@@ -7,6 +7,8 @@ bl = {}
 -- for k, v in pairs(fight_type_all) do bl[v] = true end
 cl = {}
 -- for k, v in pairs(fight_type_all) do cl[v] = 0 end
+unfound_fight={}
+failed_fight={}
 
 path = {}
 
@@ -643,6 +645,7 @@ path.开始游戏 = function(x)
       else
         log('代理失误', x)
         bl[x] = false
+        failed_fight[x]=(failed_fight[x] or 0)+1
       end
       -- background()
 
@@ -685,6 +688,7 @@ path.主线 = function(x)
         -- distance or point error
         log(x .. "未找到")
         bl[x] = false
+        unfound_fight[x]=(unfound_fight[x] or 0)+1
       end
       return true
     end,
@@ -901,7 +905,7 @@ end
 showBL = function(not_show)
   local a = ''
   local b = ''
-  for k, v in pairs(bl) do if not v then b = b .. k .. " " end end
+  for k, v in pairs(failed_fight) do if not v then b = b .. k .. "x" .. v .." " end end
   if #b > 0 then a = a .. '失败：' .. b end
   if not_show then return a end
   show(a, 500)
@@ -1012,6 +1016,7 @@ path["1-11"] = function()
     log("没找到跳过剧情")
     log('代理失误', x)
     bl[x] = false
+    failed_fight[x]=(failed_fight[x] or 0)+1
     return false
   end
   sleep(1)
@@ -1053,6 +1058,7 @@ path["1-11"] = function()
   else
     log('代理失误', x)
     bl[x] = false
+    failed_fight[x]=(failed_fight[x] or 0)+1
   end
 end
 
@@ -1193,6 +1199,7 @@ path.密林 = function(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         bl[x] = false
+        unfound_fight[x]=(unfound_fight[x] or 0)+1
       end
       return true
     end,
@@ -1214,6 +1221,7 @@ path.生于黑夜 = function(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         bl[x] = false
+        unfound_fight[x]=(unfound_fight[x] or 0)+1
       end
       return true
     end,
@@ -1265,7 +1273,7 @@ path.火蓝之心 = function(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         bl[x] = false
-
+        unfound_fight[x]=(unfound_fight[x] or 0)+1
       end
       return true
     end,
