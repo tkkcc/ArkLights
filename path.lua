@@ -559,6 +559,13 @@ path.作战 = function(x)
     path.物资芯片(x)
   elseif table.any(table.keys(jmfight2area), f) then
     path.剿灭(x)
+  elseif f("WR-") then
+    if os.time() <
+      os.time({year = 2021, month = 2, day = 19, hour = 4, min = 0, sec = 0}) then
+      path.画中世界(x)
+    else
+      path.主线("1-7")
+    end
   elseif f("MN-") then
     if os.time() <
       os.time({year = 2020, month = 10, day = 29, hour = 4, min = 0, sec = 0}) then
@@ -614,7 +621,7 @@ path.开始游戏 = function(x)
     代理指挥关 = "代理指挥关",
     代理指挥开 = function()
       tap("开始行动蓝")
-      if appearTap("开始行动红", 4, .5) then sleep(10) end
+      --if appearTap("开始行动红", 4, .5) then sleep(10) end
     end,
     -- 代理指挥龙门关 = "代理指挥龙门关",
     -- 代理指挥龙门开 = "开始行动蓝",
@@ -628,8 +635,8 @@ path.开始游戏 = function(x)
       end
     end,
     开始行动红 = function()
-      -- log(x)
-      -- if true then return true end
+       --log(x)
+       --if true then return true end
       tap("开始行动红")
       sleep(10)
     end,
@@ -1275,6 +1282,29 @@ path.火蓝之心 = function(x)
         bl[x] = false
         unfound_fight[x]=(unfound_fight[x] or 0)+1
       end
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
+
+path.画中世界 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动上")
+      sleep(1)
+      tap("入画")
+      sleep(1)
+      swipq(x)
+      if not findTap("作战列表" .. x) then
+        log(x .. "未找到")
+        unfound_fight[x]=(unfound_fight[x] or 0)+1
+        return true
+      end
+    end,
+    ["作战列表" .. x] = function()
+      findTap("作战列表" .. x)
       return true
     end,
   })

@@ -3,7 +3,7 @@ setScreenScale(1080, 1920)
 require("path")
 require("util")
 cron = require("crontab")
-version = "20210122"
+version = "20210205"
 if get("version", "0") ~= version then
   toast("版本" .. version .. "，设置已重置")
   resetUIConfig("save.dat")
