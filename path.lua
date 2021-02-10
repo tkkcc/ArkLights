@@ -130,7 +130,11 @@ path.移动停止按钮 = function()
     log(t .. "未找到,忽略")
     return true
   end
-  t = find(t)
+  t = find("停止按钮")
+  swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
+  -- once is not enough ?
+  sleep(1)
+  t = find("停止按钮")
   swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
   return true
 end
@@ -878,7 +882,7 @@ path.访问好友基建 = function()
       if not appearTap('访问基建', 3, 1) then return true end
       while 1 do
         if not wait(nil, function()
-          if find("今日参与交流已达上限") then
+          if find("今日参与交流已达上限") or find("重复访问无法获取信用") then
             comm_enough = true
             return true
           end
@@ -1107,8 +1111,9 @@ path.公开招募刷新 = function()
         for k, v in pairs(point.公开招募标签框列表) do
           v = point[v]
           t = ""
-          r = 1
+          r = 0
           while not table.includes(tag, t) and r < mr do
+            sleep(0.1*r)
             r = r + 1
             t = binarizeImage({
               rect = v,
