@@ -294,16 +294,22 @@ findAll = function(x)
 end
 
 out_of_app = false
--- x={2,3} "信用" func nil
-tap = function(x)
-  keepScreen(false)
-  while not out_of_app and isFrontApp(appid) == 0 do
+check_stop_button_position = function(force_move)
+  while not out_of_app and (isFrontApp(appid) == 0 or getScreenDirection()==0) do
     show("应用不在前台")
     open()
     sleep(5)
     path.移动停止按钮()
     return
   end
+  if force_move then
+    path.移动停止按钮()
+  end
+end
+-- x={2,3} "信用" func nil
+tap = function(x)
+  keepScreen(false)
+  check_stop_button_position()
   local x0 = x
   if x == true then return true end
   if type(x) == "function" then return x() end
@@ -438,8 +444,7 @@ run = function(...)
     if type(arg[1]) == "function" then return arg[1]() end
     if type(arg[1]) == "table" then arg = arg[1] end
   end
-  running = "移动停止按钮"
-  auto(path[running])
+  check_stop_button_position(true)
   for k, v in ipairs(arg) do
     if type(v) == 'function' then
       v()

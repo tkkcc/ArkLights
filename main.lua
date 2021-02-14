@@ -36,6 +36,11 @@ if opt.drug_enable:find("1") then
   path.base.源石恢复理智取消 = "药剂恢复理智确认"
 end
 opt.fight = string.split(opt.fight, ',')
+for k,v in pairs(opt.fight) do
+  if table.includes(table.keys(jianpin2name),v) then
+    opt.fight[k]=jianpin2name[v]
+  end
+end
 parse_time = function(a)
   return os.time({
     year = tonumber(a:sub(1, 4)),

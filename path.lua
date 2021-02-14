@@ -126,14 +126,10 @@ path.base = {
 
 path.移动停止按钮 = function()
   local t = "停止按钮"
-  if not find(t) then
+  if not appear(t,5,1) then
     log(t .. "未找到,忽略")
     return true
   end
-  t = find("停止按钮")
-  swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
-  -- once is not enough ?
-  sleep(1)
   t = find("停止按钮")
   swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
   return true
@@ -556,6 +552,14 @@ path.轮次作战 = function()
     path.作战(opt.fight[tick])
   end
 end
+
+jianpin2name = {
+  LMSQ="龙门市区",
+  LMWH="龙门外环",
+  QENBG="切尔诺伯格",
+  BYBFFC="北原冰封废城",
+  DQSLJW="大骑士领郊外",
+}
 
 path.作战 = function(x)
   local f = startsWithX(x)
