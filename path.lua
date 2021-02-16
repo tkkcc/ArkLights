@@ -886,7 +886,7 @@ path.访问好友基建 = function()
       if not appearTap('访问基建', 3, 1) then return true end
       while 1 do
         if not wait(nil, function()
-          if find("今日参与交流已达上限") or find("重复访问无法获取信用") then
+          if find("今日参与交流已达上限") then
             comm_enough = true
             return true
           end
