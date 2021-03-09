@@ -7,17 +7,16 @@ bl = {}
 -- for k, v in pairs(fight_type_all) do bl[v] = true end
 cl = {}
 -- for k, v in pairs(fight_type_all) do cl[v] = 0 end
-unfound_fight={}
-failed_fight={}
+unfound_fight = {}
+failed_fight = {}
 
 path = {}
 
 path.base = {
   客户端过时 = function()
-    if not update_app() then
-      log("更新客户端失败")
-      stop()
-    end
+    -- if not update_app() then
+    stop("客户端过时")
+    -- end
   end,
   限时活动返回 = function()
     local t = "限时活动列表"
@@ -39,10 +38,7 @@ path.base = {
     local u = opt.username
     local p = opt.password
     if u and #u > 0 then input("账号", u) end
-    if not p or #p == 0 then
-      log("未设置密码")
-      stop()
-    end
+    if not p or #p == 0 then stop("未设置密码") end
     input("密码", p)
     tap("登录")
     -- reset state
@@ -54,7 +50,7 @@ path.base = {
   我知道了 = restart,
   密码错误 = function()
     tap("密码错误")
-    stop()
+    stop("密码错误")
   end,
   网络异常稍后重试 = restart,
   -- 断网
@@ -126,7 +122,7 @@ path.base = {
 
 path.移动停止按钮 = function()
   local t = "停止按钮"
-  if not appear(t,5,1) then
+  if not appear(t, 5, 1) then
     log(t .. "未找到,忽略")
     return true
   end
@@ -554,11 +550,11 @@ path.轮次作战 = function()
 end
 
 jianpin2name = {
-  LMSQ="龙门市区",
-  LMWH="龙门外环",
-  QENBG="切尔诺伯格",
-  BYBFFC="北原冰封废城",
-  DQSLJW="大骑士领郊外",
+  LMSQ = "龙门市区",
+  LMWH = "龙门外环",
+  QENBG = "切尔诺伯格",
+  BYBFFC = "北原冰封废城",
+  DQSLJW = "大骑士领郊外",
 }
 
 path.作战 = function(x)
@@ -616,6 +612,13 @@ path.作战 = function(x)
     else
       path.主线("1-7")
     end
+  elseif table.any({"OD-"}, f) then
+    if os.time() <
+      os.time({year = 2021, month = 3, day = 23, hour = 4, min = 0, sec = 0}) then
+      path.源石尘行动(x)
+    else
+      path.主线("1-7")
+    end
   else
     path.主线(x)
   end
@@ -629,7 +632,7 @@ path.开始游戏 = function(x)
     代理指挥关 = "代理指挥关",
     代理指挥开 = function()
       tap("开始行动蓝")
-      --if appearTap("开始行动红", 4, .5) then sleep(10) end
+      -- if appearTap("开始行动红", 4, .5) then sleep(10) end
     end,
     -- 代理指挥龙门关 = "代理指挥龙门关",
     -- 代理指挥龙门开 = "开始行动蓝",
@@ -643,8 +646,8 @@ path.开始游戏 = function(x)
       end
     end,
     开始行动红 = function()
-       --log(x)
-       --if true then return true end
+      -- log(x)
+      -- if true then return true end
       tap("开始行动红")
       sleep(10)
     end,
@@ -660,7 +663,7 @@ path.开始游戏 = function(x)
       else
         log('代理失误', x)
         bl[x] = false
-        failed_fight[x]=(failed_fight[x] or 0)+1
+        failed_fight[x] = (failed_fight[x] or 0) + 1
       end
       -- background()
 
@@ -703,7 +706,7 @@ path.主线 = function(x)
         -- distance or point error
         log(x .. "未找到")
         bl[x] = false
-        unfound_fight[x]=(unfound_fight[x] or 0)+1
+        unfound_fight[x] = (unfound_fight[x] or 0) + 1
       end
       return true
     end,
@@ -920,7 +923,9 @@ end
 showBL = function(not_show)
   local a = ''
   local b = ''
-  for k, v in pairs(failed_fight) do if not v then b = b .. k .. "x" .. v .." " end end
+  for k, v in pairs(failed_fight) do
+    if not v then b = b .. k .. "x" .. v .. " " end
+  end
   if #b > 0 then a = a .. '失败：' .. b end
   if not_show then return a end
   show(a, 500)
@@ -1031,7 +1036,7 @@ path["1-11"] = function()
     log("没找到跳过剧情")
     log('代理失误', x)
     bl[x] = false
-    failed_fight[x]=(failed_fight[x] or 0)+1
+    failed_fight[x] = (failed_fight[x] or 0) + 1
     return false
   end
   sleep(1)
@@ -1073,7 +1078,7 @@ path["1-11"] = function()
   else
     log('代理失误', x)
     bl[x] = false
-    failed_fight[x]=(failed_fight[x] or 0)+1
+    failed_fight[x] = (failed_fight[x] or 0) + 1
   end
 end
 
@@ -1117,7 +1122,7 @@ path.公开招募刷新 = function()
           t = ""
           r = 0
           while not table.includes(tag, t) and r < mr do
-            sleep(0.1*r)
+            sleep(0.1 * r)
             r = r + 1
             t = binarizeImage({
               rect = v,
@@ -1215,7 +1220,7 @@ path.密林 = function(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         bl[x] = false
-        unfound_fight[x]=(unfound_fight[x] or 0)+1
+        unfound_fight[x] = (unfound_fight[x] or 0) + 1
       end
       return true
     end,
@@ -1237,7 +1242,7 @@ path.生于黑夜 = function(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         bl[x] = false
-        unfound_fight[x]=(unfound_fight[x] or 0)+1
+        unfound_fight[x] = (unfound_fight[x] or 0) + 1
       end
       return true
     end,
@@ -1289,7 +1294,7 @@ path.火蓝之心 = function(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         bl[x] = false
-        unfound_fight[x]=(unfound_fight[x] or 0)+1
+        unfound_fight[x] = (unfound_fight[x] or 0) + 1
       end
       return true
     end,
@@ -1308,7 +1313,29 @@ path.画中世界 = function(x)
       swipq(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
-        unfound_fight[x]=(unfound_fight[x] or 0)+1
+        unfound_fight[x] = (unfound_fight[x] or 0) + 1
+        return true
+      end
+    end,
+    ["作战列表" .. x] = function()
+      findTap("作战列表" .. x)
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
+path.源石尘行动 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动下")
+      sleep(2)
+      tap("行动记录")
+      sleep(1)
+      swipq(x)
+      if not findTap("作战列表" .. x) then
+        log(x .. "未找到")
+        unfound_fight[x] = (unfound_fight[x] or 0) + 1
         return true
       end
     end,
@@ -1334,13 +1361,9 @@ error = function()
       if findTap('返回x') then break end
       retry = retry + 1
     end
-    if retry_m == retry then
-      log("限时活动执行失败")
-      stop()
-    end
+    if retry_m == retry then stop("限时活动执行失败") end
   else
-    log("未知状态")
-    stop()
+    stop("未知状态")
   end
 end
 

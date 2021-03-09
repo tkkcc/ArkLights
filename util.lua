@@ -234,8 +234,14 @@ close = function() closeApp(appid) end
 
 start = function() open() end
 
-stop = function()
-  log("stop")
+stop = function(msg)
+  local retry=tonumber(get("retry",0))
+  if retry <1 then
+    set("retry",retry+1)
+    close()
+    return
+  end
+  log("stop ",msg)
   -- DEBUG
   sleep(3600 * 72)
   pause()
@@ -454,6 +460,7 @@ run = function(...)
       auto(path[v])
     end
   end
+  set("retry",0)
 end
 -- hour crontab
 hc = function(x, h)
