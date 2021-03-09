@@ -1333,6 +1333,7 @@ path.源石尘行动 = function(x)
       tap("行动记录")
       sleep(1)
       swipq(x)
+      sleep(1)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         unfound_fight[x] = (unfound_fight[x] or 0) + 1
