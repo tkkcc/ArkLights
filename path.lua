@@ -564,61 +564,23 @@ path.作战 = function(x)
   elseif table.any(table.keys(jmfight2area), f) then
     path.剿灭(x)
   elseif f("WR-") then
-    if os.time() <
-      os.time({year = 2021, month = 2, day = 19, hour = 4, min = 0, sec = 0}) then
-      path.画中世界(x)
-    else
-      path.主线("1-7")
-    end
+    path.画中世界(x)
   elseif f("MN-") then
-    if os.time() <
-      os.time({year = 2020, month = 10, day = 29, hour = 4, min = 0, sec = 0}) then
-      path.临光(x)
-    else
-      path.主线("1-7")
-    end
+    path.临光(x)
   elseif f("GT-") then
-    if os.time() <
-      os.time({year = 2020, month = 10, day = 11, hour = 4, min = 0, sec = 0}) then
-      path.骑猎(x)
-    else
-      path.主线("1-7")
-    end
+    path.骑猎(x)
+  elseif f("DM-") then
+    path.生于黑夜(x)
   elseif f("TW-") then
-    if os.time() <
-      os.time({year = 2020, month = 7, day = 23, hour = 4, min = 0, sec = 0}) then
-      path.生于黑夜(x)
-    else
-      path.主线("1-7")
-    end
-  elseif table.any({"OF-"}, f) then
-    if os.time() <
-      os.time({year = 2020, month = 8, day = 25, hour = 4, min = 0, sec = 0}) then
-      path.火蓝之心(x)
-    else
-      path.主线("1-7")
-    end
-  elseif table.any({"RI-"}, f) then
-    if os.time() <
-      os.time({year = 2020, month = 9, day = 15, hour = 4, min = 0, sec = 0}) then
-      path.密林(x)
-    else
-      path.主线("1-7")
-    end
-  elseif table.any({"MB-"}, f) then
-    if os.time() <
-      os.time({year = 2021, month = 1, day = 7, hour = 4, min = 0, sec = 0}) then
-      path.越狱(x)
-    else
-      path.主线("1-7")
-    end
-  elseif table.any({"OD-"}, f) then
-    if os.time() <
-      os.time({year = 2021, month = 3, day = 23, hour = 4, min = 0, sec = 0}) then
-      path.源石尘行动(x)
-    else
-      path.主线("1-7")
-    end
+    path.沃伦姆德的薄暮(x)
+  elseif f("OF-") then
+    path.火蓝之心(x)
+  elseif f("RI-") then
+    path.密林(x)
+  elseif f("MB-") then
+    path.越狱(x)
+  elseif f("OD-") then
+    path.源石尘行动(x)
   else
     path.主线(x)
   end
@@ -1230,6 +1192,23 @@ path.密林 = function(x)
 end
 
 path.生于黑夜 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动")
+      sleep(1)
+      tap("生于黑夜阵中往事")
+      sleep(1)
+    end,
+    ["作战列表" .. x] = function()
+      tap("作战列表" .. x)
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
+
+path.沃伦姆德的薄暮 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战活动")
