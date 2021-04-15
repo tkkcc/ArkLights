@@ -366,9 +366,10 @@ swip = function(x, y, dx, dy, t, interval)
   sleep(interval)
 end
 -- quick multiple swip 
-swipq = function(t)
+swipq = function(t,hand)
   local u, v
   if type(t) == "string" then t = point.滑动距离[t] end
+  if hand == nil then hand={1600,500} end
   -- no need to swip
   if not t then return end
   -- multiple swip
@@ -376,8 +377,8 @@ swipq = function(t)
   for k, u in pairs(t) do
     v = 0
     if type(u) == "table" then u, v = u[1], u[2] end
-    -- log(u,v)
-    swip(1000, 500, u, v, .4)
+    -- log(hand[1],hand[2],u,v)
+    swip(hand[1], hand[2], u, v, .4)
   end
   -- wait for inertia
   if #t > 1 then sleep() end
