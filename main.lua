@@ -74,6 +74,8 @@ update_open_time()
 debug0415 = false
 if debug0415 then
   opt.fight = {
+    -- "1-12","S5-7","LS-1","LS-2","LS-3","LS-4","LS-5","SK-1","SK-2","SK-3","SK-4","SK-5",
+    "CA-1","CA-2","CA-3","CA-4","CA-5",
     -- 生于黑夜
     -- "DM-1", "DM-2", "DM-3", "DM-4", "DM-5", "DM-6", "DM-7", "DM-8", "TW-8",
     -- "WR-8", "WR-9", "WR-10",
