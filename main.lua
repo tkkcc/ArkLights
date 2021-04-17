@@ -43,6 +43,9 @@ end
 if opt.drug_enable:find("1") then
   path.base.源石恢复理智取消 = "药剂恢复理智确认"
 end
+if opt.drug_enable:find("2") then
+  opt.star4_auto = true
+end
 opt.fight = string.split(opt.fight, ',')
 for k, v in pairs(opt.fight) do
   if table.includes(table.keys(jianpin2name), v) then
@@ -72,10 +75,14 @@ update_open_time()
 -- opt.fight[1]="大骑士领郊外"
 
 debug0415 = false
+debug0416 = false
 if debug0415 then
   opt.fight = {
-    -- "1-12","S5-7","LS-1","LS-2","LS-3","LS-4","LS-5","SK-1","SK-2","SK-3","SK-4","SK-5",
-    "CA-1","CA-2","CA-3","CA-4","CA-5",
+    -- "1-12","S5-7",
+    "LS-1", "LS-2", "LS-3", "LS-4", "LS-5", "SK-1", "SK-2", "SK-3", "SK-4",
+    "SK-5", "CA-1", "CA-2", "CA-3", "CA-4", "CA-5", "CE-1", "CE-2", "CE-3",
+    "CE-4", "CE-5", "AP-1", "AP-2", "AP-3", "AP-4", "AP-5", "PR-A-1", "PR-A-2",
+    "PR-B-1", "PR-B-2", "PR-C-1", "PR-C-2", "PR-D-1", "PR-D-2",
     -- 生于黑夜
     -- "DM-1", "DM-2", "DM-3", "DM-4", "DM-5", "DM-6", "DM-7", "DM-8", "TW-8",
     -- "WR-8", "WR-9", "WR-10",
@@ -117,6 +124,11 @@ if debug0415 then
     -- 漫漫独行
     -- "WD-6", "WD-7", "WD-8",
   }
+end
+if debug0416 then
+  now("公开招募刷新","显示全部")
+  pause()
+  lua_exit()
 end
 
 if opt.now_enable:find("0") then now(opt.now) end

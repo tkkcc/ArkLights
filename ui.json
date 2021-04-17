@@ -49,12 +49,6 @@
           "type": "Edit"
         },
         {
-          "id": "drug_enable",
-          "list": "吃药,吃石头",
-          "select": "0",
-          "type": "CheckBoxGroup"
-        },
-        {
           "text": "轮次作战地图（英文逗号隔开）：",
           "type": "Label"
         },
@@ -62,6 +56,19 @@
           "id": "fight",
           "text": "R8-2,7-15,CE-5,LMSQ",
           "type": "Edit"
+        },
+        {
+          "id": "drug_enable",
+          "list": "吃药,吃石头,保底最高4星时自动招募",
+          "select": "0,2",
+          "type": "CheckBoxGroup"
+        },
+        {
+          "id": "line1",
+          "color": "220,220,220",
+          "width": 850,
+          "height": 1,
+          "type": "Line"
         },
         {
           "id": "now_enable",

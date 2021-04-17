@@ -542,6 +542,7 @@ path.邮件 = update(path.base, {
 
 tick = 0
 path.轮次作战 = function()
+  if #opt.fight == 0 then return true end
   while running ~= "理智不足" do
     set("tick", tick)
     tick = tick % #opt.fight + 1
@@ -1089,6 +1090,7 @@ path.公开招募刷新 = function()
   auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
   -- if find("公开招募联络次数0") then return end
   local a, tt, t, flag
+  local total_max_star = 4
   for i = 1, #point.公开招募列表 do
     auto(update(path.base, {面板 = "面板公开招募", 公开招募 = true}))
     auto(update(path.base, {
@@ -1142,24 +1144,26 @@ path.公开招募刷新 = function()
 
         if #t ~= 0 then
           -- 判断保底是否只有4星
-          local min_star = 4
+          local max_star = 4
           for k, v in pairs(t) do
-            tt = table.concat(tagk[v], ',') .. '=>' .. tagv[v]
-            log(tt)
-            if not tagv[v]:find("4") then
-              min_star = 5
-              taglog = taglog .. tt .. '\n'
+            -- tt = table.concat(tagk[v], ',') .. ' ' .. tagl[v] .. '★'
+            if tagl[v] > 4 then
+              max_star = max(max_star, tagl[v])
+              total_max_star = max(total_max_star, tagl[v])
+              taglog = total_max_star .. '★'
+              -- taglog = taglog .. tt .. '\n'
             end
           end
           -- 9小时招募
-          if min_star == 4 then
+          if max_star == 4 and opt.star4_auto then
             tt = tagk[t[1]]
             for k, v in pairs(tt) do
               p = table.find(a, function(x) return x == v end)
               tap("公开招募标签列表" .. p)
             end
-            for i = 1, 8 do tap("公开招募时间加") end
-            tap("公开招募确认")
+            -- for i = 1, 8 do tap("公开招募时间加") end
+            tap("公开招募时间减")
+            if not debug0416 then tap("公开招募确认") end
           end
         else
           if findTap("公开招募标签刷新蓝") then
