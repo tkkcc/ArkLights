@@ -32,3 +32,7 @@ QQ群：1009619697
 1. 下载[开发环境](https://github.com/tkkcc/arknights/releases/download/interpreter/CCJCKFIJ_2.0.1.7.exe)与[开发助手](https://github.com/tkkcc/arknights/releases/download/interpreter/com.xxscript.idehelper_1.2.13_1213.apk)，分别安装于windows与android系统
 2. 在开发环境中新建项目，与开发助手连通
 3. 下载全部代码放在项目的src下，将ui.json链接或复制到ui目录下，在开发环境中启动
+
+## 已知问题
+1. 见习任务未完成时，"任务"功能失效，需手动将"任务"前的勾点掉
+2. 模拟器通常无法连续工作超过1个月，需辅以外部工具。本人环境为archlinux+i3wm+genymotion，使用[定时任务](https://github.com/tkkcc/dot/tree/master/home/bilabila/.config/systemd/user)+[重启模拟器+截屏通知QQ](https://github.com/tkkcc/dot/blob/master/home/bilabila/bin/scripts/restart_idehelper)方案，只在关卡开放日上线抄作业。该方案能够满足单账号挂机需求，但缺少多账号支持以及快速部署能力。
