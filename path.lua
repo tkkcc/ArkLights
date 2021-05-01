@@ -312,9 +312,12 @@ path.制造站加速 = function()
     进驻总览 = "制造站列表1",
     面板 = "面板基建",
     制造站进度 = "制造站进度",
-    制造站设施 = "制造站加速",
+    -- 制造站设施 = ,
     进驻信息2选中 = "进驻信息2选中",
-    无人机加速制造 = function()
+    -- 无人机加速制造 
+    制造站设施 = function()
+      tap("制造站加速")
+      sleep(1)
       tap("无人机加速最大")
       tap("无人机加速制造确定")
       sleep(2)
@@ -585,6 +588,8 @@ path.作战 = function(x)
     path.源石尘行动(x)
   elseif f("WD-") then
     path.漫漫独行(x)
+  elseif f("SV-") then
+    path.覆潮之下(x)
   else
     path.主线(x)
   end
@@ -1241,6 +1246,7 @@ path.生于黑夜 = function(x)
   auto(p)
   path.开始游戏(x)
 end
+
 path.骑兵与猎人 = function(x)
   local p = update(path.base, {
     面板 = function()
@@ -1305,6 +1311,7 @@ path.沃伦姆德的薄暮 = function(x)
   auto(p)
   path.开始游戏(x)
 end
+
 path.临光 = function(x)
   local p = update(path.base, {
     面板 = function()
@@ -1344,6 +1351,7 @@ path.画中世界 = function(x)
   auto(p)
   path.开始游戏(x)
 end
+
 path.源石尘行动 = function(x)
   local p = update(path.base, {
     面板 = function()
@@ -1375,6 +1383,28 @@ path.漫漫独行 = function(x)
       tap("漫漫独行")
       swipq(x)
       sleep(1)
+      if not findTap("作战列表" .. x) then
+        log(x .. "未找到")
+        unfound_fight[x] = (unfound_fight[x] or 0) + 1
+      end
+      return true
+    end,
+    ["作战列表" .. x] = function()
+      findTap("作战列表" .. x)
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
+end
+
+path.覆潮之下 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动")
+      sleep(2)
+      tap("荒败盐风")
+      swipq(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         unfound_fight[x] = (unfound_fight[x] or 0) + 1

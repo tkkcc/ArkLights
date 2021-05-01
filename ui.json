@@ -45,7 +45,7 @@
         },
         {
           "id": "all_open_time",
-          "text": "202101191600,202102020400",
+          "text": "202105151600,202105290400",
           "type": "Edit"
         },
         {
@@ -54,13 +54,13 @@
         },
         {
           "id": "fight",
-          "text": "R8-2,7-15,CE-5,LMSQ",
+          "text": "R8-2,7-15,PR-D-2,CE-5,LMSQ",
           "type": "Edit"
         },
         {
           "id": "drug_enable",
           "list": "吃药,吃石头,保底最高4星时自动招募",
-          "select": "0,2",
+          "select": "0@2",
           "type": "CheckBoxGroup"
         },
         {
