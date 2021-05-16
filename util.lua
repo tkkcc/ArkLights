@@ -235,13 +235,13 @@ close = function() closeApp(appid) end
 start = function() open() end
 
 stop = function(msg)
-  local retry=tonumber(get("retry",0))
-  if retry <1 then
-    set("retry",retry+1)
+  local retry = tonumber(get("retry", 0))
+  if retry < 1 then
+    set("retry", retry + 1)
     close()
     return
   end
-  log("stop ",msg)
+  log("stop ", msg)
   -- DEBUG
   sleep(3600 * 72)
   pause()
@@ -301,16 +301,14 @@ end
 
 out_of_app = false
 check_stop_button_position = function(force_move)
-  while not out_of_app and (isFrontApp(appid) == 0 or getScreenDirection()==0) do
+  while not out_of_app and (isFrontApp(appid) == 0 or getScreenDirection() == 0) do
     show("应用不在前台")
     open()
     sleep(5)
     path.移动停止按钮()
     return
   end
-  if force_move then
-    path.移动停止按钮()
-  end
+  if force_move then path.移动停止按钮() end
 end
 -- x={2,3} "信用" func nil
 tap = function(x)
@@ -366,10 +364,10 @@ swip = function(x, y, dx, dy, t, interval)
   sleep(interval)
 end
 -- quick multiple swip 
-swipq = function(t,hand)
+swipq = function(t, hand)
   local u, v
   if type(t) == "string" then t = point.滑动距离[t] end
-  if hand == nil then hand={1600,500} end
+  if hand == nil then hand = {1600, 500} end
   -- no need to swip
   if not t then return end
   -- multiple swip
@@ -381,7 +379,7 @@ swipq = function(t,hand)
     swip(hand[1], hand[2], u, v, .4)
   end
   -- wait for inertia
-  if #t > 1 then sleep() end
+  if #t >= 1 then sleep() end
 end
 
 -- put (a,b) to (x,y)
@@ -461,7 +459,7 @@ run = function(...)
       auto(path[v])
     end
   end
-  set("retry",0)
+  set("retry", 0)
 end
 -- hour crontab
 hc = function(x, h)

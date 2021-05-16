@@ -563,6 +563,7 @@ jianpin2name = {
 }
 
 path.作战 = function(x)
+  x = x:upper()
   local f = startsWithX(x)
   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
@@ -774,13 +775,14 @@ update_open_time = function()
       SK = {1, 2, 3, 4, 5, 6, 7},
       AP = {1, 2, 3, 4, 5, 6, 7},
     }
-    ls_open_time_r[1] = {"AP", "SK", "CA", "CE", "LS"}
-    ls_open_time_r[2] = {"CA", "CE", "AP", "SK", "LS"}
-    ls_open_time_r[3] = {"CA", "SK", "AP", "CE", "LS"}
-    ls_open_time_r[4] = {"AP", "CE", "CA", "SK", "LS"}
-    ls_open_time_r[5] = {"CA", "SK", "AP", "CE", "LS"}
-    ls_open_time_r[6] = {"AP", "SK", "CE", "CA", "LS"}
-    ls_open_time_r[7] = {"AP", "CA", "CE", "SK", "LS"}
+    -- for i = 1, 7 do log(ls_open_time_r[i], i) end
+    ls_open_time_r[1] = {"CA", "CE", "AP", "SK", "LS"}
+    ls_open_time_r[2] = {"AP", "SK", "CA", "CE", "LS"}
+    ls_open_time_r[3] = {"AP", "CE", "CA", "SK", "LS"}
+    ls_open_time_r[4] = {"CA", "SK", "AP", "CE", "LS"}
+    ls_open_time_r[5] = {"AP", "CE", "CA", "SK", "LS"}
+    ls_open_time_r[6] = {"CA", "AP", "SK", "CE", "LS"}
+    ls_open_time_r[7] = {"SK", "AP", "CA", "CE", "LS"}
   end
 end
 path.更新开启时间 = update_open_time
@@ -800,7 +802,11 @@ path.物资芯片 = function(x)
   local cur_time = tonumber(os.date("%w", os.time() - 4 * 3600))
   if cur_time == 0 then cur_time = 7 end
 
-  if not table.includes(open_time, cur_time) then return end
+  if not table.includes(open_time, cur_time) then
+    -- log(open_time, cur_time)
+    -- log(x, "未开启")
+    return
+  end
   -- get the index in 芯片搜索
   local cur_open = prls_open_time_r[cur_time]
   local index = table.find(cur_open, equalX(x1))
@@ -1225,13 +1231,19 @@ path.密林 = function(x)
   path.开始游戏(x)
 end
 
-path.生于黑夜 = function(x)
+path.生于黑夜 = function(x, hook)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战")
       tap("插曲")
-      tap("生于黑夜")
+      if hook ~= nil then
+        hook()
+      else
+        tap("生于黑夜")
+      end
+
       tap("进入活动")
+      swipq(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         unfound_fight[x] = (unfound_fight[x] or 0) + 1
@@ -1377,25 +1389,7 @@ path.源石尘行动 = function(x)
 end
 
 path.漫漫独行 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战活动")
-      tap("漫漫独行")
-      swipq(x)
-      sleep(1)
-      if not findTap("作战列表" .. x) then
-        log(x .. "未找到")
-        unfound_fight[x] = (unfound_fight[x] or 0) + 1
-      end
-      return true
-    end,
-    ["作战列表" .. x] = function()
-      findTap("作战列表" .. x)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
+  path.生于黑夜(x, function() tap("漫漫独行") end)
 end
 
 path.覆潮之下 = function(x)
