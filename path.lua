@@ -554,6 +554,7 @@ path.轮次作战 = function()
 end
 
 jianpin2name = {
+  CMHB = "潮没海滨",
   LMSQ = "龙门市区",
   LMWH = "龙门外环",
   QENBG = "切尔诺伯格",
@@ -588,9 +589,11 @@ path.作战 = function(x)
   elseif f("OD-") then
     path.源石尘行动(x)
   elseif f("WD-") then
-    path.漫漫独行(x)
+    path.遗尘漫步(x)
   elseif f("SV-") then
     path.覆潮之下(x)
+  elseif f("PL-") then
+    path.灯火序曲(x)
   else
     path.主线(x)
   end
@@ -824,7 +827,7 @@ path.物资芯片 = function(x)
       tap("资源收集列表" .. index)
     end,
     ["作战列表" .. x] = function()
-      tap("作战列表" .. x)
+      findTap("作战列表" .. x)
       return true
     end,
   })
@@ -840,6 +843,7 @@ jmfight2area = {
   切尔诺伯格 = "乌萨斯",
   北原冰封废城 = "乌萨斯",
   大骑士领郊外 = "卡西米尔",
+  潮没海滨 = "汐斯塔",
 }
 path.剿灭 = function(x)
   -- 周一4点
@@ -860,7 +864,7 @@ path.剿灭 = function(x)
       tap("每周部署")
       tap("进入地图")
       swipq(jmfight2area[x])
-      tap(jmfight2area[x])
+      findTap(jmfight2area[x])
       sleep(2)
     end,
     ["作战列表" .. x] = function()
@@ -869,7 +873,7 @@ path.剿灭 = function(x)
         jwf.full = true
         log("本周合成玉已满")
       end
-      tap("作战列表" .. x)
+      findTap("作战列表" .. x)
       return true
     end,
   })
@@ -1241,7 +1245,6 @@ path.生于黑夜 = function(x, hook)
       else
         tap("生于黑夜")
       end
-
       tap("进入活动")
       swipq(x)
       if not findTap("作战列表" .. x) then
@@ -1251,7 +1254,7 @@ path.生于黑夜 = function(x, hook)
       return true
     end,
     ["作战列表" .. x] = function()
-      tap("作战列表" .. x)
+      findTap("作战列表" .. x)
       return true
     end,
   })
@@ -1259,13 +1262,17 @@ path.生于黑夜 = function(x, hook)
   path.开始游戏(x)
 end
 
-path.骑兵与猎人 = function(x)
+path.骑兵与猎人 = function(x, hook)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战")
       tap("别传")
-      tap("骑兵与猎人")
-      tap("进入活动")
+      if hook ~= nil then
+        hook()
+      else
+        tap("骑兵与猎人")
+        tap("进入活动")
+      end
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         unfound_fight[x] = (unfound_fight[x] or 0) + 1
@@ -1273,34 +1280,21 @@ path.骑兵与猎人 = function(x)
       return true
     end,
     ["作战列表" .. x] = function()
-      tap("作战列表" .. x)
+      findTap("作战列表" .. x)
       return true
     end,
   })
   auto(p)
   path.开始游戏(x)
 end
+
 path.火蓝之心 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战")
-      tap("别传")
-      tap("火蓝之心")
-      tap("进入活动")
-      tap("火蓝之心地区2")
-      if not findTap("作战列表" .. x) then
-        log(x .. "未找到")
-        unfound_fight[x] = (unfound_fight[x] or 0) + 1
-      end
-      return true
-    end,
-    ["作战列表" .. x] = function()
-      tap("作战列表" .. x)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
+  path.骑兵与猎人(x, function()
+    tap("别传")
+    tap("火蓝之心")
+    tap("进入活动")
+    tap("火蓝之心地区2")
+  end)
 end
 
 path.沃伦姆德的薄暮 = function(x)
@@ -1388,30 +1382,12 @@ path.源石尘行动 = function(x)
   path.开始游戏(x)
 end
 
-path.漫漫独行 = function(x)
-  path.生于黑夜(x, function() tap("漫漫独行") end)
+path.遗尘漫步 = function(x)
+  path.生于黑夜(x, function() tap("遗尘漫步") end)
 end
 
 path.覆潮之下 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战活动")
-      sleep(2)
-      tap("荒败盐风")
-      swipq(x)
-      if not findTap("作战列表" .. x) then
-        log(x .. "未找到")
-        unfound_fight[x] = (unfound_fight[x] or 0) + 1
-      end
-      return true
-    end,
-    ["作战列表" .. x] = function()
-      findTap("作战列表" .. x)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
+  path.生于黑夜(x, function() tap("覆潮之下") end)
 end
 
 error = function()
@@ -1509,4 +1485,28 @@ update_app = function()
   sleep(30)
   out_of_app = false
   return true
+end
+
+path.灯火序曲 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动")
+      sleep(2)
+      tap("路线安排")
+      sleep(1)
+      swipq(x)
+      sleep(1)
+      if not findTap("作战列表" .. x) then
+        log(x .. "未找到")
+        unfound_fight[x] = (unfound_fight[x] or 0) + 1
+      end
+      return true
+    end,
+    ["作战列表" .. x] = function()
+      findTap("作战列表" .. x)
+      return true
+    end,
+  })
+  auto(p)
+  path.开始游戏(x)
 end

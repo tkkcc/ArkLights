@@ -329,6 +329,20 @@ tap = function(x)
   touchDown(0, x[1], x[2])
   sleep(0.2)
   touchUp(0, x[1], x[2])
+
+  -- 返回"面板"后易触发数据更新,导致操作失效
+  if type(x0) == 'string' and x0:startsWith('面板') then
+    for i = 1, 5 do
+      sleep(.5)
+      if not find('面板') then
+        break
+      else
+        log(x0, "retap")
+        tap(x0)
+      end
+    end
+  end
+
   sleep(tap_extra_delay[x0] or 0)
 end
 
@@ -379,7 +393,11 @@ swipq = function(t, hand)
     swip(hand[1], hand[2], u, v, .4)
   end
   -- wait for inertia
-  if #t >= 1 then sleep() end
+  -- TODO SV-9
+  while type(t) == 'table' do t = t[#t] end
+  t = math.abs(t)
+  if t >= 10000 then t = 0 end
+  sleep(min(math.ceil(t / 100), 2))
 end
 
 -- put (a,b) to (x,y)
@@ -416,6 +434,8 @@ auto = function(p, timeout, interval)
         if find(k) then
           log(k, "=>", v)
           if tap(v) then f = true end
+          -- hook
+          -- TODO
           return true
         end
       end
