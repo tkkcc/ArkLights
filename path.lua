@@ -1301,16 +1301,16 @@ path.沃伦姆德的薄暮 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战活动")
-      tap("议事大厅")
-      sleep(1)
-    end,
-    前往八月集市 = function()
+      tap("议事高塔")
       swipq(x)
-      sleep(1)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         unfound_fight[x] = (unfound_fight[x] or 0) + 1
       end
+      return true
+    end,
+    ["作战列表" .. x] = function()
+      findTap("作战列表" .. x)
       return true
     end,
   })
