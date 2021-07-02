@@ -3,14 +3,12 @@ setScreenScale(1080, 1920)
 require("path")
 require("util")
 cron = require("crontab")
-
 -- sleep(1)
 -- swipq("TW-6")
 -- swipq("资源收集列表"..1)
 -- swipq({10000,-1000},{1600,500})
 -- swipq({10000,-2000},{1600,500})
 -- swipq("汐斯塔")
--- sleep(100)
 
 -- version = "20210205"
 -- if get("version", "0") ~= version then
@@ -67,11 +65,22 @@ opt.all_open_time_end = parse_time(a[2])
 update_open_time()
 debug0415 = false
 debug0416 = false
+debug0702 = false
+if debug0702 then
+  now("信用获取", "信用购买")
+  pause()
+  lua_exit()
+end
 if debug0415 then
   opt.fight = {
-    "TW-6",
-    "TW-7",
-    "TW-8",
+    "TB-DB-1",
+    "TB-DB-2",
+    "TB-DB-3",
+    "TB-DB-4",
+    "FIN-TS",
+    -- "TW-6",
+    -- "TW-7",
+    -- "TW-8",
     -- ============= debug
     -- "潮没海滨",
     -- "切尔诺伯格",

@@ -492,7 +492,9 @@ path.任务 = function()
     })
     p[i] = function()
       findTap('任务蓝')
-      if table.any({'任务黑', "任务灰"}, find) then return true end
+      if table.any({'任务黑', "任务灰", "任务灰2"}, find) then
+        return true
+      end
     end
     p['活动任务'] = p["日常任务"]
     auto(p)
@@ -594,6 +596,8 @@ path.作战 = function(x)
     path.覆潮之下(x)
   elseif f("PL-") then
     path.灯火序曲(x)
+  elseif table.any({"TB-DB", "LK-DP", "FIN-TS"}, f) then
+    path.联锁竞赛(x)
   else
     path.主线(x)
   end
@@ -1298,24 +1302,13 @@ path.火蓝之心 = function(x)
 end
 
 path.沃伦姆德的薄暮 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战活动")
-      tap("议事高塔")
-      swipq(x)
-      if not findTap("作战列表" .. x) then
-        log(x .. "未找到")
-        unfound_fight[x] = (unfound_fight[x] or 0) + 1
-      end
-      return true
-    end,
-    ["作战列表" .. x] = function()
-      findTap("作战列表" .. x)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
+  path.骑兵与猎人(x, function()
+    tap("别传")
+    tap("沃伦姆德的薄暮")
+    tap("进入活动")
+    sleep(1)
+    swipq(x)
+  end)
 end
 
 path.临光 = function(x)
@@ -1509,4 +1502,25 @@ path.灯火序曲 = function(x)
   })
   auto(p)
   path.开始游戏(x)
+end
+
+path.联锁竞赛 = function(x)
+  local p = update(path.base, {
+    面板 = function()
+      tap("面板作战活动")
+      tap("始发营地")
+      sleep(1)
+    end,
+    ["作战列表" .. "TB-DB-3"] = function()
+      tap("作战列表" .. x)
+      if find("联锁竞赛代理指挥关") then
+        tap("联锁竞赛代理指挥")
+      end
+      tap("开始行动蓝")
+      tap("开始行动红")
+      sleep(10)
+      return true
+    end,
+  })
+  auto(p)
 end
