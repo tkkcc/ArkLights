@@ -1517,10 +1517,9 @@ path.联锁竞赛 = function(x)
         tap("联锁竞赛代理指挥")
       end
       tap("开始行动蓝")
-      tap("开始行动红")
-      sleep(10)
       return true
     end,
   })
   auto(p)
+  path.开始游戏(x)
 end
