@@ -1513,10 +1513,11 @@ path.联锁竞赛 = function(x)
     end,
     ["作战列表" .. "TB-DB-3"] = function()
       tap("作战列表" .. x)
-      if find("联锁竞赛代理指挥关") then
-        tap("联锁竞赛代理指挥")
-      end
+      -- if find("联锁竞赛代理指挥关") then
+      --   tap("联锁竞赛代理指挥")
+      -- end
       tap("开始行动蓝")
+      sleep(1)
       return true
     end,
   })
