@@ -491,8 +491,8 @@ path.任务 = function()
       周常任务 = i,
     })
     p[i] = function()
-      findTap('任务蓝')
-      if table.any({'任务黑', "任务灰", "任务灰2"}, find) then
+      tap('任务蓝')
+      if table.any({'报酬已领取','任务黑', "任务灰", "任务灰2"}, find) then
         return true
       end
     end

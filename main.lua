@@ -66,6 +66,12 @@ update_open_time()
 debug0415 = false
 debug0416 = false
 debug0702 = false
+debug0703 = false
+if debug0703 then
+  now("任务")
+  pause()
+  lua_exit()
+end
 if debug0702 then
   now("信用获取", "信用购买")
   pause()
