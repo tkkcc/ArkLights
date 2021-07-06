@@ -182,7 +182,6 @@ path.限时活动 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  sleep(3)
   if not appearTap('基建灯泡蓝', 5, 1) then
     log("未找到灯泡")
     return
@@ -262,6 +261,10 @@ path.换人 = function()
     -- ignore the last one(训练室)
     if v == "训练室" then break end
     p = update(path.base, {
+      离开基建确认 = function()
+        tap("左返回")
+        sleep(1)
+      end,
       面板 = "面板基建",
       进驻总览 = v,
       进驻信息2 = "进驻信息2",
@@ -301,7 +304,14 @@ path.换人 = function()
       end,
     })
     auto(p)
-    auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
+    auto(update(path.base, {
+      面板 = "面板基建",
+      进驻总览 = true,
+      离开基建确认 = function()
+        tap("左返回")
+        sleep(1)
+      end,
+    }))
   end
 end
 
@@ -492,9 +502,8 @@ path.任务 = function()
     })
     p[i] = function()
       tap('任务蓝')
-      if table.any({'报酬已领取','任务黑', "任务灰", "任务灰2"}, find) then
-        return true
-      end
+      if table.any({'报酬已领取', '任务黑', "任务灰", "任务灰2"},
+                   find) then return true end
     end
     p['活动任务'] = p["日常任务"]
     auto(p)
@@ -605,11 +614,13 @@ end
 
 path.开始游戏 = function(x)
   log(tick, ' ', x)
+  sleep(0.5)
   if x == "1-11" then return auto(path["1-11"]) end
   return auto(update(path.base, {
     面板 = true,
     代理指挥关 = "代理指挥关",
     代理指挥开 = function()
+      log(613)
       tap("开始行动蓝")
       -- if appearTap("开始行动红", 4, .5) then sleep(10) end
     end,
