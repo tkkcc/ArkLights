@@ -159,7 +159,7 @@ local function cron(entries, verbose)
         string.format("Activating next job in %d second%s", sleepTime, withS))
     end
 
-    sleep(sleepTime)
+    ssleep(sleepTime)
 
     for _, i in pairs(allNextEntries) do
       extra[i].next_activation = next_activation(extra[i].cronentry)

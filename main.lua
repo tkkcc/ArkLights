@@ -1,56 +1,214 @@
-init("0", 1)
-setScreenScale(1080, 1920)
-require("path")
+-- debug option, should be all false / zero / empty in release
+print(time())
+print(findColor({223,310,238,319,"229,313,#EEEEEE",10})==nil)
+exit()
+--print(time())
+--for i = 1,100 do
+--print(findShape({'#FFFFFF-95','[{"a":-0.085,"d":1.33,"id":"1","r":1159.0}]',0.85}) ==nil)
+--end
+--print(findColor({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99}) == nil)
+--print(findColor({1595, 510, 1599, 516, "1596,511,#FFFFFF", 100}) == nil)
+ --print(findColor({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
+ --print(findColor({1757,179,1854,245,"1801,195,#FFFFFF",100})==nil)
+ --print(findColor({892,428,923,429,"892,428,#CCFF66",100})==nil)
+-- print(findColors({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99})==nil)
+-- print(findColors({1596, 511, 1606, 546, "1596,511,#FFFFFA", 99})==nil)
+-- print(findColors({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
+--exit()
+local test_some = true
+-- warkaround for nspirit
+test_fight = false
+no_config_cache = true
+ok_time = 1
+screen = getScreen()
+print("分辨率：" .. screen.width .. "x" .. screen.height)
 require("util")
+require("path")
+require("point")
 cron = require("crontab")
--- sleep(1)
--- swipq("TW-6")
--- swipq("资源收集列表"..1)
--- swipq({10000,-1000},{1600,500})
--- swipq({10000,-2000},{1600,500})
--- swipq("汐斯塔")
+exit()
+-- swipq("S5-2")
+-- swipq("5-3")
+-- keepScreen(true)
+-- target="当前进度列表6"
+-- target="作战列表5-1"
+-- start=time()
+-- log(findColorAbsolute(point[target])==nil)
+-- print(time()-start)
+-- start=time()
+-- log(findOne(target)==nil)
+-- print(time()-start)
+-- exit()
+-- log(findOne("作战列表5-3"))
+-- for i = 1, 100000 do log(i, findOne("当前进度列表6") == nil) end
+-- log(findOne("当前进度列表6") == nil)
+-- exit()
+-- ssleep(4)
 
--- version = "20210205"
--- if get("version", "0") ~= version then
---   toast("版本" .. version .. "，设置已重置")
---   resetUIConfig("save.dat")
---   set("version", version)
--- else
---   toast("版本" .. version)
+-- slid(1000,500,10000,500,250)
+-- ssleep()
+-- slid(math.floor(screen.width * 0.5), 100,
+--     math.floor(screen.width * 0.4), 100, 400)
+-- slid(math.floor(screen.width * 0.5), 100,
+--     math.floor(screen.width * 0.05), 100, 400)
+-- ssleep(3)
+-- slid(math.floor(screen.width * 0.5), 100,
+--     math.floor(screen.width * 0.95), 100, 400)
+-- ssleep(3)
+-- exit()
+
+local outside = runThread("outside")
+local all_job = {
+  "每日更新", "作战1-11", "邮件", "轮次作战", "基建点击全部",
+  "换人", "基建副手换人", "制造站加速", "线索接收",
+  "信用奖励", "访问好友基建", "信用收取", "信用购买",
+  "公开招募聘用", "公开招募刷新", "任务", "后台",
+  "显示全部",
+}
+local now_job = {
+  -- "每日更新", "作战1-11",
+  "邮件", "轮次作战", "基建点击全部", "换人", -- "基建副手换人",
+  "制造站加速", "线索接收", "信用奖励", "访问好友基建",
+  "信用收取", "信用购买", "公开招募聘用", "公开招募刷新",
+  "任务", "后台", "显示全部",
+}
+
+local cron1_job = now_job
+local cron2_job = {
+  "每日更新", "作战1-11", "邮件", "基建副手换人", "任务",
+  "后台", "显示全部",
+}
+
+local parse_id_to_ui = function(prefix, length)
+  local ans = ''
+  for i = 1, length do ans = ans .. prefix .. i .. '|' end
+  return ans:sub(1, #ans - 1)
+end
+
+local parse_value_to_ui = function(all, select)
+  local ans = ''
+  for _, v in pairs(all) do
+    if table.includes(select, v) then ans = ans .. '*' end
+    ans = ans .. v .. '|'
+  end
+  return ans:sub(1, #ans - 1)
+end
+
+local parse_from_ui = function(prefix, reference)
+  local ans = {}
+  for i = 1, #reference do
+    if _G[prefix .. i] then insert(ans, reference[i]) end
+  end
+  return ans
+end
+
+local ui = {
+  title = "明日方舟全日常代理",
+  cache = not no_config_cache,
+  width = -1,
+  height = -1,
+  time = ok_time,
+  views = {
+    {title = "账号", type = "edit", id = "username"},
+    {title = "密码", type = "edit", id = "password", mode = "password"}, {
+      title = "轮次作战地图",
+      type = "edit",
+      value = "R8-2,龙门市区,LMSQ,PR-D-2,CE-5,LS-5",
+      id = "fight",
+    }, {
+      type = "check",
+      value = "*吃药|*吃石头|*保底最高4星时自动招募",
+      ore = 1,
+      id = "drug_enable|stone_enable|start4_auto",
+    }, {type = "text", value = ""},
+    {type = "check", value = "*立即执行：", id = "now_enable"}, {
+      type = "check",
+      ore = 1,
+      value = parse_value_to_ui(all_job, now_job),
+      id = parse_id_to_ui("now_job_ui", #all_job),
+    }, {type = "text", value = ""},
+    {type = "check", value = "*半点执行1：", id = "cron1_enable"}, {
+      type = "check",
+      ore = 1,
+      value = parse_value_to_ui(all_job, cron1_job),
+      id = parse_id_to_ui("cron1_job_ui", #all_job),
+    }, {
+      title = "半点执行1时间",
+      type = "edit",
+      value = "1,9,17",
+      id = "cron1_time",
+    }, {type = "text", value = ""},
+    {type = "check", value = "*半点执行2：", id = "cron2_enable"}, {
+      type = "check",
+      ore = 1,
+      value = parse_value_to_ui(all_job, cron2_job),
+      id = parse_id_to_ui("cron2_job_ui", #all_job),
+    },
+    {
+      title = "半点执行2时间",
+      type = "edit",
+      value = "4",
+      id = "cron2_time",
+    }, {
+      type = 'div',
+      title = '',
+      views = {
+        {
+          type = "button",
+          value = "QQ群：1009619697",
+          title = '',
+          click = {thread = outside, name = "goto_qq"},
+        }, {
+          type = "button",
+          value = "视频演示",
+          title = '',
+          click = {thread = outside, name = "goto_bilibili"},
+        }, {
+          type = "button",
+          value = "开发",
+          title = '',
+          click = {thread = outside, name = "goto_github"},
+        },
+      },
+    },
+  },
+  submit = {type = "text", value = "启动"},
+  cancle = {type = "text", value = "退出"},
+};
+
+ret = show(ui)
+if not ret then exit() end
+
+now_job = parse_from_ui("now_job_ui", all_job)
+cron1_job = parse_from_ui("cron1_job_ui", all_job)
+cron2_job = parse_from_ui("cron2_job_ui", all_job)
+local cron_job = {}
+if cron1_enable then insert(cron_job, half_hour_cron({cron1_job, cron1_time})) end
+if cron2_enable then insert(cron_job, half_hour_cron({cron2_job, cron2_time})) end
+
+-- if drug_enable then
+--  path.base.药剂恢复理智取消 = "药剂恢复理智确认"
+-- end
+-- if stone_enable then
+--  path.base.源石恢复理智取消 = "药剂恢复理智确认"
 -- end
 
-ret, opt = showUI('ui.json')
-if ret == 0 then lua_exit() end
-job = getUIContent("ui.json")
-job = string.match(job, '"now".*"list": "([^"]+)",')
-job = string.split(job, ',')
-parse_job = function(cron)
-  cron = string.split(cron, '@')
-  for i = 1, #cron do cron[i] = job[cron[i] + 1] end
-  return cron
-end
-opt.now = parse_job(opt.now)
-opt.cron = {}
-if opt.cron1_enable:find("0") then
-  insert(opt.cron, hc({parse_job(opt.cron1), opt.cron1_time}))
-end
-if opt.cron2_enable:find("0") then
-  insert(opt.cron, hc({parse_job(opt.cron2), opt.cron2_time}))
-end
-if opt.drug_enable:find("0") then
-  path.base.药剂恢复理智取消 = "药剂恢复理智确认"
-end
-if opt.drug_enable:find("1") then
-  path.base.源石恢复理智取消 = "药剂恢复理智确认"
-end
-if opt.drug_enable:find("2") then opt.star4_auto = true end
-opt.fight = string.split(opt.fight, ',')
-for k, v in pairs(opt.fight) do
-  if table.includes(table.keys(jianpin2name), v) then
-    opt.fight[k] = jianpin2name[v]
-  end
-end
-parse_time = function(a)
+fight = string.map(fight, {
+  [","] = " ",
+  ["、"] = " ",
+  ["，"] = " ",
+  ["|"] = " ",
+  ["\n"] = " ",
+})
+fight = string.split(fight, ' ')
+fight = map(string.upper, fight)
+-- for k, v in pairs(fight) do
+--  if table.includes(table.keys(jianpin2name), v) then
+--    fight[k] = jianpin2name[v]
+--  end
+-- end
+
+local parse_time = function(a)
   return os.time({
     year = tonumber(a:sub(1, 4)),
     month = tonumber(a:sub(5, 6)),
@@ -59,31 +217,14 @@ parse_time = function(a)
     min = tonumber(a:sub(11, 12)),
   })
 end
-a = opt.all_open_time:split(',')
-opt.all_open_time_start = parse_time(a[1])
-opt.all_open_time_end = parse_time(a[2])
-update_open_time()
-debug0415 = false
-debug0416 = false
-debug0702 = false
-debug0703 = false
-if debug0703 then
-  now("任务")
-  pause()
-  lua_exit()
-end
-if debug0702 then
-  now("信用获取", "信用购买")
-  pause()
-  lua_exit()
-end
-if debug0415 then
-  opt.fight = {
-    "TB-DB-1",
-    "TB-DB-2",
-    "TB-DB-3",
-    "TB-DB-4",
-    "FIN-TS",
+all_open_time_start = parse_time("202001011600")
+all_open_time_end = parse_time("202001010400")
+-- update_open_time()
+
+if test_fight then
+  fight = {
+    -- ??
+    -- "TB-DB-1", "TB-DB-2", "TB-DB-3", "TB-DB-4", "FIN-TS",
     -- "TW-6",
     -- "TW-7",
     -- "TW-8",
@@ -99,7 +240,7 @@ if debug0415 then
     -- "PL-1", "PL-2", "PL-3", "PL-4", "PL-5",
 
     -- -- 生于黑夜
-    -- "DM-1", "DM-2", "DM-3", "DM-4", "DM-5", "DM-6", "DM-7", "DM-8", 
+    -- "DM-1", "DM-2", "DM-3", "DM-4", "DM-5", "DM-6", "DM-7", "DM-8",
     -- -- 遗尘漫步
     -- "WD-6", "WD-7", "WD-8",
     -- -- 覆潮之下
@@ -122,24 +263,32 @@ if debug0415 then
     -- "S6-2", "6-11", "6-12", "6-14", "6-15", "S6-3", "S6-4", "6-16", "7-2", "7-3",
     -- "7-4", "7-5", "7-6", "7-8", "7-9", "7-10", "7-11", "7-12", "7-13", "7-14",
     -- "7-15", "7-16", "S7-1", "S7-2", "7-17", "7-18",
-    -- "R8-1", "R8-2", "R8-3", "R8-4", "R8-5", "R8-6", "R8-7", "R8-8", "R8-9", "R8-10", "R8-11", "JT8-2", "JT8-3", 
+    -- "R8-1", "R8-2", "R8-3", "R8-4", "R8-5", "R8-6", "R8-7", "R8-8", "R8-9", "R8-10", "R8-11", "JT8-2", "JT8-3",
     -- "M8-6", "M8-7", "M8-8",
     -- -- 火蓝之心
     -- "OF-F1", "OF-F2", "OF-F3", "OF-F4",
     -- -- 骑猎
-    -- "GT-1", "GT-2", "GT-3", "GT-4", "GT-5", "GT-6", 
+    -- "GT-1", "GT-2", "GT-3", "GT-4", "GT-5", "GT-6",
   }
 end
-if debug0416 then
-  now("公开招募刷新", "显示全部")
+if test_fight then
+  run("轮次作战")
   pause()
-  lua_exit()
+  exit()
 end
-if debug0415 then
-  now("轮次作战")
-  pause()
-  lua_exit()
+if test_some then
+  -- debug
+  logConfig({mode = 3})
+  menuConfig({x = 0, y = screen.height / 2 - 50, alpha = 1})
+  open()
+  fight = {"5-1"}
+  -- , "1-2", "S3-3", "S4-5", "R8-2"}
+  username = ""
+  password = ""
+  run("轮次作战")
+  log(241)
+  exit()
 end
 
-if opt.now_enable:find("0") then now(opt.now) end
-if #opt.cron > 0 then cron(opt.cron) end
+if now_enable then run(now_job) end
+if #cron_job > 0 then cron(cron_job) end

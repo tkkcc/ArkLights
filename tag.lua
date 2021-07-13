@@ -322,10 +322,10 @@ ocr = function(x)
       -- log(t1)
       if #t ~= #fm.辅 then
         log("error: single word size error ", #t)
-        lua_exit()
+        _ENV["exit()"]()
       end
       -- match bottom line of s and t
-      bzb, rzb = unpack(detect_blank_line(t, ah, aw))
+      bzb, rzb = table.unpack(detect_blank_line(t, ah, aw))
       -- cache blank of fm
       if not fm_blank_line.辅 then
         for k, v in pairs(fm) do
@@ -344,7 +344,7 @@ ocr = function(x)
           -- calculator similarity
           err_min = 0
           s = fm[k]
-          bza, rza = unpack(fm_blank_line[k])
+          bza, rza = table.unpack(fm_blank_line[k])
           -- loop each offset
           for l = 1, #of do
             err = 0

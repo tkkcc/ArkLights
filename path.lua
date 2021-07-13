@@ -1,7 +1,3 @@
-require("util")
-require("point")
-require("tag")
-
 -- set bl true
 bl = {}
 -- for k, v in pairs(fight_type_all) do bl[v] = true end
@@ -13,6 +9,9 @@ failed_fight = {}
 path = {}
 
 path.base = {
+  面板 = true,
+  start黄框 = "start黄框",
+  start黄框暗 = "start黄框暗",
   客户端过时 = function()
     -- if not update_app() then
     stop("客户端过时")
@@ -26,8 +25,6 @@ path.base = {
     end
     tap('限时活动返回')
   end,
-  面板 = true,
-  start黄框 = "start黄框",
   进入游戏 = "进入游戏",
   账号登录 = "账号登录",
   开始唤醒 = "开始唤醒",
@@ -35,12 +32,31 @@ path.base = {
     if not disappear("正在加载网络配置", 300, 5) then restart() end
   end,
   登录 = function()
-    local u = opt.username
-    local p = opt.password
-    if u and #u > 0 then input("账号", u) end
-    if not p or #p == 0 then stop("未设置密码") end
-    input("密码", p)
+    local inputbox = R():type("EditText"):name("com.hypergryph.arknights"):path(
+                       "/FrameLayout/EditText")
+    if #username then
+      tap("账号左侧")
+      tap("账号")
+      appear(inputbox)
+      input(inputbox, username)
+      tap("左上角")
+      disappear(inputbox)
+      appear("登录")
+    end
+    if #password then
+      tap("账号左侧")
+      tap("密码")
+      appear(inputbox)
+      input(inputbox, password)
+      tap("左上角")
+      disappear(inputbox)
+      appear("登录")
+    end
     tap("登录")
+    if appear({"用户名或密码错误", "密码不能为空"}) then
+      stop("登录失败")
+    end
+    appear("面板")
     -- reset state
     already_update_station_list = false
     no_friend = false
@@ -60,7 +76,7 @@ path.base = {
   end,
   删除缓存返回 = function()
     tap("start黄框")
-    sleep(2)
+    ssleep(2)
     tap("start黄框")
   end,
   登录认证失效 = "登录认证失效",
@@ -121,14 +137,23 @@ path.base = {
 }
 
 path.移动停止按钮 = function()
-  local t = "停止按钮"
-  if not appear(t, 5, 1) then
-    log(t .. "未找到,忽略")
-    return true
-  end
-  t = find("停止按钮")
-  swip(t[1], t[2], 1920 - t[1], 1080 / 2 - t[2], .2)
-  return true
+  menuConfig({
+    x = 0, -- x坐标
+    y = screen.height / 2 - 50, -- y坐标
+  })
+  -- config = {
+  --  x = width/2-1000/2, -- 位置x
+  --  y = -36, -- 位置y
+  --  width = 1000, -- 宽度
+  --  height = 36, -- 高度
+  --  color = "#37474F",
+  --  bgcolor = "#FFFFFF",
+  --  mode = 2, -- 模式 :1= 显示可点击,2=显示不可点击，3=隐藏
+  --  size = 11, -- 字体大小
+  --  debug = true, -- 是否输出系统日志 false =不输出，true = 输出
+  --  shadow = false, -- 是否显示阴影，false：不显示 true 显示；
+  -- };
+  -- logConfig(config);
 end
 comm_enough = false
 update_comm = function() comm_enough = false end
@@ -182,14 +207,14 @@ path.限时活动 = update(path.base, {
 
 path.基建点击全部 = function()
   auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  sleep(3)
+  ssleep(3)
   if not appearTap('基建灯泡蓝', 5, 1) then
     log("未找到灯泡")
     return
   end
   i = 1
   while i <= 10 and appearTap("点击全部收取", 3, 1) do
-    sleep(2)
+    ssleep(2)
     i = i + 1
   end
   tap("宿舍列表1")
@@ -206,13 +231,6 @@ path.基建副手换人 = function()
     控制中枢界面 = "控制中枢基建副手",
     基建副手简报 = true,
   })
-  -- for k, v in pairs(point.基建副手列表) do
-  --   auto(p)
-  --   tap(v)
-  --   if not find("干员选择无选中") then tap("干员选择列表1") end
-  --   tap("干员选择确认")
-  --   sleep(1)
-  -- end
   for k, v in pairs(point.基建副手列表) do
     auto(p)
     tap(v)
@@ -221,11 +239,10 @@ path.基建副手换人 = function()
     tap("排序信赖")
     tap("干员选择列表" .. k)
     tap("干员选择确认")
-    sleep(1)
+    ssleep(1)
   end
 end
 count_people = function()
-  keepScreen(true)
   local capacity = 5
   local current = 5
   local max_retry = 3
@@ -247,9 +264,8 @@ count_people = function()
       end
     end
     -- log(current, '/', capacity)
-    keepScreen(false)
     if current <= capacity then return {current, capacity} end
-    sleep(2)
+    ssleep(2)
   end
   return {0, 5}
 end
@@ -283,11 +299,11 @@ path.换人 = function()
         -- toggle tag after 宿舍
         if index > #point.宿舍列表 and not already_after_dormitory then
           tap("排序筛选按钮")
-          sleep(1)
+          ssleep(1)
           findTap("排序筛选未进驻未选中")
-          sleep(1)
+          ssleep(1)
           tap("排序筛选确认")
-          sleep(1)
+          ssleep(1)
           already_after_dormitory = true
         end
         local dorm_index = #point.宿舍列表 - index + 1
@@ -314,13 +330,13 @@ path.制造站加速 = function()
     制造站进度 = "制造站进度",
     -- 制造站设施 = ,
     进驻信息2选中 = "进驻信息2选中",
-    -- 无人机加速制造 
+    -- 无人机加速制造
     制造站设施 = function()
       tap("制造站加速")
-      sleep(1)
+      ssleep(1)
       tap("无人机加速最大")
       tap("无人机加速制造确定")
-      sleep(2)
+      ssleep(2)
       tap("制造站收取")
       return true
     end,
@@ -366,28 +382,26 @@ path.线索布置 = function()
   auto(update(path.base, {
     进驻信息3 = "线索",
     会客厅信用奖励 = function()
-      keepScreen(true)
       local v = table.findv(point.线索布置列表, find)
-      keepScreen(false)
       if not v then return true end
       -- offset -50,50
       v = point[v]
-      local x = v:find('|')
-      local y = v:sub(x + 1, v:find('|', x + 1) - 1)
+      local x = v:find(coord_delimeter)
+      local y = v:sub(x + 1, v:find(coord_delimeter, x + 1) - 1)
       x = tonumber(v:sub(1, x - 1))
       y = tonumber(y)
       tap({x - 50, y + 50})
-      sleep(.5)
+      ssleep(.5)
       tap("线索库列表1")
       tap("解锁线索右")
-      sleep(.5)
+      ssleep(.5)
     end,
     进驻总览 = "会客厅",
     面板 = "面板基建",
     进驻信息3选中 = "进驻信息3选中",
   }))
   if findTap("解锁线索") then
-    sleep(2)
+    ssleep(2)
     auto(path.线索布置)
   end
 end
@@ -401,7 +415,7 @@ path.线索传递 = update(path.base, {
     local a = point.线索传递数字列表
     for k, v in pairs(a) do
       tap(v)
-      sleep(.5)
+      ssleep(.5)
       if find("线索传递数字重复") or k == #a then
         tap("线索列表1")
         break
@@ -411,7 +425,6 @@ path.线索传递 = update(path.base, {
     local count = 0
     local ranges = {100, 300, 500, 700, 900}
     local f = function(random)
-      keepScreen(true)
       local points = findAll("线索传递橙框")
       local t
       if points then
@@ -432,7 +445,6 @@ path.线索传递 = update(path.base, {
         t = a[math.random(#a)]
         log('给随机')
       end
-      keepScreen(false)
       if t then
         tap(t)
         return true
@@ -492,9 +504,9 @@ path.任务 = function()
     })
     p[i] = function()
       tap('任务蓝')
-      --if table.any({'报酬已领取','任务黑', "任务灰", "任务灰2"}, find) then
-        return true
-      --end
+      -- if table.any({'报酬已领取','任务黑', "任务灰", "任务灰2"}, find) then
+      return true
+      -- end
     end
     p['活动任务'] = p["日常任务"]
     auto(p)
@@ -506,21 +518,16 @@ path.信用购买 = function()
     面板 = "面板采购中心",
     可露希尔推荐 = "信用交易所",
     信用交易所 = function()
-      -- keepScreen(true)
-      -- sleep(1)
-      if not findTap(unpack(point.信用交易所列表)) then
-        -- if not findTap("信用交易所商品") then
-        -- keepScreen(false)
+      if not findTap(table.unpack(point.信用交易所列表)) then
         return true
       end
-      -- keepScreen(false)
       if not findTap("购买物品") then return end
       if find("信用不足") then
         log("信用不足")
         return true
       else
         tap("返回")
-        -- sleep(1)
+        -- ssleep(1)
       end
     end,
   }))
@@ -536,22 +543,23 @@ path.信用收取 = update(path.base, {
 
 path.邮件 = update(path.base, {
   面板 = function()
+    if not findOne("面板邮件有") then return true end
     tap("面板邮件")
-    if appear("邮件", 3, 1) then
-      sleep(2)
-      tap("收取所有邮件")
-      return true
-    end
+    appear({"邮件", "确认白"}, 5)
+  end,
+  邮件 = function()
+    tap("收取所有邮件")
+    return true
   end,
 })
 
 tick = 0
 path.轮次作战 = function()
-  if #opt.fight == 0 then return true end
+  if #fight == 0 then return true end
   while running ~= "理智不足" do
     set("tick", tick)
-    tick = tick % #opt.fight + 1
-    path.作战(opt.fight[tick])
+    tick = tick % #fight + 1
+    path.作战(fight[tick])
   end
 end
 
@@ -566,7 +574,6 @@ jianpin2name = {
 }
 
 path.作战 = function(x)
-  x = x:upper()
   local f = startsWithX(x)
   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
@@ -611,7 +618,7 @@ path.开始游戏 = function(x)
     代理指挥关 = "代理指挥关",
     代理指挥开 = function()
       tap("开始行动蓝")
-      -- if appearTap("开始行动红", 4, .5) then sleep(10) end
+      -- if appearTap("开始行动红", 4, .5) then ssleep(10) end
     end,
     -- 代理指挥龙门关 = "代理指挥龙门关",
     -- 代理指挥龙门开 = "开始行动蓝",
@@ -630,7 +637,7 @@ path.开始游戏 = function(x)
         if true then return true end
       end
       tap("开始行动红")
-      sleep(10)
+      ssleep(10)
     end,
     接管作战 = function()
       if disappear("接管作战", 60 * 60, 5) and
@@ -638,9 +645,9 @@ path.开始游戏 = function(x)
         not appear("战斗记录未能同步返回", 2, 1) then
         log('代理成功', x)
         cl[x] = (cl[x] or 0) + 1
-        sleep(3)
+        ssleep(3)
         tap("返回")
-        sleep(4)
+        ssleep(4)
       else
         log('代理失误', x)
         bl[x] = false
@@ -649,7 +656,7 @@ path.开始游戏 = function(x)
       -- background()
 
       return true
-      -- debug 
+      -- debug
     end,
   }))
 end
@@ -662,32 +669,49 @@ path.主线 = function(x)
   local x0 = x
   local x1 = x0:find("-")
   local x2
-  local t = "当前进度列表"
   if not x1 then return end
   x1, x2 = x0:sub(1, x1 - 1), x0:sub(x1 + 1)
   x1 = x1:sub(x1:find("%d"))
   local x3 = tonumber(x1) + 1
   -- log(x1, x2, x0)
   -- 面板=>开始游戏
+
+  -- log(679, x3, "当前进度列表" .. x3)
+  -- log(point["当前进度列表" .. x3])
+  -- ssleep(1)
+  -- log(findOne("当前进度列表" .. x3))
+  -- log(findOne("跳转"))
+  -- log(682)
+  -- exit()
   local p = update(path.base, {
     面板 = function()
       tap("面板作战")
+      log(689)
+      appear("终端")
+      log(690)
+    end,
+    终端 = function()
       tap("主题曲")
+      appear("怒号光明")
       if x3 <= 4 then
         tap("觉醒")
       elseif x3 <= 9 then
         tap("幻灭")
       end
-      -- print('swipq', x1)
       swipq(x1)
-      tap("作战主线章节列表" .. x1)
+      -- debug: disable to test 当前进度列表 navigation
+      --tap("作战主线章节列表" .. x1)
+      -- fallback for partial complete users
+      tap("作战主线章节列表8")
     end,
-    [t .. x3] = function()
+    ["当前进度列表" .. x3] = function()
+      log(693)
       swipq(x0)
+      log(694)
       local v = point.滑动距离[x0]
       if type(v) == "table" then
         v = v[#v]
-        sleep(math.abs(v) / 500)
+        ssleep(math.abs(v) / 500)
       end
       if not findTap("作战列表" .. x) then
         -- distance or point error
@@ -710,7 +734,10 @@ path.主线 = function(x)
     switch_end = 10 - 1
   end
   for i = switch_start, switch_end do
-    if x3 ~= i then p[t .. i] = t .. (i > x3 and "左" or "右") end
+    if x3 ~= i then
+      p["当前进度列表" .. i] = "当前进度列表" ..
+                                       (i > x3 and "左" or "右")
+    end
   end
   auto(p)
   path.开始游戏(x)
@@ -759,7 +786,7 @@ update_open_time = function()
     insert(lotr[k], "LS")
   end
   local t = os.time()
-  if opt.all_open_time_start <= t and t < opt.all_open_time_end then
+  if all_open_time_start <= t and t < all_open_time_end then
     log("全天开启时间表")
     pr_open_time = {
       A = {1, 2, 3, 4, 5, 6, 7},
@@ -869,7 +896,7 @@ path.剿灭 = function(x)
       tap("进入地图")
       swipq(jmfight2area[x])
       findTap(jmfight2area[x])
-      sleep(2)
+      ssleep(2)
     end,
     ["作战列表" .. x] = function()
       if not debug0415 and
@@ -895,7 +922,7 @@ path.访问好友基建 = function()
     好友列表 = function()
       if not appearTap('访问基建', 3, 1) then return true end
       while 1 do
-        if not wait(nil, function()
+        if not wait(function()
           if find("今日参与交流已达上限") then
             comm_enough = true
             return true
@@ -978,7 +1005,7 @@ path.后台 = function()
   -- if true then return true end
 
   -- TODO
-  -- sleep(60)
+  -- ssleep(60)
   -- log("debug-2")
   -- auto(update(path.base, {
   --   面板 = function()
@@ -991,18 +1018,18 @@ path.后台 = function()
   -- close()
   -- lua_restart()
   -- close()
-  -- sleep(10)
+  -- ssleep(10)
   background()
 
   -- log('gc count ', collectgarbage("count"))
   -- print(collectgarbage("count") * 1024)
   -- collectgarbage()
 
-  -- sleep(1800)
+  -- ssleep(1800)
   -- log("debug-1")
   -- if true then return true end
 
-  -- sleep(60)
+  -- ssleep(60)
   -- close()
   -- set("restart", true)
   -- lua_restart()
@@ -1011,7 +1038,7 @@ path.后台 = function()
   -- runApp("com.xxscript.idehelper")
   -- log("debug1")
 
-  -- sleep(60)
+  -- ssleep(60)
   -- log("debug2")
 
   -- -- background()
@@ -1037,7 +1064,7 @@ path["1-11"] = function()
   -- wait 安德切尔
   if not findTap("开始行动红") then return end
   -- appearTap()
-  -- sleep(13)
+  -- ssleep(13)
   -- tap("跳过剧情")
   if not appearTap("跳过剧情", 20, 1) then
     log("没找到跳过剧情")
@@ -1046,42 +1073,42 @@ path["1-11"] = function()
     failed_fight[x] = (failed_fight[x] or 0) + 1
     return false
   end
-  sleep(1)
+  ssleep(1)
   tap("跳过剧情确认")
   -- start
-  sleep(23)
+  ssleep(23)
   tap("速度2")
   -- 芬
   deploy(591, 807, 522)
   -- 翎羽
   deploy(447, 948, 516)
   -- 杰西卡
-  sleep(2)
+  ssleep(2)
   deploy(585, 939, 373)
   -- 安塞尔
-  sleep(6)
+  ssleep(6)
   deploy(1299, 801, 384)
   -- 玫兰莎
-  sleep(8)
+  ssleep(8)
   deploy(945, 1227, 368)
   -- 黑角
   deploy(1122, 1216, 269)
   -- 米格鲁
-  sleep(11)
+  ssleep(11)
   -- 黑角
   -- retreat(1110, 263, 894, 323)
   deploy(1482, 813, 314)
   -- 史都华德
   deploy(1656, 669, 407)
-  sleep(6)
+  ssleep(6)
   -- 玫兰莎
   retreat(1110, 368, 894, 323)
   if appear("行动结束", 60, 1) then
     log('代理成功', x)
     cl[x] = (cl[x] or 0) + 1
-    sleep(3)
+    ssleep(3)
     tap("返回")
-    sleep(4)
+    ssleep(4)
   else
     log('代理失误', x)
     bl[x] = false
@@ -1094,9 +1121,7 @@ path.公开招募聘用 = update(path.base, {
     if not findTap("面板公开招募有") then return true end
   end,
   公开招募 = function()
-    keepScreen(true)
-    if findTap(unpack(point["聘用候选人列表"])) then
-      keepScreen(false)
+    if findTap(table.unpack(point["聘用候选人列表"])) then
       findTap("开包skip")
     end
     tap("返回")
@@ -1130,7 +1155,7 @@ path.公开招募刷新 = function()
           t = ""
           r = 0
           while not table.includes(tag, t) and r < mr do
-            sleep(0.1 * r)
+            ssleep(0.1 * r)
             r = r + 1
             t = binarizeImage({
               rect = v,
@@ -1174,7 +1199,7 @@ path.公开招募刷新 = function()
             end
           end
           -- 9小时招募
-          if max_star == 4 and opt.star4_auto then
+          if max_star == 4 and star4_auto then
             tt = tagk[t[1]]
             for k, v in pairs(tt) do
               p = table.find(a, function(x) return x == v end)
@@ -1202,9 +1227,9 @@ path.越狱 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战活动")
-      sleep(2)
+      ssleep(2)
       tap("越狱计划")
-      sleep(3)
+      ssleep(3)
     end,
     ["作战列表" .. x] = function()
       findTap("作战列表" .. x)
@@ -1219,14 +1244,14 @@ path.密林 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战")
-      sleep(1)
+      ssleep(1)
       tap("作战密林悍将归来")
-      sleep(3)
+      ssleep(3)
       tap("密林大酋长之路")
     end,
     大酋长之路 = function()
       swipq(x)
-      sleep(1)
+      ssleep(1)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         bl[x] = false
@@ -1306,7 +1331,7 @@ path.沃伦姆德的薄暮 = function(x)
     tap("别传")
     tap("沃伦姆德的薄暮")
     tap("进入活动")
-    sleep(1)
+    ssleep(1)
     swipq(x)
   end)
 end
@@ -1316,7 +1341,7 @@ path.临光 = function(x)
     面板 = function()
       tap("面板作战活动上")
       tap("大竞技场")
-      sleep(1)
+      ssleep(1)
     end,
     梅什科竞技证券 = function() swipq(x) end,
     ["作战列表" .. x] = function()
@@ -1332,9 +1357,9 @@ path.画中世界 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战活动上")
-      sleep(1)
+      ssleep(1)
       tap("入画")
-      sleep(1)
+      ssleep(1)
       swipq(x)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
@@ -1355,11 +1380,11 @@ path.源石尘行动 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战活动下")
-      sleep(2)
+      ssleep(2)
       tap("行动记录")
-      sleep(1)
+      ssleep(1)
       swipq(x)
-      sleep(1)
+      ssleep(1)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         unfound_fight[x] = (unfound_fight[x] or 0) + 1
@@ -1383,112 +1408,34 @@ path.覆潮之下 = function(x)
   path.生于黑夜(x, function() tap("覆潮之下") end)
 end
 
-error = function()
-  if find("返回x") then
-    log("限时活动")
-    local retry = 0, t
-    local retry_m = 3
-    while find("返回x") and retry < retry_m do
-      t = "限时活动列表"
-      for i = 1, #point[t] do tap(t .. i) end
-      t = "限时活动横列表"
-      for i = 1, #point[t] do tap(t .. i) end
-      if findTap('返回x') then break end
-      retry = retry + 1
-    end
-    if retry_m == retry then stop("限时活动执行失败") end
-  else
-    stop("未知状态")
-  end
-end
-
-update_app = function()
-  -- only support genymotion android 5.1, disable for compatibility
-  if 1 then return end
-
-  out_of_app = true
-  -- delete app
-  closeApp("com.android.settings")
-  runApp("com.android.settings")
-  if not appear("settings", 15, 1) then return end
-  swip(1000, 500, 0, 10000, .4)
-  swip(1000, 500, 0, -200, 1)
-  tap("settings_Apps")
-  if not appear("Apps", 15, 1) then return end
-  if findTap("Apps_arknights") then
-    if not appear("Appinfo", 15, 1) then return end
-    tap("Appinfo_uninstall")
-    if not appear("uninstall", 15, 1) then return end
-    tap("uninstall_ok")
-    sleep(15)
-  end
-
-  -- delete apk
-  closeApp("com.cyanogenmod.filemanager")
-  runApp("com.cyanogenmod.filemanager")
-  if not appearTap("filemanager_search", 15, 1) then return end
-  sleep(3)
-  inputText("#CLEAR#")
-  inputText("ark")
-  inputText("#ENTER#")
-  while appear("filemanager_search_ark", 15, 1) do
-    touchDown(1, 200, 260)
-    sleep(3)
-    touchUp(1, 200, 260)
-    tap("filemanager_delete")
-    sleep(3)
-    tap({1260, 740})
-    sleep(3)
-  end
-
-  -- download
-  -- closeApp("com.android.providers.downloads.ui")
-  -- closeApp("com.android.providers.downloads")
-
-  closeApp("com.android.browser")
-  runApp("com.android.browser")
-  if not appear("download", 15, 1) then return end
-  tap({1000, 150}) -- address bar
-  inputText("#CLEAR#")
-  inputText("https://ak.hypergryph.com/downloads/android_lastest")
-  inputText("#ENTER#")
-  swip(290, 34, 0, 300, .4, .2)
-  sleep(1)
-  for i = 1, 5 do
-    swip(446, 316, 10000, 0, .4, .2)
-    sleep(1)
-  end
-  if not appear("downloading", 15, 1) then return end
-  if not disappear("downloading", 4096, 60) then return end
-  tap("返回")
-
-  -- install
-  closeApp("com.cyanogenmod.filemanager")
-  runApp("com.cyanogenmod.filemanager")
-  if not appearTap("filemanager_search", 15, 1) then return end
-  sleep(3)
-  inputText("#CLEAR#")
-  inputText("ark")
-  inputText("#ENTER#")
-  if not appearTap("filemanager_search_ark", 15, 1) then return end
-  while appear("install", 15, 1) do
-    tap("install_btn")
-    sleep(3)
-  end
-  sleep(30)
-  out_of_app = false
-  return true
-end
+--error = function()
+--  if findOne("返回x") then
+--    log("限时活动")
+--    local retry = 0, t
+--    local retry_m = 3
+--    while findOne("返回x") and retry < retry_m do
+--      dis = "限时活动列表"
+--      for i = 1, #point[dis] do tap(dis .. i) end
+--      dis = "限时活动横列表"
+--      for i = 1, #point[dis] do tap(dis .. i) end
+--      if findTap('返回x') then break end
+--      retry = retry + 1
+--    end
+--    if retry_m == retry then stop("限时活动执行失败") end
+--  else
+--    stop("未知状态")
+--  end
+--end
 
 path.灯火序曲 = function(x)
   local p = update(path.base, {
     面板 = function()
       tap("面板作战活动")
-      sleep(2)
+      ssleep(2)
       tap("路线安排")
-      sleep(1)
+      ssleep(1)
       swipq(x)
-      sleep(1)
+      ssleep(1)
       if not findTap("作战列表" .. x) then
         log(x .. "未找到")
         unfound_fight[x] = (unfound_fight[x] or 0) + 1
@@ -1509,15 +1456,15 @@ path.联锁竞赛 = function(x)
     面板 = function()
       tap("面板作战活动")
       tap("始发营地")
-      sleep(1)
+      ssleep(1)
     end,
     ["作战列表" .. "TB-DB-3"] = function()
       tap("作战列表" .. x)
-      -- if find("联锁竞赛代理指挥关") then
+      -- if findOne("联锁竞赛代理指挥关") then
       --   tap("联锁竞赛代理指挥")
       -- end
       tap("开始行动蓝")
-      sleep(1)
+      ssleep(1)
       return true
     end,
   })

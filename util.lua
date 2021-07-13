@@ -1,9 +1,24 @@
 appid = "com.hypergryph.arknights"
-hudid = createHUD()
-
 insert = table.insert
 -- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
 function trim(s) return s:match '^()%s*$' and '' or s:match '^%s*(.*%S)' end
+string.count = function(str, pattern)
+  local ans = 0
+  for _ in str.gfind(pattern) do ans = ans + 1 end
+  return ans
+end
+string.map = function(str, map)
+  local ans = ''
+  for character in string.gmatch(str, "([%z\1-\127\194-\244][\128-\191]*)") do
+    -- print(character)
+    if map[character] == nil then
+      ans = ans .. character
+    else
+      ans = ans .. map[character]
+    end
+  end
+  return ans
+end
 string.split = function(str, sep)
   if sep == nil then sep = "%s" end
   local t = {}
@@ -25,6 +40,11 @@ startsWithX = function(x) return
 string.lpad = function(str, len, char)
   if char == nil then char = " " end
   return str .. string.rep(char, len - #str)
+end
+table.select = function(mask, reference)
+  local ans = {}
+  for i = 1, #reference do if mask[i] then insert(ans, reference[i]) end end
+  return ans
 end
 -- return true if there is an x s.t. f(x) is true
 table.any = function(t, f)
@@ -56,12 +76,12 @@ table.includes = function(t, e)
 end
 
 table.extend = function(t, e) for k, v in pairs(e) do insert(t, v) end end
---	in = {
---		"A" = {1,4,5,7},
---		"B" = {1,2,5,6},
---		"C" = {3,4,6,7},
---		"D" = {2,3,6,7},
---	}
+--  in = {
+--    "A" = {1,4,5,7},
+--    "B" = {1,2,5,6},
+--    "C" = {3,4,6,7},
+--    "D" = {2,3,6,7},
+--  }
 -- out = { {"A","B"},...}
 -- n:key, m:value O(mmn)
 table.reverseIndex = function(t)
@@ -150,7 +170,7 @@ map = function(...)
     n = #x
   elseif n > 2 then
     ur = true
-    x = {unpack(a, 2, n)}
+    x = {table.unpack(a, 2, n)}
     n = n - 1
   end
   for i = 1, n do
@@ -162,23 +182,23 @@ map = function(...)
     end
     r[i] = p
   end
-  if ur then return unpack(r, 1, n) end
+  if ur then return table.unpack(r, 1, n) end
   return r
 end
 
-sleep = function(x)
+ssleep = function(x)
   if x == nil then x = 1 end
-  mSleep(x * 1000)
+  sleep(x * 1000)
 end
 
 nop = function() end
 
 -- content height
-show = function(x, h)
-  print(x)
-  h = not h and 36 or h
-  showHUD(hudid, x, 24, "0xff444444", "0xffffffff", 2, 0, 1080 - 36, 500, h)
-end
+-- show = function(x, h)
+--  print(x)
+--  h = not h and 36 or h
+--  --showHUD(hudid, x, 24, "0xff444444", "0xffffffff", 2, 0, 1080 - 36, 500, h)
+-- end
 
 table.join = function(t, d)
   d = not d and ',' or d
@@ -198,68 +218,72 @@ removeFuncHash =
 
 table2string = function(t)
   if type(t) == 'table' then
-    local a = table.join(map(tostring, t))
-    return a
+    if #t == 0 then
+      return JsonEncode(t)
+    else
+      return table.join(map(tostring, t))
+    end
   end
   return t
 end
 
 log = function(...)
-  local l = {map(tostring, running, " ", unpack(map(table2string, {...})))}
+  local l = {
+    map(tostring, running, " ", table.unpack(map(table2string, {...}))),
+  }
   l = map(removeFuncHash, l)
   l = map(table2string, l)
-  local a = ""
-  for _, v in pairs(l) do a = a .. v end
+  local a = time()
+  for _, v in pairs(l) do a = a .. ' ' .. v end
   if #history > 2000 then table.clear(history) end
   history[#history + 1] = a
   l = loop_times(history)
   if l > 1 then a = a .. " x" .. l end
-  show(a)
   if l > 100 then error() end
+  print(a)
 end
 
 set = function(k, v)
   k, v = map(tostring, k, v)
-  setStringConfig(k, v)
+  save(k, v)
 end
 
-get = function(k, v)
-  k, v = map(tostring, k, v)
-  return getStringConfig(k, v)
-end
+-- get = function(k, v)
+-- k, v = map(tostring, k, v)
+-- return getStringConfig(k, v)
+-- end
 
 open = function() runApp(appid) end
-
-close = function() closeApp(appid) end
-
-start = function() open() end
-
-stop = function(msg)
-  local retry = tonumber(get("retry", 0))
-  if retry < 1 then
-    set("retry", retry + 1)
-    close()
-    return
-  end
-  log("stop ", msg)
-  -- DEBUG
-  sleep(3600 * 72)
-  pause()
-  lua_exit()
+start = open
+error = function(msg)
+  log(msg)
+  stop("error: " .. msg)
 end
+stop = function(msg)
+  log("stop ", msg)
+  -- TODO showHUD
+  logConfig({
+    x = math.floor(screen.width / 4),
+    y = math.floor(screen.height / 4),
+    width = math.floor(screen.width / 2),
+    height = math.floor(screen.height / 2),
+    color = "#37474F",
+    bgcolor = "#FFFFFF",
+    mode = 1,
+    size = 11,
+    debug = true,
+    shadow = false,
+  });
+  ssleep(3600 * 72)
+  exit()
+end
+
 pause = function(t)
   background()
-  sleep(t or 3600 * 72)
-end
-restart = function()
-  log("restart")
-  -- pause()
-  close()
-  -- set("restart", true)
-  -- lua_restart()
+  ssleep(t or (3600 * 72))
 end
 
-background = function() pressHomeKey() end
+background = home
 
 conf2task = function(c, m)
   local p, q = 0, 0
@@ -277,21 +301,56 @@ conf2task = function(c, m)
   return map(m, r)
 end
 
-find = function(x)
+findColorAbsolute = function(color)
+  -- keepScreen(true)
+  for x, y, c in color:gmatch("(%d+),(%d+),(#[^|]+)") do
+    -- log(x, y, c)
+    -- if not compareColor(tonumber(x), tonumber(y), c, 100) then
+    if getColor(tonumber(x), tonumber(y)).hex ~= c then
+      -- log(x, y, c)
+      -- keepScreen(false)
+      return
+    end
+  end
+  local x, y = color:match("(%d+),(%d+)")
+  -- log(310)
+  -- keepScreen(false)
+  return {x = x, y = y}
+end
+findOne = function(x)
   local x0 = x
-  local y
-  if not x:find("|") then x = point[x] end
+  local confidence = 100 -- workaround, should be 100
+  if not x:find(coord_delimeter) then x = point[x] end
   if type(x) == "table" then return x end
   if type(x) == "string" then
-    x, y = findColor(rfl[x0] or {0, 0, 1919, 1079}, x, 100)
-    if x ~= -1 then return {x, y} end
+    local pos
+    -- log(x0, rfl[x0])
+    -- if rfl[x0] then
+    --  pos = findColorAbsolute(x)
+    -- else
+    local color = shallowCopy(rfl[x0] or {0, 0, screen.width, screen.height})
+    table.extend(color, {x, confidence})
+    -- log(x0, color)
+    -- workaround
+    if not x:find(point_delimeter) then
+      if compareColor(color[1], color[2], x:sub(-7), confidence) then
+        pos = {x = color[1], y = color[2]}
+      end
+    else
+      -- log(314, color)
+      pos = findColor(color)
+    end
+    -- end
+    -- log(294)
+    -- if pos then log(pos.x, pos.y) end
+    if pos then return {pos.x, pos.y} end
   end
 end
 
 findAll = function(x)
   local x0 = x
   local y
-  if not x:find("|") then x = point[x] end
+  if not x:find(coord_delimeter) then x = point[x] end
   if type(x) == "table" then return x end
   if type(x) == "string" then
     points = findColors(rfl[x0] or {0, 0, 1919, 1079}, x, 100)
@@ -299,128 +358,98 @@ findAll = function(x)
   end
 end
 
-out_of_app = false
-check_stop_button_position = function(force_move)
-  while not out_of_app and (isFrontApp(appid) == 0 or getScreenDirection() == 0) do
-    show("应用不在前台")
-    open()
-    sleep(5)
-    path.移动停止按钮()
-    return
-  end
-  if force_move then path.移动停止按钮() end
-end
 -- x={2,3} "信用" func nil
-tap = function(x)
-  keepScreen(false)
-  check_stop_button_position()
+tap = function(x, retry)
   local x0 = x
   if x == true then return true end
   if type(x) == "function" then return x() end
-  if type(x) == "string" and not x:find("|") then
+  if type(x) == "string" and not x:find(coord_delimeter) then
     x = point[x]
     if type(x) == "string" then
-      local p = x:find("|")
-      local q = x:find("|", p + 1)
+      local p = x:find(coord_delimeter)
+      local q = x:find(",", p + 1)
       x = map(tonumber, {x:sub(1, p - 1), x:sub(p + 1, q - 1)})
     end
   end
+  -- log(x0, x)
   if type(x) ~= "table" then return end
-  touchDown(0, x[1], x[2])
-  sleep(0.2)
-  touchUp(0, x[1], x[2])
+  -- log('tap', x[1], x[2])
+  click(x[1], x[2])
+  if retry then return end
 
   -- 返回"面板"后易触发数据更新,导致操作失效
   if type(x0) == 'string' and x0:startsWith('面板') then
-    for i = 1, 5 do
-      sleep(.5)
-      if not find('面板') then
-        break
-      else
-        log(x0, "retap")
-        tap(x0)
-      end
-    end
+    wait(function()
+      if not findOne('面板') then return true end
+      log("retap", x0)
+      tap(x0, true)
+    end, 3)
   end
-
-  sleep(tap_extra_delay[x0] or 0)
+  ssleep(tap_extra_delay[x0] or 0)
 end
 
-input = function(x, s)
-  tap(x)
-  inputText("#CLEAR#")
-  sleep(.5)
-  inputText(s)
-  -- inputText('#ENTER#')
-  sleep(.5)
-  tap('返回')
-  sleep(.5)
-end
+-- input = function(x, s)
+--  tap(x)
+--  inputText("#CLEAR#")
+--  ssleep(.5)
+--  inputText(s)
+--  -- inputText('#ENTER#')
+--  ssleep(.5)
+--  tap('返回')
+--  ssleep(.5)
+-- end
 
-swip = function(x, y, dx, dy, t, interval)
-  if not (x and y and dx and dy) then return end
-  local i = 0
-  touchDown(i, x, y)
-  local times = 20
-  local e = 1e-6
-  interval = interval or .2
-  if t then times = math.floor((t + e) / interval) end
-  local sx = dx / times
-  local sy = dy / times
-  for j = 1, times do
-    x = x + sx
-    y = y + sy
-    sleep(interval)
-    touchMove(i, x, y)
-  end
-  sleep(interval)
-  touchUp(i, x, y)
-  sleep(interval)
-end
--- quick multiple swip 
-swipq = function(t, hand)
-  local u, v
-  if type(t) == "string" then t = point.滑动距离[t] end
-  if hand == nil then hand = {1600, 500} end
+-- swip = function(x, y, dx, dy, t, interval)
+--  if not (x and y and dx and dy) then return end
+--  interval = interval or .2
+--  slid(x,y,x+dx,y+dy,t)
+--  local times = 20
+--  local e = 1e-6
+--  if t then times = math.floor((t + e) / interval) end
+--  local sx = dx / times
+--  local sy = dy / times
+--  for j = 1, times do
+--    x = x + sx
+--    y = y + sy
+--    ssleep(interval)
+--    touchMove(i, x, y)
+--  end
+--  ssleep(interval)
+--  touchUp(i, x, y)
+--  ssleep(interval)
+-- end
+
+-- quick multiple swip for 作战
+-- input distance => {x,y,x',y',time} / list of them
+swipq = function(dis)
+  if type(dis) == "string" then dis = point.滑动距离[dis] end
   -- no need to swip
-  if not t then return end
+  if not dis then return end
   -- multiple swip
-  if type(t) ~= "table" then t = {t} end
-  for k, u in pairs(t) do
-    v = 0
-    if type(u) == "table" then u, v = u[1], u[2] end
-    -- log(hand[1],hand[2],u,v)
-    swip(hand[1], hand[2], u, v, .4)
+  log(401, dis)
+  if type(dis) ~= "table" then dis = {dis} end
+  log(403, dis)
+  for _, x in pairs(dis) do
+    if type(x) == 'number' then
+      if x == 0 then -- special wait
+        ssleep(.4)
+      elseif x > 0 then -- magick distance map from xxzhushou to nspirit
+        log(200, 400, min(1720, 200 + x * 2), 400, 400)
+        slid(200, 400, min(1720, 200 + x * 2), 400, 400)
+      elseif x < 0 then
+        log(1720, 400, max(200, 1720 + x * 2), 400, 400)
+        slid(1720, 400, max(200, 1720 + x * 2), 400, 400)
+      end
+    elseif type(x) == 'table' then
+      log(table.unpack(x))
+      slid(table.unpack(x))
+    else
+      error(413)
+    end
+    log("after slid", x)
+    ssleep(.4)
   end
-  -- wait for inertia
-  -- TODO SV-9
-  while type(t) == 'table' do t = t[#t] end
-  t = math.abs(t)
-  if t >= 10000 then t = 0 end
-  sleep(min(math.ceil(t / 100), 2))
-end
-
--- put (a,b) to (x,y)
-scale = function(o)
-  a = {413, 295}
-  b = {1537, 872}
-  touchDown(1, a[1], a[2])
-  touchDown(2, b[1], b[2])
-  t = 2
-  l = 150
-  s = l / t
-  if o then s = s * -1 end
-  for i = 1, t do
-    a[1] = a[1] + s
-    a[2] = a[2] + s
-    b[1] = b[1] - s
-    b[2] = b[2] - s
-    touchMove(1, a[1], a[2])
-    touchMove(2, b[1], b[2])
-    sleep(.2)
-  end
-  touchUp(1, a[1], a[2])
-  touchUp(2, b[1], b[2])
+  log(422)
 end
 
 auto = function(p, timeout, interval)
@@ -429,9 +458,8 @@ auto = function(p, timeout, interval)
   while true do
     local f = false
     local check = function()
-      keepScreen(true)
       for k, v in pairs(p) do
-        if find(k) then
+        if findOne(k) then
           log(k, "=>", v)
           if tap(v) then f = true end
           -- hook
@@ -439,12 +467,13 @@ auto = function(p, timeout, interval)
           return true
         end
       end
-      keepScreen(false)
     end
-    local e = wait(nil, check, timeout or 0, interval or 1)
+    local e = wait(check, timeout or 1, interval or 0)
+
     -- tap true
     if f then return true end
-    -- tap false or timout
+
+    -- tap false or timeout
     if not e then
       local k = "其它"
       local v = p[k]
@@ -453,24 +482,17 @@ auto = function(p, timeout, interval)
     end
   end
 end
--- find tap for auto
-ft = function(x) return findTap(x) end
 
-now = function(...)
-  if get("restart") == "true" then
-    set("restart", "false")
-  else
-    map(run, arg)
-  end
-end
-
+-- run function / job / table of function and job
 run = function(...)
+  local arg = {...}
   if #arg == 1 then
     if type(arg[1]) == "function" then return arg[1]() end
     if type(arg[1]) == "table" then arg = arg[1] end
   end
-  check_stop_button_position(true)
-  for k, v in ipairs(arg) do
+  path.移动停止按钮()
+  -- check_stop_button_position(true)
+  for _, v in ipairs(arg) do
     if type(v) == 'function' then
       v()
     else
@@ -481,8 +503,8 @@ run = function(...)
   end
   set("retry", 0)
 end
--- hour crontab
-hc = function(x, h)
+
+half_hour_cron = function(x, h)
   local m = 30
   if type(x) == "table" then
     if #x == 3 then
@@ -491,24 +513,27 @@ hc = function(x, h)
       x, h = x[1], x[2]
     end
   end
-  -- log('hc',x)
   return {callback = function() run(x) end, hour = h, minute = m}
 end
+
 -- if find then tap with fallback
-findTap = function(...)
-  for k, v in ipairs(arg) do
-    local x = find(v)
+findTap = function(target)
+  if type(target) == 'string' or #target == 0 then target = {target} end
+  for _, v in pairs(target) do
+    local x = findOne(v)
     if x then
       tap(x)
-      sleep(tap_extra_delay[v] or 0)
       return true
     end
   end
 end
 
-appearTap = function(x, timeout, interval)
-  if appear(x, timeout, interval) then
-    findTap(x)
+-- wait some
+appearTap = function(target, timeout, interval)
+  if type(target) == 'string' or #target == 0 then target = {target} end
+  target = appear(target, timeout, interval)
+  if target then
+    findTap(target)
     return true
   end
 end
@@ -516,6 +541,7 @@ end
 xy2arr = function(t) return {t.x, t.y} end
 
 deploy = function(x1, x2, y2, d)
+  -- TODO
   local y1 = 1000
   local t = .3
   d = d or 2
@@ -525,68 +551,55 @@ deploy = function(x1, x2, y2, d)
   swip(x2, y2, x2 + d[1], y2 + d[2], .2)
 end
 
--- todo: make a map
+-- todo: make a map ?
 retreat = function(x1, y1, x2, y2)
   local t = .2
   touchDown(0, x1, y1)
-  sleep(t)
+  ssleep(t)
   touchUp(0, x1, y1)
-  sleep(t)
+  ssleep(t)
   touchDown(0, x2, y2)
-  sleep(t)
+  ssleep(t)
   touchUp(0, x2, y2)
 end
--- until f true
-wait = function(t, func, timeout, interval)
-  timeout = timeout or 60
-  interval = interval or 1
-  local count = 0
-  local max_count = math.floor(timeout / interval)
-  while not func(t) do
-    count = count + 1
-    if count > max_count then break end
-    sleep(interval)
+
+-- wait until func success
+wait = function(func, timeout, interval)
+  timeout = timeout or 2
+  interval = interval or 0
+  local start_time = time()
+  while true do
+    local ans = func()
+    if ans then return ans end
+    if (time() - start_time) > timeout * 1000 then break end
+    ssleep(interval)
   end
-  if count <= max_count then return true end
 end
 
-appear = function(t, timeout, interval)
-  local f = function(x) return find(x) end
-  return wait(t, f, timeout, interval)
-end
-disappear = function(t, timeout, interval)
-  local f = function(x) return not find(x) end
-  return wait(t, f, timeout, interval)
-end
-
--- faster than table.sort when #a>=25
-median = function(a)
-  local l = 1
-  local r = #a
-  local lo, am
-  while l < r do
-    lo = l - 1
-    am = a[r]
-    for i = l, r - 1 do
-      if a[i] < am then
-        lo = lo + 1
-        a[lo], a[i] = a[i], a[lo]
+-- wait until see node / point / list of node and point
+appear = function(target, timeout, interval, disappear)
+  if type(target) == 'string' or #target == 0 then target = {target} end
+  return wait(function()
+    for _, v in pairs(target) do
+      if disappear then
+        if #v == 0 and not find(v) then
+          return v
+        elseif #v > 0 and not findOne(v) then
+          return v
+        end
+      else
+        if #v == 0 and find(v) then
+          return v
+        elseif #v > 0 and findOne(v) then
+          return v
+        end
       end
     end
-    lo = lo + 1
-    a[lo], a[r] = a[r], a[lo]
-    if math.floor(#a / 2) + 1 <= lo then
-      r = lo - 1
-    else
-      l = lo + 1
-    end
-  end
-  if #a % 2 == 0 then
-    return (a[math.floor(#a / 2) + 1] + a[math.floor(#a / 2)]) / 2
-  else
-    return a[math.floor(#a / 2) + 1]
-  end
+  end, timeout, interval)
 end
-
+disappear = function(target, timeout, interval)
+  return appear(target, timeout, interval, true)
+end
 max = math.max
 min = math.min
+clip = function(x, minimum, maximum) return min(max(x, minimum), maximum) end
