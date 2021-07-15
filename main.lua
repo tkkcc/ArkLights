@@ -1,32 +1,70 @@
+-- verbose_fca=true
+screen = getScreen()
+require("util")
+require("point")
+require("path")
+print(time() .. " 分辨率：" .. screen.width .. "x" .. screen.height)
+-- auto(path.base)
+-- exit()
+t = "开始行动红"
+t = "接管作战"
+t = "行动结束"
+t = "代理指挥开"
+t = "代理指挥开"
+-- t = "作战列表PR-C-2"
+t = "资源收集"
+t='面板作战'
+t = "作战列表LS-5"
+log(point[t])
+-- tap("资源收集")
+ log(33, findOne(t))
+-- path.跳转("采购中心")
+wait_game_up()
+ --exit()
+
+-- test point on different resolution
+-- for i = 1, 9 do
+--  -- log(i,point["当前进度列表" .. i])
+--  -- log(rfl["当前进度列表" .. i])
+--  x = findOne("当前进度列表" .. i) or
+--        findOne("按下当前进度列表" .. i)
+--  if x then log(i, x[1], x[2]) end
+-- end
+-- for i = 1, 3 do
+--  log(point["按下当前进度列表" .. i])
+--  log(rfl["当前进度列表" .. i])
+--  x = findOne("当前进度列表" .. i)
+--  if x then log(i, x[1], x[2]) end
+-- end
+-- exit()
+
 -- debug option, should be all false / zero / empty in release
-print(time())
-print(findColor({223,310,238,319,"229,313,#EEEEEE",10})==nil)
-exit()
---print(time())
---for i = 1,100 do
---print(findShape({'#FFFFFF-95','[{"a":-0.085,"d":1.33,"id":"1","r":1159.0}]',0.85}) ==nil)
---end
---print(findColor({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99}) == nil)
---print(findColor({1595, 510, 1599, 516, "1596,511,#FFFFFF", 100}) == nil)
- --print(findColor({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
- --print(findColor({1757,179,1854,245,"1801,195,#FFFFFF",100})==nil)
- --print(findColor({892,428,923,429,"892,428,#CCFF66",100})==nil)
+-- print(time())
+-- print(findColor({223, 310, 238, 319, "229,313,#EEEEEE", 10}) == nil)
+-- exit()
+-- print(time())
+-- for i = 1,100 do
+-- print(findShape({'#FFFFFF-95','[{"a":-0.085,"d":1.33,"id":"1","r":1159.0}]',0.85}) ==nil)
+-- end
+-- print(findColor({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99}) == nil)
+-- print(findColor({1595, 510, 1599, 516, "1596,511,#FFFFFF", 100}) == nil)
+-- print(findColor({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
+-- print(findColor({1757,179,1854,245,"1801,195,#FFFFFF",100})==nil)
+-- print(findColor({892,428,923,429,"892,428,#CCFF66",100})==nil)
 -- print(findColors({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99})==nil)
 -- print(findColors({1596, 511, 1606, 546, "1596,511,#FFFFFA", 99})==nil)
 -- print(findColors({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
---exit()
+-- exit()
 local test_some = true
 -- warkaround for nspirit
 test_fight = false
 no_config_cache = true
 ok_time = 1
-screen = getScreen()
-print("分辨率：" .. screen.width .. "x" .. screen.height)
 require("util")
 require("path")
 require("point")
 cron = require("crontab")
-exit()
+-- exit()
 -- swipq("S5-2")
 -- swipq("5-3")
 -- keepScreen(true)
@@ -217,9 +255,9 @@ local parse_time = function(a)
     min = tonumber(a:sub(11, 12)),
   })
 end
-all_open_time_start = parse_time("202001011600")
-all_open_time_end = parse_time("202001010400")
--- update_open_time()
+all_open_time_start = parse_time("202007151600")
+all_open_time_end = parse_time("202007170400")
+update_open_time()
 
 if test_fight then
   fight = {
@@ -280,8 +318,16 @@ if test_some then
   -- debug
   logConfig({mode = 3})
   menuConfig({x = 0, y = screen.height / 2 - 50, alpha = 1})
-  open()
-  fight = {"5-1"}
+  wait_game_up()
+  fight = {
+    --"LS-5",
+    --"CE-5",
+    --"AP-4",
+    --"CA-1",
+    --"PR-A-2",
+    "PR-C-1",
+    "PR-C-2",
+  }
   -- , "1-2", "S3-3", "S4-5", "R8-2"}
   username = ""
   password = ""

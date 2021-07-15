@@ -1,4 +1,7 @@
-appid = "com.hypergryph.arknights"
+max = math.max
+min = math.min
+math.round = function(x) return math.floor(x + 0.5) end
+clip = function(x, minimum, maximum) return min(max(x, minimum), maximum) end
 insert = table.insert
 -- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
 function trim(s) return s:match '^()%s*$' and '' or s:match '^%s*(.*%S)' end
@@ -49,6 +52,11 @@ end
 -- return true if there is an x s.t. f(x) is true
 table.any = function(t, f)
   for k, v in pairs(t) do if f(v) then return true end end
+end
+-- return true if f(x) is all true
+table.all = function(t, f)
+  for k, v in pairs(t) do if not f(v) then return false end end
+  return true
 end
 table.findv = function(t, f)
   for k, v in pairs(t) do if f(v) then return v end end
@@ -239,7 +247,7 @@ log = function(...)
   history[#history + 1] = a
   l = loop_times(history)
   if l > 1 then a = a .. " x" .. l end
-  if l > 100 then error() end
+  if l > 100 then stop("246") end
   print(a)
 end
 
@@ -253,28 +261,28 @@ end
 -- return getStringConfig(k, v)
 -- end
 
-open = function() runApp(appid) end
-start = open
-error = function(msg)
-  log(msg)
-  stop("error: " .. msg)
+open = function()
+  local appid = "com.hypergryph.arknights"
+  runApp(appid)
 end
+start = open
 stop = function(msg)
-  log("stop ", msg)
+  log("stop " .. msg)
+  toast("stop " .. msg)
   -- TODO showHUD
-  logConfig({
-    x = math.floor(screen.width / 4),
-    y = math.floor(screen.height / 4),
-    width = math.floor(screen.width / 2),
-    height = math.floor(screen.height / 2),
-    color = "#37474F",
-    bgcolor = "#FFFFFF",
-    mode = 1,
-    size = 11,
-    debug = true,
-    shadow = false,
-  });
-  ssleep(3600 * 72)
+  -- logConfig({
+  --  x = math.floor(screen.width / 4),
+  --  y = math.floor(screen.height / 4),
+  --  width = math.floor(screen.width / 2),
+  --  height = math.floor(screen.height / 2),
+  --  color = "#37474F",
+  --  bgcolor = "#FFFFFF",
+  --  mode = 2,
+  --  size = 11,
+  --  debug = false,
+  --  shadow = false,
+  -- });
+  -- ssleep(3600 * 72)
   exit()
 end
 
@@ -307,7 +315,7 @@ findColorAbsolute = function(color)
     -- log(x, y, c)
     -- if not compareColor(tonumber(x), tonumber(y), c, 100) then
     if getColor(tonumber(x), tonumber(y)).hex ~= c then
-      -- log(x, y, c)
+      if verbose_fca then log(x, y, c) end
       -- keepScreen(false)
       return
     end
@@ -324,23 +332,22 @@ findOne = function(x)
   if type(x) == "table" then return x end
   if type(x) == "string" then
     local pos
-    -- log(x0, rfl[x0])
-    -- if rfl[x0] then
-    --  pos = findColorAbsolute(x)
-    -- else
-    local color = shallowCopy(rfl[x0] or {0, 0, screen.width, screen.height})
-    table.extend(color, {x, confidence})
-    -- log(x0, color)
-    -- workaround
-    if not x:find(point_delimeter) then
-      if compareColor(color[1], color[2], x:sub(-7), confidence) then
-        pos = {x = color[1], y = color[2]}
-      end
+    if rfl[x0] then
+      pos = findColorAbsolute(x)
     else
-      -- log(314, color)
-      pos = findColor(color)
+      local color = shallowCopy(rfl[x0] or {0, 0, screen.width, screen.height})
+      table.extend(color, {x, confidence})
+      -- log(x0, color)
+      -- workaround
+      if not x:find(point_delimeter) then
+        if compareColor(color[1], color[2], x:sub(-7), confidence) then
+          pos = {x = color[1], y = color[2]}
+        end
+      else
+        -- log(314, color)
+        pos = findColor(color)
+      end
     end
-    -- end
     -- log(294)
     -- if pos then log(pos.x, pos.y) end
     if pos then return {pos.x, pos.y} end
@@ -359,9 +366,11 @@ findAll = function(x)
 end
 
 -- x={2,3} "信用" func nil
-tap = function(x, retry)
+tap = function(x, retry, allow_outside_game)
+  if not allow_outside_game then wait_game_up() end
   local x0 = x
   if x == true then return true end
+  if x == "返回" then back() end
   if type(x) == "function" then return x() end
   if type(x) == "string" and not x:find(coord_delimeter) then
     x = point[x]
@@ -382,8 +391,8 @@ tap = function(x, retry)
     wait(function()
       if not findOne('面板') then return true end
       log("retap", x0)
-      tap(x0, true)
-    end, 3)
+      tap(x0, true, allow_outside_game)
+    end, 2)
   end
   ssleep(tap_extra_delay[x0] or 0)
 end
@@ -422,7 +431,8 @@ end
 -- quick multiple swip for 作战
 -- input distance => {x,y,x',y',time} / list of them
 swipq = function(dis)
-  if type(dis) == "string" then dis = point.滑动距离[dis] end
+  wait_game_up()
+  if type(dis) == "string" then dis = distance[dis] end
   -- no need to swip
   if not dis then return end
   -- multiple swip
@@ -435,16 +445,22 @@ swipq = function(dis)
         ssleep(.4)
       elseif x > 0 then -- magick distance map from xxzhushou to nspirit
         log(200, 400, min(1720, 200 + x * 2), 400, 400)
-        slid(200, 400, min(1720, 200 + x * 2), 400, 400)
+        slid(math.round(200 * wscale), math.round(400 * hscale),
+             math.round(min(1720, 200 + x * 2) * wscale),
+             math.round(400 * hscale), 400)
       elseif x < 0 then
         log(1720, 400, max(200, 1720 + x * 2), 400, 400)
-        slid(1720, 400, max(200, 1720 + x * 2), 400, 400)
+        slid(math.round(1720 * wscale), math.round(400 * hscale),
+             math.round(max(200, 1720 + x * 2) * wscale),
+             math.round(400 * hscale), 400)
       end
     elseif type(x) == 'table' then
       log(table.unpack(x))
-      slid(table.unpack(x))
+      local a, b, c, d, e = table.unpack(x)
+      slid(math.round(a * wscale), math.round(b * hscale),
+           math.round(c * wscale), math.round(d * hscale), e)
     else
-      error(413)
+      stop(413)
     end
     log("after slid", x)
     ssleep(.4)
@@ -567,9 +583,11 @@ end
 wait = function(func, timeout, interval)
   timeout = timeout or 2
   interval = interval or 0
+  -- log(timeout,interval)
   local start_time = time()
   while true do
     local ans = func()
+    -- log(584,ans)
     if ans then return ans end
     if (time() - start_time) > timeout * 1000 then break end
     ssleep(interval)
@@ -600,6 +618,10 @@ end
 disappear = function(target, timeout, interval)
   return appear(target, timeout, interval, true)
 end
-max = math.max
-min = math.min
-clip = function(x, minimum, maximum) return min(max(x, minimum), maximum) end
+wait_game_up = function()
+  local game = R():name("com.hypergryph.arknights"):path("/FrameLayout/View")
+  if not find(game) then
+    open()
+    if not appear(game, 10, 1) then stop("游戏不在前台") end
+  end
+end
