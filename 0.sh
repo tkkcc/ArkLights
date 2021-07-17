@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 {
-    
+
   declare -A default
   default[dst]=q1
   restartcolor() {
@@ -11,7 +11,9 @@
     adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService
     sleep 2
     #adb shell am start com.hypergryph.arknights
-    adb shell monkey -p com.hypergryph.arknights -c android.intent.category.LAUNCHER 1
+    adb shell input keyevent KEYCODE_APP_SWITCH
+    adb shell input keyevent KEYCODE_APP_SWITCH
+    #adb shell monkey -p com.hypergryph.arknights -c android.intent.category.LAUNCHER 1
     sleep 2
   }
   stop() {
@@ -37,7 +39,7 @@
       1024x720
       1920x1080
     )
-    if [[ -n $1 ]];then
+    if [[ -n $1 ]]; then
       option=(${option[$1]})
       shift
     fi

@@ -10,6 +10,7 @@ path = {}
 
 path.base = {
   面板 = true,
+  下载资源确认 = "下载资源确认",
   start黄框 = function()
     tap("start黄框")
     ssleep()
@@ -20,26 +21,12 @@ path.base = {
     ssleep()
     tap("start黄框暗")
   end,
-  客户端过时 = function() stop("客户端过时") end,
-  限时活动返回 = function()
-    local t = "限时活动列表"
-    for i = 1, #point[t] do
-      log(t .. i)
-      tap(t .. i)
-    end
-    tap('限时活动返回')
-  end,
   账号登录 = "账号登录",
   开始唤醒 = "开始唤醒",
-  正在加载网络配置 = function()
-    if not disappear("正在加载网络配置", 30) then
-      stop("正在加载网络配置")
-    end
-  end,
   登录 = function()
-    local inputbox = R():type("EditText"):name("com.hypergryph.arknights"):path(
+    local inputbox = R():type("EditText"):name(appid):path(
                        "/FrameLayout/EditText")
-    if #username then
+    if #username > 0 then
       tap("账号左侧")
       tap("账号")
       appear(inputbox)
@@ -48,7 +35,7 @@ path.base = {
       disappear(inputbox)
       appear("登录")
     end
-    if #password then
+    if #password > 0 then
       tap("账号左侧")
       tap("密码")
       appear(inputbox)
@@ -61,12 +48,42 @@ path.base = {
     if appear({"用户名或密码错误", "密码不能为空"}) then
       stop("登录失败")
     end
-    appear("面板")
+    -- appear("面板")
     -- reset state
     already_update_station_list = false
     no_friend = false
   end,
-  -- 维护
+  正在释放神经递质 = function()
+    disappear("正在释放神经递质", 60 * 60, 1)
+  end,
+  接管作战 = function()
+    if not disappear("接管作战", 60 * 60, 1) then stop("接管作战") end
+  end,
+  药剂恢复理智取消 = function()
+    running = "理智不足"
+    tap("药剂恢复理智取消")
+    return true
+  end,
+  源石恢复理智取消 = function()
+    running = "理智不足"
+    tap("药剂恢复理智取消")
+    return true
+  end,
+  -- need test
+  客户端过时 = function() stop("客户端过时") end,
+  限时活动返回 = function()
+    local t = "限时活动列表"
+    for i = 1, #point[t] do
+      log(t .. i)
+      tap(t .. i)
+    end
+    tap('限时活动返回')
+  end,
+  正在加载网络配置 = function()
+    if not disappear("正在加载网络配置", 30) then
+      stop("正在加载网络配置")
+    end
+  end,
   登入错误 = restart,
   我知道了 = restart,
   网络异常稍后重试 = restart,
@@ -77,9 +94,6 @@ path.base = {
   end,
   撤下干员确认 = "撤下干员确认",
   其它 = "返回",
-  离开基建确认 = "离开基建确认",
-  返回自己基建确认 = "返回自己基建确认",
-  返回好友列表确认 = "返回好友列表确认",
   理智兑换取消 = function()
     running = "理智不足"
     tap("理智兑换取消")
@@ -95,16 +109,6 @@ path.base = {
     tap('返回')
     return true
   end,
-  药剂恢复理智取消 = function()
-    running = "理智不足"
-    tap("药剂恢复理智取消")
-    return true
-  end,
-  源石恢复理智取消 = function()
-    running = "理智不足"
-    tap("药剂恢复理智取消")
-    return true
-  end,
   代理失误放弃行动 = "代理失误放弃行动",
   战斗记录未能同步返回 = function()
     local i = 0
@@ -115,12 +119,6 @@ path.base = {
         stop("战斗记录未能同步")
       end
     end
-  end,
-  正在释放神经递质 = function()
-    disappear("正在释放神经递质", 60 * 60, 1)
-  end,
-  接管作战 = function()
-    if not disappear("接管作战", 60 * 60, 1) then stop("接管作战") end
   end,
   未能同步到相关战斗记录 = function()
     stop("未能同步到相关战斗记录")
@@ -146,8 +144,58 @@ path.移动停止按钮 = function()
   -- };
   -- logConfig(config);
 end
+
+path.邮件 = function()
+  path.跳转("首页")
+  local p = update(path.base, {
+    面板 = function()
+      if not findOne("面板邮件有") then return true end
+      log(156)
+      tap("面板邮件")
+      if not appear("邮件信封", 5) then return end
+      tap("收取所有邮件")
+      return true
+    end,
+  })
+  auto(p)
+end
+
+path.基建点击全部 = function()
+  path.跳转("基建")
+  if not appear({"基建灯泡蓝", "基建灯泡蓝2"}, 1) then return end
+
+  if not wait(function()
+    if findOne("待办事项") then return true end
+    if findTap({"基建灯泡蓝", "基建灯泡蓝2"}) then
+      appear("待办事项", 1)
+    end
+  end, 5) then return end
+
+  wait(function()
+    if not appearTap("点击全部收取", 1) then return true end
+  end, 5)
+
+  wait(function()
+    if findAny({"进驻信息2", "进驻信息3", "进驻信息4"}) then
+      return true
+    end
+    tap("宿舍列表1")
+  end, 5)
+
+  wait(function()
+    if findOne("进驻总览") then return true end
+    local x = findAny({"进驻信息2", "进驻信息3", "进驻信息4"})
+    if x then
+      tap("返回")
+      disappear(x, 1)
+    end
+  end, 5)
+end
+
 comm_enough = false
+
 update_comm = function() comm_enough = false end
+
 update_station_list = function()
   if already_update_station_list then return end
   local a = point.基建标识
@@ -183,6 +231,12 @@ update_station_list = function()
   already_update_station_list = true
 end
 
+update_station_list = function()
+  if already_update_station_list then return end
+
+  already_update_station_list = true
+end
+
 path.跳转 = function(x)
   local sign = {
     好友 = "个人名片",
@@ -196,7 +250,7 @@ path.跳转 = function(x)
   local plain = {
     好友 = "面板好友",
     基建 = "面板基建",
-    公开招募 = "面板基建",
+    公开招募 = "面板公开招募",
     首页 = nil,
     采购中心 = "面板采购中心 ",
     任务 = "面板任务",
@@ -204,26 +258,39 @@ path.跳转 = function(x)
   }
   local target = sign[x]
   local f = true
-  local p = update(path.base, {
+  local timeout = x == "基建" and 8 or 5
+  if findOne(target) then return true end
+  local p
+  p = update(path.base, {
     面板 = function()
       tap(plain[x])
-      if not appear(target, 5) then f = false end
-      return true
+      appear(target, timeout)
     end,
     主页 = function()
       tap("主页")
       if not appear("主页列表任务") then
-        f = false
-        return true
+        p.主页 = nil
+        return
       end
       tap("主页列表" .. x)
-      if not appear(target, 5) then f = false end
-      return true
+      p["主页"] = nil
     end,
-    target = true,
   })
+  if x == "基建" then
+    local g = function()
+      tap("返回")
+      appear("进驻总览", 1)
+    end
+    p['进驻信息2'] = g
+    p['进驻信息3'] = g
+    p['进驻信息4'] = g
+    p['进驻信息2选中'] = g
+    p['进驻信息3选中'] = g
+    p['进驻信息4选中'] = g
+  end
+  p[target] = true
+
   auto(p)
-  return f
 end
 
 path.更新设备列表 = update_station_list
@@ -247,29 +314,12 @@ path.限时活动 = update(path.base, {
   end,
 })
 
-path.基建点击全部 = function()
-  if not path.跳转("面板基建") then return end
-  -- TODO
-
-  ssleep(3)
-  if not appearTap('基建灯泡蓝', 5, 1) then
-    log("未找到灯泡")
-    return
-  end
-  i = 1
-  while i <= 10 and appearTap("点击全部收取", 3, 1) do
-    ssleep(2)
-    i = i + 1
-  end
-  tap("宿舍列表1")
-  tap("宿舍列表1")
-  -- auto(path.base)
-end
-
 -- 换信赖最低的5人
 path.基建副手换人 = function()
   -- TODO
+
   update_station_list()
+
   local p = update(path.base, {
     面板 = '面板基建',
     进驻总览 = "控制中枢",
@@ -315,56 +365,63 @@ count_people = function()
   end
   return {0, 5}
 end
+
 path.换人 = function()
-  -- TODO
-  update_station_list()
-  auto(update(path.base, {面板 = '面板基建', 进驻总览 = true}))
-  already_after_dormitory = false
-  local p, f, a, b, current, capacity
-  for index, v in pairs(la) do
-    -- ignore the last one(训练室)
-    if v == "训练室" then break end
-    p = update(path.base, {
-      面板 = "面板基建",
-      进驻总览 = v,
-      进驻信息2 = "进驻信息2",
-      进驻信息3 = "进驻信息3",
-      进驻信息4 = "进驻信息4",
-      有人清空 = function()
-        -- 人满不清
-        if index > #point.宿舍列表 then
-          current = count_people()
-          current, capacity = current[1], current[2]
-          if current == capacity then return true end
-        end
-        tap("有人清空")
-      end,
-      清空完毕进驻 = function()
-        b = count_people()[2]
-        tap("清空完毕进驻")
-        if not appear("干员选择确认", 3, 1) then return end
-        -- toggle tag after 宿舍
-        if index > #point.宿舍列表 and not already_after_dormitory then
-          tap("排序筛选按钮")
-          ssleep(1)
-          findTap("排序筛选未进驻未选中")
-          ssleep(1)
-          tap("排序筛选确认")
-          ssleep(1)
-          already_after_dormitory = true
-        end
-        local dorm_index = #point.宿舍列表 - index + 1
-        swipq('dorm' .. dorm_index)
-        a = 1
-        if dorm_index > 0 and dorm_index % 2 == 0 then a = 2 end
-        for i = a, a + b - 1 do tap("干员选择列表" .. i) end
-        tap("干员选择确认")
-        appearTap("排班调整确认", 1, 0.5)
-        return true
-      end,
-    })
-    auto(p)
-    auto(update(path.base, {面板 = "面板基建", 进驻总览 = true}))
+  -- 宿舍换人
+  -- local f = function(i)
+  --  path.跳转("基建")
+  --  if not findOne("宿舍列表" .. i) then return end
+  --  if not wait(function()
+  --    if not findOne("进驻总览") then return true end
+  --    findTap("宿舍列表" .. i)
+  --  end, 5) then return end
+  --  if not wait(function()
+  --    if findOne("当前房间入住信息") then return true end
+  --    if findTap("进驻信息4") then
+  --      appear("当前房间入住信息", 1)
+  --    end
+  --  end, 5) then return end
+  --  tap("进驻第一人")
+  --  if not appearTap("清空选择", 5) then return end
+  --  tap("技能")
+  --  ssleep(.5)
+  --  tap("心情")
+  --  ssleep(.5)
+  --  tap("心情")
+  --  ssleep(.5)
+  --  for j = 1, 5 do tap("干员选择列表" .. j) end
+  --  tap("干员选择确认")
+  --  appearTap("排班调整确认", 1)
+  -- end
+  -- for i = 1, 4 do f(i) end
+
+  -- 其他换人
+  path.跳转("基建")
+  if not wait(function()
+    if findOne("撤下干员") then return true end
+    tap("进驻总览")
+  end, 5) then return end
+  f = function()
+    if not findTap("入驻干员") then return end
+    if not appear("确认蓝", 5) then return end
+    tap("筛选")
+    appearTap("未进驻", 1)
+    tap("筛选确认")
+    ssleep(.5)
+    local limit = 1
+    if findTap("清空选择") then limit = 5 end
+    ssleep(.5)
+    for j = 1, limit do tap("干员选择列表" .. j) end
+    tap("干员选择确认")
+    appearTap("排班调整确认", 1)
+    appear("撤下干员")
+    return true
+  end
+  for _ = 1, 8 do
+    while f() do end
+    slid(screen.width // 2, screen.height - 200 * minscale, screen.width // 2,
+         200 * minscale, 500)
+    ssleep(.5)
   end
 end
 
@@ -545,7 +602,7 @@ path.信用奖励 = function()
 end
 
 path.任务 = function()
-  -- if not path.跳转("任务") then return end
+  -- path.跳转("任务")
   -- TODO
   local l = {"日常任务", "周常任务"}
   for _, i in pairs(l) do
@@ -568,7 +625,7 @@ path.任务 = function()
 end
 
 path.信用购买 = function()
-  -- if not path.跳转("采购中心") then return end
+  -- path.跳转("采购中心")
   -- TODO
   auto(update(path.base, {
     面板 = "面板采购中心",
@@ -596,28 +653,9 @@ path.信用收取 = function()
     可露希尔推荐 = "信用交易所",
     收取信用 = "收取信用",
     收取信用无 = true,
-    其他 = function()
+    其它 = function()
       path.跳转("采购中心")
-      p.其他 = path.base.其他
-    end,
-  })
-  auto(p)
-end
-
-path.邮件 = function()
-  local p = update(path.base, {
-    面板 = function()
-      if not findOne("面板邮件有") then return true end
-      tap("面板邮件")
-      appear("邮件")
-    end,
-    邮件 = function()
-      tap("收取所有邮件")
-      return true
-    end,
-    其他 = function()
-      path.跳转("首页")
-      p.其他 = path.base.其他
+      p.其它 = path.base.其它
     end,
   })
   auto(p)
@@ -644,7 +682,6 @@ path.轮次作战 = function()
     cur_fight = fight[tick]
     if not same_page_fight(pre_fight, cur_fight) then path.跳转("首页") end
     path.作战(fight[tick])
-    pre_fight = fight[tick]
   end
 end
 
@@ -696,21 +733,27 @@ path.作战 = function(x)
 end
 
 path.开始游戏 = function(x)
-  log(tick, ' ', x)
+  -- log(702)
+  log("开始游戏", tick, x)
+  pre_fight = x
   if x == "1-11" then return auto(path["1-11"]) end
   return auto(update(path.base, {
     面板 = true,
     演习券 = function()
+      -- log(703)
       if not findOne("代理指挥开") then tap("代理指挥开") end
       if not appear("代理指挥开") then
         log("未检测到代理指挥开")
         return true
       end
+      -- log(704)
       tap("开始行动蓝")
+      -- log(705)
       appear({
         "开始行动红", "源石恢复理智取消",
         "药剂恢复理智取消",
       }, 5)
+      -- log(706)
     end,
     开始行动红 = function()
       if debug0415 then
@@ -738,40 +781,27 @@ end
 path.主线 = function(x)
   -- split s2-9 to 2 and 9
   local x0 = x
-  local x1 = x0:find("-")
-  local x2
-  if not x1 then return end
-  x1, x2 = x0:sub(1, x1 - 1), x0:sub(x1 + 1)
-  x1 = x1:sub(x1:find("%d"))
-  local x3 = tonumber(x1) + 1
+  local chapter = x0:find("-")
+  if not chapter then return end
+  chapter = x0:sub(1, chapter - 1)
+  chapter = chapter:sub(chapter:find("%d"))
+  local chapter_index = tonumber(chapter) + 1
   local p = update(path.base, {
-    终端 = function()
-      tap("主题曲")
-      appear("怒号光明")
-      if x3 <= 4 then
-        tap("觉醒")
-      elseif x3 <= 9 then
-        tap("幻灭")
-      end
-      swipq(x1)
-      tap("作战主线章节列表" .. x1)
-      tap("作战主线章节列表8")
-    end,
     面板 = function()
       tap("面板作战")
       appear("主页")
       tap("主题曲")
       appear("怒号光明")
-      if x3 <= 4 then
+      if chapter_index <= 4 then
         tap("觉醒")
-      elseif x3 <= 9 then
+      elseif chapter_index <= 9 then
         tap("幻灭")
       end
-      swipq(x1)
-      tap("作战主线章节列表" .. x1)
+      swipq(chapter)
+      tap("作战主线章节列表" .. chapter)
       tap("作战主线章节列表8")
     end,
-    ["当前进度列表" .. x3] = function()
+    ["当前进度列表" .. chapter_index] = function()
       swipq(x0)
       local v = distance[x0]
       if type(v) == "table" then
@@ -787,11 +817,12 @@ path.主线 = function(x)
       return true
     end,
   })
-  p["按下当前进度列表" .. x3] = p["当前进度列表" .. x3]
-  if x3 <= 4 then -- chapter 0 to 3
+  p["按下当前进度列表" .. chapter_index] =
+    p["当前进度列表" .. chapter_index]
+  if chapter_index <= 4 then -- chapter 0 to 3
     switch_start = 1
     switch_end = 4
-  elseif x3 <= 9 then -- chapter 4 to 8
+  elseif chapter_index <= 9 then -- chapter 4 to 8
     switch_start = 5
     switch_end = 9
   else
@@ -799,9 +830,9 @@ path.主线 = function(x)
     switch_end = 10 - 1
   end
   for i = switch_start, switch_end do
-    if x3 ~= i then
+    if chapter_index ~= i then
       p["当前进度列表" .. i] = "当前进度列表" ..
-                                       (i > x3 and "左" or "右")
+                                       (i > chapter_index and "左" or "右")
       p["按下当前进度列表" .. i] = p["当前进度列表" .. i]
     end
   end
@@ -920,7 +951,7 @@ path.物资芯片 = function(x)
       tap("面板作战")
       appear("主页")
       tap("资源收集")
-      log(index, point["资源收集列表" .. index])
+      log("资源收集", index, point["资源收集列表" .. index])
       local p = point["资源收集列表" .. index][1]
       if p < 0 then
         swipq("资源收集列表1")
@@ -931,6 +962,7 @@ path.物资芯片 = function(x)
       else
         tap("资源收集列表" .. index)
       end
+      appear("作战列表" .. x)
     end,
     ["作战列表" .. x] = function()
       tap("作战列表" .. x)
@@ -1057,81 +1089,7 @@ showALL = function()
 end
 path.关闭 = close
 path.显示全部 = showALL
--- path.后台 = background
-path.后台 = function()
-  -- auto(update(path.base, {
-  --   面板 = function() pressKey('BACK', false) end,
-
-  --   退出游戏 = function()
-  --     -- tap("右确认")
-  --     -- wait(nil, function() return isFrontApp(appid) == 0 end)
-  --     -- log("已退出")
-  --     return true
-  --   end,
-  -- }))
-  -- lua_exit()
-  -- auto(path.base)
-  -- if true then return true end
-
-  -- close()
-  -- set("restart", "true")
-
-  -- lua_restart()
-  -- if true then return true end
-
-  -- TODO
-  -- ssleep(60)
-  -- log("debug-2")
-  -- auto(update(path.base, {
-  --   面板 = function()
-  --     tap("面板公告")
-  --     return true
-  --   end,
-  -- }))
-  -- tap("返回")
-  -- set("restart", "true")
-  -- close()
-  -- lua_restart()
-  -- close()
-  -- ssleep(10)
-  background()
-
-  -- log('gc count ', collectgarbage("count"))
-  -- print(collectgarbage("count") * 1024)
-  -- collectgarbage()
-
-  -- ssleep(1800)
-  -- log("debug-1")
-  -- if true then return true end
-
-  -- ssleep(60)
-  -- close()
-  -- set("restart", true)
-  -- lua_restart()
-  -- log("debug0")
-
-  -- runApp("com.xxscript.idehelper")
-  -- log("debug1")
-
-  -- ssleep(60)
-  -- log("debug2")
-
-  -- -- background()
-  -- log("debug3")
-  -- runApp("com.android.settings")
-
-  -- if isFrontApp(appid) == 0 then return end
-  -- auto(update(path.base, {
-  --   面板 = function() pressKey('BACK', false) end,
-  --   退出游戏 = function()
-  --     tap("右确认")
-  --     wait(nil, function() return isFrontApp(appid) == 0 end)
-  --     log("已退出")
-  --     return true
-  --   end,
-  -- }))
-end
--- path.后台 = path.后台
+path.后台 = background
 
 path["1-11"] = function()
   local x = "1-11"

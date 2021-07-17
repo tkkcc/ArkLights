@@ -44,6 +44,12 @@ string.lpad = function(str, len, char)
   if char == nil then char = " " end
   return str .. string.rep(char, len - #str)
 end
+table.value2key = function(x)
+  local ans = {}
+  for k, v in pairs(x) do ans[v] = k end
+  return ans
+end
+
 table.select = function(mask, reference)
   local ans = {}
   for i = 1, #reference do if mask[i] then insert(ans, reference[i]) end end
@@ -261,11 +267,7 @@ end
 -- return getStringConfig(k, v)
 -- end
 
-open = function()
-  local appid = "com.hypergryph.arknights"
-  runApp(appid)
-end
-start = open
+open = function() runApp(appid) end
 stop = function(msg)
   log("stop " .. msg)
   toast("stop " .. msg)
@@ -313,8 +315,8 @@ findColorAbsolute = function(color)
   -- keepScreen(true)
   for x, y, c in color:gmatch("(%d+),(%d+),(#[^|]+)") do
     -- log(x, y, c)
-    -- if not compareColor(tonumber(x), tonumber(y), c, 100) then
-    if getColor(tonumber(x), tonumber(y)).hex ~= c then
+    if not compareColor(tonumber(x), tonumber(y), c, 99) then
+      -- if getColor(tonumber(x), tonumber(y)).hex ~= c then
       if verbose_fca then log(x, y, c) end
       -- keepScreen(false)
       return
@@ -323,12 +325,12 @@ findColorAbsolute = function(color)
   local x, y = color:match("(%d+),(%d+)")
   -- log(310)
   -- keepScreen(false)
-  return {x = x, y = y}
+  return {x = tonumber(x), y = tonumber(y)}
 end
 findOne = function(x)
   local x0 = x
-  local confidence = 100 -- workaround, should be 100
-  if not x:find(coord_delimeter) then x = point[x] end
+  local confidence = 99 -- workaround, should be 100
+  if type(x) == 'string' and not x:find(coord_delimeter) then x = point[x] end
   if type(x) == "table" then return x end
   if type(x) == "string" then
     local pos
@@ -339,20 +341,23 @@ findOne = function(x)
       table.extend(color, {x, confidence})
       -- log(x0, color)
       -- workaround
-      if not x:find(point_delimeter) then
-        if compareColor(color[1], color[2], x:sub(-7), confidence) then
-          pos = {x = color[1], y = color[2]}
-        end
-      else
-        -- log(314, color)
-        pos = findColor(color)
-      end
+      -- if not x:find(point_delimeter) then
+      --  if compareColor(color[1], color[2], x:sub(-7), confidence) then
+      --    pos = {x = color[1], y = color[2]}
+      --  end
+      -- else
+      -- log(314, color)
+      pos = findColor(color)
+      -- log(315,pos)
+      -- end
     end
     -- log(294)
     -- if pos then log(pos.x, pos.y) end
     if pos then return {pos.x, pos.y} end
   end
 end
+
+findAny = function(x) return appear(x, 0, 0) end
 
 findAll = function(x)
   local x0 = x
@@ -365,25 +370,36 @@ findAll = function(x)
   end
 end
 
+local logout_state = table.value2key({
+  "下载资源确认", "正在释放神经递质", "start黄框",
+  "start黄框暗", "账号登录", "开始唤醒", "登录",
+})
+local effective_state = nil
+
 -- x={2,3} "信用" func nil
 tap = function(x, retry, allow_outside_game)
   if not allow_outside_game then wait_game_up() end
   local x0 = x
   if x == true then return true end
-  if x == "返回" then back() end
+
+  -- use back button after login
+  -- if not logout_state[effective_state] and x == "返回" then back() end
+
   if type(x) == "function" then return x() end
   if type(x) == "string" and not x:find(coord_delimeter) then
     x = point[x]
     if type(x) == "string" then
       local p = x:find(coord_delimeter)
-      local q = x:find(",", p + 1)
+      local q = x:find(coord_delimeter, p + 1)
+      --log(p, q)
       x = map(tonumber, {x:sub(1, p - 1), x:sub(p + 1, q - 1)})
     end
   end
   -- log(x0, x)
   if type(x) ~= "table" then return end
-  -- log('tap', x[1], x[2])
+  -- log('click', x[1], x[2], type(x[1]))
   click(x[1], x[2])
+  -- log(399)
   if retry then return end
 
   -- 返回"面板"后易触发数据更新,导致操作失效
@@ -392,9 +408,10 @@ tap = function(x, retry, allow_outside_game)
       if not findOne('面板') then return true end
       log("retap", x0)
       tap(x0, true, allow_outside_game)
-    end, 2)
+    end, 1)
   end
-  ssleep(tap_extra_delay[x0] or 0)
+  if type(x0) == 'string' then ssleep(tap_extra_delay[x0] or 0) end
+  -- log(410)
 end
 
 -- input = function(x, s)
@@ -468,33 +485,65 @@ swipq = function(dis)
   log(422)
 end
 
-auto = function(p, timeout, interval)
+zoom = function()
+  local paths
+  paths = {
+    {
+      {x = math.round(750 * wscale), y = math.round(850 * hscale)},
+      {x = screen.width // 2, y = screen.height // 2},
+    }, {
+      {x = math.round(1550 * wscale), y = math.round(350 * hscale)},
+      {x = screen.width // 2, y = screen.height // 2},
+    },
+  }
+  paths = {
+    {
+      {x = math.round(100 * wscale), y = screen.height // 2},
+      {x = screen.width // 2 - 100, y = screen.height // 2},
+    }, {
+      {x = math.round(1820 * wscale), y = screen.height // 2},
+      {x = screen.width // 2, y = screen.height // 2},
+    },
+  }
+  gesture(paths, 1000);
+end
+
+auto = function(p)
   if type(p) == "function" then return p() end
   if type(p) ~= "table" then return true end
   while true do
-    local f = false
+    local finish = false
     local check = function()
       for k, v in pairs(p) do
         if findOne(k) then
           log(k, "=>", v)
-          if tap(v) then f = true end
-          -- hook
-          -- TODO
+          effective_state = k
+          if tap(v) then finish = true end
           return true
         end
       end
     end
-    local e = wait(check, timeout or 1, interval or 0)
+    local e = wait(check, 1)
 
     -- tap true
-    if f then return true end
+    if finish then return true end
 
-    -- tap false or timeout
+    -- fallback: tap false or timeout
     if not e then
-      local k = "其它"
-      local v = p[k]
-      log(k, "=>", v)
-      tap(v)
+      log("auto -> fallback")
+      local x = table.findv({
+        "返回确认", "活动公告返回", "签到返回",
+      }, findOne)
+      if x then
+        log(x)
+        if x == "返回确认" then
+          tap("右确认")
+        else
+          tap(x)
+        end
+      end
+      log(p["其它"])
+      tap(p["其它"])
     end
   end
 end
@@ -536,10 +585,12 @@ end
 findTap = function(target)
   if type(target) == 'string' or #target == 0 then target = {target} end
   for _, v in pairs(target) do
-    local x = findOne(v)
-    if x then
-      tap(x)
-      return true
+    -- log(574, v, type(v))
+    local p = findOne(v)
+    if p then
+      -- log("findTap:", p)
+      tap(p)
+      return v
     end
   end
 end
@@ -549,6 +600,7 @@ appearTap = function(target, timeout, interval)
   if type(target) == 'string' or #target == 0 then target = {target} end
   target = appear(target, timeout, interval)
   if target then
+    -- log("apperTap: ", target)
     findTap(target)
     return true
   end
@@ -618,10 +670,37 @@ end
 disappear = function(target, timeout, interval)
   return appear(target, timeout, interval, true)
 end
+
 wait_game_up = function()
-  local game = R():name("com.hypergryph.arknights"):path("/FrameLayout/View")
+  local game = R():name(appid):path("/FrameLayout/View")
+  local bilibili_login = R():id(
+                           "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
+  -- log(type(bilibili_login),type(game), #bilibili_login, #game)
   if not find(game) then
     open()
-    if not appear(game, 10, 1) then stop("游戏不在前台") end
+    if not appear({game, bilibili_login}, 10, 1) then
+      stop("游戏不在前台")
+    end
+    log(652)
+    bilibili_login_hook()
   end
+end
+
+bilibili_login_hook = function()
+  log(653)
+  if appid ~= bppid then return end
+  log(654)
+  local login = R():id(
+                  "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
+  log(655)
+  if not find(login) then return end
+  log(656)
+  local username_inputbox = R():id(
+                              "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_username_login");
+  local password_inputbox = R():id(
+                              "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_password_login");
+  input(username_inputbox, username)
+  input(password_inputbox, password)
+  click(login)
+  return true
 end

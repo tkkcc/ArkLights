@@ -1,69 +1,98 @@
--- verbose_fca=true
+-- debug option, should be all false / zero / empty in release
+predebug =false
+test_some = true
+test_fight = false
+no_config_cache = false
+verbose_fca = false
+ok_time = 1
+
 screen = getScreen()
 require("util")
 require("point")
 require("path")
-print(time() .. " 分辨率：" .. screen.width .. "x" .. screen.height)
--- auto(path.base)
--- exit()
-t = "开始行动红"
-t = "接管作战"
-t = "行动结束"
-t = "代理指挥开"
-t = "代理指挥开"
--- t = "作战列表PR-C-2"
-t = "资源收集"
-t='面板作战'
-t = "作战列表LS-5"
-log(point[t])
--- tap("资源收集")
- log(33, findOne(t))
--- path.跳转("采购中心")
-wait_game_up()
- --exit()
-
--- test point on different resolution
--- for i = 1, 9 do
---  -- log(i,point["当前进度列表" .. i])
---  -- log(rfl["当前进度列表" .. i])
---  x = findOne("当前进度列表" .. i) or
---        findOne("按下当前进度列表" .. i)
---  if x then log(i, x[1], x[2]) end
--- end
--- for i = 1, 3 do
---  log(point["按下当前进度列表" .. i])
---  log(rfl["当前进度列表" .. i])
---  x = findOne("当前进度列表" .. i)
---  if x then log(i, x[1], x[2]) end
--- end
--- exit()
-
--- debug option, should be all false / zero / empty in release
--- print(time())
--- print(findColor({223, 310, 238, 319, "229,313,#EEEEEE", 10}) == nil)
--- exit()
--- print(time())
--- for i = 1,100 do
--- print(findShape({'#FFFFFF-95','[{"a":-0.085,"d":1.33,"id":"1","r":1159.0}]',0.85}) ==nil)
--- end
--- print(findColor({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99}) == nil)
--- print(findColor({1595, 510, 1599, 516, "1596,511,#FFFFFF", 100}) == nil)
--- print(findColor({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
--- print(findColor({1757,179,1854,245,"1801,195,#FFFFFF",100})==nil)
--- print(findColor({892,428,923,429,"892,428,#CCFF66",100})==nil)
--- print(findColors({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99})==nil)
--- print(findColors({1596, 511, 1606, 546, "1596,511,#FFFFFA", 99})==nil)
--- print(findColors({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
--- exit()
-local test_some = true
--- warkaround for nspirit
-test_fight = false
-no_config_cache = true
-ok_time = 1
-require("util")
-require("path")
-require("point")
 cron = require("crontab")
+log(time() .. " 分辨率：" .. screen.width .. "x" .. screen.height)
+
+-- auto switch 官服 and B服
+appid_need_user_select = false
+appid = "com.hypergryph.arknights"
+bppid = "com.hypergryph.arknights.bilibili"
+local app_info = getAppinfo(appid)
+local bpp_info = getAppinfo(bppid)
+if not app_info and not bpp_info then stop("未安装明日方舟官服或B服") end
+if bpp_info and not app_info then appid = bappid end
+if bpp_info and app_info then appid_need_user_select = true end
+
+if predebug then
+  -- auto(path.base)
+  -- exit()
+  t = "开始行动红"
+  t = "接管作战"
+  t = "行动结束"
+  t = "代理指挥开"
+  t = "代理指挥开"
+  -- t = "作战列表PR-C-2"
+  t = "资源收集"
+  t = '面板作战'
+  t = "作战列表LS-5"
+  t = "正在释放神经递质"
+  t = "邮件"
+  t = "演习券"
+  t = "右确认"
+  t = "返回确认"
+  t = "点击全部收取"
+  t = "基建灯泡蓝"
+  t = "进驻总览"
+  t= "入驻干员"
+  --t = "面板"
+  --t = "活动公告返回"
+  --t = "签到返回"
+  log(t,point[t])
+  -- tap("资源收集")
+  log(33, findOne(t))
+  log(33, findTap(t))
+
+  -- path.跳转("采购中心")
+  -- wait_game_up()
+  -- zoom()
+  -- auto(path.base)
+  -- appid=bppid
+  -- bilibili_login_hook()
+  -- exit()
+
+  -- test point on different resolution
+  -- for i = 1, 9 do
+  --  -- log(i,point["当前进度列表" .. i])
+  --  -- log(rfl["当前进度列表" .. i])
+  --  x = findOne("当前进度列表" .. i) or
+  --        findOne("按下当前进度列表" .. i)
+  --  if x then log(i, x[1], x[2]) end
+  -- end
+  -- for i = 1, 3 do
+  --  log(point["按下当前进度列表" .. i])
+  --  log(rfl["当前进度列表" .. i])
+  --  x = findOne("当前进度列表" .. i)
+  --  if x then log(i, x[1], x[2]) end
+  -- end
+  -- exit()
+
+  -- print(time())
+  -- print(findColor({223, 310, 238, 319, "229,313,#EEEEEE", 10}) == nil)
+  -- exit()
+  -- print(time())
+  -- for i = 1,100 do
+  -- print(findShape({'#FFFFFF-95','[{"a":-0.085,"d":1.33,"id":"1","r":1159.0}]',0.85}) ==nil)
+  -- end
+  -- print(findColor({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99}) == nil)
+  -- print(findColor({1595, 510, 1599, 516, "1596,511,#FFFFFF", 100}) == nil)
+  -- print(findColor({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
+  -- print(findColor({1757,179,1854,245,"1801,195,#FFFFFF",100})==nil)
+  -- print(findColor({892,428,923,429,"892,428,#CCFF66",100})==nil)
+  -- print(findColors({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99})==nil)
+  -- print(findColors({1596, 511, 1606, 546, "1596,511,#FFFFFA", 99})==nil)
+  -- print(findColors({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
+  exit()
+end
 -- exit()
 -- swipq("S5-2")
 -- swipq("5-3")
@@ -213,9 +242,22 @@ local ui = {
   submit = {type = "text", value = "启动"},
   cancle = {type = "text", value = "退出"},
 };
+-- add server selection to ui
+if appid_need_user_select then
+  table.insert(ui.views, 3, {
+    title = "",
+    type = "radio",
+    value = "*官服|B服",
+    ore = 2,
+    id = "server",
+  })
+end
 
 ret = show(ui)
 if not ret then exit() end
+
+if server == "B服" then appid = bppid end
+log(appid)
 
 now_job = parse_from_ui("now_job_ui", all_job)
 cron1_job = parse_from_ui("cron1_job_ui", all_job)
@@ -320,18 +362,22 @@ if test_some then
   menuConfig({x = 0, y = screen.height / 2 - 50, alpha = 1})
   wait_game_up()
   fight = {
-    --"LS-5",
-    --"CE-5",
-    --"AP-4",
-    --"CA-1",
-    --"PR-A-2",
-    "PR-C-1",
-    "PR-C-2",
+     "LS-5",
+     --"CE-5",
+    -- "AP-4",
+    -- "CA-1",
+    -- "PR-A-2",
+    --"PR-C-1", "PR-C-2",
   }
   -- , "1-2", "S3-3", "S4-5", "R8-2"}
   username = ""
   password = ""
-  run("轮次作战")
+  if appid == bppid then password = "" end
+
+  --run("邮件")
+  --run("轮次作战")
+  --run("基建点击全部")
+  run("换人")
   log(241)
   exit()
 end
