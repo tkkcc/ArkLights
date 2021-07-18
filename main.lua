@@ -53,6 +53,10 @@ if predebug then
   t = "进驻总览"
   t = "建造模式开"
   t = "制造站加速"
+  t = "线索传递右白"
+  t = "线索传递右白2"
+  t = "今日登录列表4"
+  t = "未达线索上限"
   -- t = "面板"
   -- t = "活动公告返回"
   -- t = "签到返回"
@@ -383,13 +387,15 @@ if test_some then
   password = ""
   if appid == bppid then password = "" end
 
-  -- run("邮件")
+  -- run("线索传递")
+  -- run("线索布置")
   -- run("轮次作战")
-  -- run("点击全部收获")
-  -- run("换人")
-  -- run("制造站加速")
-  --run("信用奖励")
-  run("线索传递")
+
+  run("邮件")
+  run("点击全部收获")
+  run("换人")
+  run("制造站加速")
+  run("线索搜集")
   log(241)
   exit()
 end

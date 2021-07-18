@@ -63,7 +63,7 @@
       --data-urlencode path=/storage/emulated/0/freespace/scripts/test/placeholder.lua >/dev/null
   }
   saverun() {
-    stop "$@"
+    #stop "$@"
     save "$@"
     run "$@"
   }

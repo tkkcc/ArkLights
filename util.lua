@@ -535,7 +535,9 @@ auto = function(p)
         end
       end
     end
-    local e = wait(check, 1)
+    timeout = 1
+    if findAny({"进驻信息", "进驻信息选中"}) then timeout = 3 end
+    local e = wait(check, timeout)
 
     -- tap true
     if finish then return true end
@@ -545,6 +547,7 @@ auto = function(p)
       log("auto -> fallback")
       local x = table.findv({
         "返回确认", "活动公告返回", "签到返回",
+        "线索传递返回",
       }, findOne)
       if x then
         log(x)
