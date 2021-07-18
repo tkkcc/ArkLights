@@ -329,7 +329,7 @@ findColorAbsolute = function(color)
 end
 findOne = function(x)
   local x0 = x
-  local confidence = 99 -- workaround, should be 100
+  local confidence = 99
   if type(x) == 'string' and not x:find(coord_delimeter) then x = point[x] end
   if type(x) == "table" then return x end
   if type(x) == "string" then
@@ -347,8 +347,24 @@ findOne = function(x)
       --  end
       -- else
       -- log(314, color)
+
+      -- log("global region findColor")
+      -- pos = findColors(color)
+      -- if pos then
+      --  first_point_ok = false
+      --  for _, v in pairs(pos) do
+      --    if compareColor(v.x, v.y, x:match("(#......)"), confidence) then
+      --      first_point_ok = true
+      --      pos = v
+      --      log(358, pos)
+      --      break
+      --    end
+      --  end
+      --  if not first_point_ok then pos = nil end
+      -- end
+
       pos = findColor(color)
-      -- log(315,pos)
+      -- log(315, pos)
       -- end
     end
     -- log(294)
@@ -360,14 +376,10 @@ end
 findAny = function(x) return appear(x, 0, 0) end
 
 findAll = function(x)
-  local x0 = x
-  local y
-  if not x:find(coord_delimeter) then x = point[x] end
-  if type(x) == "table" then return x end
-  if type(x) == "string" then
-    points = findColors(rfl[x0] or {0, 0, 1919, 1079}, x, 100)
-    if #points > 0 then return points end
-  end
+  local confidence = 99
+  local color = shallowCopy(rfl[x] or {0, 0, screen.width, screen.height})
+  table.extend(color, {point[x], confidence})
+  return findColors(color)
 end
 
 local logout_state = table.value2key({
@@ -391,7 +403,7 @@ tap = function(x, retry, allow_outside_game)
     if type(x) == "string" then
       local p = x:find(coord_delimeter)
       local q = x:find(coord_delimeter, p + 1)
-      --log(p, q)
+      -- log(p, q)
       x = map(tonumber, {x:sub(1, p - 1), x:sub(p + 1, q - 1)})
     end
   end
@@ -410,7 +422,7 @@ tap = function(x, retry, allow_outside_game)
       tap(x0, true, allow_outside_game)
     end, 1)
   end
-  if type(x0) == 'string' then ssleep(tap_extra_delay[x0] or 0) end
+  -- if type(x0) == 'string' then ssleep(tap_extra_delay[x0] or 0) end
   -- log(410)
 end
 
@@ -453,20 +465,20 @@ swipq = function(dis)
   -- no need to swip
   if not dis then return end
   -- multiple swip
-  log(401, dis)
+  -- log(401, dis)
   if type(dis) ~= "table" then dis = {dis} end
-  log(403, dis)
+  -- log(403, dis)
   for _, x in pairs(dis) do
     if type(x) == 'number' then
       if x == 0 then -- special wait
         ssleep(.4)
       elseif x > 0 then -- magick distance map from xxzhushou to nspirit
-        log(200, 400, min(1720, 200 + x * 2), 400, 400)
+        -- log(200, 400, min(1720, 200 + x * 2), 400, 400)
         slid(math.round(200 * wscale), math.round(400 * hscale),
              math.round(min(1720, 200 + x * 2) * wscale),
              math.round(400 * hscale), 400)
       elseif x < 0 then
-        log(1720, 400, max(200, 1720 + x * 2), 400, 400)
+        -- log(1720, 400, max(200, 1720 + x * 2), 400, 400)
         slid(math.round(1720 * wscale), math.round(400 * hscale),
              math.round(max(200, 1720 + x * 2) * wscale),
              math.round(400 * hscale), 400)
@@ -479,10 +491,10 @@ swipq = function(dis)
     else
       stop(413)
     end
-    log("after slid", x)
+    -- log("after slid", x)
     ssleep(.4)
   end
-  log(422)
+  -- log(422)
 end
 
 zoom = function()

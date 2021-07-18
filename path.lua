@@ -160,7 +160,7 @@ path.邮件 = function()
   auto(p)
 end
 
-path.基建点击全部 = function()
+path.点击全部收获 = function()
   path.跳转("基建")
   if not appear({"基建灯泡蓝", "基建灯泡蓝2"}, 1) then return end
 
@@ -176,7 +176,7 @@ path.基建点击全部 = function()
   end, 5)
 
   wait(function()
-    if findAny({"进驻信息2", "进驻信息3", "进驻信息4"}) then
+    if findAny({"进驻信息", "进驻信息", "进驻信息"}) then
       return true
     end
     tap("宿舍列表1")
@@ -184,7 +184,7 @@ path.基建点击全部 = function()
 
   wait(function()
     if findOne("进驻总览") then return true end
-    local x = findAny({"进驻信息2", "进驻信息3", "进驻信息4"})
+    local x = findAny({"进驻信息", "进驻信息", "进驻信息"})
     if x then
       tap("返回")
       disappear(x, 1)
@@ -264,7 +264,7 @@ path.跳转 = function(x)
   p = update(path.base, {
     面板 = function()
       tap(plain[x])
-      appear(target, timeout)
+      appear({target, "活动公告返回"}, timeout)
     end,
     主页 = function()
       tap("主页")
@@ -276,20 +276,7 @@ path.跳转 = function(x)
       p["主页"] = nil
     end,
   })
-  if x == "基建" then
-    local g = function()
-      tap("返回")
-      appear("进驻总览", 1)
-    end
-    p['进驻信息2'] = g
-    p['进驻信息3'] = g
-    p['进驻信息4'] = g
-    p['进驻信息2选中'] = g
-    p['进驻信息3选中'] = g
-    p['进驻信息4选中'] = g
-  end
   p[target] = true
-
   auto(p)
 end
 
@@ -323,7 +310,7 @@ path.基建副手换人 = function()
   local p = update(path.base, {
     面板 = '面板基建',
     进驻总览 = "控制中枢",
-    进驻信息3选中 = "进驻信息3选中",
+    进驻信息选中 = "进驻信息选中",
     控制中枢界面 = "控制中枢基建副手",
     基建副手简报 = true,
   })
@@ -368,32 +355,41 @@ end
 
 path.换人 = function()
   -- 宿舍换人
-  -- local f = function(i)
-  --  path.跳转("基建")
-  --  if not findOne("宿舍列表" .. i) then return end
-  --  if not wait(function()
-  --    if not findOne("进驻总览") then return true end
-  --    findTap("宿舍列表" .. i)
-  --  end, 5) then return end
-  --  if not wait(function()
-  --    if findOne("当前房间入住信息") then return true end
-  --    if findTap("进驻信息4") then
-  --      appear("当前房间入住信息", 1)
-  --    end
-  --  end, 5) then return end
-  --  tap("进驻第一人")
-  --  if not appearTap("清空选择", 5) then return end
-  --  tap("技能")
-  --  ssleep(.5)
-  --  tap("心情")
-  --  ssleep(.5)
-  --  tap("心情")
-  --  ssleep(.5)
-  --  for j = 1, 5 do tap("干员选择列表" .. j) end
-  --  tap("干员选择确认")
-  --  appearTap("排班调整确认", 1)
-  -- end
-  -- for i = 1, 4 do f(i) end
+  local f = function(i)
+    path.跳转("基建")
+    if not findOne("宿舍列表" .. i) then return end
+    if not wait(function()
+      if not findOne("进驻总览") then return true end
+      findTap("宿舍列表" .. i)
+    end, 5) then return end
+    -- log(381)
+    if not wait(function()
+      if findOne("当前房间入住信息") then return true end
+      if findTap("进驻信息") then appear("当前房间入住信息", 1) end
+    end, 5) then return end
+    -- log(382)
+    tap("进驻第一人")
+
+    if not appearTap("清空选择", 5) then return end
+    ssleep(.5)
+    tap("技能")
+    ssleep(.5)
+    tap("心情")
+    ssleep(.5)
+    tap("心情")
+    ssleep(.5)
+    for j = 1, 5 do tap("干员选择列表" .. j) end
+    tap("确认蓝")
+    if appear("排班调整提示") then tap("排班调整确认") end
+    wait(function()
+      if findOne("进驻总览") then return true end
+      if findAny({"进驻信息", "进驻信息选中"}) then
+        tap("返回")
+        appear("进驻总览", 1)
+      end
+    end, 5)
+  end
+  for i = 1, 4 do f(i) end
 
   -- 其他换人
   path.跳转("基建")
@@ -401,85 +397,126 @@ path.换人 = function()
     if findOne("撤下干员") then return true end
     tap("进驻总览")
   end, 5) then return end
+
   f = function()
+    -- log(408)
     if not findTap("入驻干员") then return end
     if not appear("确认蓝", 5) then return end
-    tap("筛选")
-    appearTap("未进驻", 1)
+    if not wait(function()
+      tap("筛选")
+      if appear("筛选取消", .5) then return true end
+    end, 2) then return end
+    findTap("筛选未进驻")
+    findTap("筛选技能")
     tap("筛选确认")
-    ssleep(.5)
+    appear("确认蓝", 1)
     local limit = 1
-    if findTap("清空选择") then limit = 5 end
-    ssleep(.5)
+    if findTap("清空选择") then
+      limit = 5
+      ssleep(.5)
+    end
     for j = 1, limit do tap("干员选择列表" .. j) end
-    tap("干员选择确认")
-    appearTap("排班调整确认", 1)
-    appear("撤下干员")
+    tap("确认蓝")
+    if appear("排班调整提示") then tap("排班调整确认") end
+    appear("撤下干员", 1)
     return true
   end
-  for _ = 1, 8 do
+
+  appear("入驻干员", .5)
+  for i = 1, 7 do
+    if i ~= 1 then
+      slid((1867 - 1919) * minscale + screen.width,
+           screen.height - 150 * minscale,
+           (1867 - 1919) * minscale + screen.width, 0, 400)
+      ssleep(.4)
+      tap("入驻干员右侧")
+    end
     while f() do end
-    slid(screen.width // 2, screen.height - 200 * minscale, screen.width // 2,
-         200 * minscale, 500)
-    ssleep(.5)
   end
 end
 
 path.制造站加速 = function()
-  -- TODO
-  update_station_list()
-  if #point.制造站列表 == 0 then return end
-  auto(update(path.base, {
-    进驻总览 = "制造站列表1",
-    面板 = "面板基建",
-    制造站进度 = "制造站进度",
-    -- 制造站设施 = ,
-    进驻信息2选中 = "进驻信息2选中",
-    -- 无人机加速制造
-    制造站设施 = function()
-      tap("制造站加速")
-      ssleep(1)
-      tap("无人机加速最大")
-      tap("无人机加速制造确定")
-      ssleep(2)
-      tap("制造站收取")
-      return true
-    end,
-  }))
+  path.跳转("基建")
+  if not wait(function()
+    tap("建造模式开")
+    if appear("建造模式开", 1) then return true end
+  end, 5) then return end
+  swipq("right")
+  local station
+  for i = 1, #point.基建左侧列表 do
+    local x, y = table.unpack(point["基建左侧列表" .. i])
+    if compareColor(x, y, "#FFCC00", 99) then
+      station = {x, y}
+      break
+    end
+  end
+  tap("建造模式开")
+  if not station then return end
+  if not wait(function()
+    tap(station)
+    if appear({"进驻信息", "进驻信息选中"}) then return true end
+  end, 5) then return end
+  tap("制造站进度")
+  if not wait(function()
+    tap("制造站加速")
+    if appear("无人机加速最小", 1) then return true end
+  end, 5) then return end
+  appearTap("无人机加速最大")
+  tap("无人机加速确定")
 end
 
-path.取消进驻信息选中 = update(path.base, {
-  面板 = "面板基建",
-  进驻总览 = 会客厅,
-  进驻信息2 = true,
-  进驻信息2选中 = "进驻信息2选中",
-  进驻信息3 = true,
-  进驻信息3选中 = "进驻信息3选中",
-  进驻信息4 = true,
-  进驻信息4选中 = "进驻信息4选中",
-})
+path.信用奖励 = function()
+  path.跳转("基建")
+  if not wait(function()
+    tap("建造模式开")
+    if appear("建造模式开", 1) then return true end
+  end, 5) then return end
+  swipq("left")
+  local station = findOne("会客厅")
+  tap("建造模式开")
+  if not station then return end
 
+  -- TODO is this check enough?
+  if not appear("会客厅有", 1) then return end
+
+  if not wait(function()
+    tap(station)
+    if appear({"进驻信息", "进驻信息选中"}) then return true end
+  end, 5) then return end
+  tap("制造站进度")
+  appear("线索传递")
+
+  if findTap("信用奖励有") then
+    appear("信用奖励返回")
+    if not findOne("未达线索上限") then
+      path.线索传递()
+      return path.信用奖励()
+    end
+    tap("信用奖励领取")
+
+  end
+end
 path.线索接收 = function()
-  -- TODO
-  update_station_list()
-  if not point.会客厅 then return end
-  local new = false
-  auto(update(path.base, {
-    会客厅线索搜集中 = "会客厅线索搜集中",
-    线索全部收取有 = function()
-      tap("线索全部收取有")
-      new = true
-    end,
-    线索全部收取无 = function()
-      tap("解锁线索右")
-      return true
-    end,
-    会客厅信用奖励 = "会客厅线索接收",
-    进驻总览 = "会客厅",
-    面板 = "面板基建",
-    进驻信息3选中 = "进驻信息3选中",
-  }))
-  if new then auto(path.线索布置) end
+
+  -- path.线索布置()
+
+  -- local new = false
+  -- auto(update(path.base, {
+  --  会客厅线索搜集中 = "会客厅线索搜集中",
+  --  线索全部收取有 = function()
+  --    tap("线索全部收取有")
+  --    new = true
+  --  end,
+  --  线索全部收取无 = function()
+  --    tap("解锁线索右")
+  --    return true
+  --  end,
+  --  会客厅信用奖励 = "会客厅线索接收",
+  --  进驻总览 = "会客厅",
+  --  面板 = "面板基建",
+  --  进驻信息选中 = "进驻信息选中",
+  -- }))
+  -- if new then auto(path.线索布置) end
 end
 
 path.线索布置 = function()
@@ -487,7 +524,7 @@ path.线索布置 = function()
   update_station_list()
   if not point.会客厅 then return end
   auto(update(path.base, {
-    进驻信息3 = "线索",
+    进驻信息 = "线索",
     会客厅信用奖励 = function()
       local v = table.findv(point.线索布置列表, find)
       if not v then return true end
@@ -505,7 +542,7 @@ path.线索布置 = function()
     end,
     进驻总览 = "会客厅",
     面板 = "面板基建",
-    进驻信息3选中 = "进驻信息3选中",
+    进驻信息选中 = "进驻信息选中",
   }))
   if findTap("解锁线索") then
     ssleep(2)
@@ -513,93 +550,100 @@ path.线索布置 = function()
   end
 end
 
-path.线索传递 = update(path.base, {
-  -- TODO
-  面板 = "面板基建",
-  进驻总览 = "会客厅",
-  进驻信息3 = "线索",
-  会客厅信用奖励 = "会客厅线索传递",
-  线索传递返回 = function()
-    local a = point.线索传递数字列表
-    for k, v in pairs(a) do
-      tap(v)
-      ssleep(.5)
-      if findOne("线索传递数字重复") or k == #a then
-        tap("线索列表1")
-        break
-      end
-    end
-    a = point.传递列表
-    local count = 0
-    local ranges = {100, 300, 500, 700, 900}
-    local f = function(random)
-      local points = findAll("线索传递橙框")
-      local t
-      if points then
-        for p in pairs(points) do
-          p = points[p].y
-          for i = 1, 4 do
-            if ranges[i] < p and p < ranges[i + 1] and
-              findOne("今日登录列表" .. i) then
-              t = a[i]
-              log('给' .. i)
-              break
-            end
-          end
-          if t then break end
-        end
-      elseif random then
-        for i = 1, math.random(0, count) do findTap("线索传递左白") end
-        t = a[math.random(#a)]
-        log('给随机')
-      end
-      if t then
-        tap(t)
-        return true
-      end
-    end
-    while count < 50 / 4 do
-      -- 翻到末尾就随机给
-      if not appear("线索传递右白", 2, 1) and
-        not findOne("线索传递右白2") then
-        f(true)
-        return true
-      end
-      -- 当前页看看有没有缺的
-      if f() then return true end
-      tap("线索传递右白")
-      count = count + 1
-    end
-  end,
-})
+path.线索传递 = function()
+  -- internal 
+  if not findTap("线索传递") then return end
+  if not appear("线索传递返回", 5) then return end
 
-path.信用奖励 = function()
-  -- TODO
-  update_station_list()
-  if not point.会客厅 then return end
-  no_friend = false
-  auto(update(path.base, {
-    信用奖励有 = function()
-      if findOne("已达线索上限") then
-        if no_friend then return true end
-        auto(path.线索传递)
+  local list = point.线索传递数字列表
+  for k, v in pairs(list) do
+    tap(v)
+    ssleep(.5)
+    if findOne("线索传递数字重复") or k == #list then
+      tap("线索列表1")
+      break
+    end
+  end
+
+  list = point.传递列表
+  local count = 0
+  local ranges = {100, 300, 500, 700, 900}
+  local f = function(random)
+    local points = findAll("线索传递橙框")
+    local t
+    if points then
+      for _, p in pairs(points) do
+        p = p.y
+        for i = 1, 4 do
+          if ranges[i] < p and p < ranges[i + 1] and
+            findOne("今日登录列表" .. i) then
+            t = list[i]
+            log('给' .. i)
+            break
+          end
+        end
+        if t then break end
       end
-      tap("信用奖励有")
-      auto(path.线索布置)
-    end,
-    会客厅信用奖励 = "会客厅信用奖励",
-    进驻信息3 = "线索",
-    进驻总览 = "会客厅",
-    信用奖励无 = function()
-      if not findOne("已达线索上限") then return true end
-      if no_friend then return true end
-      auto(path.线索传递)
-    end,
-    面板 = "面板基建",
-    进驻信息3选中 = "进驻信息3选中",
-  }))
-  auto(path.线索布置)
+    elseif random then
+      for _ = 1, math.random(0, count) do findTap("线索传递左白") end
+      t = list[math.random(#list)]
+      log('给随机')
+    end
+    if t then
+      tap(t)
+      return true
+    end
+  end
+  while count < 50 / 4 do
+    -- 翻到末尾就随机给
+    if not appear("线索传递右白") and not findOne("线索传递右白2") then
+      f(true)
+      return true
+    end
+    -- 当前页看看有没有缺的
+    if f() then return true end
+    tap("线索传递右白")
+    count = count + 1
+  end
+
 end
+--  update(path.base, {
+--  -- TODO
+--  面板 = "面板基建",
+--  进驻总览 = "会客厅",
+--  进驻信息 = "线索",
+--  会客厅信用奖励 = "会客厅线索传递",
+--  线索传递返回 = function()
+--  end,
+-- })
+
+-- path.信用奖励 = function()
+--  -- TODO
+--  update_station_list()
+--  if not point.会客厅 then return end
+--  no_friend = false
+--  auto(update(path.base, {
+--    信用奖励有 = function()
+--      if findOne("已达线索上限") then
+--        if no_friend then return true end
+--        auto(path.线索传递)
+--      end
+--      tap("信用奖励有")
+--      auto(path.线索布置)
+--    end,
+--    会客厅信用奖励 = "会客厅信用奖励",
+--    进驻信息 = "线索",
+--    进驻总览 = "会客厅",
+--    信用奖励无 = function()
+--      if not findOne("已达线索上限") then return true end
+--      if no_friend then return true end
+--      auto(path.线索传递)
+--    end,
+--    面板 = "面板基建",
+--    进驻信息选中 = "进驻信息选中",
+--  }))
+--  auto(path.线索布置)
+-- end
 
 path.任务 = function()
   -- path.跳转("任务")

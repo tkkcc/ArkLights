@@ -1,5 +1,6 @@
 -- debug option, should be all false / zero / empty in release
-predebug =false
+predebug = false
+-- predebug = true
 test_some = true
 test_fight = false
 no_config_cache = false
@@ -42,15 +43,23 @@ if predebug then
   t = "返回确认"
   t = "点击全部收取"
   t = "基建灯泡蓝"
+  t = "入驻干员"
+  t = "入驻干员"
+  t = "宿舍列表1"
+  t = "排班调整确认"
+  t = "筛选取消"
+  t = "进驻信息选中"
+  t = "进驻信息"
   t = "进驻总览"
-  t= "入驻干员"
-  --t = "面板"
-  --t = "活动公告返回"
-  --t = "签到返回"
-  log(t,point[t])
+  t = "建造模式开"
+  t = "制造站加速"
+  -- t = "面板"
+  -- t = "活动公告返回"
+  -- t = "签到返回"
+  log(t, point[t])
   -- tap("资源收集")
   log(33, findOne(t))
-  log(33, findTap(t))
+  -- log(33, findTap(t))
 
   -- path.跳转("采购中心")
   -- wait_game_up()
@@ -126,7 +135,7 @@ end
 
 local outside = runThread("outside")
 local all_job = {
-  "每日更新", "作战1-11", "邮件", "轮次作战", "基建点击全部",
+  "每日更新", "作战1-11", "邮件", "轮次作战", "点击全部收获",
   "换人", "基建副手换人", "制造站加速", "线索接收",
   "信用奖励", "访问好友基建", "信用收取", "信用购买",
   "公开招募聘用", "公开招募刷新", "任务", "后台",
@@ -134,7 +143,7 @@ local all_job = {
 }
 local now_job = {
   -- "每日更新", "作战1-11",
-  "邮件", "轮次作战", "基建点击全部", "换人", -- "基建副手换人",
+  "邮件", "轮次作战", "点击全部收获", "换人", -- "基建副手换人",
   "制造站加速", "线索接收", "信用奖励", "访问好友基建",
   "信用收取", "信用购买", "公开招募聘用", "公开招募刷新",
   "任务", "后台", "显示全部",
@@ -362,22 +371,25 @@ if test_some then
   menuConfig({x = 0, y = screen.height / 2 - 50, alpha = 1})
   wait_game_up()
   fight = {
-     "LS-5",
-     --"CE-5",
+    "LS-5",
+    -- "CE-5",
     -- "AP-4",
     -- "CA-1",
     -- "PR-A-2",
-    --"PR-C-1", "PR-C-2",
+    -- "PR-C-1", "PR-C-2",
   }
   -- , "1-2", "S3-3", "S4-5", "R8-2"}
   username = ""
   password = ""
   if appid == bppid then password = "" end
 
-  --run("邮件")
-  --run("轮次作战")
-  --run("基建点击全部")
-  run("换人")
+  -- run("邮件")
+  -- run("轮次作战")
+  -- run("点击全部收获")
+  -- run("换人")
+  -- run("制造站加速")
+  --run("信用奖励")
+  run("线索传递")
   log(241)
   exit()
 end
