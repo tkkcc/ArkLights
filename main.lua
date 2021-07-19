@@ -57,12 +57,23 @@ if predebug then
   t = "线索传递右白2"
   t = "今日登录列表4"
   t = "未达线索上限"
+  t = "个人名片"
+  t = "任务第一个"
+  t = "确认蓝"
+  -- t = "任务有列表4"
+  -- t = "任务有列表4"
   -- t = "面板"
   -- t = "活动公告返回"
   -- t = "签到返回"
   log(t, point[t])
   -- tap("资源收集")
   log(33, findOne(t))
+  -- while true do
+  --  path.跳转("面板")
+  -- log(point["面板任务"])
+  -- tap("面板任务")
+  -- end
+
   -- log(33, findTap(t))
 
   -- path.跳转("采购中心")
@@ -372,8 +383,8 @@ end
 if test_some then
   -- debug
   logConfig({mode = 3})
-  menuConfig({x = 0, y = screen.height / 2 - 50, alpha = 1})
-  wait_game_up()
+  -- menuConfig({x = 0, y = screen.height / 2 - 50, alpha = 1})
+  -- wait_game_up()
   fight = {
     "LS-5",
     -- "CE-5",
@@ -391,11 +402,14 @@ if test_some then
   -- run("线索布置")
   -- run("轮次作战")
 
-  run("邮件")
-  run("点击全部收获")
-  run("换人")
-  run("制造站加速")
-  run("线索搜集")
+  -- run("邮件")
+  -- run("点击全部收获")
+  -- run("换人")
+  -- run("制造站加速")
+  -- run("线索搜集")
+  -- run("访问好友基建")
+  -- run("任务收集")
+  -- run("基建副手换人")
   log(241)
   exit()
 end

@@ -422,8 +422,6 @@ tap = function(x, retry, allow_outside_game)
       tap(x0, true, allow_outside_game)
     end, 1)
   end
-  -- if type(x0) == 'string' then ssleep(tap_extra_delay[x0] or 0) end
-  -- log(410)
 end
 
 -- input = function(x, s)

@@ -92,7 +92,6 @@ path.base = {
     tap("获取网络配置失败")
     return true
   end,
-  撤下干员确认 = "撤下干员确认",
   其它 = "返回",
   理智兑换取消 = function()
     running = "理智不足"
@@ -192,9 +191,9 @@ path.点击全部收获 = function()
   end, 5)
 end
 
-comm_enough = false
+communication_enough = false
 
-update_comm = function() comm_enough = false end
+update_comm = function() communication_enough = false end
 
 update_station_list = function()
   if already_update_station_list then return end
@@ -220,7 +219,6 @@ update_station_list = function()
           local k2 = k1 .. ix[j]
           insert(point[k1], k2)
           point[k2] = point.基建左侧[i]
-          tap_extra_delay[k2] = tap_extra_delay[k1]
           ix[j] = ix[j] + 1
         end
       end
@@ -244,7 +242,7 @@ path.跳转 = function(x)
     公开招募 = "公开招募",
     首页 = "面板",
     采购中心 = "可露希尔推荐",
-    任务 = "日常任务",
+    任务 = "任务第一个",
     终端 = "主页",
   }
   local plain = {
@@ -257,23 +255,23 @@ path.跳转 = function(x)
     终端 = "面板作战",
   }
   local target = sign[x]
-  local f = true
   local timeout = x == "基建" and 8 or 5
   if findOne(target) then return true end
   local p
   p = update(path.base, {
     面板 = function()
+      p["主页"] = nil
       tap(plain[x])
       appear({target, "活动公告返回"}, timeout)
     end,
     主页 = function()
+      p["主页"] = nil
       tap("主页")
       if not appear("主页列表任务") then
         p.主页 = nil
         return
       end
       tap("主页列表" .. x)
-      p["主页"] = nil
     end,
   })
   p[target] = true
@@ -303,26 +301,41 @@ path.限时活动 = update(path.base, {
 
 -- 换信赖最低的5人
 path.基建副手换人 = function()
-  -- TODO
+  path.跳转("基建")
 
-  update_station_list()
+  if not wait(function()
+    if findAny({"进驻信息", "进驻信息选中"}) then return true end
+    tap("控制中枢")
+    appear({"进驻信息", "进驻信息选中"}, 1)
+  end, 5) then return end
 
-  local p = update(path.base, {
-    面板 = '面板基建',
-    进驻总览 = "控制中枢",
-    进驻信息选中 = "进驻信息选中",
-    控制中枢界面 = "控制中枢基建副手",
-    基建副手简报 = true,
-  })
-  for k, v in pairs(point.基建副手列表) do
-    auto(p)
-    tap(v)
-    if not findOne("干员选择无选中") then tap("干员选择列表1") end
+  if not wait(function()
+    if findOne("基建副手简报") then return true end
+    tap("基建副手")
+    appear("基建副手简报", 1)
+  end, 5) then return end
+
+  for i = 1, 5 do
+    if not wait(function()
+      if not findOne("基建副手简报") then return true end
+      tap("基建副手列表" .. i)
+      disappear("基建副手简报", 1)
+    end, 5) then return end
+    if not appear("确认蓝") then return end
+    if findOne("干员选中") then tap("干员选择列表1") end
+    if not disappear("干员选中") then return end
     tap("排序信赖")
+    if not disappear("排序等级") then return end
     tap("排序信赖")
-    tap("干员选择列表" .. k)
-    tap("干员选择确认")
-    ssleep(1)
+    if not disappear("排序信赖") then return end
+    if not wait(function()
+      if findOne("干员选中") then return true end
+      tap("干员选择列表" .. i)
+      appear("干员选中")
+    end, 5) then return end
+
+    tap("确认蓝")
+    if not appear("基建副手简报") then return end
   end
 end
 
@@ -436,6 +449,8 @@ path.制造站加速 = function()
   end, 5) then return end
   appearTap("无人机加速最大")
   tap("无人机加速确定")
+  appear("制造站加速")
+  tap("制造站收取")
 end
 
 path.线索搜集 = function()
@@ -515,13 +530,12 @@ path.线索布置 = function()
     if not wait(function()
       tap("制造站进度")
       if appear("线索传递", 1) then return true end
-    end) then return path.线索搜集() end
+    end, 5) then return path.线索搜集() end
     path.线索布置()
   end
 end
 
 path.线索传递 = function()
-  -- internal
   if not appearTap("线索传递") then return end
   if not appear("线索传递数字列表8", 5) then return end
 
@@ -581,26 +595,19 @@ path.线索传递 = function()
   end
 end
 
-path.任务 = function()
-  -- path.跳转("任务")
-  -- TODO
-  local l = {"日常任务", "周常任务"}
-  for _, i in pairs(l) do
-    local p = update(path.base, {
-      面板 = "面板任务",
-      见习任务 = i,
-      日常任务 = i,
-      活动任务 = i,
-      周常任务 = i,
-    })
-    p[i] = function()
-      tap('任务蓝')
-      -- if table.any({'报酬已领取','任务黑', "任务灰", "任务灰2"}, find) then
-      return true
-      -- end
-    end
-    p['活动任务'] = p["日常任务"]
-    auto(p)
+path.任务收集 = function()
+  path.跳转("任务")
+  while true do
+    local p = findTap(point.任务有列表)
+    if not p then break end
+    log(p)
+    tap("收集全部")
+    disappear("收集全部")
+    if not wait(function()
+      if findOne("主页") then return true end
+      tap("返回")
+      appear("主页", 1)
+    end, 5) then return end
   end
 end
 
@@ -1001,28 +1008,21 @@ path.剿灭 = function(x)
 end
 
 path.访问好友基建 = function()
-  if comm_enough then return end
-  local loop_end = false
-  auto(update(path.base, {
-    面板 = '面板好友',
-    个人名片 = '好友列表',
-    好友列表 = function()
-      if not appearTap('访问基建', 3, 1) then return true end
-      while 1 do
-        if not wait(function()
-          if find("今日参与交流已达上限") then
-            comm_enough = true
-            return true
-          end
-          if find("访问下位无") then
-            loop_end = true
-            return true
-          end
-          return findTap("访问下位橘", "访问下位")
-        end, 10, 2) or comm_enough or loop_end then return true end
-      end
-    end,
-  }))
+  if communication_enough then return end
+  path.跳转("好友")
+  if not wait(function()
+    tap('好友列表')
+    if appear("好友列表") then return true end
+  end, 5) then return end
+
+  if not appearTap('访问基建', 5) then return end
+  while appear("访问下位橘", 10) do
+    if findOne("今日参与交流已达上限") then
+      communication_enough = true
+      break
+    end
+    tap("访问下位橘")
+  end
 end
 
 -- show station list
