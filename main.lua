@@ -4,13 +4,17 @@ predebug = false
 test_some = true
 test_fight = false
 no_config_cache = false
-verbose_fca = false
+-- verbose_fca = true
 ok_time = 1
+debug0416 = false
+debug0415 = false
+debug0721 = true
 
 screen = getScreen()
 require("util")
 require("point")
 require("path")
+require("tag")
 cron = require("crontab")
 log(time() .. " 分辨率：" .. screen.width .. "x" .. screen.height)
 
@@ -50,7 +54,6 @@ if predebug then
   t = "筛选取消"
   t = "进驻信息选中"
   t = "进驻信息"
-  t = "进驻总览"
   t = "建造模式开"
   t = "制造站加速"
   t = "线索传递右白"
@@ -60,6 +63,9 @@ if predebug then
   t = "个人名片"
   t = "任务第一个"
   t = "确认蓝"
+  t = "清空选择"
+  t = "干员选中"
+  t = "进驻总览"
   -- t = "任务有列表4"
   -- t = "任务有列表4"
   -- t = "面板"
@@ -150,11 +156,9 @@ end
 
 local outside = runThread("outside")
 local all_job = {
-  "每日更新", "作战1-11", "邮件", "轮次作战", "点击全部收获",
-  "换人", "基建副手换人", "制造站加速", "线索接收",
-  "信用奖励", "访问好友基建", "信用收取", "信用购买",
-  "公开招募聘用", "公开招募刷新", "任务", "后台",
-  "显示全部",
+  "作战1-11", "邮件收取", "轮次作战", "基建收获", "基建换班",
+  "副手换人", "制造加速", "线索搜集", "访问好友",
+  "信用购买", "公招刷新", "任务收集",
 }
 local now_job = {
   -- "每日更新", "作战1-11",
@@ -188,7 +192,7 @@ end
 local parse_from_ui = function(prefix, reference)
   local ans = {}
   for i = 1, #reference do
-    if _G[prefix .. i] then insert(ans, reference[i]) end
+    if _G[prefix .. i] then table.insert(ans, reference[i]) end
   end
   return ans
 end
@@ -210,7 +214,7 @@ local ui = {
       type = "check",
       value = "*吃药|*吃石头|*保底最高4星时自动招募",
       ore = 1,
-      id = "drug_enable|stone_enable|start4_auto",
+      id = "drug_enable|stone_enable|star4_auto",
     }, {type = "text", value = ""},
     {type = "check", value = "*立即执行：", id = "now_enable"}, {
       type = "check",
@@ -287,15 +291,12 @@ now_job = parse_from_ui("now_job_ui", all_job)
 cron1_job = parse_from_ui("cron1_job_ui", all_job)
 cron2_job = parse_from_ui("cron2_job_ui", all_job)
 local cron_job = {}
-if cron1_enable then insert(cron_job, half_hour_cron({cron1_job, cron1_time})) end
-if cron2_enable then insert(cron_job, half_hour_cron({cron2_job, cron2_time})) end
-
--- if drug_enable then
---  path.base.药剂恢复理智取消 = "药剂恢复理智确认"
--- end
--- if stone_enable then
---  path.base.源石恢复理智取消 = "药剂恢复理智确认"
--- end
+if cron1_enable then
+  table.insert(cron_job, half_hour_cron({cron1_job, cron1_time}))
+end
+if cron2_enable then
+  table.insert(cron_job, half_hour_cron({cron2_job, cron2_time}))
+end
 
 fight = string.map(fight, {
   [","] = " ",
@@ -312,15 +313,6 @@ fight = map(string.upper, fight)
 --  end
 -- end
 
-local parse_time = function(a)
-  return os.time({
-    year = tonumber(a:sub(1, 4)),
-    month = tonumber(a:sub(5, 6)),
-    day = tonumber(a:sub(7, 8)),
-    hour = tonumber(a:sub(9, 10)),
-    min = tonumber(a:sub(11, 12)),
-  })
-end
 all_open_time_start = parse_time("202007151600")
 all_open_time_end = parse_time("202007170400")
 update_open_time()
@@ -377,7 +369,6 @@ if test_fight then
 end
 if test_fight then
   run("轮次作战")
-  pause()
   exit()
 end
 if test_some then
@@ -402,15 +393,22 @@ if test_some then
   -- run("线索布置")
   -- run("轮次作战")
 
-  -- run("邮件")
-  -- run("点击全部收获")
-  -- run("换人")
-  -- run("制造站加速")
+  -- log(393)
+  -- run("邮件收取", "基建收获", "基建换班","副手换人", "制造加速",
+  --     "线索搜集", "访问好友", "任务收集",
+  --      "信用购买")
+  -- run("基建收获","基建换班","副手换人", "制造加速",
+  --     "线索搜集", "访问好友", "任务收集",
+  --      "信用购买")
+  -- run("基建换班","副手换人", "制造加速",
+  --     "线索搜集", "访问好友", "任务收集",
+  --      "信用购买")
   -- run("线索搜集")
-  -- run("访问好友基建")
-  -- run("任务收集")
-  -- run("基建副手换人")
-  log(241)
+  run("信用购买")
+
+  -- "线索搜集", "访问好友", "任务收集",
+  --  "信用购买")
+  -- run("公招刷新")
   exit()
 end
 

@@ -2,14 +2,17 @@ max = math.max
 min = math.min
 math.round = function(x) return math.floor(x + 0.5) end
 clip = function(x, minimum, maximum) return min(max(x, minimum), maximum) end
-insert = table.insert
+
 -- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
-function trim(s) return s:match '^()%s*$' and '' or s:match '^%s*(.*%S)' end
+string.trim = function(s) return
+  s:match '^()%s*$' and '' or s:match '^%s*(.*%S)' end
+
 string.count = function(str, pattern)
   local ans = 0
   for _ in str.gfind(pattern) do ans = ans + 1 end
   return ans
 end
+
 string.map = function(str, map)
   local ans = ''
   for character in string.gmatch(str, "([%z\1-\127\194-\244][\128-\191]*)") do
@@ -22,6 +25,7 @@ string.map = function(str, map)
   end
   return ans
 end
+
 string.split = function(str, sep)
   if sep == nil then sep = "%s" end
   local t = {}
@@ -44,6 +48,7 @@ string.lpad = function(str, len, char)
   if char == nil then char = " " end
   return str .. string.rep(char, len - #str)
 end
+
 table.value2key = function(x)
   local ans = {}
   for k, v in pairs(x) do ans[v] = k end
@@ -52,36 +57,40 @@ end
 
 table.select = function(mask, reference)
   local ans = {}
-  for i = 1, #reference do if mask[i] then insert(ans, reference[i]) end end
+  for i = 1, #reference do if mask[i] then table.insert(ans, reference[i]) end end
   return ans
 end
+
 -- return true if there is an x s.t. f(x) is true
 table.any = function(t, f)
   for k, v in pairs(t) do if f(v) then return true end end
 end
+
 -- return true if f(x) is all true
 table.all = function(t, f)
   for k, v in pairs(t) do if not f(v) then return false end end
   return true
 end
+
 table.findv = function(t, f)
   for k, v in pairs(t) do if f(v) then return v end end
 end
 
 table.filter = function(t, f)
   local a = {}
-  for k, v in pairs(t) do if f(v) then insert(a, v) end end
+  for _, v in pairs(t) do if f(v) then table.insert(a, v) end end
   return a
 end
+
 table.keys = function(t)
   local a = {}
-  for k, v in pairs(t) do table.insert(a, k) end
+  for k, _ in pairs(t) do table.insert(a, k) end
   return a
 end
 -- a,a+1,...b
 range = function(a, b)
   local t = {}
-  for i = a, b do insert(t, i) end
+  for i = a, b do table.insert(t, i) end
   return t
 end
 
@@ -89,7 +98,8 @@ table.includes = function(t, e)
   return table.any(t, function(x) return x == e end)
 end
 
-table.extend = function(t, e) for k, v in pairs(e) do insert(t, v) end end
+table.extend = function(t, e) for k, v in pairs(e) do table.insert(t, v) end end
+
 --  in = {
 --    "A" = {1,4,5,7},
 --    "B" = {1,2,5,6},
@@ -105,7 +115,7 @@ table.reverseIndex = function(t)
   for k, v in pairs(s) do
     r[k] = {}
     for k2, v2 in pairs(t) do
-      if table.includes(v2, k) then insert(r[k], k2) end
+      if table.includes(v2, k) then table.insert(r[k], k2) end
     end
   end
   for k, v in pairs(r) do table.sort(v) end
@@ -122,6 +132,7 @@ table.shuffle = function(tbl)
   end
   return tbl
 end
+
 equalX = function(x) return function(y) return x == y end end
 
 shallowCopy = function(x)
@@ -141,7 +152,7 @@ end
 -- n: num, a: alternative element
 repeat_last = function(x, n, a)
   if a == nil then a = x[#x] end
-  for i = 1, n do insert(x, a) end
+  for i = 1, n do table.insert(x, a) end
   return x
 end
 
@@ -205,15 +216,6 @@ ssleep = function(x)
   sleep(x * 1000)
 end
 
-nop = function() end
-
--- content height
--- show = function(x, h)
---  print(x)
---  h = not h and 36 or h
---  --showHUD(hudid, x, 24, "0xff444444", "0xffffffff", 2, 0, 1080 - 36, 500, h)
--- end
-
 table.join = function(t, d)
   d = not d and ',' or d
   local a = ''
@@ -224,7 +226,6 @@ table.join = function(t, d)
   return a
 end
 
-history = {}
 table.clear = function(x) for k, v in pairs(x) do x[k] = nil end end
 
 removeFuncHash =
@@ -241,74 +242,29 @@ table2string = function(t)
   return t
 end
 
+log_history = {}
 log = function(...)
   local l = {
-    map(tostring, running, " ", table.unpack(map(table2string, {...}))),
+    map(tostring, table.unpack(map(table2string, {...}))),
   }
   l = map(removeFuncHash, l)
   l = map(table2string, l)
   local a = time()
   for _, v in pairs(l) do a = a .. ' ' .. v end
-  if #history > 2000 then table.clear(history) end
-  history[#history + 1] = a
-  l = loop_times(history)
+  if #log_history > 2000 then table.clear(log_history) end
+  log_history[#log_history + 1] = a
+  l = loop_times(log_history)
   if l > 1 then a = a .. " x" .. l end
   if l > 100 then stop("246") end
   print(a)
 end
 
-set = function(k, v)
-  k, v = map(tostring, k, v)
-  save(k, v)
-end
-
--- get = function(k, v)
--- k, v = map(tostring, k, v)
--- return getStringConfig(k, v)
--- end
-
 open = function() runApp(appid) end
+
 stop = function(msg)
   log("stop " .. msg)
   toast("stop " .. msg)
-  -- TODO showHUD
-  -- logConfig({
-  --  x = math.floor(screen.width / 4),
-  --  y = math.floor(screen.height / 4),
-  --  width = math.floor(screen.width / 2),
-  --  height = math.floor(screen.height / 2),
-  --  color = "#37474F",
-  --  bgcolor = "#FFFFFF",
-  --  mode = 2,
-  --  size = 11,
-  --  debug = false,
-  --  shadow = false,
-  -- });
-  -- ssleep(3600 * 72)
   exit()
-end
-
-pause = function(t)
-  background()
-  ssleep(t or (3600 * 72))
-end
-
-background = home
-
-conf2task = function(c, m)
-  local p, q = 0, 0
-  local r = {}
-  if c == nil or #c == 0 then return end
-  while true do
-    q = c:find("@", p + 1)
-    if q == nil then break end
-    insert(r, c:sub(p + 1, q - 1))
-    p = q
-  end
-  insert(r, c:sub(p + 1))
-  r = map(function(x) return x + 1 end, map(tonumber, r))
-  if m == nil then return r end
-  return map(m, r)
 end
 
 findColorAbsolute = function(color)
@@ -323,11 +279,15 @@ findColorAbsolute = function(color)
     end
   end
   local x, y = color:match("(%d+),(%d+)")
-  -- log(310)
-  -- keepScreen(false)
   return {x = tonumber(x), y = tonumber(y)}
 end
+
+findOne_last_time = 0
 findOne = function(x)
+  -- local findOneMinInterval = 1
+  -- sleep(16 - min(time() - findOne_last_time, 16))
+  -- findOne_last_time = time()
+
   local x0 = x
   local confidence = 99
   if type(x) == 'string' and not x:find(coord_delimeter) then x = point[x] end
@@ -339,36 +299,8 @@ findOne = function(x)
     else
       local color = shallowCopy(rfl[x0] or {0, 0, screen.width, screen.height})
       table.extend(color, {x, confidence})
-      -- log(x0, color)
-      -- workaround
-      -- if not x:find(point_delimeter) then
-      --  if compareColor(color[1], color[2], x:sub(-7), confidence) then
-      --    pos = {x = color[1], y = color[2]}
-      --  end
-      -- else
-      -- log(314, color)
-
-      -- log("global region findColor")
-      -- pos = findColors(color)
-      -- if pos then
-      --  first_point_ok = false
-      --  for _, v in pairs(pos) do
-      --    if compareColor(v.x, v.y, x:match("(#......)"), confidence) then
-      --      first_point_ok = true
-      --      pos = v
-      --      log(358, pos)
-      --      break
-      --    end
-      --  end
-      --  if not first_point_ok then pos = nil end
-      -- end
-
       pos = findColor(color)
-      -- log(315, pos)
-      -- end
     end
-    -- log(294)
-    -- if pos then log(pos.x, pos.y) end
     if pos then return {pos.x, pos.y} end
   end
 end
@@ -382,20 +314,11 @@ findAll = function(x)
   return findColors(color)
 end
 
-local logout_state = table.value2key({
-  "下载资源确认", "正在释放神经递质", "start黄框",
-  "start黄框暗", "账号登录", "开始唤醒", "登录",
-})
-local effective_state = nil
-
 -- x={2,3} "信用" func nil
 tap = function(x, retry, allow_outside_game)
   if not allow_outside_game then wait_game_up() end
   local x0 = x
   if x == true then return true end
-
-  -- use back button after login
-  -- if not logout_state[effective_state] and x == "返回" then back() end
 
   if type(x) == "function" then return x() end
   if type(x) == "string" and not x:find(coord_delimeter) then
@@ -424,59 +347,22 @@ tap = function(x, retry, allow_outside_game)
   end
 end
 
--- input = function(x, s)
---  tap(x)
---  inputText("#CLEAR#")
---  ssleep(.5)
---  inputText(s)
---  -- inputText('#ENTER#')
---  ssleep(.5)
---  tap('返回')
---  ssleep(.5)
--- end
-
--- swip = function(x, y, dx, dy, t, interval)
---  if not (x and y and dx and dy) then return end
---  interval = interval or .2
---  slid(x,y,x+dx,y+dy,t)
---  local times = 20
---  local e = 1e-6
---  if t then times = math.floor((t + e) / interval) end
---  local sx = dx / times
---  local sy = dy / times
---  for j = 1, times do
---    x = x + sx
---    y = y + sy
---    ssleep(interval)
---    touchMove(i, x, y)
---  end
---  ssleep(interval)
---  touchUp(i, x, y)
---  ssleep(interval)
--- end
-
--- quick multiple swip for 作战
+-- quick multiple swip
 -- input distance => {x,y,x',y',time} / list of them
 swipq = function(dis)
   wait_game_up()
   if type(dis) == "string" then dis = distance[dis] end
-  -- no need to swip
   if not dis then return end
-  -- multiple swip
-  -- log(401, dis)
   if type(dis) ~= "table" then dis = {dis} end
-  -- log(403, dis)
   for _, x in pairs(dis) do
     if type(x) == 'number' then
       if x == 0 then -- special wait
         ssleep(.4)
       elseif x > 0 then -- magick distance map from xxzhushou to nspirit
-        -- log(200, 400, min(1720, 200 + x * 2), 400, 400)
         slid(math.round(200 * wscale), math.round(400 * hscale),
              math.round(min(1720, 200 + x * 2) * wscale),
              math.round(400 * hscale), 400)
       elseif x < 0 then
-        -- log(1720, 400, max(200, 1720 + x * 2), 400, 400)
         slid(math.round(1720 * wscale), math.round(400 * hscale),
              math.round(max(200, 1720 + x * 2) * wscale),
              math.round(400 * hscale), 400)
@@ -489,10 +375,8 @@ swipq = function(dis)
     else
       stop(413)
     end
-    -- log("after slid", x)
     ssleep(.4)
   end
-  -- log(422)
 end
 
 zoom = function()
@@ -518,7 +402,7 @@ zoom = function()
   gesture(paths, 1000);
 end
 
-auto = function(p)
+auto = function(p, fallback)
   if type(p) == "function" then return p() end
   if type(p) ~= "table" then return true end
   while true do
@@ -534,7 +418,7 @@ auto = function(p)
       end
     end
     timeout = 1
-    if findAny({"进驻信息", "进驻信息选中"}) then timeout = 3 end
+    -- if findAny({"进驻信息", "进驻信息选中"}) then timeout = 3 end
     local e = wait(check, timeout)
 
     -- tap true
@@ -545,20 +429,36 @@ auto = function(p)
       log("auto -> fallback")
       local x = table.findv({
         "返回确认", "活动公告返回", "签到返回",
-        "线索传递返回",
       }, findOne)
       if x then
         log(x)
         if x == "返回确认" then
-          tap("右确认")
+          if fallback then
+            log(437, fallback["返回确认"])
+            tap(fallback["返回确认"])
+          else
+            log(439)
+            tap("右确认")
+          end
         else
           tap(x)
         end
+      else
+        tap(p["其它"])
       end
-      log(p["其它"])
-      tap(p["其它"])
     end
   end
+end
+
+parse_time = function(x)
+  if not x then return os.time() end
+  return os.time({
+    year = tonumber(x:sub(1, 4)),
+    month = tonumber(x:sub(5, 6)),
+    day = tonumber(x:sub(7, 8)),
+    hour = tonumber(x:sub(9, 10)),
+    min = tonumber(x:sub(11, 12)),
+  })
 end
 
 -- run function / job / table of function and job
@@ -568,18 +468,16 @@ run = function(...)
     if type(arg[1]) == "function" then return arg[1]() end
     if type(arg[1]) == "table" then arg = arg[1] end
   end
-  path.移动停止按钮()
-  -- check_stop_button_position(true)
+  menuConfig({x = 0, y = screen.height / 2 - 50})
+  update_state()
   for _, v in ipairs(arg) do
     if type(v) == 'function' then
       v()
     else
-      running = v
-      -- log(path[v])
       auto(path[v])
     end
   end
-  set("retry", 0)
+  home()
 end
 
 half_hour_cron = function(x, h)
@@ -594,7 +492,6 @@ half_hour_cron = function(x, h)
   return {callback = function() run(x) end, hour = h, minute = m}
 end
 
--- if find then tap with fallback
 findTap = function(target)
   if type(target) == 'string' or #target == 0 then target = {target} end
   for _, v in pairs(target) do
@@ -608,7 +505,6 @@ findTap = function(target)
   end
 end
 
--- wait some
 appearTap = function(target, timeout, interval)
   if type(target) == 'string' or #target == 0 then target = {target} end
   target = appear(target, timeout, interval)
@@ -680,6 +576,7 @@ appear = function(target, timeout, interval, disappear)
     end
   end, timeout, interval)
 end
+
 disappear = function(target, timeout, interval)
   return appear(target, timeout, interval, true)
 end
@@ -688,26 +585,20 @@ wait_game_up = function()
   local game = R():name(appid):path("/FrameLayout/View")
   local bilibili_login = R():id(
                            "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
-  -- log(type(bilibili_login),type(game), #bilibili_login, #game)
   if not find(game) then
     open()
     if not appear({game, bilibili_login}, 10, 1) then
       stop("游戏不在前台")
     end
-    log(652)
     bilibili_login_hook()
   end
 end
 
 bilibili_login_hook = function()
-  log(653)
   if appid ~= bppid then return end
-  log(654)
   local login = R():id(
                   "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
-  log(655)
   if not find(login) then return end
-  log(656)
   local username_inputbox = R():id(
                               "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_username_login");
   local password_inputbox = R():id(
