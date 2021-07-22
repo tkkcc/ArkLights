@@ -75,19 +75,3 @@ table.extend(tag5, {
   {{'资深干员'}, 5, {"资深干员"}},
   {{'高级资深干员'}, 6, {"高级资深干员"}},
 })
-
--- parse to key:value
-tagk = {}
-tagv = {}
-tagl = {}
-
--- parse function for tag5
-for _, v in pairs(tag5) do
-  for _, t in pairs(v[1]) do
-    if not table.includes(tag, t) then log("invalid tag", t) end
-  end
-  table.insert(tagk, v[1])
-  table.insert(tagl, v[2])
-  table.insert(tagv, v[3])
-end
--- for k, v in pairs(tagk) do log(tagk[k],tagl[k],tagv[k]) end

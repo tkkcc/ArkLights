@@ -6,7 +6,7 @@ test_fight = false
 no_config_cache = false
 -- verbose_fca = true
 ok_time = 1
-debug0416 = false
+debug0416 = true
 debug0415 = false
 debug0721 = true
 
@@ -29,130 +29,27 @@ if bpp_info and not app_info then appid = bappid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  -- auto(path.base)
-  -- exit()
-  t = "开始行动红"
-  t = "接管作战"
-  t = "行动结束"
-  t = "代理指挥开"
-  t = "代理指挥开"
-  -- t = "作战列表PR-C-2"
-  t = "资源收集"
-  t = '面板作战'
-  t = "作战列表LS-5"
-  t = "正在释放神经递质"
-  t = "邮件"
-  t = "演习券"
-  t = "右确认"
-  t = "返回确认"
-  t = "点击全部收取"
-  t = "基建灯泡蓝"
-  t = "入驻干员"
-  t = "入驻干员"
-  t = "宿舍列表1"
-  t = "排班调整确认"
-  t = "筛选取消"
-  t = "进驻信息选中"
-  t = "进驻信息"
-  t = "建造模式开"
-  t = "制造站加速"
-  t = "线索传递右白"
-  t = "线索传递右白2"
-  t = "今日登录列表4"
-  t = "未达线索上限"
-  t = "个人名片"
-  t = "任务第一个"
-  t = "确认蓝"
-  t = "清空选择"
-  t = "干员选中"
-  t = "进驻总览"
-  -- t = "任务有列表4"
-  -- t = "任务有列表4"
-  -- t = "面板"
-  -- t = "活动公告返回"
-  -- t = "签到返回"
+  local range = {603, 553, 746, 596}
+  --  ans = ocrp({rect = point.公开招募标签范围})
+  --  ans = ocrp({rect = range})
+  --  for k, v in pairs(ans) do log(v.text) end
+  --  exit()
+  --  a, b = ocr(table.unpack(range))--  for k,v in pairs(point.公开招募列表)
+  --  a, b = ocr(table.unpack(point.公开招募标签范围))
+  --  log()
+  if (a) then
+    log(44)
+    --    print(a);
+    log(44)
+    print(JsonEncode(b))
+  end
+  log(40)
+
+  t = "aaa"
   log(t, point[t])
-  -- tap("资源收集")
   log(33, findOne(t))
-  -- while true do
-  --  path.跳转("面板")
-  -- log(point["面板任务"])
-  -- tap("面板任务")
-  -- end
-
-  -- log(33, findTap(t))
-
-  -- path.跳转("采购中心")
-  -- wait_game_up()
-  -- zoom()
-  -- auto(path.base)
-  -- appid=bppid
-  -- bilibili_login_hook()
-  -- exit()
-
-  -- test point on different resolution
-  -- for i = 1, 9 do
-  --  -- log(i,point["当前进度列表" .. i])
-  --  -- log(rfl["当前进度列表" .. i])
-  --  x = findOne("当前进度列表" .. i) or
-  --        findOne("按下当前进度列表" .. i)
-  --  if x then log(i, x[1], x[2]) end
-  -- end
-  -- for i = 1, 3 do
-  --  log(point["按下当前进度列表" .. i])
-  --  log(rfl["当前进度列表" .. i])
-  --  x = findOne("当前进度列表" .. i)
-  --  if x then log(i, x[1], x[2]) end
-  -- end
-  -- exit()
-
-  -- print(time())
-  -- print(findColor({223, 310, 238, 319, "229,313,#EEEEEE", 10}) == nil)
-  -- exit()
-  -- print(time())
-  -- for i = 1,100 do
-  -- print(findShape({'#FFFFFF-95','[{"a":-0.085,"d":1.33,"id":"1","r":1159.0}]',0.85}) ==nil)
-  -- end
-  -- print(findColor({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99}) == nil)
-  -- print(findColor({1595, 510, 1599, 516, "1596,511,#FFFFFF", 100}) == nil)
-  -- print(findColor({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
-  -- print(findColor({1757,179,1854,245,"1801,195,#FFFFFF",100})==nil)
-  -- print(findColor({892,428,923,429,"892,428,#CCFF66",100})==nil)
-  -- print(findColors({0, 0, 1920, 1080, "1596,511,#FFFFFC", 99})==nil)
-  -- print(findColors({1596, 511, 1606, 546, "1596,511,#FFFFFA", 99})==nil)
-  -- print(findColors({0,0,122,95,"0,0,#182931|57,58,#FFFFFF",100})==nil)
   exit()
 end
--- exit()
--- swipq("S5-2")
--- swipq("5-3")
--- keepScreen(true)
--- target="当前进度列表6"
--- target="作战列表5-1"
--- start=time()
--- log(findColorAbsolute(point[target])==nil)
--- print(time()-start)
--- start=time()
--- log(findOne(target)==nil)
--- print(time()-start)
--- exit()
--- log(findOne("作战列表5-3"))
--- for i = 1, 100000 do log(i, findOne("当前进度列表6") == nil) end
--- log(findOne("当前进度列表6") == nil)
--- exit()
--- ssleep(4)
-
--- slid(1000,500,10000,500,250)
--- ssleep()
--- slid(math.floor(screen.width * 0.5), 100,
---     math.floor(screen.width * 0.4), 100, 400)
--- slid(math.floor(screen.width * 0.5), 100,
---     math.floor(screen.width * 0.05), 100, 400)
--- ssleep(3)
--- slid(math.floor(screen.width * 0.5), 100,
---     math.floor(screen.width * 0.95), 100, 400)
--- ssleep(3)
--- exit()
 
 local outside = runThread("outside")
 local all_job = {
@@ -160,13 +57,7 @@ local all_job = {
   "副手换人", "制造加速", "线索搜集", "访问好友",
   "信用购买", "公招刷新", "任务收集",
 }
-local now_job = {
-  -- "每日更新", "作战1-11",
-  "邮件", "轮次作战", "点击全部收获", "换人", -- "基建副手换人",
-  "制造站加速", "线索接收", "信用奖励", "访问好友基建",
-  "信用收取", "信用购买", "公开招募聘用", "公开招募刷新",
-  "任务", "后台", "显示全部",
-}
+local now_job = {}
 
 local cron1_job = now_job
 local cron2_job = {
@@ -394,9 +285,10 @@ if test_some then
   -- run("轮次作战")
 
   -- log(393)
-  -- run("邮件收取", "基建收获", "基建换班","副手换人", "制造加速",
-  --     "线索搜集", "访问好友", "任务收集",
-  --      "信用购买")
+--  run("邮件收取", "基建收获", "基建换班", "副手换人",
+--      "制造加速", "线索搜集", "访问好友", "信用购买",
+--      "任务收集")
+  --  run("访问好友")
   -- run("基建收获","基建换班","副手换人", "制造加速",
   --     "线索搜集", "访问好友", "任务收集",
   --      "信用购买")
@@ -404,11 +296,11 @@ if test_some then
   --     "线索搜集", "访问好友", "任务收集",
   --      "信用购买")
   -- run("线索搜集")
-  run("信用购买")
+  --  run("信用购买")
 
   -- "线索搜集", "访问好友", "任务收集",
   --  "信用购买")
-  -- run("公招刷新")
+  run("公招刷新")
   exit()
 end
 

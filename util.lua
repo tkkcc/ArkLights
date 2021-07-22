@@ -68,7 +68,7 @@ end
 
 -- return true if f(x) is all true
 table.all = function(t, f)
-  for k, v in pairs(t) do if not f(v) then return false end end
+  for _, v in pairs(t) do if not f(v) then return false end end
   return true
 end
 
@@ -233,20 +233,18 @@ removeFuncHash =
 
 table2string = function(t)
   if type(t) == 'table' then
-    if #t == 0 then
-      return JsonEncode(t)
-    else
-      return table.join(map(tostring, t))
-    end
+    return JsonEncode(t)
+    --    if #t == 0 then
+    --    else
+    --      return table.join(map(tostring, t))
+    --    end
   end
   return t
 end
 
 log_history = {}
 log = function(...)
-  local l = {
-    map(tostring, table.unpack(map(table2string, {...}))),
-  }
+  local l = {map(tostring, ' ', table.unpack(map(table2string, {...})))}
   l = map(removeFuncHash, l)
   l = map(table2string, l)
   local a = time()

@@ -123,14 +123,11 @@ path.邮件收取 = function()
     if findOne("邮件提示") then return true end
     tap("收取所有邮件")
   end, 5) then return end
-
-  path.跳转("首页", true)
-  if findOne("面板邮件有") then return path.邮件收取() end
 end
 
 path.基建收获 = function()
   path.跳转("基建")
-  if not appear({"基建灯泡蓝", "基建灯泡蓝2"}, 1) then return end
+  if not appearTap({"基建灯泡蓝", "基建灯泡蓝2"}, 5) then return end
 
   if not wait(function()
     if findOne("待办事项") then return true end
@@ -208,7 +205,7 @@ communication_enough = false
 jmfight_enough = false
 zero_san = false
 update_state = function()
-  zero_san=false
+  zero_san = false
 
   local day = (parse_time() - start_time) // (24 * 3600)
   if day == update_state_last_day then return end
@@ -296,7 +293,8 @@ path.基建换班 = function()
   path.跳转("基建")
   local f
   f = function(i)
-    if not findOne("宿舍列表" .. i) then return end
+    if not findTap("宿舍列表" .. i) then return end
+
     if not wait(function()
       if findAny({"进驻信息", "进驻信息选中"}) then return true end
       tap("宿舍列表" .. i)
@@ -424,10 +422,20 @@ path.线索搜集 = function()
     if findOne("进驻总览") then tap(station) end
   end, 5) then return end
   tap("制造站进度")
-  if not appear("线索传递") then return end
-
+  if appear("本次线索交流活动") then
+    if not wait(function()
+      if findOne("线索传递") then return end
+      tap("返回")
+      appear("线索传递", 1)
+    end, 5) then return end
+  end
   if findTap("接收线索有") then
-    if not appearTap("全部收取", 5) then tap("解锁线索左") end
+    appearTap("全部收取", 5)
+    if not wait(function()
+      if findOne("线索传递") then return true end
+      tap("解锁线索左")
+      appear("线索传递", 1)
+    end, 5) then return end
   end
   if not appear("线索传递", 5) then return end
 
@@ -571,31 +579,38 @@ end
 
 path.信用购买 = function()
   path.跳转("采购中心")
-  tap("信用交易所")
+  if not wait(function()
+    if findOne("信用交易所") then return true end
+    tap("信用交易所")
+  end, 5) then return end
   if not appear("信用交易所") then return end
-  if findAny({"收取信用有", "收取信用有2"}) then
+  if findOne("收取信用有") then
     if not wait(function()
       if not findOne("信用交易所") then return true end
       tap("收取信用有")
     end, 5) then return end
-  end
-  for _ = 1, 10 do
-    if not appear(point.信用交易所列表, 1) then return end
     if not wait(function()
-      if findOne("购买物品") then return true end
-      if findOne("信用交易所") then
-        findTap(point.信用交易所列表)
-      end
-    end, 5) then return end
-    tap("购买物品")
-    if not wait(function()
-      if findAny({"信用交易所", "信用不足"}) then return true end
+      if findOne("信用交易所") then return true end
       tap("收取信用有")
     end, 5) then return end
-    if findOne("信用不足") then
-      log("信用不足")
-      return
-    end
+  end
+  local enough = true
+  for _ = 1, 10 do
+    if not wait(function()
+      if findOne("信用不足") then
+        enough = false
+        log("信用不足")
+        return true
+      end
+      if findTap("购买物品") then return true end
+      if findAny(point["信用交易所列表"]) and findOne("信用交易所") then
+        findTap(point["信用交易所列表"])
+        appear("购买物品", 1)
+      else
+        tap("收取信用有")
+      end
+    end, 5) then return end
+    if not enough then return end
   end
 end
 
@@ -696,7 +711,7 @@ path.开始游戏 = function(x)
     if stone_enable then
       tap("药剂恢复理智确认")
     else
-      zero_san=true
+      zero_san = true
       tap("源石恢复理智取消")
       return
     end
@@ -704,7 +719,7 @@ path.开始游戏 = function(x)
     if drug_enable then
       tap("药剂恢复理智确认")
     else
-      zero_san=true
+      zero_san = true
       tap("药剂恢复理智取消")
       return
     end
@@ -945,7 +960,7 @@ path.剿灭 = function(x)
   path.开始游戏(x)
 end
 
-path.访问好友基建 = function()
+path.访问好友 = function()
   if communication_enough then return end
   path.跳转("好友")
   if not wait(function()
@@ -1036,38 +1051,53 @@ path.公招刷新 = function()
       end, 15) then return end
       return f(i)
     end
-    log(i, 1010)
     if findTap("公开招募列表" .. i) then
       -- 刷新
       if not appear("公开招募确认蓝") then return end
       local tags = {}
+      local ocr_text, ocr_info
+      local max_star = 4
       g = function()
         -- retry ocr if contains invalid tags
-        for _ = 1, 3 do
-          table.clear(tags)
-          local ocr_res = ocrp({rect = point.公开招募列表范围})
-          if ocr_res then
-            for _, v in ocr_res do
-              log(v.text, v.text_box_location)
-              if not table.includes(tag, v.text) then
-                log("invalid tag", v.text)
-                break
-              end
-              tags[v.text] = v.text_box_location[1]
+        for j = 1, 6 do
+          for _ = 1, 5 do
+            local p = point["公开招募标签框列表" .. j]
+            ocr_text, _ = ocr(table.unpack(p))
+            if not ocr_text then break end
+            ocr_text = string.map(ocr_text, {
+              [" "] = "",
+              ["."] = "",
+              ["。"] = "",
+              ["`"] = "",
+              ["-"] = "",
+              ["_"] = "",
+              ["′"] = "",
+              [","] = "",
+              ["，"] = "",
+              ["("] = "",
+              [")"] = "",
+            })
+            if #ocr_text == 0 then break end
+            if table.includes(tag, ocr_text) then
+              tags[ocr_text] = {p[1], p[2]}
+              break
             end
+            log("invalid tag", ocr_text)
           end
         end
         if next(tags) == nil then return end
-        log(tags)
-        local tag4 = table.filter(tagk, function(rule)
-          return table.all(rule, function(r) return tag[r] end)
+        log(1092,tags)
+        local tag4 = table.filter(tag5, function(rule)
+          return table.all(rule[1], function(r) return tags[r] end)
         end)
+        log(1093,tag4)
         if #tag4 == 0 then
           if findTap("公开招募标签刷新蓝") then
             if not disappear("公开招募") then return end
             if not wait(function()
               if findOne("公开招募") then return true end
               tap("消耗一次联络机会确认")
+              appear("公开招募", 1)
             end, 5) then return end
             return g()
           else
@@ -1075,13 +1105,15 @@ path.公招刷新 = function()
             if not appear("公开招募箭头") then return end
           end
         else
-          for _, k in pairs(tag4) do max_star = max(4, tagl[k]) end
+          for _, v in pairs(tag4) do max_star = max(max_star, v[2]) end
+          log(max_star)
           if max_star == 4 and star4_auto then
-            for _, v in pairs(tag4[1]) do
+            for _, v in pairs(tag4[1][1]) do
+              log(v)
               tap(tags[v])
               tap("公开招募时间减")
               if not debug0416 then
-                tap("公开招募确认")
+                tap("公开招募确认蓝")
               else
                 tap("返回")
               end
