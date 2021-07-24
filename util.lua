@@ -49,6 +49,12 @@ string.lpad = function(str, len, char)
   return str .. string.rep(char, len - #str)
 end
 
+-- shallow table
+table.contains = function(a, b)
+  for k, v in pairs(b) do if a[k] ~= v then return false end end
+  return true
+end
+
 table.value2key = function(x)
   local ans = {}
   for k, v in pairs(x) do ans[v] = k end
@@ -434,9 +440,11 @@ auto = function(p, fallback)
           if fallback then
             log(437, fallback["返回确认"])
             tap(fallback["返回确认"])
+            --            disappear("返回确认")
           else
             log(439)
             tap("右确认")
+            --            disappear("返回确认")
           end
         else
           tap(x)
@@ -475,7 +483,7 @@ run = function(...)
       auto(path[v])
     end
   end
-  home()
+  if not no_background_after_run then home() end
 end
 
 half_hour_cron = function(x, h)
@@ -496,7 +504,7 @@ findTap = function(target)
     -- log(574, v, type(v))
     local p = findOne(v)
     if p then
-      -- log("findTap:", p)
+      --      log("findTap:", v, p)
       tap(p)
       return v
     end

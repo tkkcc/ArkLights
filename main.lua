@@ -1,14 +1,16 @@
 -- debug option, should be all false / zero / empty in release
 predebug = false
--- predebug = true
+--predebug = true
 test_some = true
 test_fight = false
 no_config_cache = false
 -- verbose_fca = true
 ok_time = 1
-debug0416 = true
+debug0416 = false
 debug0415 = false
-debug0721 = true
+debug0721 = false
+no_background_after_run = true
+longest_tag = false
 
 screen = getScreen()
 require("util")
@@ -45,9 +47,10 @@ if predebug then
   end
   log(40)
 
-  t = "aaa"
+  t = "宿舍列表1"
   log(t, point[t])
   log(33, findOne(t))
+--  path.跳转("基建", true)
   exit()
 end
 
@@ -280,27 +283,11 @@ if test_some then
   password = ""
   if appid == bppid then password = "" end
 
-  -- run("线索传递")
-  -- run("线索布置")
-  -- run("轮次作战")
-
-  -- log(393)
---  run("邮件收取", "基建收获", "基建换班", "副手换人",
---      "制造加速", "线索搜集", "访问好友", "信用购买",
---      "任务收集")
-  --  run("访问好友")
-  -- run("基建收获","基建换班","副手换人", "制造加速",
-  --     "线索搜集", "访问好友", "任务收集",
-  --      "信用购买")
-  -- run("基建换班","副手换人", "制造加速",
-  --     "线索搜集", "访问好友", "任务收集",
-  --      "信用购买")
-  -- run("线索搜集")
-  --  run("信用购买")
-
-  -- "线索搜集", "访问好友", "任务收集",
-  --  "信用购买")
-  run("公招刷新")
+  --  run("邮件收取", "基建收获", "基建换班", "副手换人",
+  --      "制造加速", "线索搜集", "访问好友", "信用购买",
+  --      "公招刷新", "任务收集")
+--  run("邮件收取", "基建换班")
+  run( "基建换班")
   exit()
 end
 

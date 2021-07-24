@@ -127,26 +127,37 @@ end
 
 path.基建收获 = function()
   path.跳转("基建")
-  if not appearTap({"基建灯泡蓝", "基建灯泡蓝2"}, 5) then return end
+  if not appear({"基建灯泡蓝", "基建灯泡蓝2"}, 5) then return end
 
   if not wait(function()
-    if findOne("待办事项") then return true end
-    if findTap({"基建灯泡蓝", "基建灯泡蓝2"}) then
-      appear("待办事项", 1)
+    if findOne("待办事项") and (not disappear("待办事项", 1)) then
+      return true
     end
-  end, 5) then return end
+    if findTap({"基建灯泡蓝", "基建灯泡蓝2"}) then
+      appear("待办事项")
+    end
+  end, 8) then return end
 
   if not wait(function()
-    if not appearTap("点击全部收取", 2) then return true end
-  end, 10) then return end
+    if not appearTap("点击全部收取") then return true end
+  end, 15) then return end
 
   if not wait(function()
-    if findAny({"进驻信息", "进驻信息选中"}) then return true end
+    if findOne("进驻总览") then return true end
     tap("宿舍列表1")
-  end, 5) then return end
+  end, 8) then return end
+  if not wait(function()
+    if not findOne("进驻总览") and
+      findAny({"进驻信息", "进驻信息选中"}) then return true end
+    if findOne("进驻总览") then
+      tap("宿舍列表1")
+      disappear("进驻总览")
+    end
+  end, 8) then return end
   path.跳转("基建", true)
 end
 
+prev_jump = nil
 path.跳转 = function(x, disable_quick_jump)
   local sign = {
     好友 = "个人名片",
@@ -170,7 +181,7 @@ path.跳转 = function(x, disable_quick_jump)
   }
   local target = sign[x]
   local home_target = x == "邮件" and "首页" or x
-  local timeout = x == "基建" and 8 or 5
+  local timeout = 5
   if findOne(target) then return true end
   local p
   p = update(path.base, {
@@ -186,16 +197,18 @@ path.跳转 = function(x, disable_quick_jump)
       tap("主页列表" .. home_target)
     end,
   })
+  if x == prev_jump or disable_quick_jump then p.主页 = nil end
+
   p[target] = true
-  if disable_quick_jump then p.主页 = nil end
+  --  if x == "基建" or prev_jump == "基建" then
+  p[target] = function() if not disappear(target, 1) then return true end end
+  --  end
+
   local fallback = {返回确认 = "右确认"}
-  if x == "基建" then
-    fallback.返回确认 = "左取消"
-    p["进驻总览"] = function()
-      if not disappear("进驻总览", .5) then return true end
-    end
-  end
+  if x == "基建" then fallback.返回确认 = function() back() end end
+
   auto(p, fallback)
+  prev_jump = x
 end
 
 start_time = parse_time("202101010400")
@@ -257,15 +270,15 @@ path.副手换人 = function()
     if not disappear("干员选中") then return end
     local state = sample()
     tap("排序信赖")
-    disappear(state, 1)
+    disappear(state, .5)
     state = sample()
     tap("排序信赖")
-    disappear(state, 1)
+    disappear(state, .5)
     tap("干员选择列表" .. i)
     tap("确认蓝")
     if not appear("基建副手简报") then return end
   end
-  path.跳转("基建", true)
+  --  path.跳转("基建", true)
 end
 
 sample = function()
@@ -273,70 +286,162 @@ sample = function()
     {747, 234}, {945, 258}, {1168, 258}, {1392, 246}, {1580, 270}, {1803, 284},
     {1803, 682}, {1592, 682}, {1368, 670}, {1168, 682},
   }
+  --  if mode == '筛选' then table.clear(points) end
   local extra_points = {{1572, 71}, {1571, 80}, {1453, 77}, {1452, 62}}
   local ans = ''
-  for _, p in pairs(points) do
-    local x = math.round(p[1] * minscale)
-    local y = math.round(p[2] * minscale)
-    ans = ans .. x .. ',' .. y .. ',' .. getColor(x, y).hex .. '|'
-  end
   for _, p in pairs(extra_points) do
     local x = math.round((p[1] - 1920) * minscale + screen.width)
     local y = math.round((p[2] - 0) * minscale)
     ans = ans .. x .. ',' .. y .. ',' .. getColor(x, y).hex .. '|'
   end
+  for _, p in pairs(points) do
+    local x = math.round(p[1] * minscale)
+    local y = math.round(p[2] * minscale)
+    ans = ans .. x .. ',' .. y .. ',' .. getColor(x, y).hex .. '|'
+  end
   return ans:sub(1, #ans - 1)
 end
 
+-- path.基建换班 = function()
+--  -- 宿舍换人
+--  local f
+--  f = function(i)
+--    path.跳转("基建")
+--    if not appearTap("宿舍列表" .. i) then
+--      log("未找到宿舍列表" .. i)
+--      return
+--    end
+--
+--    if not wait(function()
+--      if findAny({"进驻信息", "进驻信息选中"}) then return true end
+--      if findOne("进驻总览") and findTap("宿舍列表" .. i) then
+--        disappear("进驻总览", 1)
+--      end
+--    end, 10) then return end
+--
+--    if not wait(function()
+--      if findOne("进驻信息选中") and findOne("当前房间入住信息") then
+--        return true
+--      end
+--      if findTap("进驻信息") then
+--        disappear("进驻信息", 1)
+--      end
+--    end, 10) then return end
+--
+--    if not wait(function()
+--      if not findOne("当前房间入住信息") then return true end
+--      tap("进驻第一人")
+--    end, 5) then return end
+--    if not appear("确认蓝", 5) then return end
+--    log(325)
+--
+--    if not wait(function()
+--      if findOne("干员未选中") then return true end
+--      tap("清空选择")
+--    end, 5) then return end
+--
+--    local state = sample()
+--    tap("心情")
+--    disappear(state, .5)
+--    state = sample()
+--    tap("心情")
+--    disappear(state, .5)
+--
+--    for j = 1, 5 do tap("干员选择列表" .. j) end
+--    tap("确认蓝")
+--
+--    log(appear({"排班调整提示", "进驻信息", "进驻信息选中"}, 5))
+--    if appear({"排班调整提示", "进驻信息", "进驻信息选中"}, 5) ==
+--      "排班调整提示" then
+--      log(355)
+--
+--      if not wait(function()
+--        if not findOne("排班调整提示") then return true end
+--        tap("排班调整确认")
+--      end, 5) then return end
+--    end
+--  end
+--  for i = 1, 4 do f(i) end
+--
 path.基建换班 = function()
   -- 宿舍换人
-  path.跳转("基建")
+  --  path.跳转("基建")
+  if not wait(function()
+    if findOne("撤下干员") then return true end
+    if findTap("进驻总览") then disappear("进驻总览", 1) end
+  end, 10) then return end
+  local swip = function(up, starty, endy)
+    if up then
+      starty = starty or screen.height // 4 * 3
+      endy = endy or 0
+    else
+      starty = starty or screen.height // 4
+      endy = endy or screen.height
+    end
+    slid((1867 - 1919) * minscale + screen.width, starty,
+         (1867 - 1919) * minscale + screen.width, endy, 1000)
+    ssleep(.33)
+
+    tap("入驻干员右侧")
+    ssleep(.33)
+    --    local state = sample()
+    --    while disappear(state, .5) do state = sample() end
+  end
+  while not findOne("入驻干员底部") do
+    log(391)
+    swip(true)
+    while true do
+      local x = findOne("宿舍")
+      if x then
+        swip(true, x[2])
+        break
+      else
+        break
+      end
+    end
+  end
+
+  exit()
   local f
-  f = function(i)
-    if not findTap("宿舍列表" .. i) then return end
+  f = function()
+    local x = findOne("宿舍")
+    if not x then return end
+    tap({x[1] + math.round((1488 - 1148) * minscale), x[2]})
+    log({x[1], x[2]}, {x[1] + math.round((1488 - 1148) * minscale), x[2]})
+
+    if not appear("确认蓝", 5) then return end
 
     if not wait(function()
-      if findAny({"进驻信息", "进驻信息选中"}) then return true end
-      tap("宿舍列表" .. i)
+      if findOne("干员未选中") then return true end
+      tap("清空选择")
     end, 5) then return end
-
-    if not wait(function()
-      if findOne("进驻信息选中") and
-        (not disappear("进驻信息选中", .5)) then return true end
-      findTap("进驻信息")
-      disappear("进驻信息", .5)
-    end, 5) then return end
-
-    tap("进驻第一人")
-    if not appearTap("清空选择", 5) then return end
-    if not disappear("干员选中") then return end
 
     local state = sample()
     tap("心情")
-    disappear(state, 1)
+    disappear(state, .5)
     state = sample()
     tap("心情")
-    disappear(state, 1)
+    disappear(state, .5)
 
     for j = 1, 5 do tap("干员选择列表" .. j) end
     tap("确认蓝")
-    if appear("排班调整提示", 1) then
+    if appear({"排班调整提示", "撤下干员"}, 5) == "排班调整提示" then
       if not wait(function()
         if not findOne("排班调整提示") then return true end
         tap("排班调整确认")
       end, 5) then return end
     end
-    path.跳转("基建", true)
+    if not appear("撤下干员") then return end
+    return false
   end
-  for i = 1, 4 do f(i) end
+
+  for i = 1, 15 do
+    if i ~= 1 then swip(true) end
+    while f() do end
+    if findOne("入驻干员底部") then break end
+  end
 
   -- 其他换人
-  path.跳转("基建")
-  if not wait(function()
-    if findOne("撤下干员") then return true end
-    findTap("进驻总览")
-  end, 5) then return end
-
   f = function()
     if not findTap("入驻干员") then return end
     if not appear("确认蓝", 5) then return end
@@ -348,27 +453,29 @@ path.基建换班 = function()
     findTap("筛选技能")
     tap("筛选确认")
     local limit = 1
+    if not appear("确认蓝", 5) then return end
     if appearTap("清空选择", 1) then limit = 5 end
-    if not disappear("干员选中") then return end
+    if not wait(function()
+      if findOne("干员未选中") then return true end
+      tap("清空选择")
+    end, 5) then return end
     for j = 1, limit do tap("干员选择列表" .. j) end
     tap("确认蓝")
-    if appear("排班调整提示") then tap("排班调整确认") end
+    if appear({"排班调整提示", "撤下干员"}, 5) == "排班调整提示" then
+      if not wait(function()
+        if not findOne("排班调整提示") then return true end
+        tap("排班调整确认")
+      end, 5) then return end
+    end
     if not appear("撤下干员") then return end
     return true
   end
 
-  appear("入驻干员", 1)
-  for i = 1, 10 do
-    if i ~= 1 then
-      slid((1867 - 1919) * minscale + screen.width,
-           screen.height - 150 * minscale,
-           (1867 - 1919) * minscale + screen.width, screen.height // 4, 400)
-      ssleep(.2)
-      tap("入驻干员右侧")
-    end
+  for i = 1, 15 do
+    if i ~= 1 then swip() end
     while f() do end
+    if findOne("入驻干员顶部") then break end
   end
-  path.跳转("基建", true)
 end
 
 path.制造加速 = function()
@@ -379,15 +486,18 @@ path.制造加速 = function()
   local station
   for i = 1, #point.基建左侧列表 do
     local x, y = table.unpack(point["基建左侧列表" .. i])
-    log(x, y, i)
+    --    log(x, y, i)
     if compareColor(x, y, "#FFCC00", 99) then
-      log(380, i)
+      --      log(380, i)
       station = {x, y}
       break
     end
   end
 
-  if not station then return end
+  if not station then
+    log("未找到制造站")
+    return
+  end
   tap(station)
   disappear("进驻总览")
   if not wait(function()
@@ -400,10 +510,12 @@ path.制造加速 = function()
     findTap("制造站加速")
   end, 5) then return end
   tap("无人机加速最大")
-  tap("无人机加速确定")
-  if not appear("制造站加速") then return end
+  if not wait(function()
+    if findOne("制造站加速") then return true end
+    tap("无人机加速确定")
+  end, 5) then return end
   tap("制造站收取")
-  path.跳转("基建", true)
+  --  path.跳转("基建", true)
 end
 
 path.线索搜集 = function()
@@ -437,25 +549,39 @@ path.线索搜集 = function()
       appear("线索传递", 1)
     end, 5) then return end
   end
+  log(433)
   if not appear("线索传递", 5) then return end
+  log(434)
 
-  if findTap("信用奖励有") then
-    while appear("信用奖励返回") do
-      if findOne("未达线索上限") then
-        break
-      else
-        tap("返回")
-        path.线索布置()
-        path.线索传递()
-        tap("信用奖励有")
+  if findOne("信用奖励有") then
+    local f
+    f = function()
+      if not wait(function()
+        if findOne("信用奖励返回") then return true end
+        if findTap("信用奖励有") then
+          appear("信用奖励返回", 1)
+        end
+      end, 5) then return end
+      while appear("信用奖励返回") do
+        if findOne("未达线索上限") then
+          break
+        else
+          tap("返回")
+          path.线索布置()
+          path.线索传递()
+          return f()
+          --          tap("信用奖励有")
+        end
       end
+      return true
     end
+    if not f() then return end
     tap("信用奖励领取")
-    tap("返回")
+    if not appear("线索传递") then tap("返回") end
   end
   appear("线索传递")
   path.线索布置()
-  path.跳转("基建", true)
+  --  path.跳转("基建", true)
 end
 
 path.线索布置 = function()
@@ -569,10 +695,12 @@ path.任务收集 = function()
       end, 5) then return end
       tap("收集全部")
       if not disappear("收集全部", 5) then return end
-      if not wait(function()
-        if findOne("主页") then return true end
-        tap("收集全部")
-      end, 5) then return end
+      if disappear("主页") then
+        if not wait(function()
+          if findOne("主页") then return true end
+          tap("收集全部")
+        end, 5) then return end
+      end
     end
   end
 end
@@ -585,17 +713,20 @@ path.信用购买 = function()
   end, 5) then return end
   if not appear("信用交易所") then return end
   if findOne("收取信用有") then
-    if not wait(function()
-      if not findOne("信用交易所") then return true end
-      tap("收取信用有")
-    end, 5) then return end
-    if not wait(function()
-      if findOne("信用交易所") then return true end
-      tap("收取信用有")
-    end, 5) then return end
+    local f = function()
+      if not wait(function()
+        if not findOne("信用交易所") then return true end
+        if not findTap("收取信用有") then return true end
+      end, 5) then return end
+      if not wait(function()
+        if findOne("信用交易所") then return true end
+        tap("收取信用有")
+      end, 5) then return end
+    end
+    f()
   end
   local enough = true
-  for _ = 1, 10 do
+  for _ = 1, 20 do
     if not wait(function()
       if findOne("信用不足") then
         enough = false
@@ -605,11 +736,9 @@ path.信用购买 = function()
       if findTap("购买物品") then return true end
       if findAny(point["信用交易所列表"]) and findOne("信用交易所") then
         findTap(point["信用交易所列表"])
-        appear("购买物品", 1)
-      else
-        tap("收取信用有")
+        appear("购买物品")
       end
-    end, 5) then return end
+    end, 10) then return end
     if not enough then return end
   end
 end
@@ -963,6 +1092,7 @@ end
 path.访问好友 = function()
   if communication_enough then return end
   path.跳转("好友")
+  log(1019)
   if not wait(function()
     if findOne("好友列表") then return true end
     tap('好友列表')
@@ -1041,23 +1171,42 @@ path.公招刷新 = function()
   local f, g
 
   f = function(i)
-    if findTap("聘用候选人列表" .. i) then
+    log(1044, i)
+    if findOne("公开招募确认蓝") then tap("返回") end
+    local see =
+      appear({"聘用候选人列表" .. i, "公开招募列表" .. i})
+    if see == "聘用候选人列表" .. i then
       log(i, 1001)
-      -- 聘用
-      if not disappear("公开招募") then return end
       if not wait(function()
-        if findOne("公开招募") then return true end
+        if not findOne("公开招募") then return true end
+        if findTap("聘用候选人列表" .. i) then
+          log(1052)
+          disappear("公开招募", 1)
+        end
+      end, 5) then return end
+      -- 聘用
+      if not wait(function()
+        if findOne("公开招募") and findOne("主页") then return true end
         tap("开包skip")
       end, 15) then return end
       return f(i)
     end
-    if findTap("公开招募列表" .. i) then
+    if see == "公开招募列表" .. i then
       -- 刷新
-      if not appear("公开招募确认蓝") then return end
+      if not wait(function()
+        if findOne("公开招募确认蓝") then return true end
+        if findTap("公开招募列表" .. i) then
+          log(1068)
+          appear("公开招募确认蓝", 1)
+        end
+      end, 5) then return end
+      local empty_tags = true
       local tags = {}
       local ocr_text, ocr_info
       local max_star = 4
-      g = function()
+      local prev_tags = nil
+
+      g = function(disable_refresh_check)
         -- retry ocr if contains invalid tags
         for j = 1, 6 do
           for _ = 1, 5 do
@@ -1065,6 +1214,7 @@ path.公招刷新 = function()
             ocr_text, _ = ocr(table.unpack(p))
             if not ocr_text then break end
             ocr_text = string.map(ocr_text, {
+              ["'"] = "",
               [" "] = "",
               ["."] = "",
               ["。"] = "",
@@ -1076,21 +1226,40 @@ path.公招刷新 = function()
               ["，"] = "",
               ["("] = "",
               [")"] = "",
+              ["{"] = "",
+              ["}"] = "",
+              ["v"] = "",
+              ["^"] = "",
+              ["4"] = "",
             })
-            if #ocr_text == 0 then break end
+
+            -- should be at least dual chinese characters
+            if #ocr_text < 6 then break end
+
             if table.includes(tag, ocr_text) then
               tags[ocr_text] = {p[1], p[2]}
+              empty_tags = false
               break
             end
             log("invalid tag", ocr_text)
           end
         end
-        if next(tags) == nil then return end
-        log(1092,tags)
+        --        if next(tags) == nil then return end
+        if empty_tags then return end
+
+        log(1092, tags)
+        if not disable_refresh_check and prev_tags and
+          table.contains(table.keys(tags), table.keys(prev_tags)) then
+          log("==> enable refresh check")
+          log(table.keys(tags), table.keys(prev_tags))
+          return g(true)
+        end
+
         local tag4 = table.filter(tag5, function(rule)
           return table.all(rule[1], function(r) return tags[r] end)
         end)
-        log(1093,tag4)
+        log(1093, tag4)
+
         if #tag4 == 0 then
           if findTap("公开招募标签刷新蓝") then
             if not disappear("公开招募") then return end
@@ -1102,23 +1271,37 @@ path.公招刷新 = function()
             return g()
           else
             tap("返回")
-            if not appear("公开招募箭头") then return end
+            if not appear("公开招募箭头") or
+              not appear("公开招募列表" .. i) then return end
           end
         else
           for _, v in pairs(tag4) do max_star = max(max_star, v[2]) end
           log(max_star)
           if max_star == 4 and star4_auto then
-            for _, v in pairs(tag4[1][1]) do
-              log(v)
-              tap(tags[v])
-              tap("公开招募时间减")
-              if not debug0416 then
-                tap("公开招募确认蓝")
-              else
-                tap("返回")
+            log(1144)
+
+            local list = tag4[1][1]
+            if longest_tag then
+              list = {{}}
+              for _, v in pairs(tag4) do
+                if #list[1] < #v[1] then list = v end
               end
-              if not appear("公开招募箭头") then return end
+              list = list[1]
             end
+            log(1145)
+
+            for _, v in pairs(list) do
+              log("tap", v)
+              tap(tags[v])
+            end
+            tap("公开招募时间减")
+            if not debug0416 then
+              log(1131)
+              tap("公开招募确认蓝")
+            else
+              tap("返回")
+            end
+            if not appear("公开招募箭头") then return end
           end
         end
       end

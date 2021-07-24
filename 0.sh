@@ -2,7 +2,7 @@
 {
 
   declare -A default
-  default[dst]=q1
+  default[dst]=localhost
   restartcolor() {
     # 重启节点精灵，以适应分辨率变更
     adb shell am force-stop com.aojoy.aplug
