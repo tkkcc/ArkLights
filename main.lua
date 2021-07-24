@@ -1,6 +1,6 @@
 -- debug option, should be all false / zero / empty in release
 predebug = false
---predebug = true
+-- predebug = true
 test_some = true
 test_fight = false
 no_config_cache = false
@@ -50,7 +50,8 @@ if predebug then
   t = "宿舍列表1"
   log(t, point[t])
   log(33, findOne(t))
---  path.跳转("基建", true)
+  zoom()
+  --  path.跳转("基建", true)
   exit()
 end
 
@@ -283,11 +284,15 @@ if test_some then
   password = ""
   if appid == bppid then password = "" end
 
+  --  run("制造加速")
   --  run("邮件收取", "基建收获", "基建换班", "副手换人",
   --      "制造加速", "线索搜集", "访问好友", "信用购买",
   --      "公招刷新", "任务收集")
---  run("邮件收取", "基建换班")
-  run( "基建换班")
+  --    TODO "线索搜集"
+  run("访问好友", "信用购买", "公招刷新", "任务收集")
+  --  run("副手换人")
+  --  run("邮件收取","")
+  --  run("邮件收取", "基建收获", "基建换班")
   exit()
 end
 

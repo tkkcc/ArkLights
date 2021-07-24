@@ -250,7 +250,9 @@ end
 
 log_history = {}
 log = function(...)
-  local l = {map(tostring, ' ', table.unpack(map(table2string, {...})))}
+  local l = {
+    map(tostring, running, ' ', table.unpack(map(table2string, {...}))),
+  }
   l = map(removeFuncHash, l)
   l = map(table2string, l)
   local a = time()
@@ -384,17 +386,7 @@ swipq = function(dis)
 end
 
 zoom = function()
-  local paths
-  paths = {
-    {
-      {x = math.round(750 * wscale), y = math.round(850 * hscale)},
-      {x = screen.width // 2, y = screen.height // 2},
-    }, {
-      {x = math.round(1550 * wscale), y = math.round(350 * hscale)},
-      {x = screen.width // 2, y = screen.height // 2},
-    },
-  }
-  paths = {
+  local paths = {
     {
       {x = math.round(100 * wscale), y = screen.height // 2},
       {x = screen.width // 2 - 100, y = screen.height // 2},
@@ -403,7 +395,8 @@ zoom = function()
       {x = screen.width // 2, y = screen.height // 2},
     },
   }
-  gesture(paths, 1000);
+  gesture(paths, 100)
+  sleep(100)
 end
 
 auto = function(p, fallback)
@@ -421,7 +414,7 @@ auto = function(p, fallback)
         end
       end
     end
-    timeout = 1
+    timeout = 0
     -- if findAny({"进驻信息", "进驻信息选中"}) then timeout = 3 end
     local e = wait(check, timeout)
 
@@ -438,7 +431,7 @@ auto = function(p, fallback)
         log(x)
         if x == "返回确认" then
           if fallback then
-            log(437, fallback["返回确认"])
+            --            log(437, fallback["返回确认"])
             tap(fallback["返回确认"])
             --            disappear("返回确认")
           else
@@ -452,6 +445,8 @@ auto = function(p, fallback)
       else
         tap(p["其它"])
       end
+      -- wait for fallback
+      --      ssleep(.5)
     end
   end
 end
@@ -477,6 +472,7 @@ run = function(...)
   menuConfig({x = 0, y = screen.height / 2 - 50})
   update_state()
   for _, v in ipairs(arg) do
+    running = v
     if type(v) == 'function' then
       v()
     else
