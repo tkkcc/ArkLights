@@ -395,8 +395,9 @@ zoom = function()
       {x = screen.width // 2, y = screen.height // 2},
     },
   }
-  gesture(paths, 100)
-  sleep(100)
+  local duration = 100
+  gesture(paths, duration)
+  sleep(duration)
 end
 
 auto = function(p, fallback)
@@ -425,25 +426,33 @@ auto = function(p, fallback)
     if not e then
       log("auto -> fallback")
       local x = table.findv({
-        "返回确认", "活动公告返回", "签到返回",
+        "返回确认", "活动公告返回", "签到返回", "返回",
+        "返回2", "返回3", "返回4",
       }, findOne)
       if x then
         log(x)
-        if x == "返回确认" then
-          if fallback then
-            --            log(437, fallback["返回确认"])
-            tap(fallback["返回确认"])
-            --            disappear("返回确认")
-          else
-            log(439)
-            tap("右确认")
-            --            disappear("返回确认")
-          end
+        if x == "活动公告返回" then
+          wait(function()
+            if not findOne(x) then return true end
+            tap(x)
+            disappear(x, 1)
+          end, 5)
+        elseif x == "返回确认" then
+          wait(function()
+            if not findOne(x) then return true end
+            tap(fallback and fallback[x] or "右确认")
+            disappear(x, 1)
+            appear("进驻总览", 1)
+          end, 5)
         else
           tap(x)
         end
       else
-        tap(p["其它"])
+        log("no fallback sign found")
+        --        tap(p.other)
+        --        tap("返回")
+        --        ssleep(.5)
+        --        tap(p["其它"])
       end
       -- wait for fallback
       --      ssleep(.5)
