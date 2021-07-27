@@ -90,6 +90,7 @@ end
 
 table.keys = function(t)
   local a = {}
+  t = t or a
   for k, _ in pairs(t) do table.insert(a, k) end
   return a
 end
@@ -250,9 +251,8 @@ end
 
 log_history = {}
 log = function(...)
-  local l = {
-    map(tostring, running, ' ', table.unpack(map(table2string, {...}))),
-  }
+  local arg = {...}
+  local l = {map(tostring, running, ' ', table.unpack(map(table2string, arg)))}
   l = map(removeFuncHash, l)
   l = map(table2string, l)
   local a = time()
@@ -273,11 +273,12 @@ stop = function(msg)
   exit()
 end
 
-findColorAbsolute = function(color)
+findColorAbsolute = function(color, confidence)
+  confidence = confidence or 100
   -- keepScreen(true)
   for x, y, c in color:gmatch("(%d+),(%d+),(#[^|]+)") do
     -- log(x, y, c)
-    if not compareColor(tonumber(x), tonumber(y), c, 99) then
+    if not compareColor(tonumber(x), tonumber(y), c, confidence) then
       -- if getColor(tonumber(x), tonumber(y)).hex ~= c then
       if verbose_fca then log(x, y, c) end
       -- keepScreen(false)
@@ -289,23 +290,23 @@ findColorAbsolute = function(color)
 end
 
 findOne_last_time = 0
-findOne = function(x)
+findOne = function(x, confidence)
   -- local findOneMinInterval = 1
   -- sleep(16 - min(time() - findOne_last_time, 16))
   -- findOne_last_time = time()
 
   local x0 = x
-  local confidence = 99
+  confidence = confidence or 99
   if type(x) == 'string' and not x:find(coord_delimeter) then x = point[x] end
   if type(x) == "table" then return x end
   if type(x) == "string" then
     local pos
     if rfl[x0] then
-      pos = findColorAbsolute(x)
+      pos = findColorAbsolute(x, confidence)
     else
       local color = shallowCopy(rfl[x0] or {0, 0, screen.width, screen.height})
       table.extend(color, {x, confidence})
-      pos = findColor(color)
+      pos = findColor(color, confidence)
     end
     if pos then return {pos.x, pos.y} end
   end
@@ -313,8 +314,8 @@ end
 
 findAny = function(x) return appear(x, 0, 0) end
 
-findAll = function(x)
-  local confidence = 99
+findAll = function(x, confidence)
+  confidence = confidence or 99
   local color = shallowCopy(rfl[x] or {0, 0, screen.width, screen.height})
   table.extend(color, {point[x], confidence})
   return findColors(color)
@@ -336,7 +337,7 @@ tap = function(x, retry, allow_outside_game)
       x = map(tonumber, {x:sub(1, p - 1), x:sub(p + 1, q - 1)})
     end
   end
-  -- log(x0, x)
+  log("tap", x0, x)
   if type(x) ~= "table" then return end
   -- log('click', x[1], x[2], type(x[1]))
   click(x[1], x[2])
@@ -349,7 +350,8 @@ tap = function(x, retry, allow_outside_game)
       if not findOne('面板') then return true end
       log("retap", x0)
       tap(x0, true, allow_outside_game)
-    end, 1)
+      log(352)
+    end, 10)
   end
 end
 
@@ -386,18 +388,34 @@ swipq = function(dis)
 end
 
 zoom = function()
+  if not findOne("进驻总览") then path.跳转("基建") end
   local paths = {
     {
-      {x = math.round(100 * wscale), y = screen.height // 2},
-      {x = screen.width // 2 - 100, y = screen.height // 2},
+      {x = math.round(200 * wscale), y = screen.height - 200},
+      {x = screen.width // 2, y = screen.height - 200},
     }, {
-      {x = math.round(1820 * wscale), y = screen.height // 2},
-      {x = screen.width // 2, y = screen.height // 2},
+      {x = math.round(1720 * wscale), y = screen.height - 200},
+      {x = screen.width // 2, y = screen.height - 200},
     },
   }
-  local duration = 100
+  -- {0,0,0,0,"1832,56,#FBFBFB|148,56,#313131",95}
+
+  -- 455,42,#B9B8B9
+  paths = {
+    {
+      {x = 1832 - 1920 + screen.width, y = 56 * minscale},
+      {x = screen.width // 2 - 100, y = 56 * minscale},
+    }, {
+      {x = 148, y = 56 * minscale},
+      {x = screen.width // 2 + 100, y = 56 * minscale},
+    },
+  }
+  -- 89,35,#313131
+  -- local paths  = "1273,42,#333333|1085,36,#B5B5B5"
+  local duration = 50
   gesture(paths, duration)
-  sleep(duration)
+  -- TODO ?
+  -- sleep(duration)
 end
 
 auto = function(p, fallback)
@@ -438,12 +456,21 @@ auto = function(p, fallback)
             disappear(x, 1)
           end, 5)
         elseif x == "返回确认" then
-          wait(function()
-            if not findOne(x) then return true end
-            tap(fallback and fallback[x] or "右确认")
-            disappear(x, 1)
-            appear("进驻总览", 1)
-          end, 5)
+          leaving_jump = false
+          if not wait(function()
+            if findOne("进驻总览") then return true end
+            if findOne("返回确认") then
+              tap("左取消")
+              disappear("返回确认")
+            end
+          end, 10) then return end
+          leaving_jump = true
+          -- wait(function()
+          --   if not findOne(x) then return true end
+          --   tap(fallback and fallback[x] or "右确认")
+          --   disappear(x, 1)
+          --   appear("进驻总览", 2)
+          -- end, 10)
         else
           tap(x)
         end

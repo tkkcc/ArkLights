@@ -27,7 +27,7 @@ bppid = "com.hypergryph.arknights.bilibili"
 local app_info = getAppinfo(appid)
 local bpp_info = getAppinfo(bppid)
 if not app_info and not bpp_info then stop("未安装明日方舟官服或B服") end
-if bpp_info and not app_info then appid = bappid end
+if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
@@ -47,15 +47,22 @@ if predebug then
   end
   log(40)
 
-  --  t = "宿舍列表1"
-  --  zoom()
+  -- t = "宿舍列表1"
+  -- path.跳转("基建")
   t = "缩放结束"
   t = "返回2"
+  t = "主页"
+  t = "未达线索上限"
+  t = "可露希尔推荐"
+  t = "返回确认"
   log(t, point[t])
+  -- exit()
+
   log(33, findOne(t))
   --  findTap("返回")
   --  path.跳转("基建", true)
   --    path.跳转("公开招募")
+  zoom()
   exit()
 end
 
@@ -288,10 +295,12 @@ if test_some then
   password = ""
   if appid == bppid then password = "" end
 
-  run("公招刷新")
---  run("邮件收取", "基建收获", "基建换班", "副手换人",
---      "制造加速", "线索搜集", "信用购买", "公招刷新",
---      "任务收集")
+  run("邮件收取", "基建收获", "基建换班", "副手换人",
+      "制造加速", "线索搜集", "公招刷新",
+      "任务收集")
+  -- run("线索搜集", "信用购买", "公招刷新", "任务收集")
+  -- run("公招刷新")
+  -- run("信用购买", "公招刷新")
   exit()
 end
 
