@@ -116,6 +116,7 @@ path.base = {
 }
 
 path.邮件收取 = function()
+  path.跳转("首页")
   path.跳转("邮件")
 
   log(122)
@@ -146,7 +147,7 @@ path.基建收获 = function()
   if not wait(function()
     if not appearTap("点击全部收取") then return true end
   end, 15) then return end
-  tap("控制中枢")
+  tap("基建右上角")
 end
 
 prev_jump = "基建"
@@ -223,6 +224,7 @@ path.跳转 = function(x, disable_quick_jump)
         tap("右确认")
         return
       end
+      if not appear("主页列表任务") then return end
       tap("主页列表" .. home_target)
       log(217)
       if not bypass() then return end
@@ -496,31 +498,18 @@ end
 
 path.制造加速 = function()
   path.跳转("基建")
-  --  swipq("right")
-  --  sleep(.4)
-
   local station
   for i = 1, #point.基建左侧列表 do
     local x, y = table.unpack(point["基建左侧列表" .. i])
-    --    log(x, y, i)
     if compareColor(x, y, "#FFCC00", 99) then
-      --      log(380, i)
       station = {x, y}
       break
     end
   end
-
-  if not station then
-    log("未找到制造站")
-    return
-  end
+  if not station then return end
   tap(station)
-  disappear("进驻总览")
-  if not wait(function()
-    if findAny({"进驻信息", "进驻信息选中"}) then return true end
-    if findOne("进驻总览") then tap(station) end
-  end, 5) then return end
-  tap("制造站进度")
+  if not disappear("进驻总览", 10) then return end
+  if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
   if not wait(function()
     if findOne("无人机加速") then return true end
     findTap("制造站加速")
@@ -531,7 +520,6 @@ path.制造加速 = function()
     tap("无人机加速确定")
   end, 5) then return end
   tap("制造站收取")
-  --  path.跳转("基建", true)
 end
 
 path.线索搜集 = function()
@@ -539,20 +527,14 @@ path.线索搜集 = function()
 
   local station = findOne("会客厅")
   if not station then return end
-
-  -- this check if not enough
-  --  if not debug0721 and not appear("会客厅有", 1) then return end
-
-  if not wait(function()
-    if findAny({"进驻信息", "进驻信息选中"}) then return true end
-    if findOne("进驻总览") then tap(station) end
-  end, 5) then return end
-
+  tap(station)
+  if not disappear("进驻总览", 10) then return end
+  if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
   tap("制造站进度")
   if appear("本次线索交流活动", 3) then
     log(555)
     if not wait(function()
-      if findOne("线索传递") then return end
+      if findOne("线索传递") then return true end
       log(556)
       tap("返回")
       log(557)
@@ -584,18 +566,14 @@ path.线索搜集 = function()
         disappear("线索传递", 1)
       end
     end, 5) then return end
-    while appear("信用奖励返回") do
-      log(444)
-      if findOne("未达线索上限") then
-        tap("信用奖励返回")
-        break
-      else
-        log(445)
-        tap("返回")
-        path.线索布置()
-        path.线索传递()
-        return f()
-      end
+    -- appear("信用奖励返回")
+    -- log(444)
+    if not findOne("未达线索上限") then
+      log(445)
+      tap("返回")
+      path.线索布置()
+      path.线索传递()
+      return f()
     end
 
     -- TODO: need recheck after 领取？
@@ -607,8 +585,8 @@ path.线索搜集 = function()
         return f()
       end
     end
-
-    if not appear("线索传递") then tap("返回") end
+    findTap("信用奖励返回")
+    if not appear("线索传递") then return end
     return true
   end
   if not f() then return end
@@ -776,33 +754,26 @@ path.信用购买 = function()
     f()
   end
   local enough = false
-  appear("信用交易所列表10")
-  -- TODO 
-  while true do
-    log(747, i)
-    if findOne("信用交易所") and findOne("信用交易所列表" .. i) then
-      if not wait(function()
-        if findOne("购买物品") then return true end
-        if findOne("信用交易所") and findTap("信用交易所列表" .. i) then
-          appear("购买物品", 1)
-        else
-          tap("收取信用有")
-        end
-      end, 10) then return end
+  -- appear("信用交易所列表10")
+  log(760)
+  if not wait(function()
+    log(747)
+    if findOne("信用不足") then return true end
+    log(748)
+    if findTap("购买物品") then return end
+    log(749)
+    if not findOne("信用交易所") then
+      tap("信用交易所")
+      return
     end
-    log(748, i)
-    tap("购买物品")
-    if findOne("信用不足") then
-      enought = true
-      log(719)
+    log(750)
+    if findOne("信用交易所") and not appear(point["信用交易所列表"]) then
       return true
     end
-    log(749, i)
-    if enough then
-      log("信用不足")
-      break
-    end
-  end
+    log(771)
+    findTap(point["信用交易所列表"])
+    appear("购买物品")
+  end, 60) then return end
   log(758)
 end
 
@@ -1271,6 +1242,8 @@ path.公招刷新 = function()
       end, 5) then return end
       local prev_tags = nil
       g = function(disable_refresh_check)
+        log("1243", prev_tags)
+
         local empty_tags = true
         local tags = {}
         local ocr_text
@@ -1326,27 +1299,27 @@ path.公招刷新 = function()
         --   辅助干员 = {806, 653},
         --   重装干员 = {1057, 544},
         -- }
-        log(i)
-        log(disable_refresh_check)
-        log(prev_tags)
-        log(table.keys(tags))
-        log(table.keys(tags))
+        -- log("----------------")
+        -- log(i)
+        -- log(disable_refresh_check)
+        -- log(prev_tags)
+        -- log(table.keys(tags))
         --        TODO: 不log就不工作
-        log(table.keys(prev_tags))
+        -- log(table.keys(prev_tags))
 
-        if not disable_refresh_check and prev_tags and
-          table.contains(table.keys(tags), table.keys(prev_tags)) then
-          log("==> enable refresh check")
-          log(table.keys(tags), table.keys(prev_tags))
-          prev_tags = shallowCopy(tags)
-          -- 假设一轮ocr的耗时已经超过从按下刷新到标签实际刷新的时间
-          -- 因此控制下轮不检查标签刷新
-          -- return g(true)
+        -- if not disable_refresh_check and prev_tags and
+        --   table.contains(table.keys(tags), table.keys(prev_tags)) then
+        --   log("==> enable refresh check")
+        --   -- log(table.keys(tags), table.keys(prev_tags))
+        --   prev_tags = shallowCopy(tags)
+        --   -- 假设一轮ocr的耗时已经超过从按下刷新到标签实际刷新的时间
+        --   -- 因此控制下轮不检查标签刷新
+        --   -- return g(true)
 
-          return g()
-        end
+        --   return g()
+        -- end
         -- exit()
-        prev_tags = shallowCopy(tags)
+        -- prev_tags = shallowCopy(tags)
 
         local tag4 = table.filter(tag5, function(rule)
           return table.all(rule[1], function(r) return tags[r] end)
@@ -1354,13 +1327,11 @@ path.公招刷新 = function()
         log(1093, tag4)
 
         if #tag4 == 0 then
-          if findOne("公开招募标签刷新蓝") then
-            -- if not disappear("公开招募") then return end
-            -- if not wait(function()
-            --   if findOne("公开招募") then return true end
-            --   tap("消耗一次联络机会确认")
-            --   appear("公开招募", 1)
-            -- end, 5) then return end
+          if findTap("公开招募标签刷新蓝") then
+            if not appear("返回确认") then return end
+            tap("右确认")
+            -- TODO: how to check
+            ssleep(2)
             return g()
           else
             tap("返回")

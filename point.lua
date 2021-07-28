@@ -4,6 +4,7 @@ swip_right_max = 10000
 swip_left_max = -swip_right_max
 
 point = {
+  基建右上角= {1832,53},
   好友 = {99, 613},
   缩放结束 = "947,381,#F1F0F1|1451,385,#F1F0F1",
   信赖采样列表 = {{1438, 64}},
@@ -634,6 +635,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  基建右上角="right_top",
   控制中枢 = "center_center_maxscale",
   缩放结束 = "center_center_maxscale",
 

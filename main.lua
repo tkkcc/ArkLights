@@ -55,6 +55,7 @@ if predebug then
   t = "未达线索上限"
   t = "可露希尔推荐"
   t = "返回确认"
+  t = "信用交易所"
   log(t, point[t])
   -- exit()
 
@@ -62,7 +63,7 @@ if predebug then
   --  findTap("返回")
   --  path.跳转("基建", true)
   --    path.跳转("公开招募")
-  zoom()
+  -- zoom()
   exit()
 end
 
@@ -296,11 +297,7 @@ if test_some then
   if appid == bppid then password = "" end
 
   run("邮件收取", "基建收获", "基建换班", "副手换人",
-      "制造加速", "线索搜集", "公招刷新",
-      "任务收集")
-  -- run("线索搜集", "信用购买", "公招刷新", "任务收集")
-  -- run("公招刷新")
-  -- run("信用购买", "公招刷新")
+      "制造加速", "线索搜集", "公招刷新", "任务收集")
   exit()
 end
 

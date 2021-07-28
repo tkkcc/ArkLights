@@ -406,16 +406,16 @@ zoom = function()
       {x = 1832 - 1920 + screen.width, y = 56 * minscale},
       {x = screen.width // 2 - 100, y = 56 * minscale},
     }, {
-      {x = 148, y = 56 * minscale},
+      {x = 1, y = 56 * minscale},
       {x = screen.width // 2 + 100, y = 56 * minscale},
     },
   }
   -- 89,35,#313131
   -- local paths  = "1273,42,#333333|1085,36,#B5B5B5"
-  local duration = 50
+  local duration = 100
   gesture(paths, duration)
-  -- TODO ?
-  -- sleep(duration)
+  -- TODO need sleep?
+  sleep(400)
 end
 
 auto = function(p, fallback)
@@ -458,13 +458,16 @@ auto = function(p, fallback)
         elseif x == "返回确认" then
           leaving_jump = false
           if not wait(function()
-            if findOne("进驻总览") then return true end
+            if not findOne("返回确认") then return true end
             if findOne("返回确认") then
-              tap("左取消")
+              back()
+              -- tap("左取消")
               disappear("返回确认")
             end
           end, 10) then return end
-          leaving_jump = true
+          if appear("进驻总览") then
+            leaving_jump = true
+          end
           -- wait(function()
           --   if not findOne(x) then return true end
           --   tap(fallback and fallback[x] or "右确认")
