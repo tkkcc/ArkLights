@@ -119,7 +119,6 @@ path.邮件收取 = function()
   path.跳转("首页")
   path.跳转("邮件")
 
-  log(122)
   if not wait(function()
     if findAny({"邮件提示", "邮件提示2"}) then return true end
     log(123)
@@ -130,10 +129,18 @@ end
 
 path.基建收获 = function()
   path.跳转("基建")
+  -- TODO
+  -- disappaer("基建提示")
   log(132)
   --  exit()
   -- TODO 提示
-  local x = appear({"基建灯泡蓝", "基建灯泡蓝2"}, 10)
+  local x =
+    appear({"基建灯泡蓝", "基建灯泡蓝2", "线索搜集提示"})
+  if x == "线索搜集提示" then
+    disappear(x, 5)
+    x = appear({"基建灯泡蓝", "基建灯泡蓝2"})
+  end
+
   log(133, x)
   if not x then return end
   log(134)
@@ -342,9 +349,12 @@ path.副手换人 = function()
         disappear("基建副手简报", 1)
       end
     end, 5) then return end
-
-    if appear("干员选中", 1) then tap("干员选择列表1") end
-    if not disappear("干员选中") then return end
+    if appear({"干员未选中", "干员选中"}, 1) then
+      if findOne("干员选中") then
+        tap("干员选择列表1")
+        if not appear("干员未选中", 1) then return end
+      end
+    end
 
     local state = sample("信赖")
     tap("信赖")
@@ -459,9 +469,12 @@ path.基建换班 = function()
     sleep(333)
   end
 
+  local first_look = true
   -- 其他换人
-  f = function(i)
-    if not appearTap("入驻干员", i == 1 and 1 or 0) then return end
+  f = function()
+    local timeout = first_look and 1 or 0
+    first_look = false
+    if not appearTap("入驻干员", timeout) then return end
     if not appear("确认蓝", 5) then return end
     if not wait(function()
       if findOne("筛选取消") then return true end
@@ -509,11 +522,15 @@ path.制造加速 = function()
   if not station then return end
   tap(station)
   if not disappear("进驻总览", 10) then return end
+  log(513)
   if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
+  tap("制造站进度")
+  log(514)
   if not wait(function()
     if findOne("无人机加速") then return true end
     findTap("制造站加速")
   end, 5) then return end
+  log(515)
   tap("无人机加速最大")
   if not wait(function()
     if findOne("制造站加速") then return true end
@@ -626,17 +643,23 @@ path.线索布置 = function()
 
   if p then
     f(p)
-    if not appear("全部") then return end
+    log(646)
+    if not appear("线索布置左列表" .. p:sub(#p), 5) then return end
+    log(647)
 
     for i = 1, 7 do
       if findOne("线索布置左列表" .. i) then
         p = "线索布置左列表" .. i
         f(p)
         appear("线索传递数字右列表" .. i)
-        tap("线索库列表1")
-        if not disappear(p, 3) then return end
+        if not wait(function()
+          if not findOne(p) then return true end
+          tap("线索库列表1")
+          disappear(p)
+        end, 10) then return end
       end
     end
+    log(648)
     tap("解锁线索左")
   end
   if not appear("线索传递") then return end
@@ -647,8 +670,9 @@ path.线索布置 = function()
       if findOne("线索传递") then return true end
       if findAny({"进驻信息", "进驻信息选中"}) then
         tap("制造站进度")
+        appear("线索传递")
       end
-    end, 5) then return path.线索搜集() end
+    end, 10) then return path.线索搜集() end
     return path.线索布置()
   end
 end
@@ -760,19 +784,19 @@ path.信用购买 = function()
     log(747)
     if findOne("信用不足") then return true end
     log(748)
-    if findTap("购买物品") then return end
-    log(749)
+    -- if findTap("购买物品") then return end
+    -- log(749)
     if not findOne("信用交易所") then
-      tap("信用交易所")
+      tap("购买物品")
+      appear({"信用不足", "信用交易所"})
       return
     end
     log(750)
-    if findOne("信用交易所") and not appear(point["信用交易所列表"]) then
-      return true
-    end
+    if findOne("信用交易所") and not appear(point["信用交易所列表"]) and
+      findOne("信用交易所") then return true end
+
     log(771)
     findTap(point["信用交易所列表"])
-    appear("购买物品")
   end, 60) then return end
   log(758)
 end
@@ -789,6 +813,8 @@ end
 
 tick = 0
 path.轮次作战 = function()
+
+  -- log(989)
   if #fight == 0 then return true end
   pre_fight = nil
   cur_fight = nil
@@ -811,6 +837,7 @@ jianpin2name = {
 }
 
 path.作战 = function(x)
+
   local f = startsWithX(x)
   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
@@ -890,6 +917,7 @@ path.开始游戏 = function(x)
 end
 
 path.主线 = function(x)
+  log(990)
   -- split s2-9 to 2 and 9
   local x0 = x
   local chapter = x0:find("-")
@@ -897,30 +925,34 @@ path.主线 = function(x)
   chapter = x0:sub(1, chapter - 1)
   chapter = chapter:sub(chapter:find("%d"))
   local chapter_index = tonumber(chapter) + 1
+  local p={}
+  -- TODO quick repeat fights
+  path.跳转("首页")
+  tap("面板作战")
+  log(920)
+  if not appear("主页") then return end
+  log(921)
+  tap("主题曲")
+  log(922)
+  if not appear("二次呼吸") then return end
+  log(923)
+  if chapter_index <= 4 then
+    tap("觉醒")
+  elseif chapter_index <= 9 then
+    tap("幻灭")
+  end
+  disappear("二次呼吸")
+  appear("二次呼吸")
+  swipq(chapter)
+  tap("作战主线章节列表" .. chapter)
+  tap("作战主线章节列表8")
 
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战")
-      appear("主页")
-      tap("主题曲")
-      appear("怒号光明")
-      if chapter_index <= 4 then
-        tap("觉醒")
-      elseif chapter_index <= 9 then
-        tap("幻灭")
-      end
-      swipq(chapter)
-      tap("作战主线章节列表" .. chapter)
-      tap("作战主线章节列表8")
-    end,
+  -- switch chapter
+
+  p = {
     ["当前进度列表" .. chapter_index] = function()
       swipq(x0)
-      local v = distance[x0]
-      if type(v) == "table" then
-        v = v[#v]
-        -- ssleep(min(math.abs(v) / 500, 1))
-      end
-      if not appearTap("作战列表" .. x) then
+      if not appearTap(x0) then
         -- distance or point error
         log(x .. "未找到")
         bl[x] = false
@@ -928,7 +960,7 @@ path.主线 = function(x)
       end
       return true
     end,
-  })
+  }
   p["按下当前进度列表" .. chapter_index] =
     p["当前进度列表" .. chapter_index]
   if chapter_index <= 4 then -- chapter 0 to 3
@@ -948,7 +980,7 @@ path.主线 = function(x)
       p["按下当前进度列表" .. i] = p["当前进度列表" .. i]
     end
   end
-  auto(p)
+  auto(p, false)
   path.开始游戏(x)
 end
 

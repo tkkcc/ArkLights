@@ -55,16 +55,25 @@ if predebug then
   t = "未达线索上限"
   t = "可露希尔推荐"
   t = "返回确认"
-  t = "信用交易所"
+  t = "作战列表1-7"
+  -- t = "作战中心"
+  -- t = "信用交易所"
   log(t, point[t])
   -- exit()
 
-  log(33, findOne(t))
   --  findTap("返回")
   --  path.跳转("基建", true)
   --    path.跳转("公开招募")
   -- zoom()
+  -- swipq({swip_right_max, -130})
+  -- tap({724, 82})
+  -- swipq("1-7")
+  -- ssleep(1)
+  -- ssleep(3)
+  -- log(33, findOne(t))
+  log(33, findTap(t))
   exit()
+
 end
 
 local outside = runThread("outside")
@@ -188,8 +197,14 @@ if appid_need_user_select then
   })
 end
 
+-- log(192)
+-- ocr(0, 0, 1, 1)
+-- log(193)
 ret = show(ui)
 if not ret then exit() end
+log(196)
+callThreadFun(outside, "preload")
+log(197)
 
 if server == "B服" then appid = bppid end
 log(appid)
@@ -284,7 +299,8 @@ if test_some then
   -- menuConfig({x = 0, y = screen.height / 2 - 50, alpha = 1})
   -- wait_game_up()
   fight = {
-    "LS-5",
+    "1-7",
+    -- "LS-5",
     -- "CE-5",
     -- "AP-4",
     -- "CA-1",
@@ -295,9 +311,11 @@ if test_some then
   username = ""
   password = ""
   if appid == bppid then password = "" end
+  run("轮次作战")
 
-  run("邮件收取", "基建收获", "基建换班", "副手换人",
-      "制造加速", "线索搜集", "公招刷新", "任务收集")
+  -- run("邮件收取", "基建收获", "基建换班", "副手换人",
+  --     "制造加速", "线索搜集", "公招刷新", "任务收集")
+  -- run("信用购买")
   exit()
 end
 

@@ -304,8 +304,9 @@ findOne = function(x, confidence)
     if rfl[x0] then
       pos = findColorAbsolute(x, confidence)
     else
-      local color = shallowCopy(rfl[x0] or {0, 0, screen.width, screen.height})
+      local color = shallowCopy(rfg[x0])
       table.extend(color, {x, confidence})
+      log("findColor",color)
       pos = findColor(color, confidence)
     end
     if pos then return {pos.x, pos.y} end
@@ -347,7 +348,7 @@ tap = function(x, retry, allow_outside_game)
   -- 返回"面板"后易触发数据更新,导致操作失效
   if type(x0) == 'string' and x0:startsWith('面板') then
     wait(function()
-      if not findOne('面板') then return true end
+      if not findOne("面板") then return true end
       log("retap", x0)
       tap(x0, true, allow_outside_game)
       log(352)
@@ -355,7 +356,7 @@ tap = function(x, retry, allow_outside_game)
   end
 end
 
--- quick multiple swip
+-- quick multiple swip, for fights
 -- input distance => {x,y,x',y',time} / list of them
 swipq = function(dis)
   wait_game_up()
@@ -364,22 +365,24 @@ swipq = function(dis)
   if type(dis) ~= "table" then dis = {dis} end
   for _, x in pairs(dis) do
     if type(x) == 'number' then
-      if x == 0 then -- special wait
+      local left_boundary = math.round(200 * minscale)
+      local right_boundary = math.round((1720 - 1920) * minscale + screen.width)
+      local height = math.round(400 * minscale)
+      if x == 0 then -- special wait sign
         ssleep(.4)
       elseif x > 0 then -- magick distance map from xxzhushou to nspirit
-        slid(math.round(200 * wscale), math.round(400 * hscale),
-             math.round(min(1720, 200 + x * 2) * wscale),
-             math.round(400 * hscale), 400)
+        slid(left_boundary, height, min(right_boundary, left_boundary + x * 2),
+             right_boundary, 400)
       elseif x < 0 then
-        slid(math.round(1720 * wscale), math.round(400 * hscale),
-             math.round(max(200, 1720 + x * 2) * wscale),
-             math.round(400 * hscale), 400)
+        slid(right_boundary, height, max(left_boundary, right_boundary + x * 2),
+             height, 400)
       end
     elseif type(x) == 'table' then
       log(table.unpack(x))
       local a, b, c, d, e = table.unpack(x)
-      slid(math.round(a * wscale), math.round(b * hscale),
-           math.round(c * wscale), math.round(d * hscale), e)
+      -- TODO
+      slid(math.round(a * minscale), math.round(b * minscale),
+           math.round(c * minscale), math.round(d * minscale), e)
     else
       stop(413)
     end
@@ -405,7 +408,8 @@ zoom = function()
     {
       {x = 1832 - 1920 + screen.width, y = 56 * minscale},
       {x = screen.width // 2 - 100, y = 56 * minscale},
-    }, {
+    },
+    {
       {x = 1, y = 56 * minscale},
       {x = screen.width // 2 + 100, y = 56 * minscale},
     },
@@ -419,6 +423,7 @@ zoom = function()
 end
 
 auto = function(p, fallback)
+  wait_game_up()
   if type(p) == "function" then return p() end
   if type(p) ~= "table" then return true end
   while true do
@@ -441,7 +446,7 @@ auto = function(p, fallback)
     if finish then return true end
 
     -- fallback: tap false or timeout
-    if not e then
+    if not e and fallback ~= false then
       log("auto -> fallback")
       local x = table.findv({
         "返回确认", "活动公告返回", "签到返回", "返回",
@@ -449,25 +454,26 @@ auto = function(p, fallback)
       }, findOne)
       if x then
         log(x)
-        if x == "活动公告返回" then
-          wait(function()
-            if not findOne(x) then return true end
+        if x == "活动公告返回" or x == "签到返回" then
+          -- deal with everyday popup
+          if wait(function()
+            if findOne("面板") then return true end
             tap(x)
-            disappear(x, 1)
-          end, 5)
+            appear("面板", 1)
+          end, 10) then return end
         elseif x == "返回确认" then
           leaving_jump = false
           if not wait(function()
             if not findOne("返回确认") then return true end
-            if findOne("返回确认") then
-              back()
-              -- tap("左取消")
-              disappear("返回确认")
+            if fallback then
+              tap(fallback[x])
+            else
+              tap("右确认")
             end
+            disappear("返回确认")
           end, 10) then return end
-          if appear("进驻总览") then
-            leaving_jump = true
-          end
+          if appear("进驻总览") then leaving_jump = true end
+
           -- wait(function()
           --   if not findOne(x) then return true end
           --   tap(fallback and fallback[x] or "右确认")
@@ -479,6 +485,8 @@ auto = function(p, fallback)
         end
       else
         log("no fallback sign found")
+        tap(nil)
+
         --        tap(p.other)
         --        tap("返回")
         --        ssleep(.5)
@@ -487,6 +495,7 @@ auto = function(p, fallback)
       -- wait for fallback
       --      ssleep(.5)
     end
+    log(495, "end of while")
   end
 end
 

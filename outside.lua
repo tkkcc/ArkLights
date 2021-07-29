@@ -18,3 +18,8 @@ function goto_github()
   runWeb("https://github.com/" .. github)
   exit()
 end
+function preload()
+  -- ocr initialization needs 5 seconds
+  ocr(0, 0, 1, 1)
+  print("preload finish")
+end
