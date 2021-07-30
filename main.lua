@@ -3,11 +3,11 @@ predebug = false
 -- predebug = true
 test_some = true
 test_fight = false
-no_config_cache = false
+no_config_cache = true
 -- verbose_fca = true
 ok_time = 1
 debug0416 = false
-debug0415 = false
+debug0415 = true
 debug0721 = false
 no_background_after_run = true
 longest_tag = false
@@ -31,49 +31,18 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  local range = {603, 553, 746, 596}
-  --  ans = ocrp({rect = point.公开招募标签范围})
-  --  ans = ocrp({rect = range})
-  --  for k, v in pairs(ans) do log(v.text) end
-  --  exit()
-  --  a, b = ocr(table.unpack(range))--  for k,v in pairs(point.公开招募列表)
-  --  a, b = ocr(table.unpack(point.公开招募标签范围))
-  --  log()
-  if (a) then
-    log(44)
-    --    print(a);
-    log(44)
-    print(JsonEncode(b))
-  end
-  log(40)
-
-  -- t = "宿舍列表1"
-  -- path.跳转("基建")
-  t = "缩放结束"
-  t = "返回2"
-  t = "主页"
-  t = "未达线索上限"
-  t = "可露希尔推荐"
-  t = "返回确认"
-  t = "作战列表1-7"
-  -- t = "作战中心"
-  -- t = "信用交易所"
-  log(t, point[t])
-  -- exit()
-
-  --  findTap("返回")
-  --  path.跳转("基建", true)
-  --    path.跳转("公开招募")
-  -- zoom()
-  -- swipq({swip_right_max, -130})
-  -- tap({724, 82})
-  -- swipq("1-7")
-  -- ssleep(1)
-  -- ssleep(3)
-  -- log(33, findOne(t))
-  log(33, findTap(t))
+  local x = '0-1'
+  swipq(x)
+  local last_dis = distance[x]
+  while type(last_dis) == 'table' do last_dis = last_dis[#last_dis] end
+  last_dis = math.abs(last_dis)
+  if last_dis ~= swip_right_max then ssleep(last_dis / 300) end
+  t = "作战列表" .. x
+  log(66, findOne(t))
+  tap(t)
+  ssleep(1)
+  tap("返回")
   exit()
-
 end
 
 local outside = runThread("outside")
@@ -299,22 +268,16 @@ if test_some then
   -- menuConfig({x = 0, y = screen.height / 2 - 50, alpha = 1})
   -- wait_game_up()
   fight = {
-    "1-7",
-    -- "LS-5",
-    -- "CE-5",
-    -- "AP-4",
-    -- "CA-1",
-    -- "PR-A-2",
-    -- "PR-C-1", "PR-C-2",
+    "1-3", "1-4", "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12",
   }
   -- , "1-2", "S3-3", "S4-5", "R8-2"}
   username = ""
   password = ""
   if appid == bppid then password = "" end
-  run("轮次作战")
+  -- run("轮次作战")
 
-  -- run("邮件收取", "基建收获", "基建换班", "副手换人",
-  --     "制造加速", "线索搜集", "公招刷新", "任务收集")
+  run("邮件收取", "基建收获", "基建换班", "副手换人",
+      "制造加速", "线索搜集","信用购买" ,"公招刷新", "任务收集")
   -- run("信用购买")
   exit()
 end

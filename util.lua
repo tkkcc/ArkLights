@@ -291,6 +291,7 @@ end
 
 findOne_last_time = 0
 findOne = function(x, confidence)
+  if type(x) == "function" then return x() end
   -- local findOneMinInterval = 1
   -- sleep(16 - min(time() - findOne_last_time, 16))
   -- findOne_last_time = time()
@@ -306,7 +307,7 @@ findOne = function(x, confidence)
     else
       local color = shallowCopy(rfg[x0])
       table.extend(color, {x, confidence})
-      log("findColor",color)
+      log("findColor", color)
       pos = findColor(color, confidence)
     end
     if pos then return {pos.x, pos.y} end
@@ -358,18 +359,21 @@ end
 
 -- quick multiple swip, for fights
 -- input distance => {x,y,x',y',time} / list of them
-swipq = function(dis)
+swipq = function(dis, disable_end_sleep)
   wait_game_up()
   if type(dis) == "string" then dis = distance[dis] end
   if not dis then return end
   if type(dis) ~= "table" then dis = {dis} end
-  for _, x in pairs(dis) do
+  log("367",dis)
+  for idx, x in ipairs(dis) do
     if type(x) == 'number' then
       local left_boundary = math.round(200 * minscale)
       local right_boundary = math.round((1720 - 1920) * minscale + screen.width)
       local height = math.round(400 * minscale)
       if x == 0 then -- special wait sign
         ssleep(.4)
+      elseif x == 1 then -- special quit sign
+        return
       elseif x > 0 then -- magick distance map from xxzhushou to nspirit
         slid(left_boundary, height, min(right_boundary, left_boundary + x * 2),
              right_boundary, 400)
@@ -380,13 +384,12 @@ swipq = function(dis)
     elseif type(x) == 'table' then
       log(table.unpack(x))
       local a, b, c, d, e = table.unpack(x)
-      -- TODO
-      slid(math.round(a * minscale), math.round(b * minscale),
-           math.round(c * minscale), math.round(d * minscale), e)
+      slid(math.round(a), math.round(b * minscale), math.round(c),
+           math.round(d * minscale), e)
     else
       stop(413)
     end
-    ssleep(.4)
+    if not (disable_end_sleep and idx == #dis) then ssleep(.4) end
   end
 end
 
@@ -406,12 +409,13 @@ zoom = function()
   -- 455,42,#B9B8B9
   paths = {
     {
-      {x = 1832 - 1920 + screen.width, y = 56 * minscale},
-      {x = screen.width // 2 - 100, y = 56 * minscale},
-    },
-    {
-      {x = 1, y = 56 * minscale},
-      {x = screen.width // 2 + 100, y = 56 * minscale},
+      {
+        x = math.round(1832 - 1920 + screen.width),
+        y = math.round(56 * minscale),
+      }, {x = screen.width // 2 - 100, y = math.round(56 * minscale)},
+    }, {
+      {x = 1, y = math.round(56 * minscale)},
+      {x = screen.width // 2 + 100, y = math.round(56 * minscale)},
     },
   }
   -- 89,35,#313131
@@ -607,17 +611,22 @@ end
 
 -- wait until see node / point / list of node and point
 appear = function(target, timeout, interval, disappear)
-  if type(target) == 'string' or #target == 0 then target = {target} end
+  if not (type(target) == 'table' and #target > 0) then target = {target} end
   return wait(function()
     for _, v in pairs(target) do
+      -- log(615, v)
       if disappear then
-        if #v == 0 and not find(v) then
+        if type(v) == "function" then
+          return not v()
+        elseif #v == 0 and not find(v) then
           return v
         elseif #v > 0 and not findOne(v) then
           return v
         end
       else
-        if #v == 0 and find(v) then
+        if type(v) == "function" then
+          return v()
+        elseif #v == 0 and find(v) then
           return v
         elseif #v > 0 and findOne(v) then
           return v

@@ -116,7 +116,6 @@ path.base = {
 }
 
 path.邮件收取 = function()
-  path.跳转("首页")
   path.跳转("邮件")
 
   if not wait(function()
@@ -167,7 +166,9 @@ path.跳转 = function(x, disable_quick_jump)
     采购中心 = "可露希尔推荐",
     任务 = "任务第一个",
     终端 = "主页",
-    邮件 = "邮件信封",
+    邮件 = function()
+      return (findOne("邮件信封") and findAny({"返回3", "返回4"}))
+    end,
   }
   local plain = {
     邮件 = "面板邮件",
@@ -777,28 +778,22 @@ path.信用购买 = function()
     end
     f()
   end
-  local enough = false
-  -- appear("信用交易所列表10")
   log(760)
   if not wait(function()
-    log(747)
     if findOne("信用不足") then return true end
-    log(748)
-    -- if findTap("购买物品") then return end
-    -- log(749)
     if not findOne("信用交易所") then
       tap("购买物品")
-      appear({"信用不足", "信用交易所"})
-      return
+      -- TODO: 会先点到购买物品的那个物品
+      wait(function()
+        if findOne("信用不足") or not findOne("购买物品") then
+          return true
+        end
+      end, 2)
     end
-    log(750)
     if findOne("信用交易所") and not appear(point["信用交易所列表"]) and
       findOne("信用交易所") then return true end
-
-    log(771)
     findTap(point["信用交易所列表"])
   end, 60) then return end
-  log(758)
 end
 
 same_page_fight = function(pre, cur)
@@ -822,6 +817,7 @@ path.轮次作战 = function()
     tick = tick % #fight + 1
     cur_fight = fight[tick]
     if not same_page_fight(pre_fight, cur_fight) then path.跳转("首页") end
+    log(820, fight, tick)
     path.作战(fight[tick])
   end
 end
@@ -925,38 +921,18 @@ path.主线 = function(x)
   chapter = x0:sub(1, chapter - 1)
   chapter = chapter:sub(chapter:find("%d"))
   local chapter_index = tonumber(chapter) + 1
-  local p={}
-  -- TODO quick repeat fights
-  path.跳转("首页")
-  tap("面板作战")
-  log(920)
-  if not appear("主页") then return end
-  log(921)
-  tap("主题曲")
-  log(922)
-  if not appear("二次呼吸") then return end
-  log(923)
-  if chapter_index <= 4 then
-    tap("觉醒")
-  elseif chapter_index <= 9 then
-    tap("幻灭")
-  end
-  disappear("二次呼吸")
-  appear("二次呼吸")
-  swipq(chapter)
-  tap("作战主线章节列表" .. chapter)
-  tap("作战主线章节列表8")
-
-  -- switch chapter
-
+  local continue = true
+  local p
   p = {
     ["当前进度列表" .. chapter_index] = function()
+      ssleep(1)
+      log(928,x0)
       swipq(x0)
-      if not appearTap(x0) then
+      tap("基建右上角")
+      if not findTap("作战列表" .. x0) then
         -- distance or point error
         log(x .. "未找到")
-        bl[x] = false
-        unfound_fight[x] = (unfound_fight[x] or 0) + 1
+        continue = false
       end
       return true
     end,
@@ -980,8 +956,34 @@ path.主线 = function(x)
       p["按下当前进度列表" .. i] = p["当前进度列表" .. i]
     end
   end
+
+  if not findAny(table.keys(p)) then
+    path.跳转("首页")
+    tap("面板作战")
+    log(920)
+    if not appear("主页") then return end
+    log(921)
+    tap("主题曲")
+    log(922)
+    if not appear("二次呼吸") then return end
+    log(923)
+    if chapter_index <= 4 then
+      tap("觉醒")
+    elseif chapter_index <= 9 then
+      tap("幻灭")
+    end
+    disappear("二次呼吸")
+    if not appear("二次呼吸") then return end
+    swipq(chapter)
+    tap("作战主线章节列表" .. chapter)
+    tap("作战主线章节列表8")
+    if not appear(table.keys(p)) then return end
+  end
+
+  -- TODO add a timeout
   auto(p, false)
-  path.开始游戏(x)
+
+  if continue then path.开始游戏(x) end
 end
 
 update_open_time = function()
