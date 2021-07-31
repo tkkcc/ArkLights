@@ -1,6 +1,6 @@
 -- debug option, should be all false / zero / empty in release
 predebug = false
--- predebug = true
+predebug = true
 test_some = true
 test_fight = false
 no_config_cache = true
@@ -13,12 +13,17 @@ no_background_after_run = true
 longest_tag = false
 
 screen = getScreen()
+if screen.width < screen.height then
+  screen.width, screen.height = screen.height, screen.width
+end
+
 require("util")
 require("point")
 require("path")
 require("tag")
 cron = require("crontab")
 log(time() .. " 分辨率：" .. screen.width .. "x" .. screen.height)
+-- exit()
 
 -- auto switch 官服 and B服
 appid_need_user_select = false
@@ -31,7 +36,42 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  local x = '0-1'
+  swipq("right")
+  distance.t = {-500}
+  local paths = {
+    {
+      {
+        x = math.round((1720 - 1920) * minscale + screen.width),
+        y = math.round(400 * minscale),
+      }, {x = screen.width // 2 - 100, y = math.round(400 * minscale)},
+    },
+  }
+  log(48)
+  gesture(paths, 333)
+  sleep(300)
+  tap({1, 1})
+  -- gesture(paths, 4000)
+  -- tap({1, 1})
+  -- swipq("t", false, 1000)
+  -- tap({960, 959})
+  -- zoom()
+  -- exit()
+  -- log(point["干员选择列表"..1])
+  -- for j = 1, 5 do tap("干员选择列表" .. j) end
+  -- exit()
+  -- log(34)
+  -- slid(2000,100,2000-33,100,400)
+  -- swipq("1-7")
+  -- log(findOne("主页"))
+  -- log(findAny(point["当前进度列表"]))
+  -- tap("作战列表S3-1")
+  -- exit()
+  t = "未达线索上限"
+  log(findOne(t))
+  exit()
+
+  -- local x = 'S3-2'
+  local x = '3-2'
   swipq(x)
   local last_dis = distance[x]
   while type(last_dis) == 'table' do last_dis = last_dis[#last_dis] end
@@ -39,9 +79,9 @@ if predebug then
   if last_dis ~= swip_right_max then ssleep(last_dis / 300) end
   t = "作战列表" .. x
   log(66, findOne(t))
-  tap(t)
-  ssleep(1)
-  tap("返回")
+  -- tap(t)
+  -- ssleep(1)
+  -- tap({1, 1})
   exit()
 end
 
@@ -274,11 +314,12 @@ if test_some then
   username = ""
   password = ""
   if appid == bppid then password = "" end
-  -- run("轮次作战")
 
-  run("邮件收取", "基建收获", "基建换班", "副手换人",
-      "制造加速", "线索搜集","信用购买" ,"公招刷新", "任务收集")
-  -- run("信用购买")
+  -- run("线索搜集", "信用购买")
+
+  -- run("邮件收取", "基建收获", "基建换班", "副手换人",
+  --     "制造加速", "线索搜集", "信用购买", "公招刷新",
+  --     "任务收集")
   exit()
 end
 

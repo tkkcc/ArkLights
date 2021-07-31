@@ -2,10 +2,10 @@
 {
 
   declare -A default
-  default[dst]=localhost
-  restartcolor() {
-    # 重启节点精灵，以适应分辨率变更
-    adb shell am force-stop com.aojoy.aplug
+  default[dst]=192.168.10.173
+  # default[dst]=172.30.25.18
+  # default[dst]=localhost
+  restartcolor() { # 重启节点精灵，以适应分辨率变更 adb shell am force-stop com.aojoy.aplug
     #adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
     sleep 1
     adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService
@@ -55,7 +55,7 @@
   }
   run() {
     local dst=${1:-${default[dst]}}
-    listen &
+    listen "$dst" &
     echo ==\> run
     curl -sS http://$dst:9090/script/run \
       --data-urlencode name=test \

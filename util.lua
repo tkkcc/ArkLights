@@ -307,7 +307,7 @@ findOne = function(x, confidence)
     else
       local color = shallowCopy(rfg[x0])
       table.extend(color, {x, confidence})
-      log("findColor", color)
+      -- log("findColor", color)
       pos = findColor(color, confidence)
     end
     if pos then return {pos.x, pos.y} end
@@ -326,6 +326,10 @@ end
 -- x={2,3} "信用" func nil
 tap = function(x, retry, allow_outside_game)
   if not allow_outside_game then wait_game_up() end
+  screen = getScreen()
+  if screen.width < screen.height then
+    stop("分辨率" .. screen.width .. 'x' .. screen.height .. '非横屏')
+  end
   local x0 = x
   if x == true then return true end
 
@@ -359,12 +363,13 @@ end
 
 -- quick multiple swip, for fights
 -- input distance => {x,y,x',y',time} / list of them
-swipq = function(dis, disable_end_sleep)
+swipq = function(dis, disable_end_sleep, duration)
   wait_game_up()
+  duration = duration or 400
   if type(dis) == "string" then dis = distance[dis] end
   if not dis then return end
   if type(dis) ~= "table" then dis = {dis} end
-  log("367",dis)
+  log("367", dis)
   for idx, x in ipairs(dis) do
     if type(x) == 'number' then
       local left_boundary = math.round(200 * minscale)
@@ -375,11 +380,15 @@ swipq = function(dis, disable_end_sleep)
       elseif x == 1 then -- special quit sign
         return
       elseif x > 0 then -- magick distance map from xxzhushou to nspirit
+        log(left_boundary, height, min(right_boundary, left_boundary + x * 2),
+            right_boundary, duration)
         slid(left_boundary, height, min(right_boundary, left_boundary + x * 2),
-             right_boundary, 400)
+             right_boundary, duration)
       elseif x < 0 then
+        log(right_boundary, height, max(left_boundary, right_boundary + x * 2),
+            height, duration)
         slid(right_boundary, height, max(left_boundary, right_boundary + x * 2),
-             height, 400)
+             height, duration)
       end
     elseif type(x) == 'table' then
       log(table.unpack(x))
@@ -397,24 +406,12 @@ zoom = function()
   if not findOne("进驻总览") then path.跳转("基建") end
   local paths = {
     {
-      {x = math.round(200 * wscale), y = screen.height - 200},
-      {x = screen.width // 2, y = screen.height - 200},
-    }, {
-      {x = math.round(1720 * wscale), y = screen.height - 200},
-      {x = screen.width // 2, y = screen.height - 200},
-    },
-  }
-  -- {0,0,0,0,"1832,56,#FBFBFB|148,56,#313131",95}
-
-  -- 455,42,#B9B8B9
-  paths = {
-    {
       {
-        x = math.round(1832 - 1920 + screen.width),
+        x = math.round((1720 - 1920) * minscale + screen.width),
         y = math.round(56 * minscale),
       }, {x = screen.width // 2 - 100, y = math.round(56 * minscale)},
     }, {
-      {x = 1, y = math.round(56 * minscale)},
+      {x = 600, y = math.round(56 * minscale)},
       {x = screen.width // 2 + 100, y = math.round(56 * minscale)},
     },
   }
@@ -426,7 +423,7 @@ zoom = function()
   sleep(400)
 end
 
-auto = function(p, fallback)
+auto = function(p, fallback, timeout)
   wait_game_up()
   if type(p) == "function" then return p() end
   if type(p) ~= "table" then return true end
@@ -442,7 +439,7 @@ auto = function(p, fallback)
         end
       end
     end
-    timeout = 0
+    timeout = timeout or 0
     -- if findAny({"进驻信息", "进驻信息选中"}) then timeout = 3 end
     local e = wait(check, timeout)
 
@@ -451,7 +448,7 @@ auto = function(p, fallback)
 
     -- fallback: tap false or timeout
     if not e and fallback ~= false then
-      log("auto -> fallback")
+      -- log("auto -> fallback")
       local x = table.findv({
         "返回确认", "活动公告返回", "签到返回", "返回",
         "返回2", "返回3", "返回4",
@@ -488,7 +485,7 @@ auto = function(p, fallback)
           tap(x)
         end
       else
-        log("no fallback sign found")
+        -- log("no fallback sign found")
         tap(nil)
 
         --        tap(p.other)
@@ -499,7 +496,7 @@ auto = function(p, fallback)
       -- wait for fallback
       --      ssleep(.5)
     end
-    log(495, "end of while")
+    -- log(495, "end of while")
   end
 end
 
@@ -521,7 +518,7 @@ run = function(...)
     if type(arg[1]) == "function" then return arg[1]() end
     if type(arg[1]) == "table" then arg = arg[1] end
   end
-  menuConfig({x = 0, y = screen.height / 2 - 50})
+  menuConfig({x = 0, y = screen.height})
   update_state()
   for _, v in ipairs(arg) do
     running = v

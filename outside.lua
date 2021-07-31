@@ -20,6 +20,7 @@ function goto_github()
 end
 function preload()
   -- ocr initialization needs 5 seconds
+  -- ocr font need downlaod
   ocr(0, 0, 1, 1)
   print("preload finish")
 end
