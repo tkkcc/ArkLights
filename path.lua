@@ -116,6 +116,7 @@ path.base = {
 }
 
 path.邮件收取 = function()
+  path.跳转("首页")
   path.跳转("邮件")
 
   if not wait(function()
@@ -128,19 +129,30 @@ end
 
 path.基建收获 = function()
   path.跳转("基建")
-  tap("基建灯泡蓝")
-  local light = appearTap("点击全部收取", .5)
-  if not light then
-    tap("基建灯泡蓝2")
-    light = appearTap("点击全部收取", .5)
+  if not appear({"基建灯泡蓝", "基建灯泡蓝2", "线索搜集提示"}, 1) then
+    leaving_jump = true
+    return
   end
-  if light then
-    wait(function()
-      if not appearTap("点击全部收取", 1) and
-        not findOne("正在提交反馈至神经") then return true end
-    end, 20)
-  end
+  if not disappear("线索搜集提示", 5) then return end
+
+  local x = appear({"基建灯泡蓝2", "基建灯泡蓝"})
+  if not x then return end
+  if not wait(function()
+    if not findOne(x) then return true end
+    tap(x)
+    disappear(x, 1)
+  end, 5) then return end
+
+  wait(function()
+    if not wait(function()
+      if findAny({"点击全部收取", "正在提交反馈至神经"}) then
+        return true
+      end
+    end, 1) then return true end
+    findTap("点击全部收取")
+  end, 20)
   tap("基建右上角")
+  if appear("进驻总览") then leaving_jump = true end
 end
 
 prev_jump = "基建"
@@ -175,7 +187,13 @@ path.跳转 = function(x, disable_quick_jump)
 
   local target = sign[x]
   local home_target = x == "邮件" and "首页" or x
-  if findOne(target) then return true end
+
+  -- direct quit
+  if findOne(target) then
+    prev_jump = x
+    return true
+  end
+
   local bypass = function(t)
     log("bypass 基建返回确认")
     if prev_jump == "基建" and appear({"返回确认", t}) == "返回确认" then
@@ -200,10 +218,12 @@ path.跳转 = function(x, disable_quick_jump)
       p["主页"] = nil
       if not wait(function()
         if not findOne("主页") then return true end
-        if findOne("返回确认") then tap("右确认") end
+        if findAny({"返回确认", "返回确认2"}) then
+          tap("右确认")
+        end
         tap("主页")
         disappear("主页", 1)
-      end, 5) then return end
+      end, 10) then return end
       if not appear({"主页列表任务", "返回确认"}) then
         return true
       end
@@ -219,10 +239,11 @@ path.跳转 = function(x, disable_quick_jump)
     end,
   })
   if x == prev_jump or disable_quick_jump then p.主页 = nil end
-  leaving_jump = false
   p[target] = function()
+    log("leaving_jump", leaving_jump)
     if not disappear(target,
                      (target == "进驻总览" and not leaving_jump) and 1 or 0) then
+      leaving_jump = false
       return true
     end
   end
@@ -230,12 +251,10 @@ path.跳转 = function(x, disable_quick_jump)
   local fallback = {返回确认 = "右确认"}
   if x == "基建" then fallback.返回确认 = function() back() end end
   auto(p, fallback)
-  if x == "基建" then
-    if not wait(function()
-      if findOne("缩放结束") then return true end
-      zoom()
-    end, 10) then return true end
-  end
+
+  -- post processing especially for 基建
+  if x == "基建" then zoom() end
+
   prev_jump = x
 end
 
@@ -287,18 +306,24 @@ path.副手换人 = function()
 
   for i = 1, 5 do
     if not wait(function()
-      if findOne("确认蓝") then return true end
+      if findOne("副手确认蓝") then return true end
       if findOne("基建副手简报") then
         tap("基建副手列表" .. i)
         disappear("基建副手简报", 1)
       end
     end, 5) then return end
-    if appear({"干员未选中", "干员选中"}, 1) then
-      if findOne("干员选中") then
-        tap("干员选择列表1")
-        if not appear("干员未选中", 1) then return end
-      end
+
+    if not findOne("干员未选中") then
+      tap("干员选择列表1")
+      if not appear("干员未选中", 1) then return end
     end
+
+    -- if appear({"干员未选中", "干员选中"}, 1) then
+    --   if findOne("干员选中") then
+    --     tap("干员选择列表1")
+    --     if not appear("干员未选中", 1) then return end
+    --   end
+    -- end
 
     local state = sample("信赖")
     tap("信赖")
@@ -310,10 +335,11 @@ path.副手换人 = function()
     disappear(state)
 
     tap("干员选择列表" .. i)
-    tap("确认蓝")
-    if not appear("基建副手简报") then return end
+    if not wait(function()
+      if findOne("基建副手简报") then return true end
+      findTap("副手确认蓝")
+    end, 5) then return end
   end
-  --  path.跳转("基建", true)
 end
 
 sample = function(v)
@@ -335,7 +361,9 @@ path.基建换班 = function()
   -- 宿舍换人
   local f
   f = function(i)
+    log(358)
     path.跳转("基建")
+    log(359)
     if not appearTap("宿舍列表" .. i) then
       log("未找到宿舍列表" .. i)
       return
@@ -419,11 +447,15 @@ path.基建换班 = function()
       findTap("入驻干员")
       disappear("入驻干员")
     end, 10) then return end
-
     if not appear("确认蓝", 10) then return end
+
+    local limit = findOne("清空选择") and 5 or 1
+
+    -- local state = sample("筛选")
+
     if not wait(function()
       if findOne("筛选取消") then return true end
-      if findOne("确认蓝") then tap("筛选") end
+      tap("筛选")
     end, 5) then return end
     if not wait(function()
       if not findOne("筛选未进驻") then return true end
@@ -440,16 +472,15 @@ path.基建换班 = function()
       tap("筛选确认")
       disappear("筛选取消", .5)
     end, 5) then return end
+
     if not appear("确认蓝", 5) then return end
-    log(444)
+
     if not wait(function()
       if findOne("干员未选中") then return true end
       tap("清空选择")
     end, 5) then return end
-    -- if not appear("排序") then return end
-    local limit = 1
-    if findOne("清空选择", .5) then limit = 5 end
-    log("limit", limit)
+
+    -- appear(state, .5)
     for j = 1, limit do tap("干员选择列表" .. j) end
     if not wait(function()
       if findAny({"排班调整提示", "撤下干员"}) then return true end
@@ -764,24 +795,17 @@ path.信用购买 = function()
     f()
   end
   if not wait(function()
+    if findOne("信用不足") then return true end
     if not findOne("信用交易所") then
-      if not findTap("购买物品") then tap("收取信用有") end
-      -- TODO: 会先点到购买物品的那个物品
+      -- TODO：会先点 购买物品下 的那个物品
+      tap("购买物品")
       wait(function()
         if findOne("信用不足") or not findOne("购买物品") then
           return true
         end
-      end, 2)
-    end
-
-    if findOne("信用交易所") and not appear(point["信用交易所列表"]) and
-      findOne("信用交易所") then return true end
-
-    if findTap(point["信用交易所列表"]) then appear("购买物品") end
-
-    -- put to last to avoid hint from previous task
-    if findOne("信用不足") then
-      log("信用不足")
+      end, 1)
+    elseif not appearTap(point["信用交易所列表"]) and
+      findOne("信用交易所") then
       return true
     end
   end, 60) then return end

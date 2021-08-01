@@ -402,8 +402,12 @@ swipq = function(dis, disable_end_sleep, duration)
   end
 end
 
-zoom = function()
+-- pass loading, give a standard view of 基建
+zoom = function(retry)
+  retry = retry or 0
+  if retry > 20 then return end
   if not findOne("进驻总览") then path.跳转("基建") end
+  if findOne("缩放结束") then return true end
   local paths = {
     {
       {
@@ -419,8 +423,11 @@ zoom = function()
   -- local paths  = "1273,42,#333333|1085,36,#B5B5B5"
   local duration = 100
   gesture(paths, duration)
-  -- TODO need sleep?
-  sleep(400)
+
+  -- otherwise next zoom will be recognized as tapping, cause flicking
+  appear("缩放结束",0.4)
+
+  return zoom(retry+1)
 end
 
 auto = function(p, fallback, timeout)

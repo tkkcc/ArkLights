@@ -1,6 +1,6 @@
 -- debug option, should be all false / zero / empty in release
 predebug = false
-predebug = true
+-- predebug = true
 test_some = true
 test_fight = false
 no_config_cache = true
@@ -36,6 +36,13 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  t = "活动公告返回"
+  log(findOne(t))
+  target= "邮件信封"
+  timeout=20
+  x=appear({target, "活动公告返回", "签到返回"}, timeout)
+  log(x)
+  exit()
   swipq("right")
   distance.t = {-500}
   local paths = {
@@ -66,8 +73,6 @@ if predebug then
   -- log(findAny(point["当前进度列表"]))
   -- tap("作战列表S3-1")
   -- exit()
-  t = "未达线索上限"
-  log(findOne(t))
   exit()
 
   -- local x = 'S3-2'
@@ -317,9 +322,9 @@ if test_some then
 
   -- run("线索搜集", "信用购买")
 
-  -- run("邮件收取", "基建收获", "基建换班", "副手换人",
-  --     "制造加速", "线索搜集", "信用购买", "公招刷新",
-  --     "任务收集")
+  run("邮件收取", "基建收获", "基建换班", "副手换人",
+      "制造加速", "线索搜集", "信用购买", "公招刷新",
+      "任务收集")
   exit()
 end
 
