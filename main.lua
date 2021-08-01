@@ -1,6 +1,6 @@
 -- debug option, should be all false / zero / empty in release
 predebug = false
--- predebug = true
+predebug = true
 test_some = true
 test_fight = false
 no_config_cache = true
@@ -36,13 +36,6 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  t = "活动公告返回"
-  log(findOne(t))
-  target= "邮件信封"
-  timeout=20
-  x=appear({target, "活动公告返回", "签到返回"}, timeout)
-  log(x)
-  exit()
   swipq("right")
   distance.t = {-500}
   local paths = {
@@ -74,6 +67,23 @@ if predebug then
   -- tap("作战列表S3-1")
   -- exit()
   exit()
+  log(findOne("主页"))
+  log(findOne("公开招募列表4"))
+  -- log(findOne("公开招募确认蓝"))
+  exit()
+  target = "邮件信封"
+  timeout = 20
+  x = appear({target, "活动公告返回", "签到返回"}, timeout)
+  log(x)
+  exit()
+  local x = findAny(point["信用交易所列表"])
+  while true do log(findAny(point["信用交易所列表"])) end
+
+  -- log(x,point[x])
+  -- log(findOne("信用交易所"))
+  exit()
+  t = "活动公告返回"
+  log(findOne(t))
 
   -- local x = 'S3-2'
   local x = '3-2'
@@ -320,11 +330,10 @@ if test_some then
   password = ""
   if appid == bppid then password = "" end
 
-  -- run("线索搜集", "信用购买")
-
-  run("邮件收取", "基建收获", "基建换班", "副手换人",
-      "制造加速", "线索搜集", "信用购买", "公招刷新",
-      "任务收集")
+  run("任务收集")
+  -- run("邮件收取", "基建收获", "基建换班", "副手换人",
+  --     "制造加速", "线索搜集", "信用购买", "公招刷新",
+  --     "任务收集")
   exit()
 end
 

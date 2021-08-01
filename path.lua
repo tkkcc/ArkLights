@@ -763,14 +763,11 @@ path.任务收集 = function()
         if findOne("收集全部") then return true end
         tap("任务有列表" .. i)
       end, 5) then return end
-      tap("收集全部")
-      if not disappear("收集全部", 5) then return end
-      if disappear("主页") then
-        if not wait(function()
-          if findOne("主页") then return true end
-          tap("收集全部")
-        end, 5) then return end
-      end
+
+      if not wait(function()
+        if findOne("任务无列表" .. i) then return true end
+        tap("收集全部")
+      end, 5) then return end
     end
   end
 end
@@ -781,6 +778,7 @@ path.信用购买 = function()
     if findOne("信用交易所") then return true end
     tap("信用交易所")
   end, 10) then return end
+
   if findOne("收取信用有") then
     local f = function()
       if not wait(function()
@@ -794,21 +792,42 @@ path.信用购买 = function()
     end
     f()
   end
-  if not wait(function()
-    if findOne("信用不足") then return true end
-    if not findOne("信用交易所") then
-      -- TODO：会先点 购买物品下 的那个物品
+
+  if not appear(point["信用交易所列表"]) then return end
+
+  local f
+  f = function(i)
+    local enough
+    if not findOne("信用交易所") then return end
+    local x = "信用交易所列表" .. i
+    if not findOne(x) then return end
+
+    if not wait(function()
+      if not findOne(x) then return true end
+      tap(x)
+    end, 5) then return end
+    if not appear("购买物品") then return end
+
+    log(813)
+    if not findOne("购买物品面板") then return end
+    log(814)
+    if not wait(function()
+      if not findOne("购买物品面板") then return true end
+      if findOne("信用不足") then
+        enough = true
+        return true
+      end
       tap("购买物品")
-      wait(function()
-        if findOne("信用不足") or not findOne("购买物品") then
-          return true
-        end
-      end, 1)
-    elseif not appearTap(point["信用交易所列表"]) and
-      findOne("信用交易所") then
-      return true
-    end
-  end, 60) then return end
+    end, 10) then return end
+    log(815)
+    if enough then return true end
+
+    if not wait(function()
+      if findOne("信用交易所") then return true end
+      tap("信用交易所")
+    end, 5) then return end
+  end
+  for i = 1, 10 do if f(i) then break end end
 end
 
 same_page_fight = function(pre, cur)
@@ -1254,24 +1273,25 @@ path["1-11"] = function()
 end
 
 path.公招刷新 = function()
-  log(1187, findOne("主页"))
   path.跳转("公开招募")
-  log(1188)
-
   local f, g
 
   f = function(i)
     log(1044, i)
     if findOne("公开招募确认蓝") then tap("返回") end
-    local see =
-      appear({"聘用候选人列表" .. i, "公开招募列表" .. i})
+    log(1286)
+    if not appear("公开招募箭头", .5) then return end
+    log(1287)
+    local see = findAny({
+      "聘用候选人列表" .. i, "公开招募列表" .. i,
+    })
     if see == "聘用候选人列表" .. i then
       log(i, 1001)
       if not wait(function()
         if not findOne("公开招募") then return true end
         if findTap("聘用候选人列表" .. i) then
           log(1052)
-          disappear("公开招募", 1)
+          -- disappear("公开招募", 1)
         end
       end, 5) then return end
       -- 聘用
@@ -1283,13 +1303,14 @@ path.公招刷新 = function()
     end
     if see == "公开招募列表" .. i then
       -- 刷新
+      log(1308)
       if not wait(function()
-        if findOne("公开招募确认蓝") then return true end
-        if findTap("公开招募列表" .. i) then
-          log(1068)
-          appear("公开招募确认蓝", 1)
-        end
+        -- log(1309)
+        if findOne("公开招募取消") then return true end
+        -- log(1310)
+        findTap("公开招募列表" .. i)
       end, 5) then return end
+      log(1311)
       local prev_tags = nil
       g = function(disable_refresh_check)
         log("1243", prev_tags)
@@ -1336,41 +1357,8 @@ path.公招刷新 = function()
             log("invalid tag", ocr_text)
           end
         end
-        --        if next(tags) == nil then return end
         if empty_tags then return end
-
         log(1092, tags)
-
-        -- TODO check 刷新后
-        -- prev_tags = {
-        --   医疗干员 = {1308, 544},
-        --   防护 = {1057, 653},
-        --   费用回复 = {806, 544},
-        --   辅助干员 = {806, 653},
-        --   重装干员 = {1057, 544},
-        -- }
-        -- log("----------------")
-        -- log(i)
-        -- log(disable_refresh_check)
-        -- log(prev_tags)
-        -- log(table.keys(tags))
-        --        TODO: 不log就不工作
-        -- log(table.keys(prev_tags))
-
-        -- if not disable_refresh_check and prev_tags and
-        --   table.contains(table.keys(tags), table.keys(prev_tags)) then
-        --   log("==> enable refresh check")
-        --   -- log(table.keys(tags), table.keys(prev_tags))
-        --   prev_tags = shallowCopy(tags)
-        --   -- 假设一轮ocr的耗时已经超过从按下刷新到标签实际刷新的时间
-        --   -- 因此控制下轮不检查标签刷新
-        --   -- return g(true)
-
-        --   return g()
-        -- end
-        -- exit()
-        -- prev_tags = shallowCopy(tags)
-
         local tag4 = table.filter(tag5, function(rule)
           return table.all(rule[1], function(r) return tags[r] end)
         end)

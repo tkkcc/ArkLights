@@ -425,9 +425,9 @@ zoom = function(retry)
   gesture(paths, duration)
 
   -- otherwise next zoom will be recognized as tapping, cause flicking
-  appear("缩放结束",0.4)
+  appear("缩放结束", 0.4)
 
-  return zoom(retry+1)
+  return zoom(retry + 1)
 end
 
 auto = function(p, fallback, timeout)
@@ -620,19 +620,19 @@ appear = function(target, timeout, interval, disappear)
     for _, v in pairs(target) do
       -- log(615, v)
       if disappear then
-        if type(v) == "function" then
-          return not v()
-        elseif #v == 0 and not find(v) then
+        if type(v) == "function" and not v() then
           return v
-        elseif #v > 0 and not findOne(v) then
+        elseif type(v) == "table" and #v == 0 and not find(v) then
+          return v
+        elseif type(v) == "string" and #v > 0 and not findOne(v) then
           return v
         end
       else
-        if type(v) == "function" then
-          return v()
-        elseif #v == 0 and find(v) then
+        if type(v) == "function" and v() then
           return v
-        elseif #v > 0 and findOne(v) then
+        elseif type(v) == "table" and #v == 0 and find(v) then
+          return v
+        elseif type(v) == "string" and #v > 0 and findOne(v) then
           return v
         end
       end

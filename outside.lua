@@ -18,6 +18,7 @@ function goto_github()
   runWeb("https://github.com/" .. github)
   exit()
 end
+
 function preload()
   -- ocr initialization needs 5 seconds
   -- ocr font need downlaod

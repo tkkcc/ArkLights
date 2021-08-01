@@ -4,7 +4,8 @@
   declare -A default
   default[dst]=192.168.10.173
   # default[dst]=172.30.25.18
-  # default[dst]=localhost
+  default[dst]=localhost
+  # default[dst]=q1
   restartcolor() { # 重启节点精灵，以适应分辨率变更 adb shell am force-stop com.aojoy.aplug
     #adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
     sleep 1
