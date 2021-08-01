@@ -28,12 +28,15 @@ path.base = {
   登录 = function()
     local inputbox = R():type("EditText"):name(appid):path(
                        "/FrameLayout/EditText")
+    local ok = R():type("Button"):name("com.hypergryph.arknights"):path(
+                 "/FrameLayout/Button")
     if #username > 0 then
       tap("账号左侧")
       tap("账号")
       if not appear(inputbox) then stop("登录失败") end
       input(inputbox, username)
-      tap("右下角确认", 0, true)
+      click(ok)
+      -- tap("右下角确认", 0, true)
       if not disappear(inputbox) then stop("登录失败") end
       if not appear("登录") then stop("登录失败") end
     end
@@ -42,7 +45,8 @@ path.base = {
       tap("密码")
       if not appear(inputbox) then stop("登录失败") end
       input(inputbox, password)
-      tap("右下角确认", 0, true)
+      click(ok)
+      -- tap("右下角确认", 0, true)
       if not disappear(inputbox) then stop("登录失败") end
       if not appear("登录") then stop("登录失败") end
     end
@@ -116,7 +120,6 @@ path.base = {
 }
 
 path.邮件收取 = function()
-  path.跳转("首页")
   path.跳转("邮件")
 
   if not wait(function()
@@ -195,13 +198,14 @@ path.跳转 = function(x, disable_quick_jump)
   end
 
   local bypass = function(t)
-    log("bypass 基建返回确认")
+    log("bypass 基建返回确认", prev_jump)
     if prev_jump == "基建" and appear({"返回确认", t}) == "返回确认" then
       if not wait(function()
         if not findOne("返回确认") then return true end
         tap("右确认")
       end, 5) then return end
     end
+    log("bypass 基建返回确认", "end")
     return true
   end
   local p
@@ -224,9 +228,7 @@ path.跳转 = function(x, disable_quick_jump)
         tap("主页")
         disappear("主页", 1)
       end, 10) then return end
-      if not appear({"主页列表任务", "返回确认"}) then
-        return true
-      end
+      if not appear({"主页列表任务", "返回确认"}) then return end
       log(findAny({"主页列表任务", "返回确认"}))
       if findOne("返回确认") then
         tap("右确认")
@@ -235,6 +237,7 @@ path.跳转 = function(x, disable_quick_jump)
       if not appear("主页列表任务") then return end
       tap("主页列表" .. home_target)
       if not bypass(sign[home_target]) then return end
+      log('wait appear', sign[home_target], timeout)
       appear(sign[home_target], timeout)
     end,
   })
@@ -244,6 +247,7 @@ path.跳转 = function(x, disable_quick_jump)
     if not disappear(target,
                      (target == "进驻总览" and not leaving_jump) and 1 or 0) then
       leaving_jump = false
+      log("found", target)
       return true
     end
   end
@@ -396,10 +400,10 @@ path.基建换班 = function()
 
     local state = sample("心情")
     tap("心情")
-    disappear(state, 5)
+    disappear(state)
     state = sample("心情")
     tap("心情")
-    disappear(state, 5)
+    disappear(state)
     for j = 1, 5 do tap("干员选择列表" .. j) end
     if not wait(function()
       if not findOne("确认蓝") then return true end
@@ -1285,6 +1289,7 @@ path.公招刷新 = function()
     local see = findAny({
       "聘用候选人列表" .. i, "公开招募列表" .. i,
     })
+    log(1288)
     if see == "聘用候选人列表" .. i then
       log(i, 1001)
       if not wait(function()

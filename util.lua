@@ -493,7 +493,7 @@ auto = function(p, fallback, timeout)
         end
       else
         -- log("no fallback sign found")
-        tap(nil)
+        -- tap(nil)
 
         --        tap(p.other)
         --        tap("返回")

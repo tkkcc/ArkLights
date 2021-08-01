@@ -36,20 +36,28 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  -- swipq("0-5")
+  -- exit()
+  -- log(findOne("公开招募列表" .. 4))
+  -- log(39)
+  -- click(R():text("确定"):type("Button"):name("com.hypergryph.arknights"):path("/FrameLayout/Button"))
+  -- log(40)
+  -- input(R():type("EditText"):name("com.hypergryph.arknights"):path("/FrameLayout/EditText"),'1111111111111')
+  -- exit()
   swipq("right")
   distance.t = {-500}
-  local paths = {
-    {
-      {
-        x = math.round((1720 - 1920) * minscale + screen.width),
-        y = math.round(400 * minscale),
-      }, {x = screen.width // 2 - 100, y = math.round(400 * minscale)},
-    },
-  }
+  local paths = {{{x = 2200, y = 200}, {x = 200, y = 200}}}
   log(48)
-  gesture(paths, 333)
-  sleep(300)
-  tap({1, 1})
+  for i = 1, 10 do
+    gesture(paths, 400)
+    sleep(100)
+    log(54)
+  end
+  -- gesture(paths, 300)
+  -- sleep(2000)
+  -- gesture(paths, 3000)
+  -- sleep(2000)
+  -- tap({1, 1})
   -- gesture(paths, 4000)
   -- tap({1, 1})
   -- swipq("t", false, 1000)
@@ -326,14 +334,16 @@ if test_some then
     "1-3", "1-4", "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12",
   }
   -- , "1-2", "S3-3", "S4-5", "R8-2"}
-  username = ""
-  password = ""
   if appid == bppid then password = "" end
 
-  run("任务收集")
+  -- run("信用购买", "公招刷新")
+  log(339)
+  run("邮件收取")
+
   -- run("邮件收取", "基建收获", "基建换班", "副手换人",
   --     "制造加速", "线索搜集", "信用购买", "公招刷新",
   --     "任务收集")
+  log(340)
   exit()
 end
 
