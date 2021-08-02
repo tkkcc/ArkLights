@@ -464,7 +464,7 @@ auto = function(p, fallback, timeout)
         log(x)
         if x == "活动公告返回" or x == "签到返回" then
           -- deal with everyday popup
-          if wait(function()
+          if not wait(function()
             if findOne("面板") then return true end
             tap(x)
             appear("面板", 1)

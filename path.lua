@@ -763,15 +763,27 @@ path.任务收集 = function()
   path.跳转("任务")
   for i = 1, #point.任务有列表 do
     if findOne("任务有列表" .. i) then
+
+      -- nagivate to tab
       if not wait(function()
         if findOne("收集全部") then return true end
         tap("任务有列表" .. i)
+      end, 10) then return end
+
+      -- tap collect
+      if not wait(function()
+        if not findTap("收集全部") then return true end
       end, 5) then return end
 
-      if not wait(function()
-        if findOne("任务无列表" .. i) then return true end
-        tap("收集全部")
-      end, 5) then return end
+      -- wait for popup
+      disappear("任务有列表" .. i, 5)
+      if disappear("主页", .5) then
+        if not wait(function()
+          if findOne("主页") then return true end
+          tap("任务有列表" .. i)
+        end, 5) then return end
+      end
+
     end
   end
 end
@@ -826,10 +838,16 @@ path.信用购买 = function()
     log(815)
     if enough then return true end
 
+    -- wait for popup
+    appear("信用交易所", 5)
+    disappear("信用交易所", 5)
+    -- log(816)
+
     if not wait(function()
       if findOne("信用交易所") then return true end
       tap("信用交易所")
     end, 5) then return end
+
   end
   for i = 1, 10 do if f(i) then break end end
 end
@@ -1419,136 +1437,3 @@ path.公招刷新 = function()
 end
 
 path["作战1-11"] = function() for _ = 1, 14 do path.作战("1-11") end end
-
-path.密林 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战")
-      ssleep(1)
-      tap("作战密林悍将归来")
-      ssleep(3)
-      tap("密林大酋长之路")
-    end,
-    大酋长之路 = function()
-      swipq(x)
-      ssleep(1)
-      if not findTap("作战列表" .. x) then
-        log(x .. "未找到")
-        bl[x] = false
-        unfound_fight[x] = (unfound_fight[x] or 0) + 1
-      end
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
-end
-
-path.临光 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战活动上")
-      tap("大竞技场")
-      ssleep(1)
-    end,
-    梅什科竞技证券 = function() swipq(x) end,
-    ["作战列表" .. x] = function()
-      findTap("作战列表" .. x)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
-end
-
-path.画中世界 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战活动上")
-      ssleep(1)
-      tap("入画")
-      ssleep(1)
-      swipq(x)
-      if not findTap("作战列表" .. x) then
-        log(x .. "未找到")
-        unfound_fight[x] = (unfound_fight[x] or 0) + 1
-      end
-      return true
-    end,
-    ["作战列表" .. x] = function()
-      findTap("作战列表" .. x)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
-end
-
-path.源石尘行动 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战活动下")
-      ssleep(2)
-      tap("行动记录")
-      ssleep(1)
-      swipq(x)
-      ssleep(1)
-      if not findTap("作战列表" .. x) then
-        log(x .. "未找到")
-        unfound_fight[x] = (unfound_fight[x] or 0) + 1
-      end
-      return true
-    end,
-    ["作战列表" .. x] = function()
-      findTap("作战列表" .. x)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
-end
-
-path.灯火序曲 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战活动")
-      ssleep(2)
-      tap("路线安排")
-      ssleep(1)
-      swipq(x)
-      ssleep(1)
-      if not findTap("作战列表" .. x) then
-        log(x .. "未找到")
-        unfound_fight[x] = (unfound_fight[x] or 0) + 1
-      end
-      return true
-    end,
-    ["作战列表" .. x] = function()
-      findTap("作战列表" .. x)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
-end
-
-path.联锁竞赛 = function(x)
-  local p = update(path.base, {
-    面板 = function()
-      tap("面板作战活动")
-      tap("始发营地")
-      ssleep(1)
-    end,
-    ["作战列表" .. "TB-DB-3"] = function()
-      tap("作战列表" .. x)
-      -- if findOne("联锁竞赛代理指挥关") then
-      --   tap("联锁竞赛代理指挥")
-      -- end
-      tap("开始行动蓝")
-      ssleep(1)
-      return true
-    end,
-  })
-  auto(p)
-  path.开始游戏(x)
-end

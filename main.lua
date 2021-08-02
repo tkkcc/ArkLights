@@ -23,7 +23,6 @@ require("path")
 require("tag")
 cron = require("crontab")
 log(time() .. " 分辨率：" .. screen.width .. "x" .. screen.height)
--- exit()
 
 -- auto switch 官服 and B服
 appid_need_user_select = false
@@ -36,8 +35,80 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  while true do
+    swipq("right")
+    swipq("right")
+    local duration = 400
+    local paths = {
+      {
+        {x = 1920 - 200, y = 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
+      },
+    }
+
+    start = time()
+    for i = 1, 3 do
+      gesture(paths, duration)
+      sleep(duration + 100)
+    end
+    log(time() - start)
+    ssleep(3)
+  end
+  -- sleep(duration+100)
+  -- gesture(paths, duration)
+  -- sleep(duration+100)
+  -- tap({1,1})
+  -- gesture(epaths, 400)
+  -- gesture(epaths, 200)
+  -- log(44)
+  -- gesture(paths, 400)
+  -- sleep(400)
+  -- click(1000,200)
+  log(45)
+  -- slid(200,200,1000,200,200)
+  -- gesture(nil, 400)
+  -- gesture(paths, 400)
+  -- sleep(200)
+  -- gesture(paths, 400)
+  -- sleep(200)
+
+  -- slid(1000, 200, 200, 200, 400)
+  -- slid(1000, 200, 200, 200, 400)
+  -- slid(1000, 200, 200, 200, 400)
+  -- slid(1000, 200, 200, 200, 400)
+
+  -- slid(2200, 200, 200, 200, 200)
+  -- ["0-5"] = {swip_right_max, -165},
   -- swipq("0-5")
-  -- exit()
+  -- local paths = {{{x = 2200, y = 200}, {x = 200, y = 200}, {x = 201, y = 200}}}
+  -- gesture(paths, 1000)
+  -- sleep(100)
+  log(64)
+  -- click(1000, 100, 2000)
+  -- click(1, 1, 2000)
+  -- click(1, 1, 2000)
+  -- click(1, 1, 2000)
+  log(65)
+  -- tap({1, 1})
+  -- tap({1, 1})
+  -- tap({1, 1})
+  -- tap({1, 1})
+  exit()
   -- log(findOne("公开招募列表" .. 4))
   -- log(39)
   -- click(R():text("确定"):type("Button"):name("com.hypergryph.arknights"):path("/FrameLayout/Button"))
@@ -45,8 +116,9 @@ if predebug then
   -- input(R():type("EditText"):name("com.hypergryph.arknights"):path("/FrameLayout/EditText"),'1111111111111')
   -- exit()
   swipq("right")
+
   distance.t = {-500}
-  local paths = {{{x = 2200, y = 200}, {x = 200, y = 200}}}
+  paths = {{{x = 2200, y = 200}, {x = 200, y = 200}}}
   log(48)
   for i = 1, 10 do
     gesture(paths, 400)
@@ -338,11 +410,12 @@ if test_some then
 
   -- run("信用购买", "公招刷新")
   log(339)
-  run("邮件收取")
-
-  -- run("邮件收取", "基建收获", "基建换班", "副手换人",
-  --     "制造加速", "线索搜集", "信用购买", "公招刷新",
+  -- run("信用购买", "公招刷新",
   --     "任务收集")
+
+  run("邮件收取", "基建收获", "基建换班", "副手换人",
+      "制造加速", "线索搜集", "信用购买", "公招刷新",
+      "任务收集")
   log(340)
   exit()
 end

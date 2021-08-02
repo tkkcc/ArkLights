@@ -2,7 +2,8 @@
 {
 
   declare -A default
-  default[dst]=192.168.10.196
+  # default[dst]=192.168.10.196
+  default[dst]=z7
   # default[dst]=172.30.25.18
   # default[dst]=localhost
   # default[dst]=q1
@@ -57,6 +58,7 @@
   }
   run() {
     local dst=${1:-${default[dst]}}
+    stop "$dst"
     listen "$dst" &
     echo ==\> run
     curl -sS http://$dst:9090/script/run \
