@@ -35,152 +35,24 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  while true do
-    swipq("right")
-    swipq("right")
-    local duration = 400
-    local paths = {
-      {
-        {x = 1920 - 200, y = 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-        {x = 200, y = 1080 - 200}, {x = 200, y = 200},
-      },
-    }
-
-    start = time()
-    for i = 1, 3 do
-      gesture(paths, duration)
-      sleep(duration + 100)
-    end
-    log(time() - start)
-    ssleep(3)
-  end
-  -- sleep(duration+100)
-  -- gesture(paths, duration)
-  -- sleep(duration+100)
-  -- tap({1,1})
-  -- gesture(epaths, 400)
-  -- gesture(epaths, 200)
-  -- log(44)
-  -- gesture(paths, 400)
-  -- sleep(400)
-  -- click(1000,200)
-  log(45)
-  -- slid(200,200,1000,200,200)
-  -- gesture(nil, 400)
-  -- gesture(paths, 400)
-  -- sleep(200)
-  -- gesture(paths, 400)
-  -- sleep(200)
-
-  -- slid(1000, 200, 200, 200, 400)
-  -- slid(1000, 200, 200, 200, 400)
-  -- slid(1000, 200, 200, 200, 400)
-  -- slid(1000, 200, 200, 200, 400)
-
-  -- slid(2200, 200, 200, 200, 200)
-  -- ["0-5"] = {swip_right_max, -165},
-  -- swipq("0-5")
-  -- local paths = {{{x = 2200, y = 200}, {x = 200, y = 200}, {x = 201, y = 200}}}
-  -- gesture(paths, 1000)
-  -- sleep(100)
-  log(64)
-  -- click(1000, 100, 2000)
-  -- click(1, 1, 2000)
-  -- click(1, 1, 2000)
-  -- click(1, 1, 2000)
-  log(65)
-  -- tap({1, 1})
-  -- tap({1, 1})
-  -- tap({1, 1})
-  -- tap({1, 1})
-  exit()
-  -- log(findOne("公开招募列表" .. 4))
-  -- log(39)
-  -- click(R():text("确定"):type("Button"):name("com.hypergryph.arknights"):path("/FrameLayout/Button"))
-  -- log(40)
-  -- input(R():type("EditText"):name("com.hypergryph.arknights"):path("/FrameLayout/EditText"),'1111111111111')
-  -- exit()
-  swipq("right")
-
-  distance.t = {-500}
-  paths = {{{x = 2200, y = 200}, {x = 200, y = 200}}}
-  log(48)
-  for i = 1, 10 do
-    gesture(paths, 400)
-    sleep(100)
-    log(54)
-  end
-  -- gesture(paths, 300)
-  -- sleep(2000)
-  -- gesture(paths, 3000)
-  -- sleep(2000)
-  -- tap({1, 1})
-  -- gesture(paths, 4000)
-  -- tap({1, 1})
-  -- swipq("t", false, 1000)
-  -- tap({960, 959})
-  -- zoom()
-  -- exit()
-  -- log(point["干员选择列表"..1])
-  -- for j = 1, 5 do tap("干员选择列表" .. j) end
-  -- exit()
-  -- log(34)
-  -- slid(2000,100,2000-33,100,400)
-  -- swipq("1-7")
-  -- log(findOne("主页"))
-  -- log(findAny(point["当前进度列表"]))
-  -- tap("作战列表S3-1")
-  -- exit()
-  exit()
-  log(findOne("主页"))
-  log(findOne("公开招募列表4"))
-  -- log(findOne("公开招募确认蓝"))
-  exit()
-  target = "邮件信封"
-  timeout = 20
-  x = appear({target, "活动公告返回", "签到返回"}, timeout)
-  log(x)
-  exit()
-  local x = findAny(point["信用交易所列表"])
-  while true do log(findAny(point["信用交易所列表"])) end
-
-  -- log(x,point[x])
-  -- log(findOne("信用交易所"))
-  exit()
-  t = "活动公告返回"
-  log(findOne(t))
-
-  -- local x = 'S3-2'
-  local x = '3-2'
-  swipq(x)
-  local last_dis = distance[x]
-  while type(last_dis) == 'table' do last_dis = last_dis[#last_dis] end
-  last_dis = math.abs(last_dis)
-  if last_dis ~= swip_right_max then ssleep(last_dis / 300) end
-  t = "作战列表" .. x
-  log(66, findOne(t))
-  -- tap(t)
+  -- 0-2
+  -- swipu({1080 * 5, -550})
   -- ssleep(1)
-  -- tap({1, 1})
+  -- 0-3
+  -- swipu({1080 * 5, -1100})
+  -- ssleep(1)
+  -- 0-4
+  -- swipe("left")
+  -- swipu(-1650)
+  -- 0-10
+  swipe("left")
+  swipu(-4550)
   exit()
 end
 
 local outside = runThread("outside")
+callThreadFun(outside, "preload")
+
 local all_job = {
   "作战1-11", "邮件收取", "轮次作战", "基建收获", "基建换班",
   "副手换人", "制造加速", "线索搜集", "信用购买",
@@ -301,14 +173,8 @@ if appid_need_user_select then
   })
 end
 
--- log(192)
--- ocr(0, 0, 1, 1)
--- log(193)
 ret = show(ui)
 if not ret then exit() end
-log(196)
-callThreadFun(outside, "preload")
-log(197)
 
 if server == "B服" then appid = bppid end
 log(appid)
@@ -408,15 +274,9 @@ if test_some then
   -- , "1-2", "S3-3", "S4-5", "R8-2"}
   if appid == bppid then password = "" end
 
-  -- run("信用购买", "公招刷新")
-  log(339)
-  -- run("信用购买", "公招刷新",
-  --     "任务收集")
-
   run("邮件收取", "基建收获", "基建换班", "副手换人",
       "制造加速", "线索搜集", "信用购买", "公招刷新",
       "任务收集")
-  log(340)
   exit()
 end
 

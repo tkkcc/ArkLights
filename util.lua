@@ -402,6 +402,69 @@ swipq = function(dis, disable_end_sleep, duration)
   end
 end
 
+-- swip to end
+swipe = function(x)
+  local duration = 150
+  local x1 = screen.width - math.round(300 * minscale)
+  local d = x == "left" and x1 or -x1
+  if d > 0 then x1 = math.round(300 * minscale) end
+  local y1 = math.round(200 * minscale)
+  local x2 = math.round(x1 + d)
+  slid(x1, y1, x2, y1, duration)
+  slid(x1, y1, x2, y1, duration)
+  slid(x1, y1, x2, y1, duration)
+  -- slid(x1, y1, x2, y1, duration)
+end
+
+-- universal multiple swip, for fights
+-- input distance => {x,y,x',y',time} / list of them
+swipu = function(dis)
+  wait_game_up()
+  -- preprocess distance
+  if type(dis) == "string" then dis = distance[dis] end
+  if type(dis) ~= "table" then dis = {dis} end
+  if not dis then return end
+
+  -- flatten to one depth
+  -- local max_once_dis = 1080
+  local max_once_dis = screen.width - math.round(300 * minscale)
+  local disf = {}
+  for _, d in pairs(dis) do
+    sign = d > 0 and 1 or -1
+    d = math.abs(d)
+    while d > 0 do
+      if d > max_once_dis then
+        table.insert(disf, sign * max_once_dis)
+        d = d - max_once_dis
+      else
+        table.insert(disf, sign * d)
+        d = 0
+      end
+    end
+  end
+
+  -- do swip
+  for _, d in pairs(disf) do
+    local duration = 400
+    local x1 = screen.width - math.round(300 * minscale)
+    if d > 0 then x1 = math.round(300 * minscale) end
+    local y1 = math.round(200 * minscale)
+    local x2 = math.round(x1 + d)
+    local y2 = screen.height - math.round(200 * minscale)
+    local paths = {
+      {
+        {x = x1, y = y1}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
+        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
+        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
+        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
+      },
+    }
+    -- log(paths)
+    gesture(paths, duration)
+    sleep(duration + 100)
+  end
+end
+
 -- pass loading, give a standard view of 基建
 zoom = function(retry)
   retry = retry or 0
@@ -458,11 +521,26 @@ auto = function(p, fallback, timeout)
       -- log("auto -> fallback")
       local x = table.findv({
         "返回确认", "活动公告返回", "签到返回", "返回",
-        "返回2", "返回3", "返回4",
+        "返回2", "返回3", "返回4", "活动签到返回", "抽签返回",
       }, findOne)
       if x then
         log(x)
-        if x == "活动公告返回" or x == "签到返回" then
+        if table.includes({
+          "活动公告返回", "签到返回", "活动签到返回",
+          "抽签返回",
+        }, x) then
+          -- solve 活动签到
+          if x == "活动签到返回" then
+            for u = math.round(300 * minscale), screen.width -
+              math.round(300 * minscale), 50 do
+              tap(u, screen.height // 2)
+            end
+            for v = math.round(300 * minscale), screen.height -
+              math.round(300 * minscale), 50 do
+              tap(screen.width // 2, v)
+            end
+          end
+
           -- deal with everyday popup
           if not wait(function()
             if findOne("面板") then return true end

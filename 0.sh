@@ -2,8 +2,9 @@
 {
 
   declare -A default
-  # default[dst]=192.168.10.196
-  default[dst]=z7
+  default[dst]=192.168.10.196
+  # default[dst]=z7
+  # default[dst]=z7
   # default[dst]=172.30.25.18
   # default[dst]=localhost
   # default[dst]=q1
@@ -31,7 +32,7 @@
       curl -sS http://$dst:9090/api/file/save \
         --data-urlencode code="$(cat "$x")" \
         --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
-      sleep .2
+      # sleep .2
     done
   }
   find() {
@@ -69,6 +70,7 @@
   saverun() {
     #stop "$@"
     save "$@"
+    sleep .2
     run "$@"
   }
   listen() {
