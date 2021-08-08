@@ -4,15 +4,14 @@
 
 ---
 
-节点精灵实现的明日方舟全日常辅助，适配多种分辨率，等待耗时极低。[视频演示]()。有问题请提issue或加QQ群1009619697反馈。
-<!-- https://www.bilibili.com/video/BV1gJ411p7Ck -->
+节点精灵实现的明日方舟全日常辅助，适配多种分辨率，等待耗时极低。[视频演示](https://www.bilibili.com/video/BV1gJ411p7Ck)。有问题请提issue或加QQ群1009619697反馈。
 
-## 已知问题
+TODO: pic and video
 
+## 须知
+
+1. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
 1. 不支持多帐号，不支持基建指定排班干员，不支持无人机加速贸易站。
-<!-- 2. miui12.5水平滑动机制特殊，不支持“轮次作战”功能。可以使用原生系统替代或使用虚拟机工具或尝试[其他辅助](#其他辅助（awesome-arknights-auto-helper）) -->
-
-TODO: pic
 
 ## 特点
 
@@ -22,7 +21,7 @@ TODO: pic
 
 ## 安装
 
-1. 安装[节点精灵](http://www.nspirit.cn/)，搜索
+1. 安装[节点精灵](http://card.nspirit.cn/getApk)，搜索
 TODO: id
 
 ## 开发

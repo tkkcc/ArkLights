@@ -13,43 +13,63 @@ path.base = {
   面板 = true,
   下载资源确认 = "下载资源确认",
   start黄框 = function()
-    for _ = 1, 5 do
+    wait(function()
       tap("start黄框")
-      ssleep(.5)
-    end
+    end)
   end,
   start黄框暗 = function()
-    for _ = 1, 5 do
+    wait(function()
       tap("start黄框")
-      ssleep(.5)
-    end
+    end)
   end,
   账号登录 = "账号登录",
   开始唤醒 = "开始唤醒",
-  登录 = function()
+  手机验证码登录 = function()
     local inputbox = R():type("EditText"):name(appid):path(
                        "/FrameLayout/EditText")
     local ok = R():type("Button"):name("com.hypergryph.arknights"):path(
                  "/FrameLayout/Button")
     if #username > 0 then
-      tap("账号左侧")
-      tap("账号")
-      if not appear(inputbox) then stop("登录失败") end
+      if not wait(function()
+        if not findOne("手机验证码登录") then return true end
+        tap("账号左侧")
+        tap("账号")
+        disappear("手机验证码登录",.5)
+      end,5) then return end
+      log(37)
+      if not appear(inputbox) or not appear(ok) then stop("登录失败") end
+      log(38)
       input(inputbox, username)
+      log(39)
       click(ok)
+      log(40)
       -- tap("右下角确认", 0, true)
-      if not disappear(inputbox) then stop("登录失败") end
-      if not appear("登录") then stop("登录失败") end
+      -- if not disappear(inputbox) then stop("登录失败") end
+      log(41)
+      if not appear("手机验证码登录") then stop("登录失败") end
+      log(42)
     end
+    log(52)
     if #password > 0 then
-      tap("账号左侧")
-      tap("密码")
-      if not appear(inputbox) then stop("登录失败") end
+      if not wait(function()
+        if not findOne("手机验证码登录") then return true end
+        tap("账号左侧")
+        tap("密码")
+        disappear("手机验证码登录",.5)
+      end,5) then return end
+      -- log(44)
+      -- tap("账号左侧")
+      -- log(45)
+      -- tap()
+      log(46)
+      if not appear(inputbox) or  not appear(ok) then stop("登录失败") end
+      log(47)
+      -- exit()
       input(inputbox, password)
       click(ok)
       -- tap("右下角确认", 0, true)
-      if not disappear(inputbox) then stop("登录失败") end
-      if not appear("登录") then stop("登录失败") end
+      -- if not disappear(inputbox) then stop("登录失败") end
+      if not appear("手机验证码登录") then stop("登录失败") end
     end
     if not wait(function()
       if findAny({"用户名或密码错误", "密码不能为空"}) then
@@ -64,10 +84,45 @@ path.base = {
     end
   end,
   接管作战 = function()
-    if not disappear("接管作战", 60 * 60, 1) then stop("接管作战") end
+    if not disappear("接管作战", 60 * 60, 5) then stop("接管作战") end
+
+    -- this calllback is only for 主线、资源、剿灭
+    if not wait(function()
+      if findOne("开始行动") then return true end
+      if findOne("接管作战") then return true end
+      tap("开始行动")
+    end, 20) then return end
+
+    if findOne("接管作战") then return path.base.接管作战() end
+
+    if repeat_fight_mode then
+      return path.开始游戏()
+    end
+
+    -- current fight success
+    pre_fight=cur_fight
+
+
+    -- if same fight or same page fight
+    local next_fight_tick = fight_tick % #fight + 1
+    local next_fight = fight[next_fight_tick]
+    log(cur_fight,next_fight)
+
+    if next_fight==cur_fight then
+      fight_tick=next_fight_tick
+      pre_fight=nil
+      return path.开始游戏(next_fight)
+    elseif same_page_fight(cur_fight,next_fight) then
+      log(108)
+      if not wait(function()
+        if not findOne("开始行动") then return true end
+        tap("主页右侧")
+      end, 20) then return end
+      log(109)
+      ssleep(1)
+    end
   end,
 
-  --  其它 = "返回",
   -- need test
   -- 客户端过时 = function() stop("客户端过时") end,
   -- 正在加载网络配置 = function()
@@ -126,6 +181,7 @@ end
 
 path.基建收获 = function()
   path.跳转("基建")
+  -- TODO 灯泡可能在线索搜集提示前出现
   if not appear({"基建灯泡蓝", "基建灯泡蓝2", "线索搜集提示"}) then
     leaving_jump = true
     return
@@ -137,10 +193,11 @@ path.基建收获 = function()
   log(141)
   if not x then return end
   if not wait(function()
-    if not findOne(x) then return true end
+    if not findOne(x) and findOne("待办事项") then return true end
     tap(x)
-    disappear(x, 1)
-  end, 5) then return end
+    disappear(x, .5)
+    appear("待办事项",.5)
+  end, 10) then return end
 
   wait(function()
     if not wait(function()
@@ -209,7 +266,6 @@ path.跳转 = function(x, disable_quick_jump)
     面板 = function()
       p["主页"] = nil
       tap(plain[x])
-      -- TODO 看不到活动公告返回？
       log(208)
       appear({
         target, "活动公告返回", "签到返回", "活动签到返回",
@@ -227,7 +283,9 @@ path.跳转 = function(x, disable_quick_jump)
         tap("主页")
         disappear("主页", 1)
       end, 10) then return end
-      if not appear({"主页列表任务", "返回确认"}) then return end
+      if not appear({"主页列表任务", "返回确认"}) then
+        log(252)
+        return end
       log(findAny({"主页列表任务", "返回确认"}))
       if findOne("返回确认") then
         tap("右确认")
@@ -267,6 +325,8 @@ update_state_last_week = 0
 communication_enough = false
 jmfight_enough = false
 zero_san = false
+repeat_fight_mode=true
+
 update_state = function()
   zero_san = false
 
@@ -540,9 +600,9 @@ path.线索搜集 = function()
   -- if not station then return end
   if not wait(function()
     if not findOne("进驻总览") then return true end
-    if findTap("会客厅") then disappear("会客厅", 1) end
+    tap("会客厅")
+    disappear("进驻总览", 1)
   end, 5) then return end
-  if not disappear("进驻总览", 10) then return end
   if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
 
   if not wait(function()
@@ -555,16 +615,18 @@ path.线索搜集 = function()
 
   log(460)
   if appear({"正在提交反馈至神经", "本次线索交流活动"}, .5) then
-    disappear("正在提交反馈至神经", 20)
-    log(461)
-    disappear("线索传递")
-    log(462)
-    if not wait(function()
-      if findOne("线索传递") then return true end
-      log(556)
-      tap("解锁线索左")
-      log(557)
-    end, 10) then return end
+    if disappear("正在提交反馈至神经", 20) and
+      disappear("线索传递") then
+      log(462)
+      if not wait(function()
+        if findOne("线索传递") then return true end
+        if findOne("本次线索交流活动") then
+          tap("返回")
+          disappear("本次线索交流活动",.5)
+        end
+        log(5)
+      end, 10) then return end
+    end
   end
   log(559)
 
@@ -598,8 +660,11 @@ path.线索搜集 = function()
       log(445)
       tap("返回")
       appear("线索传递")
+      clue_unlocked=false
       path.线索布置()
-      path.线索传递()
+      if not clue_unlocked then
+       path.线索传递()
+      end
       return f()
     end
 
@@ -612,7 +677,7 @@ path.线索搜集 = function()
         return f()
       end
     end
-    findTap("信用奖励返回")
+    if findOne("信用奖励返回") then tap("返回") end
     if not appear("线索传递") then return end
     return true
   end
@@ -692,6 +757,7 @@ path.线索布置 = function()
   if not appear("线索传递") then return end
 
   if findTap("解锁线索") then
+    clue_unlocked=true
     if not appear("进驻信息", 5) then return path.线索搜集() end
     if not wait(function()
       if findOne("线索传递") then return true end
@@ -786,12 +852,15 @@ path.任务收集 = function()
       end, 5) then return end
 
       -- wait for popup
-      disappear("任务有列表" .. i, 5)
-      if disappear("主页", .5) then
+      disappear("任务有列表" .. i, 10)
+      if disappear("主页",1) then
+
         if not wait(function()
-          if findOne("任务无列表" .. i) then return true end
+          if findOne("主页") then return true end
           tap("任务有列表" .. i)
         end, 5) then return end
+        -- wait 0.5 for next
+        appear(point["任务有列表"],.5)
       end
     end
   end
@@ -802,6 +871,7 @@ path.信用购买 = function()
   log(803)
   if not wait(function()
     if findOne("信用交易所") then return true end
+    -- if not findOne("可露希尔推荐") then return true end
     tap("信用交易所")
   end, 10) then return end
   log(804)
@@ -812,10 +882,12 @@ path.信用购买 = function()
     local f = function()
       if not wait(function()
         if not findOne("信用交易所") then return true end
+        -- if not findOne("干员解锁进度") then return true end
         tap("收取信用有")
       end, 5) then return end
       if not wait(function()
         if findOne("信用交易所") then return true end
+        -- if findOne("干员解锁进度") then return true end
         tap("收取信用有")
       end, 5) then return end
     end
@@ -830,6 +902,7 @@ path.信用购买 = function()
   f = function(i)
     local enough
     if not findOne("信用交易所") then return end
+    -- if not findOne("干员解锁进度") then return end
     local x = "信用交易所列表" .. i
     if not findOne(x) then return end
 
@@ -855,41 +928,68 @@ path.信用购买 = function()
 
     -- wait for popup
     appear("信用交易所", 5)
+    -- appear("干员解锁进度", 5)
     disappear("信用交易所", 5)
+    -- disappear("干员解锁进度", 5)
     -- log(816)
 
     if not wait(function()
       if findOne("信用交易所") then return true end
+      -- if findOne("干员解锁进度") then return true end
       tap("信用交易所")
+      -- tap("干员解锁进度")
     end, 5) then return end
 
   end
   for i = 1, 10 do if f(i) then break end end
+  -- log(findOne('主页'))
+  -- exit()
 end
 
+-- get_fight_type =function(x)
+--  local f = startsWithX(x)
+--   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
+--     return "物资芯片"
+--   elseif table.any(table.keys(jmfight2area), f) then
+--     return "剿灭"
+--   else
+--     return "主线"
+--   end
+-- end
+
 same_page_fight = function(pre, cur)
-  if type(pre) ~= 'string' or type(cur) ~= 'string' then return end
+  if type(pre) ~= 'string' or type(cur) ~= 'string' then 
+    return 
+  end
   -- pattern before last - should be same
+  -- PR-A-1 == PR-A-2, PR-A-1 != PR-A-2
   if pre:gsub("(.*)-.*$", "%1") == cur:gsub("(.*)-.*$", "%1") then
     log("same page fight", pre, cur)
     return true
   end
+
+  -- number before last - should be same
+  if pre:gsub(".*(%d+)-.*$", "%1") == cur:gsub(".*(%d+)-.*$", "%1") then
+    log("same page fight", pre, cur)
+    return true
+  end
+
   log("not same page fight", pre, cur)
 end
 
-tick = 0
+fight_tick = 0
 path.轮次作战 = function()
-
-  -- log(989)
   if #fight == 0 then return true end
+  path.跳转("首页")
   pre_fight = nil
-  cur_fight = nil
   while not zero_san do
-    tick = tick % #fight + 1
-    cur_fight = fight[tick]
+    fight_tick = fight_tick % #fight + 1
+    cur_fight = fight[fight_tick]
+    log(971)
     if not same_page_fight(pre_fight, cur_fight) then path.跳转("首页") end
-    log(820, fight, tick)
-    path.作战(fight[tick])
+    log(820, fight, fight_tick)
+    pre_fight=nil
+    path.作战(fight[fight_tick])
   end
 end
 
@@ -904,66 +1004,51 @@ jianpin2name = {
 }
 
 path.作战 = function(x)
-
   local f = startsWithX(x)
   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
-  elseif f("OF-") then
-    path.火蓝之心(x)
-  elseif f("GT-") then
-    path.骑兵与猎人(x)
-  elseif f("DM-") then
-    path.生于黑夜(x)
   elseif table.any(table.keys(jmfight2area), f) then
     path.剿灭(x)
-  elseif f("WR-") then
-    path.画中世界(x)
-  elseif f("MN-") then
-    path.临光(x)
-  elseif f("TW-") then
-    path.沃伦姆德的薄暮(x)
-  elseif f("RI-") then
-    path.密林(x)
-  elseif f("MB-") then
-    path.越狱(x)
-  elseif f("OD-") then
-    path.源石尘行动(x)
-  elseif f("WD-") then
-    path.遗尘漫步(x)
-  elseif f("SV-") then
-    path.覆潮之下(x)
-  elseif f("PL-") then
-    path.灯火序曲(x)
-  elseif table.any({"TB-DB", "LK-DP", "FIN-TS"}, f) then
-    path.联锁竞赛(x)
   else
     path.主线(x)
   end
 end
 
 path.开始游戏 = function(x)
-  log("开始游戏", tick, x)
-  pre_fight = x
+  log("开始游戏", fight_tick, x)
   if x == "1-11" then return auto(path["1-11"]) end
-  if not appear("演习券") then return end
-  if not findOne("代理指挥开") then tap("代理指挥开") end
-  if not appear("代理指挥开") then
+  if not findOne("开始行动") then return end
+  if not wait(function()
+    if findOne("代理指挥开") then return true end
+    tap("代理指挥开")
+    appear("代理指挥开",.5)
+  end,5) then return end
+  if not findOne("代理指挥开") then
     log("未检测到代理指挥开")
     return
   end
-  tap("开始行动蓝")
+  log("代理指挥开",findOne("代理指挥开"))
+
+  if not wait(function()
+    if not findOne("开始行动") then return true end
+    tap("开始行动蓝")
+  end,5) then return end
 
   local state = appear({
     "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
   }, 5)
-  if not x then return end
 
   if state == "开始行动红" then
     if debug0415 then
-      log(x)
+      log("debug0415",x)
       return
     end
-    tap("开始行动红")
+    if not wait(function()
+      if not findOne(state) then return true end
+      tap(state)
+    end,10) then return end
+    if not appear("接管作战",20) then return end
+    path.base.接管作战()
   elseif state == "源石恢复理智取消" then
     if stone_enable then
       tap("药剂恢复理智确认")
@@ -984,27 +1069,20 @@ path.开始游戏 = function(x)
 end
 
 path.主线 = function(x)
-  log(990)
   -- split s2-9 to 2 and 9
   local x0 = x
   local chapter = x0:find("-")
-  if not chapter then return end
   chapter = x0:sub(1, chapter - 1)
   chapter = chapter:sub(chapter:find("%d"))
   local chapter_index = tonumber(chapter) + 1
-  local continue = true
   local p
   p = {
     ["当前进度列表" .. chapter_index] = function()
-      ssleep(1)
+      ssleep(.5)
       log(928, x0)
-      swipq(x0)
-      tap("基建右上角")
-      if not findTap("作战列表" .. x0) then
-        -- distance or point error
-        log(x .. "未找到")
-        continue = false
-      end
+      swip(x0)
+      tap("作战列表"..x0)
+      appear("开始行动")
       return true
     end,
   }
@@ -1028,33 +1106,30 @@ path.主线 = function(x)
     end
   end
 
+  log(1040)
   if not findAny(table.keys(p)) then
+    log(1041)
     path.跳转("首页")
     tap("面板作战")
-    log(920)
     if not appear("主页") then return end
-    log(921)
     tap("主题曲")
-    log(922)
-    if not appear("二次呼吸") then return end
-    log(923)
+    if not appear("怒号光明") then return end
     if chapter_index <= 4 then
       tap("觉醒")
     elseif chapter_index <= 9 then
       tap("幻灭")
     end
-    disappear("二次呼吸")
-    if not appear("二次呼吸") then return end
-    swipq(chapter)
-    tap("作战主线章节列表" .. chapter)
-    tap("作战主线章节列表8")
+    if disappear("二次呼吸",.5) then appear("二次呼吸") end
+    if not findOne("二次呼吸") then return end
+    swipq(chapter,true)
+    if not wait(function()
+      if not findOne("怒号光明") then return true end
+      tap("作战主线章节列表" .. chapter)
+    end) then tap("作战主线章节列表8") end
     if not appear(table.keys(p)) then return end
   end
-
-  -- TODO add a timeout
   auto(p, false, 10)
-
-  if continue then path.开始游戏(x) end
+  path.开始游戏(x)
 end
 
 update_open_time = function()
@@ -1151,7 +1226,7 @@ path.物资芯片 = function(x)
   if cur_time == 0 then cur_time = 7 end
   if not table.includes(open_time, cur_time) then
     -- log(open_time, cur_time)
-    -- log(x, "未开启")
+    log(x, "未开启")
     return
   end
   -- get the index in 芯片搜索
@@ -1183,10 +1258,11 @@ path.物资芯片 = function(x)
     end,
     ["作战列表" .. x] = function()
       tap("作战列表" .. x)
+      appear("开始行动")
       return true
     end,
   })
-  auto(p)
+  auto(p,fales, 10)
   path.开始游戏(x)
 end
 
@@ -1208,6 +1284,19 @@ path.剿灭 = function(x)
       tap("面板作战")
       tap("每周部署")
       tap("进入地图")
+      if not disappear("主页") then return end
+      -- if appear({"主页","剿灭提示"}) ~="主页" then
+      --   if not wait(function()
+      --     if findOne("主页") then return true end
+      --     tap()
+      --     if findOne("") then 
+      --       tap("") 
+      --       appear("")
+      --     end
+      --   end,5) then return end
+      --   tap("返回")
+      -- end
+      if not appear("主页",5) then return end
       swipq(jmfight2area[x])
       findTap(jmfight2area[x])
       ssleep(2)
@@ -1243,6 +1332,7 @@ path.访问好友 = function()
   if not appearTap('访问基建', 5) then return end
   while appear({"访问下位橘", "访问下位灰"}, 10) do
     if findOne("今日参与交流已达上限") then
+      appear("主页")
       communication_enough = true
       break
     end
@@ -1310,7 +1400,9 @@ path["1-11"] = function()
 end
 
 path.公招刷新 = function()
+  log(1355)
   path.跳转("公开招募")
+  log(1356)
   local f, g
 
   f = function(i)
@@ -1401,18 +1493,19 @@ path.公招刷新 = function()
           return table.all(rule[1], function(r) return tags[r] end)
         end)
         log(1093, tag4)
+        -- toast(JsonEncode(tags))
 
         if #tag4 == 0 then
-          if findTap("公开招募标签刷新蓝") then
+          if findOne("公开招募标签刷新蓝") then
             if not disappear("公开招募时间减") then return end
             log(1411)
             if not wait(function()
               if findOne("公开招募时间减") then return true end
               tap("公开招募右确认")
             end, 5) then return end
+            if not appear("公开招募时间减") then return end
             log(1412)
-            -- TODO: how to check
-            ssleep(1)
+            ssleep(2)
             return g()
           else
             tap("返回")

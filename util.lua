@@ -307,7 +307,6 @@ findOne = function(x, confidence)
     else
       local color = shallowCopy(rfg[x0])
       table.extend(color, {x, confidence})
-      -- log("findColor", color)
       pos = findColor(color, confidence)
     end
     if pos then return {pos.x, pos.y} end
@@ -364,6 +363,7 @@ end
 -- quick multiple swip, for fights
 -- input distance => {x,y,x',y',time} / list of them
 swipq = function(dis, disable_end_sleep, duration)
+  log("swipq",dis)
   wait_game_up()
   duration = duration or 400
   if type(dis) == "string" then dis = distance[dis] end
@@ -385,8 +385,7 @@ swipq = function(dis, disable_end_sleep, duration)
         slid(left_boundary, height, min(right_boundary, left_boundary + x * 2),
              right_boundary, duration)
       elseif x < 0 then
-        log(right_boundary, height, max(left_boundary, right_boundary + x * 2),
-            height, duration)
+        log(right_boundary, height, max(left_boundary, right_boundary + x * 2), height, duration)
         slid(right_boundary, height, max(left_boundary, right_boundary + x * 2),
              height, duration)
       end
@@ -404,12 +403,14 @@ end
 
 -- swip to end
 swipe = function(x)
+  log("swipe",x)
   local duration = 150
-  local x1 = screen.width - math.round(300 * minscale)
-  local d = x == "left" and x1 or -x1
-  if d > 0 then x1 = math.round(300 * minscale) end
-  local y1 = math.round(200 * minscale)
+  local x1 = screen.width - math.round(300 * minscale)-1
+  local d = x == "right" and x1 or -x1
+  if d == x1 then x1 = math.round(300 * minscale) end
+  local y1 = math.round(128 * minscale)
   local x2 = math.round(x1 + d)
+  slid(x1, y1, x2, y1, duration)
   slid(x1, y1, x2, y1, duration)
   slid(x1, y1, x2, y1, duration)
   slid(x1, y1, x2, y1, duration)
@@ -419,6 +420,7 @@ end
 -- universal multiple swip, for fights
 -- input distance => {x,y,x',y',time} / list of them
 swipu = function(dis)
+  log('swipu',dis)
   wait_game_up()
   -- preprocess distance
   if type(dis) == "string" then dis = distance[dis] end
@@ -430,7 +432,7 @@ swipu = function(dis)
   local max_once_dis = screen.width - math.round(300 * minscale)
   local disf = {}
   for _, d in pairs(dis) do
-    sign = d > 0 and 1 or -1
+    local sign = d > 0 and 1 or -1
     d = math.abs(d)
     while d > 0 do
       if d > max_once_dis then
@@ -445,23 +447,48 @@ swipu = function(dis)
 
   -- do swip
   for _, d in pairs(disf) do
-    local duration = 400
+    local duration = 150
+    local delay= 50
     local x1 = screen.width - math.round(300 * minscale)
     if d > 0 then x1 = math.round(300 * minscale) end
-    local y1 = math.round(200 * minscale)
+    local y1 = math.round(128 * minscale)
     local x2 = math.round(x1 + d)
-    local y2 = screen.height - math.round(200 * minscale)
+    local y2 = screen.height - math.round(150 * minscale)
     local paths = {
       {
         {x = x1, y = y1}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
         {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
         {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
         {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
+        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
+        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
+        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
+      },
+      {
+        {x = x1, y = y2}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
+        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
+        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
+        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
+        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
+        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
+        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
       },
     }
-    -- log(paths)
     gesture(paths, duration)
-    sleep(duration + 100)
+    sleep(duration + delay)
+  end
+end
+
+swip =function(dis)
+  if type(dis) == "string" then dis = distance[dis] end
+  if type(dis) ~= "table" then dis = {dis} end
+  if not dis then return end
+  for _,d in pairs(dis) do
+    if math.abs(d) == swip_right_max then
+      swipe(d==swip_right_max and "right" or "left")
+    else
+      swipu(d)
+    end
   end
 end
 
@@ -520,7 +547,7 @@ auto = function(p, fallback, timeout)
     if not e and fallback ~= false then
       -- log("auto -> fallback")
       local x = table.findv({
-        "返回确认", "活动公告返回", "签到返回", "返回",
+        "返回确认","返回确认2", "活动公告返回", "签到返回", "返回",
         "返回2", "返回3", "返回4", "活动签到返回", "抽签返回",
       }, findOne)
       if x then
@@ -533,12 +560,20 @@ auto = function(p, fallback, timeout)
           if x == "活动签到返回" then
             for u = math.round(300 * minscale), screen.width -
               math.round(300 * minscale), 50 do
-              tap(u, screen.height // 2)
+              tap({u, screen.height // 2})
             end
             for v = math.round(300 * minscale), screen.height -
               math.round(300 * minscale), 50 do
-              tap(screen.width // 2, v)
+              tap({screen.width // 2, v})
             end
+          end
+          -- solve 抽签
+          if x=="抽签返回" then
+            for u = math.round(300 * minscale), screen.width -
+              math.round(300 * minscale), 50 do
+              tap({u, screen.height // 2})
+            end
+            tap("确定抽取")
           end
 
           -- deal with everyday popup
@@ -566,12 +601,14 @@ auto = function(p, fallback, timeout)
           --   disappear(x, 1)
           --   appear("进驻总览", 2)
           -- end, 10)
+        elseif x == "返回确认2" then
+          tap("右确认")
         else
           tap(x)
         end
       else
         -- log("no fallback sign found")
-        -- tap(nil)
+        tap(nil)
 
         --        tap(p.other)
         --        tap("返回")
@@ -612,6 +649,8 @@ run = function(...)
     else
       auto(path[v])
     end
+    -- disable repeat fight after one task done
+    repeat_fight_mode=false
   end
   if not no_background_after_run then home() end
 end
@@ -693,10 +732,10 @@ end
 
 -- wait until see node / point / list of node and point
 appear = function(target, timeout, interval, disappear)
+  log((disappear and "dis" or '') .."appear", target)
   if not (type(target) == 'table' and #target > 0) then target = {target} end
   return wait(function()
     for _, v in pairs(target) do
-      -- log(615, v)
       if disappear then
         if type(v) == "function" and not v() then
           return v
@@ -726,6 +765,7 @@ wait_game_up = function()
   local game = R():name(appid):path("/FrameLayout/View")
   local bilibili_login = R():id(
                            "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
+  bilibili_login_hook()
   if not find(game) then
     open()
     if not appear({game, bilibili_login}, 10, 1) then
@@ -749,3 +789,4 @@ bilibili_login_hook = function()
   click(login)
   return true
 end
+

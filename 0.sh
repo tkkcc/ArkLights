@@ -2,14 +2,13 @@
 {
 
   declare -A default
-  default[dst]=192.168.10.196
+  default[dst]=z1
   # default[dst]=z7
-  # default[dst]=z7
-  # default[dst]=172.30.25.18
-  # default[dst]=localhost
-  # default[dst]=q1
-  restartcolor() { # 重启节点精灵，以适应分辨率变更 adb shell am force-stop com.aojoy.aplug
-    #adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
+  default[dst]=localhost
+  # default[dst]=z9
+  restartcolor() { # 重启节点精灵，以适应分辨率变更 
+    adb shell am force-stop com.aojoy.aplug
+    # adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
     sleep 1
     adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService
     sleep 2
@@ -38,11 +37,11 @@
   find() {
     # 测试不同分辨率下脚本结果
     local option=(
-      2400x1080
-      1280x720
+      1080x2400
+      720x1280
       #1024x720
       #2400x720
-      1920x1080
+     1080x1920
     )
     if [[ -n $1 ]]; then
       option=(${option[$1]})
