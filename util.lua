@@ -60,7 +60,6 @@ table.value2key = function(x)
   for k, v in pairs(x) do ans[v] = k end
   return ans
 end
-
 table.select = function(mask, reference)
   local ans = {}
   for i = 1, #reference do if mask[i] then table.insert(ans, reference[i]) end end
@@ -94,6 +93,14 @@ table.keys = function(t)
   for k, _ in pairs(t) do table.insert(a, k) end
   return a
 end
+
+table.values = function(t)
+  local a = {}
+  t = t or a
+  for _, v in pairs(t) do table.insert(a, v) end
+  return a
+end
+
 -- a,a+1,...b
 range = function(a, b)
   local t = {}
@@ -363,7 +370,7 @@ end
 -- quick multiple swip, for fights
 -- input distance => {x,y,x',y',time} / list of them
 swipq = function(dis, disable_end_sleep, duration)
-  log("swipq",dis)
+  log("swipq", dis)
   wait_game_up()
   duration = duration or 400
   if type(dis) == "string" then dis = distance[dis] end
@@ -385,7 +392,8 @@ swipq = function(dis, disable_end_sleep, duration)
         slid(left_boundary, height, min(right_boundary, left_boundary + x * 2),
              right_boundary, duration)
       elseif x < 0 then
-        log(right_boundary, height, max(left_boundary, right_boundary + x * 2), height, duration)
+        log(right_boundary, height, max(left_boundary, right_boundary + x * 2),
+            height, duration)
         slid(right_boundary, height, max(left_boundary, right_boundary + x * 2),
              height, duration)
       end
@@ -403,9 +411,9 @@ end
 
 -- swip to end
 swipe = function(x)
-  log("swipe",x)
+  log("swipe", x)
   local duration = 150
-  local x1 = screen.width - math.round(300 * minscale)-1
+  local x1 = screen.width - math.round(300 * minscale) - 1
   local d = x == "right" and x1 or -x1
   if d == x1 then x1 = math.round(300 * minscale) end
   local y1 = math.round(128 * minscale)
@@ -420,7 +428,7 @@ end
 -- universal multiple swip, for fights
 -- input distance => {x,y,x',y',time} / list of them
 swipu = function(dis)
-  log('swipu',dis)
+  log('swipu', dis)
   wait_game_up()
   -- preprocess distance
   if type(dis) == "string" then dis = distance[dis] end
@@ -448,7 +456,7 @@ swipu = function(dis)
   -- do swip
   for _, d in pairs(disf) do
     local duration = 150
-    local delay= 50
+    local delay = 50
     local x1 = screen.width - math.round(300 * minscale)
     if d > 0 then x1 = math.round(300 * minscale) end
     local y1 = math.round(128 * minscale)
@@ -463,8 +471,7 @@ swipu = function(dis)
         {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
         {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
         {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
-      },
-      {
+      }, {
         {x = x1, y = y2}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
         {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
         {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
@@ -479,13 +486,13 @@ swipu = function(dis)
   end
 end
 
-swip =function(dis)
+swip = function(dis)
   if type(dis) == "string" then dis = distance[dis] end
   if type(dis) ~= "table" then dis = {dis} end
   if not dis then return end
-  for _,d in pairs(dis) do
+  for _, d in pairs(dis) do
     if math.abs(d) == swip_right_max then
-      swipe(d==swip_right_max and "right" or "left")
+      swipe(d == swip_right_max and "right" or "left")
     else
       swipu(d)
     end
@@ -547,8 +554,9 @@ auto = function(p, fallback, timeout)
     if not e and fallback ~= false then
       -- log("auto -> fallback")
       local x = table.findv({
-        "返回确认","返回确认2", "活动公告返回", "签到返回", "返回",
-        "返回2", "返回3", "返回4", "活动签到返回", "抽签返回",
+        "返回确认", "返回确认2", "活动公告返回", "签到返回",
+        "返回", "返回2", "返回3", "返回4", "活动签到返回",
+        "抽签返回",
       }, findOne)
       if x then
         log(x)
@@ -568,7 +576,7 @@ auto = function(p, fallback, timeout)
             end
           end
           -- solve 抽签
-          if x=="抽签返回" then
+          if x == "抽签返回" then
             for u = math.round(300 * minscale), screen.width -
               math.round(300 * minscale), 50 do
               tap({u, screen.height // 2})
@@ -650,7 +658,7 @@ run = function(...)
       auto(path[v])
     end
     -- disable repeat fight after one task done
-    repeat_fight_mode=false
+    repeat_fight_mode = false
   end
   if not no_background_after_run then home() end
 end
@@ -732,7 +740,7 @@ end
 
 -- wait until see node / point / list of node and point
 appear = function(target, timeout, interval, disappear)
-  log((disappear and "dis" or '') .."appear", target)
+  log((disappear and "dis" or '') .. "appear", target)
   if not (type(target) == 'table' and #target > 0) then target = {target} end
   return wait(function()
     for _, v in pairs(target) do
@@ -789,4 +797,3 @@ bilibili_login_hook = function()
   click(login)
   return true
 end
-
