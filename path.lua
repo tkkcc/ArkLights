@@ -76,14 +76,14 @@ path.base = {
     end
   end,
   接管作战 = function()
-    if not disappear("接管作战", 60 * 60, 5) then stop("接管作战") end
+    if not disappear("接管作战", 60 * 60, 1) then stop("接管作战") end
 
     -- this calllback is only for 主线、资源、剿灭
     if not wait(function()
       if findOne("开始行动") then return true end
       if findOne("接管作战") then return true end
       tap("开始行动")
-    end, 20) then return end
+    end, 60 * 5) then return end
 
     if findOne("接管作战") then return path.base.接管作战() end
 
@@ -306,6 +306,9 @@ path.跳转 = function(x, disable_quick_jump)
   if x == "基建" then zoom() end
 
   prev_jump = x
+
+  -- disable repeat fight after any jump complete
+  repeat_fight_mode = false
 end
 
 start_time = parse_time("202101010400")
@@ -544,7 +547,7 @@ path.基建换班 = function()
     return true
   end
 
-  for i = 1, 6 do
+  for i = 1, 7 do
     -- TODO 应对换人网络延迟
     -- if findOne("入驻干员底部") then
     --   log("滑到底部")
@@ -1019,8 +1022,8 @@ end
 
 path.开始游戏 = function(x)
   log("开始游戏", fight_tick, x)
-  if x == "1-11" then return auto(path["1-11"]) end
   if not findOne("开始行动") then return end
+  if x == "1-11" then return auto(path["1-11"]) end
   if is_jmfight_enough() then return end
   if not wait(function()
     if appear("代理指挥开", .1) then return true end
@@ -1044,10 +1047,10 @@ path.开始游戏 = function(x)
     if fake_fight then
       log("debug0415", x)
       if not wait(function()
-        if not findOne(state) then return true end
+        if not findOne(state) and not appear(state, 1) then return true end
         tap("返回")
-        disappear(state,1)
-      end,5) then return end
+        disappear(state, 1)
+      end, 5) then return end
       return path.base.接管作战()
     end
     if not wait(function()
@@ -1128,11 +1131,14 @@ path.主线 = function(x)
     end
     if disappear("二次呼吸", .5) then appear("二次呼吸") end
     if not findOne("二次呼吸") then return end
+
     swipq(chapter, true)
+
     if not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
-    end) then tap("作战主线章节列表8") end
+    end, 1) then tap("作战主线章节列表8") end
+
     if not appear(table.keys(p)) then return end
   end
   auto(p, false, 10)
@@ -1348,21 +1354,24 @@ end
 
 path["1-11"] = function()
   local x = "1-11"
-  tap("开始行动蓝")
-  -- wait 安德切尔
-  if not findTap("开始行动红") then return end
-  -- appearTap()
-  -- ssleep(13)
-  -- tap("跳过剧情")
-  if not appearTap("跳过剧情", 20, 1) then
-    log("没找到跳过剧情")
-    log('代理失误', x)
-    bl[x] = false
-    failed_fight[x] = (failed_fight[x] or 0) + 1
-    return false
-  end
-  ssleep(1)
+  if not findOne("开始行动") then return end
+  if not wait(function()
+    if not findOne("开始行动") then return true end
+    tap("开始行动蓝")
+  end, 5) then return end
+  if not appear("开始行动红", 5) then return end
+  if not wait(function()
+    if not findOne("开始行动红") and not appear("开始行动红", 1) then
+      return true
+    end
+    tap("开始行动红")
+  end, 5) then return end
+  if not appear("跳过剧情", 20) then return end
+  ssleep(.5)
+  tap("跳过剧情")
+  ssleep(.5)
   tap("跳过剧情确认")
+
   -- start
   ssleep(23)
   tap("两倍速")
@@ -1388,20 +1397,15 @@ path["1-11"] = function()
   deploy(1482, 813, 314)
   -- 史都华德
   deploy(1656, 669, 407)
-  ssleep(6)
+  ssleep(4)
   -- 玫兰莎
   retreat(1110, 368, 894, 323)
-  if appear("行动结束", 60, 1) then
-    log('代理成功', x)
-    cl[x] = (cl[x] or 0) + 1
-    ssleep(3)
-    tap("返回")
-    ssleep(4)
-  else
-    log('代理失误', x)
-    bl[x] = false
-    failed_fight[x] = (failed_fight[x] or 0) + 1
-  end
+
+  if not wait(function()
+    if findOne("当前进度列表2") then return true end
+    tap("开始行动")
+  end, 60 * 2, 1) then return end
+  pre_fight = "1-11"
 end
 
 path.公招刷新 = function()
@@ -1446,9 +1450,8 @@ path.公招刷新 = function()
         findTap("公开招募列表" .. i)
       end, 5) then return end
       log(1311)
-      local prev_tags = nil
-      g = function(disable_refresh_check)
-        log("1243", prev_tags)
+      g = function()
+        log("1243")
 
         local empty_tags = true
         local tags = {}
@@ -1459,7 +1462,16 @@ path.公招刷新 = function()
         for j = 1, 6 do
           for _ = 1, 5 do
             local p = point["公开招募标签框列表" .. j]
-            ocr_text, _ = ocr(table.unpack(p))
+            log(1461, p)
+            -- TODO dont's know if this function gives me
+            -- java.lang.StringIndexOutOfBoundsException: length=4; index=4
+            local status
+            while not status do
+              log(1469, status)
+              status, ocr_text = pcall(ocr, table.unpack(p))
+            end
+
+            log(1463, ocr_text)
             if not ocr_text then break end
             ocr_text = string.map(ocr_text, {
               ["'"] = "",
@@ -1548,5 +1560,3 @@ path.公招刷新 = function()
   end
   for i = 1, 4 do f(i) end
 end
-
-path["作战1-11"] = function() for _ = 1, 14 do path.作战("1-11") end end

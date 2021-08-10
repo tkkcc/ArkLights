@@ -381,7 +381,7 @@ swipq = function(dis, disable_end_sleep, duration)
     if type(x) == 'number' then
       local left_boundary = math.round(200 * minscale)
       local right_boundary = math.round((1720 - 1920) * minscale + screen.width)
-      local height = math.round(400 * minscale)
+      local height = screen.height // 2
       if x == 0 then -- special wait sign
         ssleep(.4)
       elseif x == 1 then -- special quit sign
@@ -398,10 +398,8 @@ swipq = function(dis, disable_end_sleep, duration)
              height, duration)
       end
     elseif type(x) == 'table' then
-      log(table.unpack(x))
-      local a, b, c, d, e = table.unpack(x)
-      slid(math.round(a), math.round(b * minscale), math.round(c),
-           math.round(d * minscale), e)
+      log(x)
+      slid(table.unpack(x))
     else
       stop(413)
     end
@@ -422,7 +420,14 @@ swipe = function(x)
   slid(x1, y1, x2, y1, duration)
   slid(x1, y1, x2, y1, duration)
   slid(x1, y1, x2, y1, duration)
-  -- slid(x1, y1, x2, y1, duration)
+end
+
+-- TODO: 暂定安卓11以下的滑动需要双指滑动, 可以被用户override。
+local android_verison_code = getAppinfo("android").versionCode
+if android_verison_code < 30 then
+  is_device_swipe_too_fast = true
+else
+  is_device_swipe_too_fast = false
 end
 
 -- universal multiple swip, for fights
@@ -455,33 +460,26 @@ swipu = function(dis)
 
   -- do swip
   for _, d in pairs(disf) do
-    local duration = 150
+    local duration = 200
     local delay = 50
     local x1 = screen.width - math.round(300 * minscale)
     if d > 0 then x1 = math.round(300 * minscale) end
     local y1 = math.round(128 * minscale)
     local x2 = math.round(x1 + d)
     local y2 = screen.height - math.round(150 * minscale)
-    local paths = {
+    local finger = {
       {
         {x = x1, y = y1}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
         {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
         {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
-        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
-        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
-        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
-        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
-      }, {
-        {x = x1, y = y2}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
-        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
-        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
-        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
-        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
-        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
-        {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2},
       },
     }
-    gesture(paths, duration)
+
+    -- TODO:什么情况下用双指滑
+    if is_device_swipe_too_fast then table.insert(finger, 1, finger[1]) end
+    log(482, finger)
+
+    gesture(finger, duration)
     sleep(duration + delay)
   end
 end
@@ -505,7 +503,7 @@ zoom = function(retry)
   if retry > 20 then return end
   if not findOne("进驻总览") then path.跳转("基建") end
   if findOne("缩放结束") then return true end
-  local paths = {
+  local finger = {
     {
       {
         x = math.round((1720 - 1920) * minscale + screen.width),
@@ -519,7 +517,7 @@ zoom = function(retry)
   -- 89,35,#313131
   -- local paths  = "1273,42,#333333|1085,36,#B5B5B5"
   local duration = 100
-  gesture(paths, duration)
+  gesture(finger, duration)
 
   -- otherwise next zoom will be recognized as tapping, cause flicking
   appear("缩放结束", 0.4)
@@ -595,11 +593,12 @@ auto = function(p, fallback, timeout)
           if not wait(function()
             if not findOne("返回确认") then return true end
             if fallback then
+              log("tap fallback[x]")
               tap(fallback[x])
             else
               tap("右确认")
             end
-            disappear("返回确认")
+            disappear("返回确认", 1)
           end, 10) then return end
           if appear("进驻总览") then leaving_jump = true end
 
@@ -657,8 +656,6 @@ run = function(...)
     else
       auto(path[v])
     end
-    -- disable repeat fight after one task done
-    repeat_fight_mode = false
   end
   if not no_background_after_run then home() end
 end
@@ -700,27 +697,97 @@ end
 -- {x:2,y:3} => {2,3}
 xy2arr = function(t) return {t.x, t.y} end
 
+clamp = function(x, minimum, maximum)
+  minimum = minimum or 0
+  maximum = maximum or (screen.width - 1)
+  return min(max(x, minimum), maximum)
+end
+clampw = clamp
+clamph = function(x, minimum, maximum)
+  return clampw(x, minimum or 0, maximum or (screen.height - 1))
+end
+
 deploy = function(x1, x2, y2, d)
-  -- TODO
-  local y1 = 1000
-  local t = .3
+  local y1 = screen.height - math.round(90 * maxscale)
+  x1 = math.round((x1 - (1920 / 2)) * minscale) + (screen.width // 2)
+  x2 = math.round((x2 - (1920 / 2)) * minscale) + (screen.width // 2)
+  y2 = math.round((y2 - (1080 / 2)) * minscale) + (screen.height // 2)
+  local duration = 300
+  local delay = 100
   d = d or 2
   d = ({{0, -1}, {1, 0}, {0, 1}, {-1, 0}})[d]
   d = {d[1] * 500, d[2] * 500}
-  swip(x1, y1, x2 - x1, y2 - y1, t, t)
-  swip(x2, y2, x2 + d[1], y2 + d[2], .2)
+  local finger = {
+    {
+      {x = x1, y = y1}, {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+    },
+  }
+  gesture(finger, duration)
+  log("deploy", finger)
+  sleep(duration + delay)
+  finger = {{{x = x2, y = y2}, {x = clamp(x2 + d[1]), y = clamp(y2 + d[2])}}}
+  log("deploy", finger)
+  gesture(finger, 200)
+  sleep(1000)
 end
 
 -- todo: make a map ?
 retreat = function(x1, y1, x2, y2)
-  local t = .2
-  touchDown(0, x1, y1)
+  local t = .5
+  x1 = math.round((x1 - (1920 / 2)) * minscale) + (screen.width // 2)
+  y1 = math.round((y1 - (1080 / 2)) * minscale) + (screen.height // 2)
+  x2 = math.round((x2 - (1920 / 2)) * minscale) + (screen.width // 2)
+  y2 = math.round((y2 - (1080 / 2)) * minscale) + (screen.height // 2)
+  tap({x1, y1})
   ssleep(t)
-  touchUp(0, x1, y1)
+  tap({x2, y2})
   ssleep(t)
-  touchDown(0, x2, y2)
-  ssleep(t)
-  touchUp(0, x2, y2)
+
+  -- touchDown(0, x1, y1)
+  -- ssleep(t)
+  -- touchUp(0, x1, y1)
+  -- ssleep(t)
+  -- touchDown(0, x2, y2)
+  -- ssleep(t)
+  -- touchUp(0, x2, y2)
 end
 
 -- wait until func success

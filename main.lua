@@ -2,13 +2,13 @@
 -- predebug = true
 -- no_dorm = true
 -- test_some = true
+-- ok_time = 1
+-- fake_fight = true
 -- test_fight = true
 -- no_config_cache = true
 -- prefer_bapp = true
 -- verbose_fca = true
--- ok_time = 1
--- fake_fight = false
--- fake_fight = true
+
 -- debug0721 = false
 -- no_background_after_run = true
 -- longest_tag = false
@@ -49,7 +49,7 @@ if predebug then
     gesture(paths, duration)
     sleep(duration + delay)
     tap("入驻干员右侧")
-    sleep(50)
+    sleep(333)
   end
   swipd()
   exit()
@@ -97,7 +97,7 @@ local ui = {
   cache = not no_config_cache,
   width = -1,
   height = -1,
-  time = ok_time or 0,
+  time = ok_time or 60,
   views = {
     {title = "账号", type = "edit", id = "username"},
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
@@ -107,14 +107,21 @@ local ui = {
       id = "fight",
     }, {
       type = "check",
-      value = "*吃药|吃石头|*保底最高4星时自动招募",
+      value = "*吃药|吃石头|*保底最高4星时自动招募|" ..
+        (is_device_swipe_too_fast and "*" or '') .. "双指滑动",
       ore = 1,
-      id = "drug_enable|stone_enable|star4_auto",
+      id = "drug_enable|stone_enable|star4_auto|is_device_swipe_too_fast",
     }, {
       type = "check",
       ore = 1,
       value = parse_value_to_ui(all_job, now_job),
       id = parse_id_to_ui("now_job_ui", #all_job),
+    }, {
+      type = "text",
+      value = [[须知：
+1. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
+2. 如果轮次作战滑动距离错误，请尝试切换双指滑动选项。
+]],
     }, {
       type = 'div',
       title = '',
@@ -170,7 +177,7 @@ fight = string.map(fight, {
   ["\t"] = " ",
 })
 fight = string.split(fight, ' ')
-for _, v in pairs(fight) do
+for k, v in pairs(fight) do
   if table.includes(table.keys(jianpin2name), v) then
     fight[k] = jianpin2name[v]
   end
@@ -184,8 +191,7 @@ update_open_time()
 
 if test_fight then
   fight = {
-    "JT8-3",
-    "JT8-2",
+    "JT8-3", "JT8-2",
     -- "积水潮窟",
     -- "切尔诺伯格",
     -- "龙门外环",
@@ -224,13 +230,34 @@ if test_fight then
   exit()
 end
 if test_some then
-  -- debug
-  logConfig({mode = 3})
-  fight = {"1-7", "1-7", "1-6", "JT8-3"}
-  fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
-  run("邮件收取", "轮次作战", "基建收获", "基建换班",
-      "副手换人", "制造加速", "线索搜集", "信用购买",
-      "公招刷新", "任务收集")
+  -- sleep(1000)
+  -- deploy(591, 807, 522)
+  -- 翎羽
+  -- deploy(447, 948, 516)
+  -- 杰西卡
+  -- ssleep(2)
+  -- deploy(585, 939, 373)
+  -- deploy(591, 807, 522)
+  -- path["1-11"]()
+  -- 899,989,#3E3A41
+  -- deploy(1091, 807, 522)
+  -- deploy(1299, 801, 384)
+  -- deploy(591, 807, 522)
+  -- run("公招刷新", "任务收集")
+  -- swipq("资源收集列表1")
+  -- tap("资源收集最左列表" .. 1)
+  -- swipq("资源收集列表9")
+  -- tap("资源收集最右列表" .. 9)
+  -- exit()
+  -- logConfig({mode = 3})
+  -- fight = {"1-7", "1-7", "1-6", "JT8-3"}
+  fight = {"1-11", "1-11", "1-11"}
+  run("轮次作战")
+  -- fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
+  -- run("邮件收取", "轮次作战", "基建收获", "基建换班",
+  --     "副手换人", "制造加速", "线索搜集", "信用购买",
+  --     "公招刷新", "任务收集")
+  exit()
 end
 
 run(now_job)

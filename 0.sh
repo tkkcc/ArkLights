@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 {
-
   declare -A default
   default[dst]=z1
   # default[dst]=z7
