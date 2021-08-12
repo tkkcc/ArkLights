@@ -264,11 +264,12 @@ log = function(...)
   l = map(table2string, l)
   local a = time()
   for _, v in pairs(l) do a = a .. ' ' .. v end
-  if #log_history > 2000 then table.clear(log_history) end
-  log_history[#log_history + 1] = a
-  l = loop_times(log_history)
-  if l > 1 then a = a .. " x" .. l end
-  if l > 100 then stop("246") end
+  -- if #log_history > 2000 then table.clear(log_history) end
+  -- log_history[#log_history + 1] = a
+  -- l = loop_times(log_history)
+  -- l = 0
+  -- if l > 1 then a = a .. " x" .. l end
+  -- if l > 100 then stop("246") end
   print(a)
 end
 
@@ -329,6 +330,7 @@ findAll = function(x, confidence)
   return findColors(color)
 end
 
+tap_nil_count = 0
 -- x={2,3} "信用" func nil
 tap = function(x, retry, allow_outside_game)
   if not allow_outside_game then wait_game_up() end
@@ -338,6 +340,14 @@ tap = function(x, retry, allow_outside_game)
   end
   local x0 = x
   if x == true then return true end
+  if x == nil then
+    tap_nil_count = tap_nil_count + 1
+    if tap_nil_count > 50 then -- about 5 s ?
+      tap("返回")
+      tap_nil_count = 0
+    end
+    return
+  end
 
   if type(x) == "function" then return x() end
   if type(x) == "string" and not x:find(coord_delimeter) then
@@ -423,7 +433,7 @@ swipe = function(x)
 end
 
 -- TODO: 暂定安卓11以下的滑动需要双指滑动, 可以被用户override。
-local android_verison_code = getAppinfo("android").versionCode
+android_verison_code = getAppinfo("android").versionCode
 if android_verison_code < 30 then
   is_device_swipe_too_fast = true
 else
@@ -565,18 +575,18 @@ auto = function(p, fallback, timeout)
           -- solve 活动签到
           if x == "活动签到返回" then
             for u = math.round(300 * minscale), screen.width -
-              math.round(300 * minscale), 50 do
+              math.round(300 * minscale), 200 do
               tap({u, screen.height // 2})
             end
             for v = math.round(300 * minscale), screen.height -
-              math.round(300 * minscale), 50 do
+              math.round(300 * minscale), 200 do
               tap({screen.width // 2, v})
             end
           end
           -- solve 抽签
           if x == "抽签返回" then
             for u = math.round(300 * minscale), screen.width -
-              math.round(300 * minscale), 50 do
+              math.round(300 * minscale), 200 do
               tap({u, screen.height // 2})
             end
             tap("确定抽取")
@@ -586,7 +596,7 @@ auto = function(p, fallback, timeout)
           if not wait(function()
             if findOne("面板") then return true end
             tap(x)
-            appear("面板", 1)
+            appear("面板", .5)
           end, 10) then return end
         elseif x == "返回确认" then
           leaving_jump = false
@@ -598,7 +608,7 @@ auto = function(p, fallback, timeout)
             else
               tap("右确认")
             end
-            disappear("返回确认", 1)
+            disappear("返回确认", .5)
           end, 10) then return end
           if appear("进驻总览") then leaving_jump = true end
 
@@ -615,7 +625,7 @@ auto = function(p, fallback, timeout)
         end
       else
         -- log("no fallback sign found")
-        tap(nil)
+        tap()
 
         --        tap(p.other)
         --        tap("返回")
@@ -707,11 +717,29 @@ clamph = function(x, minimum, maximum)
   return clampw(x, minimum or 0, maximum or (screen.height - 1))
 end
 
-deploy = function(x1, x2, y2, d)
-  local y1 = screen.height - math.round(90 * maxscale)
-  x1 = math.round((x1 - (1920 / 2)) * minscale) + (screen.width // 2)
+-- resoluton invariant deploy
+-- idx=1 => the left most operator
+-- idx=total => the right most operator
+-- x2,y2 => destination
+-- d => direction
+deploy2 = function(idx, total, x2, y2, d)
+  local max_op_width = math.round(178 * minscale) --  in loose mode, each operator's width
+  local x1
+  if total * max_op_width > screen.width then
+    -- tight
+    max_op_width = screen.width // total
+    x1 = idx * max_op_width - max_op_width // 2
+  else
+    -- loose
+    x1 = screen.width - (total - idx) * max_op_width - max_op_width // 2
+  end
   x2 = math.round((x2 - (1920 / 2)) * minscale) + (screen.width // 2)
   y2 = math.round((y2 - (1080 / 2)) * minscale) + (screen.height // 2)
+  deploy(x1, x2, y2, d)
+end
+
+deploy = function(x1, x2, y2, d)
+  local y1 = screen.height - math.round(90 * maxscale)
   local duration = 300
   local delay = 100
   d = d or 2
@@ -719,45 +747,33 @@ deploy = function(x1, x2, y2, d)
   d = {d[1] * 500, d[2] * 500}
   local finger = {
     {
-      {x = x1, y = y1}, {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
-      {x = clampw(x2 - 10), y = y2}, {x = clampw(x2), y = y2},
+      {x = x1, y = y1}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
+      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
+      {x = x2 - 10, y = y2},
     },
   }
   gesture(finger, duration)

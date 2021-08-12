@@ -4,11 +4,12 @@
 -- test_some = true
 -- ok_time = 1
 -- fake_fight = true
+-- ignore_jmfight_enough_check=true
 -- test_fight = true
 -- no_config_cache = true
 -- prefer_bapp = true
+-- prefer_bapp_on_android7 = true
 -- verbose_fca = true
-
 -- debug0721 = false
 -- no_background_after_run = true
 -- longest_tag = false
@@ -28,6 +29,7 @@ appid_need_user_select = false
 appid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 if prefer_bapp then appid = bppid end
+if prefer_bapp_on_android7 and android_verison_code < 30 then appid = bppid end
 local app_info = getAppinfo(appid)
 local bpp_info = getAppinfo(bppid)
 if not app_info and not bpp_info then stop("未安装明日方舟官服或B服") end
@@ -35,6 +37,9 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  ssleep(1)
+  log(findOne("开始行动"))
+  -- tap("线索库列表1")
   exit()
   local swipd = function()
     local duration = 333
@@ -119,8 +124,9 @@ local ui = {
     }, {
       type = "text",
       value = [[须知：
-1. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
-2. 如果轮次作战滑动距离错误，请尝试切换双指滑动选项。
+1. 尽量采用默认游戏设置。基建退出提示必须开启，异形屏UI适配必须为0。
+2. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
+3. 如果轮次作战滑动距离错误，请尝试切换双指滑动选项。
 ]],
     }, {
       type = 'div',
@@ -177,12 +183,12 @@ fight = string.map(fight, {
   ["\t"] = " ",
 })
 fight = string.split(fight, ' ')
+fight = map(string.upper, fight)
 for k, v in pairs(fight) do
   if table.includes(table.keys(jianpin2name), v) then
     fight[k] = jianpin2name[v]
   end
 end
-fight = map(string.upper, fight)
 fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
 all_open_time_start = parse_time("202007151600")
@@ -230,6 +236,42 @@ if test_fight then
   exit()
 end
 if test_some then
+  -- ssleep(1)
+
+  --   deploy2(4, 12, 807, 522)
+  --   -- 翎羽
+  --   -- deploy(600, 948, 516)
+  -- deploy2(3, 11, 948, 516)
+  --   -- 杰西卡
+  --   ssleep(2)
+  --   -- deploy(585, 939, 373)
+  -- deploy2(3, 10, 939, 373)
+  --   -- 安塞尔
+  --   ssleep(6)
+  --   -- deploy(1299, 801, 384)
+  --   deploy2(6, 9, 801, 384)
+  --   -- 玫兰莎
+  --   ssleep(8)
+  --   -- deploy(945, 1227, 368)
+  --   deploy2(3, 8, 1227, 368)
+  --   -- 黑角
+  --   -- deploy(1122, 1216, 269)
+  --   deploy2(3, 7, 1216, 269)
+  --   -- 黑角
+  --   -- retreat(1110, 263, 894, 323)
+  --   -- 米格鲁
+  --   ssleep(11)
+  --   -- deploy(1482, 813, 314)
+  --   deploy2(5, 7, 813, 314)
+  --   -- 史都华德
+  --   -- deploy(1656, 669, 407)
+  --   deploy2(6, 6, 669, 407)
+  --   ssleep(4)
+  --   -- 玫兰莎
+  --   retreat(1110, 368, 894, 323)
+  --   exit()
+  -- run("基建换班")
+  -- exit()
   -- sleep(1000)
   -- deploy(591, 807, 522)
   -- 翎羽
@@ -238,7 +280,6 @@ if test_some then
   -- ssleep(2)
   -- deploy(585, 939, 373)
   -- deploy(591, 807, 522)
-  -- path["1-11"]()
   -- 899,989,#3E3A41
   -- deploy(1091, 807, 522)
   -- deploy(1299, 801, 384)
