@@ -83,6 +83,7 @@ path.base = {
       if findOne("开始行动") then return true end
       if findOne("接管作战") then return true end
       tap("开始行动")
+      appear({"开始行动", "接管作战"}, 1)
     end, 30) then return end
 
     if findOne("接管作战") then return path.base.接管作战() end

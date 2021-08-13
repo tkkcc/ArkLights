@@ -1,18 +1,13 @@
 # 明日方舟全日常辅助
 
-开发中，未完成
-
----
-
 节点精灵实现的明日方舟全日常辅助，适配多种分辨率，等待耗时极低。[视频演示](https://www.bilibili.com/video/BV1gJ411p7Ck)。有问题请提issue或加QQ群1009619697反馈。
-
-TODO: pic and video
+![](./flameshot.jpg)
 
 ## 须知
 
 1. 尽量采用默认游戏设置。基建退出提示必须开启，异形屏UI适配必须为0。
 1. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
-1. 如果轮次作战滑动距离错误，请尝试切换双指滑动选项。
+1. 如果作战滑动距离错误，请尝试切换双指滑动选项。
 
 ## 特点
 
@@ -23,14 +18,13 @@ TODO: pic and video
 
 ## 安装
 
-1. 安装[节点精灵](http://card.nspirit.cn/getApk)，搜索
-TODO: id
+1. 安装[节点精灵](http://card.nspirit.cn/getApk)，搜索5858，运行即可
 
 ## 开发
 
 1. 参考[节点精灵开发文档](http://www.nspirit.cn/api)
 
-## 其他辅助（awesome-arknights-auto-helper）
+## 其他辅助（awesome-arknights-auto-helper）(2021年8月13日整理）
 
 1. [明日方舟月明](https://www.aistool.com/)：持续更新，适配1280x720分辨率已root设备，支持多帐号，支持国服日服，支持基建指定排班干员，完成度极高，但部分功能等待耗时较多，使用飞天助手实现。
 1. [明日计划](https://space.bilibili.com/271091178/video)：持续更新，适配异形屏，免root，但还未支持16:9屏幕，完成度还不足，等待耗时较多，使用autojs实现。

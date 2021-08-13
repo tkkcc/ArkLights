@@ -38,6 +38,7 @@ if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
   ssleep(1)
+  log(findOne("收取信用有"))
   log(findOne("开始行动"))
   -- tap("线索库列表1")
   exit()
@@ -106,9 +107,9 @@ local ui = {
   views = {
     {title = "账号", type = "edit", id = "username"},
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
-      title = "轮次作战地图",
+      title = "作战",
       type = "edit",
-      value = "R8-2,PR-D-2,RP-D-1,CE-5,LS-5",
+      value = "LMSQ,龙门市区,\nR8-2,PR-D-2,PR-D-1,CE-5,JT8-3,LS-5",
       id = "fight",
     }, {
       type = "check",
@@ -126,7 +127,7 @@ local ui = {
       value = [[须知：
 1. 尽量采用默认游戏设置。基建退出提示必须开启，异形屏UI适配必须为0。
 2. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
-3. 如果轮次作战滑动距离错误，请尝试切换双指滑动选项。
+3. 如果作战滑动距离错误，请尝试切换双指滑动选项。
 ]],
     }, {
       type = 'div',

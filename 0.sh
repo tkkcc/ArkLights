@@ -5,7 +5,7 @@
   # default[dst]=z7
   default[dst]=localhost
   # default[dst]=z9
-  restartcolor() { # 重启节点精灵，以适应分辨率变更 
+  restartcolor() { # 重启节点精灵，以适应分辨率变更
     adb shell am force-stop com.aojoy.aplug
     # adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
     sleep 1
@@ -16,6 +16,11 @@
     adb shell input keyevent KEYCODE_APP_SWITCH
     #adb shell monkey -p com.hypergryph.arknights -c android.intent.category.LAUNCHER 1
     sleep 2
+  }
+  release() {
+    local dst=${1:-${default[dst]}}
+    save "$@"
+    curl http://$dst:9090/script/export?name=test >arknights.nsp
   }
   stop() {
     local dst=${1:-${default[dst]}}
@@ -40,7 +45,7 @@
       720x1280
       #1024x720
       #2400x720
-     1080x1920
+      1080x1920
     )
     if [[ -n $1 ]]; then
       option=(${option[$1]})
