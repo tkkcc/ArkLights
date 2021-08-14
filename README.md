@@ -25,18 +25,27 @@
 1. 参考[节点精灵开发文档](http://www.nspirit.cn/api)。
 2. 命令行用户可以使用仓库中的`./0.sh`开发：例如通过`./0.sh saverun`上传代码并运行。
 
-## 其他辅助（awesome-arknights-auto-helper）(2021年8月13日整理）
+## 其他辅助（awesome-arknights-auto-helper）
 
-1. [明日方舟月明](https://www.aistool.com/)：持续更新，适配1280x720分辨率已root设备，支持多帐号，支持国服日服，支持基建指定排班干员，完成度极高，但部分功能等待耗时较多，使用飞天助手实现。
-1. [明日计划](https://space.bilibili.com/271091178/video)：持续更新，适配异形屏，免root，但还未支持16:9屏幕，完成度还不足，等待耗时较多，使用autojs实现。
-1. [arkayo](https://github.com/mslxl/arkayo)：持续更新，适配多分辨率，完成度还不足，等待耗时较多，使用autojs实现。
-1. [PRTS](https://github.com/AgainstEntropy/PRTS)：持续更新，完成度还不足，使用autojs实现。
-1. [ArknightsAutoHelper](https://github.com/ninthDevilHAUNSTER/ArknightsAutoHelper)：持续更新，需要PC算力，使用python实现。
-1. [arkHelper](https://github.com/MangetsuC/arkHelper)：持续更新，需PC算力，使用python实现。
-1. [明日方舟托管助手](https://www.bilibili.com/video/BV1kA41147HA)：持续更新，适配异形屏，但未适配红手指，等待耗时较多，收费，使用节点精灵实现。
+### 板载
+
+1. [明日方舟月明](https://www.aistool.com/)：适配1280x720分辨率已root设备，支持多帐号，支持国服日服，支持基建指定排班干员，完成度极高，但部分功能等待耗时较多，使用飞天助手实现。
+1. [明日计划](https://space.bilibili.com/271091178/video)：适配异形屏，免root，但还未支持16:9屏幕，完成度还不足，等待耗时较多，使用autojs实现。
+1. [arkayo](https://github.com/mslxl/arkayo)：适配多分辨率，完成度还不足，等待耗时较多，使用autojs实现。
+1. [PRTS](https://github.com/AgainstEntropy/PRTS)：完成度还不足，使用autojs实现。
+1. [明日方舟托管助手](https://www.bilibili.com/video/BV1kA41147HA)：适配异形屏，但未适配红手指，等待耗时较多，收费，使用节点精灵实现。
 1. [明日方舟全日常辅助](https://github.com/tkkcc/arknights/tree/xxzhushou)：不再更新，只适配安卓8以下1920x1080分辨率已root机型，使用叉叉助手实现，本工具前身。
+1. [基于按键精灵安卓版的明日方舟脚本](https://github.com/Lancarus/a-mobile-anjian-script-for-arknight)：支持多账号，完成度高，但“为了适应云手机破烂的性能加大了很多地方的延时”。
 
-其他辅助平台（2021年7月测试）：
+### 非板载（需PC算力）
+
+1. [ArknightsAutoHelper](https://github.com/ninthDevilHAUNSTER/ArknightsAutoHelper)：使用python实现。
+1. [arkHelper](https://github.com/MangetsuC/arkHelper)：使用python实现。
+1. [MeoAssistance](https://github.com/MistEO/MeoAssistance)：使用C#实现。
+1. [ArknightsAutoHelper](https://github.com/GreenSulley/ArknightsAutoHelper)：使用python实现，by GreenSulley。
+1. [Arknights-Sora](https://github.com/zsppp/Arknights-Sora)：使用python实现。
+
+### 其他辅助平台（2021年7月测试）：
 
 1. 游戏蜂窝（按键精灵）：最新的2个脚本在2021年7月更新，收费，在红手指上试用时等待耗时极高。
 1. 触动精灵：最新的2个脚本在2021年5月更新，收费，在红手指上试用时未正常工作。
