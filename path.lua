@@ -543,11 +543,15 @@ path.基建换班 = function()
       tap("筛选未进驻")
       disappear("筛选未进驻", .5)
     end, 5) then return end
-    if not wait(function()
-      if not findOne("筛选技能") then return true end
-      tap("筛选技能")
-      disappear("筛选技能", .5)
-    end, 5) then return end
+
+    if prefer_skill then
+      if not wait(function()
+        if not findOne("筛选技能") then return true end
+        tap("筛选技能")
+        disappear("筛选技能", .5)
+      end, 5) then return end
+    end
+
     if not wait(function()
       if not findOne("筛选取消") then return true end
       tap("筛选确认")

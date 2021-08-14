@@ -18,11 +18,12 @@
 
 ## 安装
 
-1. 安装[节点精灵](http://card.nspirit.cn/getApk)，搜索5858，运行即可
+1. 安装[节点精灵](http://card.nspirit.cn/getApk)，搜索5858，运行即可。
 
 ## 开发
 
-1. 参考[节点精灵开发文档](http://www.nspirit.cn/api)
+1. 参考[节点精灵开发文档](http://www.nspirit.cn/api)。
+2. 命令行用户可以使用仓库中的`./0.sh`开发：例如通过`./0.sh saverun`上传代码并运行。
 
 ## 其他辅助（awesome-arknights-auto-helper）(2021年8月13日整理）
 

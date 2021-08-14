@@ -37,6 +37,7 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  run("邮件收取")
   ssleep(1)
   log(findOne("收取信用有"))
   log(findOne("开始行动"))
@@ -113,10 +114,10 @@ local ui = {
       id = "fight",
     }, {
       type = "check",
-      value = "*吃药|吃石头|*保底最高4星时自动招募|" ..
+      value = "*吃药|吃石头|*保底最高4星时自动招募|*换班技能优先" ..
         (is_device_swipe_too_fast and "*" or '') .. "双指滑动",
       ore = 1,
-      id = "drug_enable|stone_enable|star4_auto|is_device_swipe_too_fast",
+      id = "drug_enable|stone_enable|star4_auto|prefer_skill|is_device_swipe_too_fast",
     }, {
       type = "check",
       ore = 1,
@@ -237,6 +238,10 @@ if test_fight then
   exit()
 end
 if test_some then
+  run("邮件收取")
+  ssleep(1)
+  log(findOne("收取信用有"))
+  exit()
   -- ssleep(1)
 
   --   deploy2(4, 12, 807, 522)
