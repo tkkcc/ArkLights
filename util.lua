@@ -658,7 +658,7 @@ run = function(...)
     if type(arg[1]) == "table" then arg = arg[1] end
   end
   menuConfig({x = 0, y = screen.height})
-  logConfig({mode = 3});
+  logConfig({mode = 3})
   update_state()
   for _, v in ipairs(arg) do
     running = v

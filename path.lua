@@ -1083,24 +1083,15 @@ path.开始游戏 = function(x, disable_ptrs_check)
     log("代理指挥开", findOne("代理指挥开"))
   end
 
-  -- if not wait(function()
-  --   if not findOne("开始行动") then return true end
-  --   tap("开始行动蓝")
-  --   disappear("开始行动", 1)
-  -- end, 5) then return end
+  wait(function() tap("开始行动蓝") end, .5)
 
-  -- local state = appear({
-  --   "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
-  -- }, 5)
-  --
   local state = nil
-  -- TODO
   if not wait(function()
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
     })
-
     if state and not disappear(state, .5) then return true end
+
     if findOne("开始行动") then
       tap("开始行动蓝")
       appear({
@@ -1108,6 +1099,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
         "药剂恢复理智取消",
       }, .5)
     end
+
   end, 30) then return end
 
   -- local state = appear({

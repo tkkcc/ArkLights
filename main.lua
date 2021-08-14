@@ -4,8 +4,8 @@
 -- test_some = true
 -- ok_time = 1
 -- ignore_jmfight_enough_check=true
-test_fight = true
-fake_fight = true
+-- test_fight = true
+-- fake_fight = true
 -- no_config_cache = true
 -- prefer_bapp = true
 -- prefer_bapp_on_android7 = true
@@ -38,7 +38,6 @@ if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
   run("邮件收取")
-  ssleep(1)
   log(findOne("收取信用有"))
   log(findOne("开始行动"))
   -- tap("线索库列表1")
@@ -110,11 +109,11 @@ local ui = {
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
       title = "作战",
       type = "edit",
-      value = "LMSQ,龙门市区,\n1-11,R8-2,PR-D-2,PR-D-1,CE-5,JT8-3,LS-5",
+      value = "龙门市区,LMSQ,\n1-11,R8-2,PR-D-2,PR-D-1,CE-5,JT8-3,LS-5",
       id = "fight",
     }, {
       type = "check",
-      value = "*吃药|吃石头|*保底最高4星时自动招募|*换班技能优先" ..
+      value = "*吃药|吃石头|*保底最高4星时自动招募|*换班技能优先|" ..
         (is_device_swipe_too_fast and "*" or '') .. "双指滑动",
       ore = 1,
       id = "drug_enable|stone_enable|star4_auto|prefer_skill|is_device_swipe_too_fast",
@@ -232,7 +231,8 @@ if test_fight then
   exit()
 end
 if test_some then
-  run("邮件收取")
+  -- run("邮件收取")
+  log(235)
   ssleep(1)
   log(findOne("收取信用有"))
   exit()
