@@ -179,6 +179,7 @@ path.基建收获 = function()
       x = appear({"基建灯泡蓝", "基建灯泡蓝2", "线索搜集提示"})
     end
     if not x then return true end
+    log(181, x)
     -- tap even if not found
     if tap(x) then appear("待办事项", 1) end
   end, 10) then return end
@@ -281,15 +282,17 @@ path.跳转 = function(x, disable_quick_jump)
     主页 = function()
       p["主页"] = nil
       if not wait(function()
-        if not findOne("主页") and not appear("主页", .2) then
+        -- if findOne("主页按下") and not disappear("主页按下", .2) then
+        if findOne("主页按下") and not disappear("主页按下", .2) then
           return true
         end
         if findAny({"返回确认", "返回确认2"}) then
           tap("右确认")
         end
         tap("主页")
-        disappear("主页", 1)
+        appear("主页按下", .5)
       end, 10) then return end
+
       if not appear({"主页列表任务", "返回确认"}) then
         log(252)
         return
@@ -472,10 +475,10 @@ path.基建换班 = function()
       end, 5) then return end
     end
   end
-  if not no_dorm and speedrun then
-    for i = 1, 2 do f(i) end
-    return
-  end
+  -- if not no_dorm and speedrun then
+  --   for i = 1, 2 do f(1) end
+  --   return
+  -- end
   if not no_dorm then for i = 1, 4 do f(i) end end
 
   -- debug
@@ -1655,6 +1658,7 @@ path.每日任务速通 = function()
 
   speedrun = true
 
+  -- 干员升级 1次
   path.跳转("干员")
   if not findOne("等级升") then
     if not wait(function()
@@ -1676,7 +1680,68 @@ path.每日任务速通 = function()
   tap("副手确认蓝")
 
   path.基建收获()
-  path.基建换班()
+
+  -- 宿舍换班 2次
+  local i = 1
+  path.跳转("基建")
+  if not appearTap("宿舍列表" .. i) then
+    log("未找到宿舍列表" .. i)
+    return
+  end
+
+  if not wait(function()
+    if findAny({"进驻信息", "进驻信息选中"}) then return true end
+    if findOne("进驻总览") and findTap("宿舍列表" .. i) then
+      disappear("进驻总览", .5)
+    end
+  end, 10) then return end
+
+  if not wait(function()
+    if findOne("进驻信息选中") and findOne("当前房间入住信息") then
+      return true
+    end
+    if findTap("进驻信息") then disappear("进驻信息", .5) end
+  end, 10) then return end
+
+  f = function()
+    if not wait(function()
+      if not findOne("当前房间入住信息") then return true end
+      tap("进驻第一人")
+    end, 5) then return end
+
+    if not appear("确认蓝", 5) then return end
+
+    if not wait(function()
+      if findOne("干员未选中") then return true end
+      tap("清空选择")
+    end, 5) then return end
+
+    local state = sample("心情")
+    tap("心情")
+    disappear(state)
+    state = sample("心情")
+    tap("心情")
+    disappear(state)
+    for j = 1, 5 do tap("干员选择列表" .. j) end
+    if not wait(function()
+      if not findOne("确认蓝") then return true end
+      tap("确认蓝")
+      disappear("确认蓝", 1)
+    end, 5) then return end
+
+    if appear({"排班调整提示", "进驻信息", "进驻信息选中"}, 5) ==
+      "排班调整提示" then
+      if not wait(function()
+        if not findOne("排班调整提示") then return true end
+        tap("排班调整确认")
+      end, 5) then return end
+    end
+  end
+  f()
+  f()
+
+  -- 好友 1次
+  -- 走会客厅差不多进入基建时间的一半，在手机上
   path.跳转("基建")
   if not wait(function()
     if not findOne("进驻总览") then return true end
@@ -1694,6 +1759,8 @@ path.每日任务速通 = function()
   end, 5) then return end
 
   path.访问好友()
+
+  -- 购买一个物品
   path.信用购买()
 
   path.跳转("公开招募")
@@ -1709,7 +1776,7 @@ path.每日任务速通 = function()
 
       if not wait(function()
         if not findOne("公开招募取消") then return true end
-        findTap("公开招募确认蓝")
+        tap("公开招募确认蓝")
       end, 5) then return end
       if not appear("公开招募箭头") then return end
       success = success + 1
@@ -1717,6 +1784,7 @@ path.每日任务速通 = function()
     end
   end
 
+  -- 任务 1次
   point.任务有列表 = {point.任务有列表[3]}
   point.任务有列表1 = point.任务有列表3
   path.任务收集()

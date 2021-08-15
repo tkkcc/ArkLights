@@ -2,7 +2,7 @@
 -- predebug = true
 -- no_dorm = true
 -- test_some = true
-ok_time = 10
+-- ok_time = 1
 -- ignore_jmfight_enough_check=true
 -- test_fight = true
 -- fake_fight = true
@@ -11,7 +11,7 @@ ok_time = 10
 -- prefer_bapp_on_android7 = true
 -- verbose_fca = true
 -- debug0721 = false
-no_background_after_run = true
+-- no_background_after_run = true
 -- longest_tag = false
 screen = getScreen()
 if screen.width < screen.height then
@@ -37,8 +37,11 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  -- run("邮件收取")
-  log(findOne("确认蓝"))
+  while 0 do
+    -- run("邮件收取")
+    log(findOne("主页"))
+    log(findOne("主页按下"))
+  end
   log(findOne("副手确认蓝"))
   log(findOne("公开招募确认蓝"))
   -- tap("线索库列表1")
@@ -74,7 +77,11 @@ local all_job = {
   "副手换人", "制造加速", "线索搜集", "信用购买",
   "公招刷新", "任务收集", "每日任务速通",
 }
-local now_job = shallowCopy(all_job)
+local now_job = {
+  "邮件收取", "轮次作战", "基建收获", "基建换班",
+  "副手换人", "制造加速", "线索搜集", "信用购买",
+  "公招刷新", "任务收集",
+}
 
 local parse_id_to_ui = function(prefix, length)
   local ans = ''
@@ -302,7 +309,4 @@ if test_some then
   exit()
 end
 
-if table.includes(now_job, "每日任务速通") then
-  now_job = "每日任务速通"
-end
 run(now_job)

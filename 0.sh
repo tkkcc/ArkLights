@@ -80,6 +80,16 @@
     local dst=${1:-${default[dst]}}
     websocat -n ws://$dst:9095
   }
+
+  timer() {
+    local start=$(date -u +"%s.%N")
+    local cur
+    while :; do
+      cur=$(date -u +"%s.%N")
+      printf "\r$(date -u -d "0 $cur seconds - $start seconds" +"%H:%M:%S:%3N")"
+    done
+  }
+
   "$@"
   wait
 }
