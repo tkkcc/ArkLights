@@ -171,16 +171,17 @@ end
 
 path.基建收获 = function()
   path.跳转("基建")
-  -- TODO 灯泡可能在线索搜集提示前出现
+  local x
   if not wait(function()
     if findOne("待办事项") then return true end
-    if not appear({"基建灯泡蓝", "基建灯泡蓝2", "线索搜集提示"}) then
-      return true
+    -- find light only once
+    if not x or not x:startsWith("基建灯泡蓝") then
+      x = appear({"基建灯泡蓝", "基建灯泡蓝2", "线索搜集提示"})
     end
-    if findTap({"基建灯泡蓝", "基建灯泡蓝2"}) then
-      appear("待办事项", 1)
-    end
-  end, 5) then return end
+    if not x then return true end
+    -- tap even if not found
+    if tap(x) then appear("待办事项", 1) end
+  end, 10) then return end
 
   if not findOne("待办事项") then
     leaving_jump = true
@@ -219,9 +220,9 @@ path.跳转 = function(x, disable_quick_jump)
     基建 = "进驻总览",
     公开招募 = "公开招募",
     首页 = "面板",
+    干员 = "干员界面",
     采购中心 = "可露希尔推荐",
     任务 = "任务第一个",
-
     终端 = "主页",
     邮件 = function()
       return (findOne("邮件信封") and findAny({"返回3", "返回4"}))
@@ -230,6 +231,7 @@ path.跳转 = function(x, disable_quick_jump)
   local plain = {
     邮件 = "面板邮件",
     好友 = "面板好友",
+    干员 = "面板干员",
     基建 = "面板基建",
     公开招募 = "面板公开招募",
     首页 = nil,
@@ -469,6 +471,10 @@ path.基建换班 = function()
         tap("排班调整确认")
       end, 5) then return end
     end
+  end
+  if not no_dorm and speedrun then
+    for i = 1, 2 do f(i) end
+    return
   end
   if not no_dorm then for i = 1, 4 do f(i) end end
 
@@ -983,9 +989,8 @@ path.信用购买 = function()
     end, 5) then return end
 
   end
+  if speedrun then return f(1) end
   for i = 1, 10 do if f(i) then break end end
-  -- log(findOne('主页'))
-  -- exit()
 end
 
 -- get_fight_type =function(x)
@@ -1415,6 +1420,8 @@ path.访问好友 = function()
   end, 5) then return end
 
   if not appearTap('访问基建', 5) then return end
+  if speedrun then return disappear("主页", 10) and appear("主页", 10) end
+
   while appear({"访问下位橘", "访问下位灰"}, 10) do
     if findOne("今日参与交流已达上限") then
       appear("主页")
@@ -1641,4 +1648,76 @@ path.公招刷新 = function()
     end
   end
   for i = 1, 4 do f(i) end
+end
+
+path.每日任务速通 = function()
+  -- inspired by https://www.bilibili.com/video/BV1P341167fe
+
+  speedrun = true
+
+  path.跳转("干员")
+  if not findOne("等级升") then
+    if not wait(function()
+      if findOne("等级升") then return true end
+      tap("等级")
+      appear("等级升", .5)
+    end) then return end
+  end
+  tap("干员1")
+  if not appear("升级") then return end
+  if not wait(function()
+    if not findOne("升级") then return true end
+    tap("升级")
+  end, 5) then return end
+  appear("副手确认蓝")
+  appear(point.录像列表)
+  tap("清空选择")
+  findTap(point.录像列表)
+  tap("副手确认蓝")
+
+  path.基建收获()
+  path.基建换班()
+  path.跳转("基建")
+  if not wait(function()
+    if not findOne("进驻总览") then return true end
+    tap("会客厅")
+    disappear("进驻总览", 1)
+  end, 5) then return end
+
+  if not wait(function()
+    if findOne("个人名片") then return true end
+    local x = findAny({"进驻信息", "进驻信息选中"})
+    if x then
+      tap("好友")
+      disappear(x, 1)
+    end
+  end, 5) then return end
+
+  path.访问好友()
+  path.信用购买()
+
+  path.跳转("公开招募")
+  local success = 0
+  for i = 1, 4 do
+    if findOne("公开招募确认蓝") then tap("返回") end
+    if not appear("公开招募箭头", .5) then return end
+    if findOne("公开招募列表" .. i) then
+      if not wait(function()
+        if findOne("公开招募取消") then return true end
+        findTap("公开招募列表" .. i)
+      end, 5) then return end
+
+      if not wait(function()
+        if not findOne("公开招募取消") then return true end
+        findTap("公开招募确认蓝")
+      end, 5) then return end
+      if not appear("公开招募箭头") then return end
+      success = success + 1
+      if success >= 3 then break end
+    end
+  end
+
+  point.任务有列表 = {point.任务有列表[3]}
+  point.任务有列表1 = point.任务有列表3
+  path.任务收集()
 end

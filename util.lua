@@ -573,7 +573,7 @@ auto = function(p, fallback, timeout)
           "抽签返回",
         }, x) then
           -- solve 活动签到
-          if x == "活动签到返回" then
+          if x == "活动签到返回" and not speedrun then
             for u = math.round(300 * minscale), screen.width -
               math.round(300 * minscale), 200 do
               tap({u, screen.height // 2})
@@ -584,7 +584,7 @@ auto = function(p, fallback, timeout)
             end
           end
           -- solve 抽签
-          if x == "抽签返回" then
+          if x == "抽签返回" and not speedrun then
             for u = math.round(300 * minscale), screen.width -
               math.round(300 * minscale), 200 do
               tap({u, screen.height // 2})
