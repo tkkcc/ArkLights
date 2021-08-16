@@ -308,6 +308,7 @@ findOne = function(x, confidence)
   confidence = confidence or 99
   if type(x) == 'string' and not x:find(coord_delimeter) then x = point[x] end
   if type(x) == "table" then return x end
+  if type(x) == "function" then return x() end
   if type(x) == "string" then
     local pos
     if rfl[x0] then
@@ -511,7 +512,7 @@ end
 zoom = function(retry)
   retry = retry or 0
   if retry > 20 then return end
-  if not findOne("进驻总览") then path.跳转("基建") end
+  if not findOne("进驻总览") then return path.跳转("基建") end
   if findOne("缩放结束") then return true end
   local finger = {
     {
@@ -524,9 +525,7 @@ zoom = function(retry)
       {x = screen.width // 2 + 100, y = math.round(56 * minscale)},
     },
   }
-  -- 89,35,#313131
-  -- local paths  = "1273,42,#333333|1085,36,#B5B5B5"
-  local duration = 100
+  local duration = 150
   gesture(finger, duration)
 
   -- otherwise next zoom will be recognized as tapping, cause flicking

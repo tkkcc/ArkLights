@@ -1,5 +1,6 @@
 -- debug option, should be commented in release
 -- predebug = true
+-- verbose_fca = true
 -- no_dorm = true
 -- test_some = true
 -- ok_time = 1
@@ -9,7 +10,6 @@
 -- no_config_cache = true
 -- prefer_bapp = true
 -- prefer_bapp_on_android7 = true
--- verbose_fca = true
 -- debug0721 = false
 -- no_background_after_run = true
 -- longest_tag = false
@@ -37,36 +37,13 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  while 0 do
-    -- run("邮件收取")
-    log(findOne("主页"))
-    log(findOne("主页按下"))
-  end
-  log(findOne("副手确认蓝"))
-  log(findOne("公开招募确认蓝"))
-  -- tap("线索库列表1")
-  exit()
-  local swipd = function()
-    local duration = 333
-    local delay = 100
-    local y1 = screen.height * 3 // 4
-    local x1 = math.round((1880 - 1920) * minscale) + screen.width
-    local x2 = math.round((680 - 1920) * minscale) + screen.width
-    local y2 = math.round(10 * minscale)
-    log(x1, y1, x2, y2)
-    local paths = {{{x = x1, y = y1}, {x = x1, y = y2}}}
-    log(paths)
-    gesture(paths, duration)
-    sleep(duration + delay)
-    tap("入驻干员右侧")
-    sleep(333)
-  end
-  swipd()
-  exit()
-  -- log(same_page_fight("M9-1","8-2"))
-  x0 = 'R8-2'
-  swip(x0)
-  tap("作战列表" .. x0)
+  sim = 50
+  log(compareColor('#ECEBEC', '#ECEBEC', sim))
+  log(compareColor('#ECEBEC', '#FFFFFF', sim))
+  log(compareColor('#ECEBEC', '#D5D4D5', sim))
+  log(compareColor('#ECEBEC', '#313131', sim))
+  log(compareColor('#ECEBEC', '#090909', sim))
+  zoom()
   exit()
 end
 
@@ -205,7 +182,6 @@ all_open_time_end = parse_time("202007170400")
 update_open_time()
 
 if test_fight then
-  log(201)
   fight = {
     -- "JT8-3", "JT8-2",
     "积水潮窟", "切尔诺伯格", "龙门外环", "龙门市区",
@@ -238,75 +214,6 @@ if test_fight then
   run("轮次作战")
   exit()
 end
-if test_some then
-  -- run("邮件收取")
-  log(235)
-  ssleep(1)
-  log(findOne("收取信用有"))
-  exit()
-  -- ssleep(1)
-
-  --   deploy2(4, 12, 807, 522)
-  --   -- 翎羽
-  --   -- deploy(600, 948, 516)
-  -- deploy2(3, 11, 948, 516)
-  --   -- 杰西卡
-  --   ssleep(2)
-  --   -- deploy(585, 939, 373)
-  -- deploy2(3, 10, 939, 373)
-  --   -- 安塞尔
-  --   ssleep(6)
-  --   -- deploy(1299, 801, 384)
-  --   deploy2(6, 9, 801, 384)
-  --   -- 玫兰莎
-  --   ssleep(8)
-  --   -- deploy(945, 1227, 368)
-  --   deploy2(3, 8, 1227, 368)
-  --   -- 黑角
-  --   -- deploy(1122, 1216, 269)
-  --   deploy2(3, 7, 1216, 269)
-  --   -- 黑角
-  --   -- retreat(1110, 263, 894, 323)
-  --   -- 米格鲁
-  --   ssleep(11)
-  --   -- deploy(1482, 813, 314)
-  --   deploy2(5, 7, 813, 314)
-  --   -- 史都华德
-  --   -- deploy(1656, 669, 407)
-  --   deploy2(6, 6, 669, 407)
-  --   ssleep(4)
-  --   -- 玫兰莎
-  --   retreat(1110, 368, 894, 323)
-  --   exit()
-  -- run("基建换班")
-  -- exit()
-  -- sleep(1000)
-  -- deploy(591, 807, 522)
-  -- 翎羽
-  -- deploy(447, 948, 516)
-  -- 杰西卡
-  -- ssleep(2)
-  -- deploy(585, 939, 373)
-  -- deploy(591, 807, 522)
-  -- 899,989,#3E3A41
-  -- deploy(1091, 807, 522)
-  -- deploy(1299, 801, 384)
-  -- deploy(591, 807, 522)
-  -- run("公招刷新", "任务收集")
-  -- swipq("资源收集列表1")
-  -- tap("资源收集最左列表" .. 1)
-  -- swipq("资源收集列表9")
-  -- tap("资源收集最右列表" .. 9)
-  -- exit()
-  -- logConfig({mode = 3})
-  -- fight = {"1-7", "1-7", "1-6", "JT8-3"}
-  fight = {"1-11", "1-11", "1-11"}
-  run("轮次作战")
-  -- fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
-  -- run("邮件收取", "轮次作战", "基建收获", "基建换班",
-  --     "副手换人", "制造加速", "线索搜集", "信用购买",
-  --     "公招刷新", "任务收集")
-  exit()
-end
+if test_some then end
 
 run(now_job)

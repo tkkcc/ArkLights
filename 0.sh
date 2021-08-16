@@ -60,6 +60,7 @@
       run "$@"
     done
   }
+
   run() {
     local dst=${1:-${default[dst]}}
     stop "$dst"
@@ -70,12 +71,14 @@
       --data-urlencode code= \
       --data-urlencode path=/storage/emulated/0/freespace/scripts/test/placeholder.lua >/dev/null
   }
+
   saverun() {
     #stop "$@"
     save "$@"
     sleep .2
     run "$@"
   }
+
   listen() {
     local dst=${1:-${default[dst]}}
     websocat -n ws://$dst:9095
@@ -90,6 +93,9 @@
     done
   }
 
+  scrcpy() {
+    sudo scrcpy
+  }
   "$@"
   wait
 }

@@ -1,14 +1,4 @@
-network_timeout = 200 -- seconds
--- set bl true
-bl = {}
--- for k, v in pairs(fight_type_all) do bl[v] = true end
-cl = {}
--- for k, v in pairs(fight_type_all) do cl[v] = 0 end
-unfound_fight = {}
-failed_fight = {}
-
 path = {}
-
 path.base = {
   面板 = true,
   下载资源确认 = "下载资源确认",
@@ -28,18 +18,10 @@ path.base = {
         tap("账号")
         disappear("手机验证码登录", .5)
       end, 5) then return end
-      log(37)
       if not appear(inputbox) or not appear(ok) then stop("登录失败") end
-      log(38)
       input(inputbox, username)
-      log(39)
       click(ok)
-      log(40)
-      -- tap("右下角确认", 0, true)
-      -- if not disappear(inputbox) then stop("登录失败") end
-      log(41)
       if not appear("手机验证码登录") then stop("登录失败") end
-      log(42)
     end
     log(52)
     if #password > 0 then
@@ -49,18 +31,9 @@ path.base = {
         tap("密码")
         disappear("手机验证码登录", .5)
       end, 5) then return end
-      -- log(44)
-      -- tap("账号左侧")
-      -- log(45)
-      -- tap()
-      log(46)
       if not appear(inputbox) or not appear(ok) then stop("登录失败") end
-      log(47)
-      -- exit()
       input(inputbox, password)
       click(ok)
-      -- tap("右下角确认", 0, true)
-      -- if not disappear(inputbox) then stop("登录失败") end
       if not appear("手机验证码登录") then stop("登录失败") end
     end
     if not wait(function()
@@ -112,106 +85,60 @@ path.base = {
       ssleep(1)
     end
   end,
-
-  -- need test
-  -- 客户端过时 = function() stop("客户端过时") end,
-  -- 正在加载网络配置 = function()
-  --   if not disappear("正在加载网络配置", 30) then
-  --     stop("正在加载网络配置")
-  --   end
-  -- end,
-  -- 登入错误 = restart,
-  -- 我知道了 = restart,
-  -- 网络异常稍后重试 = restart,
-  -- 获取网络配置失败 = function()
-  --   tap("获取网络配置失败")
-  --   return true
-  -- end,
-  -- 理智兑换取消 = function()
-  --   running = "理智不足"
-  --   tap("理智兑换取消")
-  --   return true
-  -- end,
-  -- 源石理智兑换次数上限 = function()
-  --   running = "理智不足"
-  --   tap("理智兑换取消")
-  --   return true
-  -- end,
-  -- 源石不足 = function()
-  --   running = "理智不足"
-  --   tap('返回')
-  --   return true
-  -- end,
-  -- 代理失误放弃行动 = "代理失误放弃行动",
-  -- 战斗记录未能同步返回 = function()
-  --   local i = 0
-  --   while i < 5 do
-  --     log("战斗记录同步重试")
-  --     tap("右确认")
-  --     if disappear("战斗记录未能同步返回", 5, 1) then
-  --       stop("战斗记录未能同步")
-  --     end
-  --   end
-  -- end,
-  -- 未能同步到相关战斗记录 = function()
-  --   stop("未能同步到相关战斗记录")
-  -- end,
 }
 
 path.邮件收取 = function()
   path.跳转("邮件")
-
+  local state = sample("邮件提示")
+  log(state)
   if not wait(function()
-    if findAny({"邮件提示", "邮件提示2"}) then return true end
-    log(123)
+    if not findOne(state) then return true end
     tap("收取所有邮件")
   end, 5) then return end
-  log(128)
 end
 
 path.基建收获 = function()
   path.跳转("基建")
   local x
+  log(103)
   if not wait(function()
     if findOne("待办事项") then return true end
     -- find light only once
     if not x or not x:startsWith("基建灯泡蓝") then
-      x = appear({"基建灯泡蓝", "基建灯泡蓝2", "线索搜集提示"})
+      -- TODO: retry 1 seconds
+      x = appear({"基建灯泡蓝", "基建灯泡蓝2", "线索搜集提示"},
+                 1)
     end
     if not x then return true end
     log(181, x)
-    -- tap even if not found
-    if tap(x) then appear("待办事项", 1) end
+    if findOne("进驻总览") then tap(x) end
   end, 10) then return end
+  log(104)
+
+  -- once retry
+  if x and disappear("待办事项", .2) then
+    tap(x)
+    appear("待办事项")
+  end
+  log(105)
 
   if not findOne("待办事项") then
     leaving_jump = true
+    log(106)
     return
   end
 
-  -- log(139)
-  -- if not disappear("线索搜集提示", 10) then return end
-  -- log(140)
-  -- local x = appear({"基建灯泡蓝2", "基建灯泡蓝"}, 1)
-  -- log(141, x)
-  -- if not x then return end
-
-  -- if not wait(function()
-  --   if not findOne(x) and findOne("待办事项") then return true end
-  --   tap(x)
-  --   appear("待办事项", .5)
-  -- end, 10) then return end
-
   wait(function()
-    if not wait(function()
-      if findAny({"点击全部收取", "正在提交反馈至神经"}) then
-        return true
-      end
-    end, 1) then return true end
+    -- TODO retry .5 seconds
+    if not appear({
+      "点击全部收取", "正在提交反馈至神经", "小蓝圈",
+    }, .5) then return true end
+    if findOne("小蓝圈") then return true end
     findTap("点击全部收取")
   end, 20)
   tap("基建右上角")
   if appear("进驻总览") then leaving_jump = true end
+  log("leaving_jump", leaving_jump)
 end
 
 prev_jump = "基建"
@@ -269,7 +196,6 @@ path.跳转 = function(x, disable_quick_jump)
   local p
   p = update(path.base, {
     面板 = function()
-      -- TODO: I need this? yes
       p["主页"] = nil
       tap(plain[x])
       log(208)
@@ -282,32 +208,15 @@ path.跳转 = function(x, disable_quick_jump)
     主页 = function()
       p["主页"] = nil
       if not wait(function()
-        -- if findOne("主页按下") and not disappear("主页按下", .2) then
-        if findOne("主页按下") and not disappear("主页按下", .2) then
-          return true
+        if findOne("主页列表任务") then return true end
+        if findTap({"主页", "主页按过"}) then
+          appear("主页按下", .5)
         end
-        if findAny({"返回确认", "返回确认2"}) then
-          tap("右确认")
-        end
-        tap("主页")
-        appear("主页按下", .5)
-      end, 10) then return end
-
-      if not appear({"主页列表任务", "返回确认"}) then
-        log(252)
-        return
-      end
-      log(findAny({"主页列表任务", "返回确认"}))
-      if findOne("返回确认") then
-        tap("右确认")
-        return
-      end
-      if not appear("主页列表任务") then return end
-
-      -- this wait is for jump from 好友
-      -- if disappear("主页列表任务", .2) then return end
-
-      tap("主页列表" .. home_target)
+      end, 5) then return end
+      if not wait(function()
+        if not findOne("主页列表任务") then return true end
+        tap("主页列表" .. home_target)
+      end, 5) then return end
       if not bypass(sign[home_target]) then return end
       log('wait appear', sign[home_target], timeout)
       appear(sign[home_target], timeout)
@@ -315,9 +224,12 @@ path.跳转 = function(x, disable_quick_jump)
   })
   if x == prev_jump or disable_quick_jump then p.主页 = nil end
   p[target] = function()
+    -- leaving_jump is true means we don't need to wait 1 seconds to ensure current state is 进驻总览
+    -- leaving_jump will be true if the previous state is 返回确认, and we slow tap 返回 (0.5s interval)
+    -- leaving_jump will be also true if previous job confirm it
     log("leaving_jump", leaving_jump)
-    if not disappear(target,
-                     (target == "进驻总览" and not leaving_jump) and 1 or 0) then
+    if not disappear(target, (prev_jump == "基建" and x == "基建" and
+                       not leaving_jump) and 1 or 0) then
       leaving_jump = false
       log("found", target)
       return true
@@ -376,14 +288,15 @@ path.副手换人 = function()
       if findOne("副手确认蓝") then return true end
       if findOne("基建副手简报") then
         tap("基建副手列表" .. i)
-        disappear("基建副手简报", 1)
+        -- disappear("基建副手简报", 1)
       end
     end, 10) then return end
 
-    if not findOne("干员未选中") then
+    if not wait(function()
+      if findOne("干员未选中") then return true end
       tap("干员选择列表1")
-      if not appear("干员未选中", 1) then return end
-    end
+      appear("干员未选中", .5)
+    end, 5) then return end
 
     local state = sample("信赖")
     tap("信赖")
@@ -397,7 +310,7 @@ path.副手换人 = function()
     tap("干员选择列表" .. i)
     if not wait(function()
       if findOne("基建副手简报") then return true end
-      findTap("副手确认蓝")
+      tap("副手确认蓝")
     end, 5) then return end
   end
 end
@@ -432,23 +345,18 @@ path.基建换班 = function()
     if not wait(function()
       if findAny({"进驻信息", "进驻信息选中"}) then return true end
       if findOne("进驻总览") and findTap("宿舍列表" .. i) then
+        log(399)
         disappear("进驻总览", .5)
       end
     end, 10) then return end
+    log(400)
 
     if not wait(function()
-      if findOne("进驻信息选中") and findOne("当前房间入住信息") then
-        return true
-      end
+      if findOne("确认蓝") then return true end
+      if findOne("进驻信息选中") then tap("进驻第一人") end
       if findTap("进驻信息") then disappear("进驻信息", .5) end
     end, 10) then return end
-
-    if not wait(function()
-      if not findOne("当前房间入住信息") then return true end
-      tap("进驻第一人")
-    end, 5) then return end
-
-    if not appear("确认蓝", 5) then return end
+    log(402)
 
     if not wait(function()
       if findOne("干员未选中") then return true end
@@ -457,15 +365,15 @@ path.基建换班 = function()
 
     local state = sample("心情")
     tap("心情")
-    disappear(state)
+    disappear(state, 1)
     state = sample("心情")
     tap("心情")
-    disappear(state)
-    for j = 1, 5 do tap("干员选择列表" .. j) end
+    disappear(state, 1)
+
+    for j = 1, 6 do tap("干员选择列表" .. j) end
     if not wait(function()
       if not findOne("确认蓝") then return true end
       tap("确认蓝")
-      disappear("确认蓝", 1)
     end, 5) then return end
     if appear({"排班调整提示", "进驻信息", "进驻信息选中"}, 5) ==
       "排班调整提示" then
@@ -475,13 +383,8 @@ path.基建换班 = function()
       end, 5) then return end
     end
   end
-  -- if not no_dorm and speedrun then
-  --   for i = 1, 2 do f(1) end
-  --   return
-  -- end
   if not no_dorm then for i = 1, 4 do f(i) end end
 
-  -- debug
   path.跳转("基建")
   if not wait(function()
     if findOne("撤下干员") then return true end
@@ -508,23 +411,8 @@ path.基建换班 = function()
     gesture(paths, duration)
     sleep(duration + delay)
     tap("入驻干员右侧")
-    -- need test
     sleep(100)
   end
-  -- local swip = function(up, starty, endy)
-  --     if up then
-  --         starty = starty or screen.height // 4 * 3
-  --         endy = endy or 0
-  --     else
-  --         starty = starty or screen.height // 4
-  --         endy = endy or screen.height
-  --     end
-  --     -- TODO
-  --     slid((1867 - 1919) * minscale + screen.width, starty,
-  --          (1867 - 1919) * minscale + screen.width, endy, 333)
-  --     tap("入驻干员右侧")
-  --     sleep(333)
-  -- end
 
   local first_look = true
   -- 其他换人
@@ -539,7 +427,7 @@ path.基建换班 = function()
     end, 10) then return end
     if not appear("确认蓝", 10) then return end
 
-    local limit = findOne("清空选择") and 5 or 1
+    local limit = findOne("清空选择") and 6 or 1
 
     -- local state = sample("筛选")
 
@@ -578,7 +466,7 @@ path.基建换班 = function()
     for j = 1, limit do tap("干员选择列表" .. j) end
     if not wait(function()
       if findAny({"排班调整提示", "撤下干员"}) then return true end
-      if findTap("确认蓝") then disappear("确认蓝", 1) end
+      findTap("确认蓝")
     end, 5) then return end
 
     if findAny({"排班调整提示", "撤下干员"}) == "排班调整提示" then
@@ -592,11 +480,6 @@ path.基建换班 = function()
   end
 
   for i = 1, 9 do
-    -- TODO 应对换人网络延迟
-    -- if findOne("入驻干员底部") then
-    --   log("滑到底部")
-    --   break
-    -- end
     if i ~= 1 then
       local state = sample("进驻")
       while findOne(state) do
@@ -607,6 +490,10 @@ path.基建换班 = function()
     end
     while f(i) do log(475) end
   end
+
+  if not findOne("撤下干员") then return end
+  tap("返回")
+  if appear("进驻总览") then leaving_jump = true end
 end
 
 path.制造加速 = function()
@@ -666,36 +553,33 @@ path.线索搜集 = function()
     end
   end, 10) then return end
 
-  -- TODO 这里的延时需要再确认，可能提交反馈至神经也是
-  if appear({"正在提交反馈至神经", "本次线索交流活动"}, 1) then
-    if disappear("正在提交反馈至神经", 20) and
-      disappear("线索传递") then
-      log(462)
-      if not wait(function()
-        if findOne("线索传递") then return true end
-        if findOne("本次线索交流活动") then
-          tap("返回")
-          disappear("本次线索交流活动", .5)
-        end
-        log(5)
-      end, 10) then return end
-    end
-  end
-  log(559)
+  -- goto a controllable state
+  if not wait(function()
+    if not findOne("线索传递") then return true end
+    tapCard("线索布置列表1")
+  end, 5) then return end
 
-  -- single tap enough?
+  if not wait(function()
+    if findOne("线索传递") then return true end
+    tap("解锁线索上")
+    if findOne("本次线索交流活动") then
+      tap("返回")
+      disappear("本次线索交流活动", .5)
+    end
+  end, 5) then return end
+
   if findTap("接收线索有") then
     appearTap("全部收取", 5)
     log(499)
     if not wait(function()
       if findOne("线索传递") then return true end
-      tap("解锁线索左")
+      tap("解锁线索上")
       appear("线索传递", 1)
     end, 5) then return end
     log(500)
   end
-  log(433)
-  if not appear("线索传递", 5) then return end
+  -- log(433)
+  -- if not appear("线索传递", 5) then return end
   log(434)
 
   local f
@@ -707,8 +591,6 @@ path.线索搜集 = function()
         disappear("线索传递", 1)
       end
     end, 5) then return end
-    -- appear("信用奖励返回")
-    -- log(444)
     if not appear("未达线索上限", .5) then
       log(445)
       tap("返回")
@@ -719,10 +601,8 @@ path.线索搜集 = function()
       return f()
     end
 
-    -- TODO: need recheck after 领取？
     if findTap("信用奖励领取") then
       log(531)
-      -- TODO
       if appear("未达线索上限") then
         log(532)
         return f()
@@ -756,6 +636,12 @@ path.线索搜集 = function()
   path.访问好友()
 end
 
+-- tap with offset -50,50
+tapCard = function(k)
+  local x, y = point[k]:match("(%d+),(%d+)")
+  tap({tonumber(x) - 50, tonumber(y) + 50})
+end
+
 path.线索布置 = function()
   log(650)
   -- internal
@@ -766,12 +652,6 @@ path.线索布置 = function()
   log(656)
   local p = appear(point.线索布置列表, .5)
   log(6566)
-
-  -- tap with offset -50,50
-  local tapCard = function(k)
-    local x, y = point[k]:match("(%d+),(%d+)")
-    tap({tonumber(x) - 50, tonumber(y) + 50})
-  end
 
   if p then
     log(645)
@@ -787,12 +667,11 @@ path.线索布置 = function()
     for i = 1, 7 do
       if findOne("线索布置左列表" .. i) then
         p = "线索布置左列表" .. i
-        if not wait(function()
-          if findOne("线索传递数字右列表" .. i) then
-            return true
-          end
+        -- TODO: half seconds should be enough?
+        wait(function()
+          if findOne("线索布置按下列表" .. i) then return true end
           tapCard(p)
-        end, 5) then return end
+        end, .5)
 
         if not wait(function()
           if not findOne(p) then return true end
@@ -802,7 +681,7 @@ path.线索布置 = function()
       end
     end
     log(648)
-    tap("解锁线索左")
+    tap("解锁线索上")
     appear("线索传递")
   end
   if not appear("线索传递") then return end
@@ -922,8 +801,7 @@ path.信用购买 = function()
   log(803)
   if not wait(function()
     if findOne("信用交易所") then return true end
-    -- if not findOne("可露希尔推荐") then return true end
-    tap("信用交易所")
+    tap("信用交易所2")
   end, 10) then return end
   log(804)
 
@@ -946,7 +824,7 @@ path.信用购买 = function()
   end
 
   log(822)
-  if not appear(point["信用交易所列表"]) then return end
+  if not appear(point["信用交易所列表"], 1) then return end
   log(823)
 
   local f
@@ -969,6 +847,7 @@ path.信用购买 = function()
     if not wait(function()
       if not findOne("购买物品面板") then return true end
       if findOne("信用不足") then
+        log("信用不足")
         enough = true
         return true
       end
@@ -976,20 +855,25 @@ path.信用购买 = function()
     end, 10) then return end
     log(815)
     if enough then return true end
+    log(816)
 
     -- wait for popup
     appear("信用交易所", 5)
+    log(999)
     -- appear("干员解锁进度", 5)
     disappear("信用交易所", 5)
     -- disappear("干员解锁进度", 5)
     -- log(816)
 
+    log(1000)
     if not wait(function()
+      log(1001)
       if findOne("信用交易所") then return true end
       -- if findOne("干员解锁进度") then return true end
-      tap("信用交易所")
+      tap("信用交易所2")
       -- tap("干员解锁进度")
     end, 5) then return end
+    log(1002)
 
   end
   if speedrun then return f(1) end
@@ -1332,7 +1216,6 @@ path.物资芯片 = function(x)
     ssleep(.2)
     tap("资源收集")
     ssleep(.2)
-    -- TODO: no wait here seems ok
     log("资源收集", index, point["资源收集列表" .. index])
     local p = point["资源收集列表" .. index][1]
     if p < 0 then
@@ -1411,10 +1294,10 @@ path.剿灭 = function(x)
 end
 
 path.访问好友 = function()
+  -- internal function
   if communication_enough then return end
   -- 鹰角跳转优化不够
   -- path.跳转("好友")
-  -- internal
   log(1019)
   if not appear("个人名片") then return end
   if not wait(function()
@@ -1505,17 +1388,19 @@ path.公招刷新 = function()
   path.跳转("公开招募")
   log(1356)
   local f, g
+  local success = 0
 
   f = function(i)
     log(1044, i)
     if findOne("公开招募确认蓝") then tap("返回") end
     log(1286)
-    if not appear("公开招募箭头", .5) then return end
+    if not appear("公开招募箭头", 1) then return end
     log(1287)
     local see = findAny({
       "聘用候选人列表" .. i, "公开招募列表" .. i,
     })
     log(1288)
+
     if see == "聘用候选人列表" .. i then
       log(i, 1001)
       if not wait(function()
@@ -1532,7 +1417,23 @@ path.公招刷新 = function()
       end, 15) then return end
       return f(i)
     end
+
     if see == "公开招募列表" .. i then
+      if speedrun then
+        if not wait(function()
+          if findOne("公开招募取消") then return true end
+          findTap("公开招募列表" .. i)
+        end, 10) then return end
+
+        if not wait(function()
+          if not findOne("公开招募取消") then return true end
+          tap("公开招募确认蓝")
+        end, 10) then return end
+        if not appear("公开招募箭头") then return end
+        success = success + 1
+        return
+      end
+
       -- 刷新
       log(1308)
       if not wait(function()
@@ -1555,7 +1456,8 @@ path.公招刷新 = function()
           for _ = 1, 5 do
             local p = point["公开招募标签框列表" .. j]
             log(1461, p)
-            -- TODO dont's know if this function gives me
+
+            -- TODO dont's know if this function other function raise exception
             -- java.lang.StringIndexOutOfBoundsException: length=4; index=4
             local status
             while not status do
@@ -1650,7 +1552,10 @@ path.公招刷新 = function()
       g()
     end
   end
-  for i = 1, 4 do f(i) end
+  for i = 1, 4 do
+    f(i)
+    if speedrun and success >= 3 then break end
+  end
 end
 
 path.每日任务速通 = function()
@@ -1689,27 +1594,22 @@ path.每日任务速通 = function()
     return
   end
 
-  if not wait(function()
-    if findAny({"进驻信息", "进驻信息选中"}) then return true end
-    if findOne("进驻总览") and findTap("宿舍列表" .. i) then
-      disappear("进驻总览", .5)
-    end
-  end, 10) then return end
-
-  if not wait(function()
-    if findOne("进驻信息选中") and findOne("当前房间入住信息") then
-      return true
-    end
-    if findTap("进驻信息") then disappear("进驻信息", .5) end
-  end, 10) then return end
-
   f = function()
     if not wait(function()
-      if not findOne("当前房间入住信息") then return true end
-      tap("进驻第一人")
-    end, 5) then return end
+      if findAny({"进驻信息", "进驻信息选中"}) then return true end
+      if findOne("进驻总览") and findTap("宿舍列表" .. i) then
+        log(399)
+        disappear("进驻总览", .5)
+      end
+    end, 10) then return end
+    log(400)
 
-    if not appear("确认蓝", 5) then return end
+    if not wait(function()
+      if findOne("确认蓝") then return true end
+      if findOne("进驻信息选中") then tap("进驻第一人") end
+      if findTap("进驻信息") then disappear("进驻信息", .5) end
+    end, 10) then return end
+    log(402)
 
     if not wait(function()
       if findOne("干员未选中") then return true end
@@ -1718,17 +1618,16 @@ path.每日任务速通 = function()
 
     local state = sample("心情")
     tap("心情")
-    disappear(state)
+    disappear(state, 1)
     state = sample("心情")
     tap("心情")
-    disappear(state)
-    for j = 1, 5 do tap("干员选择列表" .. j) end
+    disappear(state, 1)
+
+    for j = 1, 6 do tap("干员选择列表" .. j) end
     if not wait(function()
       if not findOne("确认蓝") then return true end
       tap("确认蓝")
-      disappear("确认蓝", 1)
     end, 5) then return end
-
     if appear({"排班调整提示", "进驻信息", "进驻信息选中"}, 5) ==
       "排班调整提示" then
       if not wait(function()
@@ -1740,8 +1639,8 @@ path.每日任务速通 = function()
   f()
   f()
 
-  -- 好友 1次
-  -- 走会客厅差不多进入基建时间的一半，在手机上
+  -- nagivate to 个人名片 by 会议室
+  -- 走会客厅差不多进入基建时间的一半，在真机上
   path.跳转("基建")
   if not wait(function()
     if not findOne("进驻总览") then return true end
@@ -1760,29 +1659,9 @@ path.每日任务速通 = function()
 
   path.访问好友()
 
-  -- 购买一个物品
   path.信用购买()
 
-  path.跳转("公开招募")
-  local success = 0
-  for i = 1, 4 do
-    if findOne("公开招募确认蓝") then tap("返回") end
-    if not appear("公开招募箭头", .5) then return end
-    if findOne("公开招募列表" .. i) then
-      if not wait(function()
-        if findOne("公开招募取消") then return true end
-        findTap("公开招募列表" .. i)
-      end, 5) then return end
-
-      if not wait(function()
-        if not findOne("公开招募取消") then return true end
-        tap("公开招募确认蓝")
-      end, 5) then return end
-      if not appear("公开招募箭头") then return end
-      success = success + 1
-      if success >= 3 then break end
-    end
-  end
+  path.公招刷新()
 
   -- 任务 1次
   point.任务有列表 = {point.任务有列表[3]}
