@@ -116,19 +116,19 @@ path.基建收获 = function()
   log(104)
 
   -- once retry
-  if x and disappear("待办事项", .2) then
-    tap(x)
-    appear("待办事项")
-  end
-  log(105)
+  -- if x and disappear("待办事项", .5) then
+  --   tap(x)
+  --   appear("待办事项")
+  -- end
 
-  if not findOne("待办事项") then
+  if not x then
     leaving_jump = true
     log(106)
     return
   end
 
   wait(function()
+    if not findOne("待办事项") then tap(x) end
     -- TODO retry .5 seconds
     if not appear({
       "点击全部收取", "正在提交反馈至神经", "小蓝圈",
@@ -286,17 +286,16 @@ path.副手换人 = function()
   for i = 1, 5 do
     if not wait(function()
       if findOne("副手确认蓝") then return true end
-      if findOne("基建副手简报") then
-        tap("基建副手列表" .. i)
-        -- disappear("基建副手简报", 1)
-      end
+      if findOne("基建副手简报") then tap("基建副手列表" .. i) end
     end, 10) then return end
-
+    log(295)
     if not wait(function()
       if findOne("干员未选中") then return true end
-      tap("干员选择列表1")
+      tap("干员选择列表12")
+      tap("干员选择列表12")
       appear("干员未选中", .5)
     end, 5) then return end
+    log(300)
 
     local state = sample("信赖")
     tap("信赖")
@@ -307,7 +306,9 @@ path.副手换人 = function()
     tap("信赖")
     disappear(state)
 
+    log(301, i)
     tap("干员选择列表" .. i)
+
     if not wait(function()
       if findOne("基建副手简报") then return true end
       tap("副手确认蓝")
@@ -1559,8 +1560,8 @@ path.公招刷新 = function()
 end
 
 path.每日任务速通 = function()
-  -- inspired by https://www.bilibili.com/video/BV1P341167fe
-
+  -- inspired by 1m57s https://www.bilibili.com/video/BV1P341167fe
+  -- and 56s https://www.bilibili.com/video/BV1aM4y1L72i
   speedrun = true
 
   -- 干员升级 1次
