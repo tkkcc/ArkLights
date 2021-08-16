@@ -393,26 +393,41 @@ path.基建换班 = function()
   end, 10) then return end
 
   local swipd = function()
-    local duration = 300
-    local delay = 200
+
+    local duration = 500
+    local delay = 0
     local y1 = screen.height - math.round(200 * minscale)
     local x1 = math.round((1680 - 1920) * minscale) + screen.width
     local x2 = math.round((680 - 1920) * minscale) + screen.width
-    local y2 = math.round(200 * minscale)
+    local y2 = math.round(0 * minscale)
     log(x1, y1, x2, y2)
-    local paths = {
-      {
-        {x = x1, y = y1}, --
-        {x = x1, y = y2}, {x = x1 - 50, y = y2}, {x = x1, y = y2},
-        {x = x1 - 50, y = y2}, {x = x1, y = y2}, {x = x1 - 50, y = y2},
-        {x = x1, y = y2}, {x = x1 - 50, y = y2},
-      },
-    }
+    local paths = {{{x = x1, y = y1}, {x = x1, y = y2}}}
     log(paths)
     gesture(paths, duration)
     sleep(duration + delay)
     tap("入驻干员右侧")
     sleep(100)
+    -- exit()
+    --   local duration = 300
+    --   local delay = 200
+    --   local y1 = screen.height - math.round(200 * minscale)
+    --   local x1 = math.round((1680 - 1920) * minscale) + screen.width
+    --   local x2 = math.round((680 - 1920) * minscale) + screen.width
+    --   local y2 = math.round(200 * minscale)
+    --   log(x1, y1, x2, y2)
+    --   local paths = {
+    --     {
+    --       {x = x1, y = y1}, --
+    --       {x = x1, y = y2}, {x = x1 - 50, y = y2}, {x = x1, y = y2},
+    --       {x = x1 - 50, y = y2}, {x = x1, y = y2}, {x = x1 - 50, y = y2},
+    --       {x = x1, y = y2}, {x = x1 - 50, y = y2},
+    --     },
+    --   }
+    --   log(paths)
+    --   gesture(paths, duration)
+    --   sleep(duration + delay)
+    --   tap("入驻干员右侧")
+    --   sleep(100)
   end
 
   local first_look = true
@@ -480,7 +495,7 @@ path.基建换班 = function()
     return true
   end
 
-  for i = 1, 9 do
+  for i = 1, 8 do
     if i ~= 1 then
       local state = sample("进驻")
       while findOne(state) do
@@ -1573,13 +1588,14 @@ path.每日任务速通 = function()
       appear("等级升", .5)
     end) then return end
   end
-  tap("干员1")
-  if not appear("升级") then return end
   if not wait(function()
-    if not findOne("升级") then return true end
+    if findOne("升级") then return true end
+    tap("干员1")
+  end, 5) then return end
+  if not wait(function()
+    if findOne("副手确认蓝") then return true end
     tap("升级")
   end, 5) then return end
-  appear("副手确认蓝")
   appear(point.录像列表)
   tap("清空选择")
   findTap(point.录像列表)
@@ -1640,28 +1656,7 @@ path.每日任务速通 = function()
   f()
   f()
 
-  -- nagivate to 个人名片 by 会议室
-  -- 走会客厅差不多进入基建时间的一半，在真机上
-  path.跳转("基建")
-  if not wait(function()
-    if not findOne("进驻总览") then return true end
-    tap("会客厅")
-    disappear("进驻总览", 1)
-  end, 5) then return end
-
-  if not wait(function()
-    if findOne("个人名片") then return true end
-    local x = findAny({"进驻信息", "进驻信息选中"})
-    if x then
-      tap("好友")
-      disappear(x, 1)
-    end
-  end, 5) then return end
-
-  path.访问好友()
-
   path.信用购买()
-
   path.公招刷新()
 
   -- 任务 1次

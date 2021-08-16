@@ -37,13 +37,19 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  sim = 50
-  log(compareColor('#ECEBEC', '#ECEBEC', sim))
-  log(compareColor('#ECEBEC', '#FFFFFF', sim))
-  log(compareColor('#ECEBEC', '#D5D4D5', sim))
-  log(compareColor('#ECEBEC', '#313131', sim))
-  log(compareColor('#ECEBEC', '#090909', sim))
-  zoom()
+  local duration = 500
+  local delay = 0
+  local y1 = screen.height - math.round(200 * minscale)
+  local x1 = math.round((1680 - 1920) * minscale) + screen.width
+  local x2 = math.round((680 - 1920) * minscale) + screen.width
+  local y2 = math.round(0 * minscale)
+  log(x1, y1, x2, y2)
+  local paths = {{{x = x1, y = y1}, {x = x1, y = y2}}}
+  log(paths)
+  gesture(paths, duration)
+  sleep(duration + delay)
+  tap("入驻干员右侧")
+  sleep(100)
   exit()
 end
 
