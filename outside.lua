@@ -8,7 +8,7 @@ function goto_qq()
 end
 
 function goto_bilibili()
-  local bv = "BV1gJ411p7Ck"
+  local bv = "BV1DL411t7n2"
   runWeb("https://bilibili.com/video/" .. bv)
   exit()
 end
