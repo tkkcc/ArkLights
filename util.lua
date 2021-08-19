@@ -276,6 +276,7 @@ end
 open = function() runApp(appid) end
 
 stop = function(msg)
+  msg = msg or ''
   log("stop " .. msg)
   toast("stop " .. msg)
   exit()
@@ -510,10 +511,14 @@ end
 
 -- pass loading, give a standard view of 基建
 zoom = function(retry)
+  log("zoom", retry)
   retry = retry or 0
   if retry > 20 then return end
   if not findOne("进驻总览") then return path.跳转("基建") end
-  if findOne("缩放结束") then return true end
+  if findOne("缩放结束") then
+    log("缩放结束")
+    return true
+  end
   local finger = {
     {
       {

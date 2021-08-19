@@ -1,4 +1,5 @@
 -- debug option, should be commented in release
+-- disable_communication_check=true
 -- predebug = true
 -- verbose_fca = true
 -- no_dorm = true
@@ -37,6 +38,13 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  -- tap("确认蓝")
+  log(findOne('主页'))
+  log(findOne('确认蓝'))
+  exit()
+  tap("清空选择")
+  tap("")
+  exit()
   local duration = 500
   local delay = 0
   local y1 = screen.height - math.round(200 * minscale)
@@ -59,6 +67,7 @@ local all_job = {
   "邮件收取", "轮次作战", "基建收获", "基建换班",
   "副手换人", "制造加速", "线索搜集", "信用购买",
   "公招刷新", "任务收集", "每日任务速通",
+  "满练每日任务速通",
 }
 local now_job = {
   "邮件收取", "轮次作战", "基建收获", "基建换班",
@@ -100,7 +109,7 @@ local ui = {
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
       title = "作战",
       type = "edit",
-      value = "龙门市区,LMSQ,\n1-11,R8-2,PR-D-2,PR-D-1,CE-5,JT8-3,LS-5",
+      value = "龙门市区,LMSQ,\nR8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5,1-11",
       id = "fight",
     }, {
       type = "check",
