@@ -4,7 +4,7 @@
   default[dst]=z1
   # default[dst]=z7
   default[dst]=localhost
-  default[dst]=z9
+  # default[dst]=z9
   restartcolor() { # 重启节点精灵，以适应分辨率变更
     adb shell am force-stop com.aojoy.aplug
     # adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1

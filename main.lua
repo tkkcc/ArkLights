@@ -38,9 +38,19 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  -- tap("进驻信息")
+  -- ssleep(.1)
+  -- tap("进驻第一人")
+  -- tap("进驻第一人")
+  -- ssleep(.05)
+  -- tap("进驻信息")
+  -- swipq("8")
+  -- tap("作战主线章节列表8")
   -- tap("确认蓝")
-  log(findOne('主页'))
-  log(findOne('确认蓝'))
+  -- log(point.缩放结束)
+  -- log(findOne('缩放结束'))
+  -- log(findOne('主页列表展开'))
+  -- log(findOne('确认蓝'))
   exit()
   tap("清空选择")
   tap("")
@@ -109,7 +119,7 @@ local ui = {
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
       title = "作战",
       type = "edit",
-      value = "龙门市区,LMSQ,\nR8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5,1-11",
+      value = "龙门市区,LMSQ,\nR8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5",
       id = "fight",
     }, {
       type = "check",
