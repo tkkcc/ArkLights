@@ -876,14 +876,19 @@ wait_game_up = function()
   local game = R():name(appid):path("/FrameLayout/View")
   local bilibili_login = R():id(
                            "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
+  local miui = R():name("com.android.systemui"):path("/FrameLayout/Button")
+                 :text("立即开始");
   bilibili_login_hook()
+  miui_hook()
   if not find(game) then
     open()
-    if not appear({game, bilibili_login}, 10, 1) then
+    if not appear({game, bilibili_login, miui}, 10, 1) then
       stop("游戏不在前台")
     end
     bilibili_login_hook()
+    miui_hook()
   end
+
 end
 
 bilibili_login_hook = function()
@@ -898,5 +903,12 @@ bilibili_login_hook = function()
   input(username_inputbox, username)
   input(password_inputbox, password)
   click(login)
-  return true
+end
+
+miui_hook = function()
+  local miui = R():name("com.android.systemui"):path("/FrameLayout/Button")
+                 :text("立即开始");
+  if not find(miui) then return end
+  click(miui)
+  home()
 end

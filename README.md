@@ -1,6 +1,6 @@
 # 明日方舟速通
 
-节点精灵实现的明日方舟全日常辅助，适配多种分辨率，等待耗时极低。[视频演示](https://www.bilibili.com/video/BV1DL411t7n2)。有问题请提issue或加群反馈。
+节点精灵实现的明日方舟全日常辅助，适配多种分辨率，等待耗时极低。[视频演示](https://www.bilibili.com/video/BV1DL411t7n2)。
 ![](./flameshot.jpg)
 
 ## 须知

@@ -99,7 +99,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟全日常代理",
+  title = "明日方舟速通（2021.8.21）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
