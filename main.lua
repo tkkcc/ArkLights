@@ -145,7 +145,7 @@ local ui = {
           click = {thread = outside, name = "goto_qq"},
         }, {
           type = "button",
-          value = "项目地址（明日方舟辅助汇总）",
+          value = "项目地址",
           title = '',
           click = {thread = outside, name = "goto_github"},
         },

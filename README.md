@@ -1,4 +1,4 @@
-# 明日方舟全日常辅助
+# 明日方舟速通
 
 节点精灵实现的明日方舟全日常辅助，适配多种分辨率，等待耗时极低。[视频演示](https://www.bilibili.com/video/BV1DL411t7n2)。有问题请提issue或加群反馈。
 ![](./flameshot.jpg)
@@ -18,12 +18,11 @@
 
 ## 安装
 
-1. 安装[节点精灵](http://card.nspirit.cn/getApk)，搜索5858，运行即可。
+下载[明日方舟速通](https://github.com/tkkcc/arknights/releases/latest/download/明日方舟速通.apk)，或在[节点精灵](http://card.nspirit.cn/getApk)，搜索5963。均为自动更新。
 
 ## 开发
 
-1. 参考[节点精灵开发文档](http://www.nspirit.cn/api)。
-2. 命令行用户可以使用仓库中的`./0.sh`开发：例如通过`./0.sh saverun`上传代码并运行。
+参考[节点精灵开发文档](http://www.nspirit.cn/api)。命令行用户可以使用仓库中的`./0.sh`开发：例如通过`./0.sh saverun`上传代码并运行。
 
 ## 其他辅助（awesome-arknights-auto-helper）
 
