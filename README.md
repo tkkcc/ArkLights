@@ -18,7 +18,7 @@
 
 ## 安装
 
-下载[明日方舟速通](https://github.com/tkkcc/arknights/releases/latest/download/明日方舟速通.apk)，或在[节点精灵](http://card.nspirit.cn/getApk)，搜索5963。均为自动更新。
+下载[明日方舟速通](https://github.com/tkkcc/arknights/releases/latest/download/arknightsspeedrun.apk)，或在[节点精灵](http://card.nspirit.cn/getApk)，搜索5963。均为自动更新。
 
 ## 开发
 
