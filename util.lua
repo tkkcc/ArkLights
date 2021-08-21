@@ -496,6 +496,21 @@ swipu = function(dis)
   end
 end
 
+-- single swip for chapter navigation
+swipc = function(dis)
+  if not dis then return end
+  log("swipc", finger)
+  local x1, y1, x2, y2
+  x1, y1 = math.round((300 - 1920 / 2) * minscale + screen.width / 2),
+           screen.height // 2
+  x2, y2 = math.round((1500 - 1920 / 2) * minscale + screen.width / 2),
+           math.round(100 * minscale)
+  local finger = {{{x = x1, y = y1}, {x = x2, y = y1}, {x = x2, y = y2}}}
+  duration = 500
+  gesture(finger, duration)
+  sleep(duration)
+end
+
 swip = function(dis)
   if type(dis) == "string" then dis = distance[dis] end
   if type(dis) ~= "table" then dis = {dis} end

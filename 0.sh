@@ -21,6 +21,7 @@
     local dst=${1:-${default[dst]}}
     save "$@"
     curl http://$dst:9090/script/export?name=test >arknights.nsp
+    xdg-open http://card.nspirit.cn/admin/apply/list/5858/edit
   }
   stop() {
     local dst=${1:-${default[dst]}}
