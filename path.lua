@@ -131,11 +131,11 @@ path.基建收获 = function()
   -- 唤出待办事项
   wait(function()
     if findOne("待办事项") then
-      if not disappear("待办事项", .1) then return true end
+      if not disappear("待办事项", .2) then return true end
     end
     if findOne("进驻总览") then
       tap(x)
-      disappear("进驻总览", .1)
+      disappear("进驻总览", .2)
     end
   end, 5)
 
@@ -144,6 +144,7 @@ path.基建收获 = function()
       "点击全部收取", "小蓝圈", "正在提交反馈至神经",
       "进驻总览",
     }, 2)
+    log(147, y)
     if not y or y == "小蓝圈" or y == "进驻总览" then return true end
     tap("点击全部收取")
   end, 10)
@@ -160,8 +161,12 @@ prev_jump = "基建"
 path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   local sign = {
     好友 = "个人名片",
-    基建 = "进驻总览",
-    公开招募 = "公开招募",
+    基建 = function()
+      return findOne("进驻总览") and not findOne("任务第一个")
+    end,
+    公开招募 = function()
+      return findOne("公开招募") and findOne("公开招募箭头")
+    end,
     首页 = "面板",
     干员 = "干员界面",
     采购中心 = "可露希尔推荐",
@@ -223,19 +228,36 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     end,
     主页 = function()
       p["主页"] = nil
+      local expand = false
       if not wait(function()
-        if findOne("主页列表展开") and
-          not disappear("主页列表展开", .05) then
-          tap("主页列表" .. home_target)
-          if disappear("主页列表展开") then return true end
+        -- if expand and findAny({"主页", "主页按过"}) then return true end
+        -- if not findOne("主页") and not findOne("主页按过") then expand = true end
+        local y = findAny({"主页", "主页按过"})
+        tap(y)
+        if not y or disappear(y, .5) then
+          if home_target == "任务" or home_target == "好友" then
+            ssleep(.1)
+          end
+          wait(function() tap("主页列表" .. home_target) end, .1)
+          return true
         end
-        if findTap({"主页", "主页按过"}) then
-          appear("主页按下", .5)
-        end
-      end, 10) then return end
+      end, 5) then return end
+
+      -- if not wait(function()
+      --   if findOne("主页列表展开") and
+      --     not disappear("主页列表展开", .05) then
+      --     tap("主页列表" .. home_target)
+      --     if disappear("主页列表展开") then return true end
+      --   end
+      --   if findTap({"主页", "主页按过"}) then
+      --     appear("主页按下", .5)
+      --   end
+      -- end, 10) then return end
       if not bypass(sign[home_target]) then return end
       log('wait appear', sign[home_target], timeout)
-      appear(sign[home_target], timeout)
+      -- appear(sign[home_target], timeout)
+      -- TODO appear all?
+      appear(table.values(sign), timeout)
     end,
   })
   if x == prev_jump and x ~= "首页" or disable_quick_jump then p.主页 = nil end
@@ -308,9 +330,12 @@ path.副手换人 = function()
 
   for i = 1, 5 do
     if not wait(function()
-      if findOne("副手确认蓝") then return true end
+      -- if findOne("副手确认蓝") then return true end
+      if not findOne("基建副手简报") then return true end
       tap("基建副手列表" .. i)
     end, 5) then return end
+
+
 
     if not findOne("干员未选中") then
       tap("干员选择列表1")
@@ -351,15 +376,10 @@ sample = function(v)
 end
 
 path.基建换班 = function()
-  -- 宿舍换人
+  -- 宿舍换班 4间
   local f
   f = function(i)
     path.跳转("基建")
-    -- if not wait(function()
-    --   if not findOne("进驻总览") then return true end
-    --   tap("宿舍列表" .. i)
-    -- end, 10) then return end
-
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
@@ -404,6 +424,10 @@ path.基建换班 = function()
   end
   if not no_dorm then for i = 1, 4 do f(i) end end
 
+  -- no doing this any more
+  -- if 1 then return end
+
+  -- 进驻总览 查漏补缺
   path.跳转("基建", nil, true)
   if not wait(function()
     if findOne("撤下干员") then return true end
@@ -416,39 +440,17 @@ path.基建换班 = function()
     local y1 = screen.height - math.round(200 * minscale)
     local x1 = math.round((1680 - 1920) * minscale) + screen.width
     local x2 = math.round((680 - 1920) * minscale) + screen.width
-    local y2 = math.round(0 * minscale)
+    local y2 = math.round(150 * minscale)
     log(x1, y1, x2, y2)
     local paths = {{{x = x1, y = y1}, {x = x1, y = y2}}}
     log(paths)
     gesture(paths, duration)
     sleep(duration + delay)
     tap("入驻干员右侧")
-    sleep(100)
-    -- exit()
-    --   local duration = 300
-    --   local delay = 200
-    --   local y1 = screen.height - math.round(200 * minscale)
-    --   local x1 = math.round((1680 - 1920) * minscale) + screen.width
-    --   local x2 = math.round((680 - 1920) * minscale) + screen.width
-    --   local y2 = math.round(200 * minscale)
-    --   log(x1, y1, x2, y2)
-    --   local paths = {
-    --     {
-    --       {x = x1, y = y1}, --
-    --       {x = x1, y = y2}, {x = x1 - 50, y = y2}, {x = x1, y = y2},
-    --       {x = x1 - 50, y = y2}, {x = x1, y = y2}, {x = x1 - 50, y = y2},
-    --       {x = x1, y = y2}, {x = x1 - 50, y = y2},
-    --     },
-    --   }
-    --   log(paths)
-    --   gesture(paths, duration)
-    --   sleep(duration + delay)
-    --   tap("入驻干员右侧")
-    --   sleep(100)
+    sleep(200)
   end
 
   local first_look = true
-  -- 其他换人
   f = function()
     local timeout = first_look and .5 or 0
     first_look = false
@@ -498,7 +500,7 @@ path.基建换班 = function()
 
   local bottom = sample("进驻总览底部")
   local reach_bottom = false
-  for i = 1, 10 do
+  for i = 1, 15 do
     if i ~= 1 then
       swipd()
       if not findOne(bottom) then reach_bottom = true end
@@ -527,7 +529,9 @@ path.制造加速 = function()
   if not station then return end
   log(station)
   if not wait(function()
-    if not findOne("进驻总览") then return true end
+    if not findOne("进驻总览") or not findOne("缩放结束") then
+      return true
+    end
     tap("station")
   end, 5) then return end
   -- if not appear({"进驻信息", "进驻信息选中"}) then return end
@@ -542,7 +546,11 @@ path.制造加速 = function()
     tap("制造站加速")
   end, 5) then return end
 
-  tap("无人机加速最大")
+  -- appear("无人机加速加", .5)
+  wait(function()
+    if not findOne("无人机加速加") then return true end
+    tap("无人机加速最大")
+  end)
 
   if not wait(function()
     if findOne("制造站加速") then return true end
@@ -556,7 +564,9 @@ path.线索搜集 = function()
   path.跳转("基建")
 
   if not wait(function()
-    if not findOne("进驻总览") then return true end
+    if not findOne("进驻总览") or not findOne("缩放结束") then
+      return true
+    end
     tap("会客厅")
     disappear("进驻总览", 2)
   end, 5) then return end
@@ -627,8 +637,8 @@ path.线索搜集 = function()
   if not f() then return end
   if not appear("线索传递") then return end
   path.线索布置()
-  if not appear("线索传递") then return end
-  path.访问好友()
+  -- if not appear("线索传递") then return end
+  -- path.访问好友()
 end
 
 -- tap with offset -50,50
@@ -820,15 +830,23 @@ path.信用购买 = function()
   local f
   f = function(i)
     local enough
-    if not findOne("信用交易所") then return end
+    if not findOne("信用交易所") then
+
+      log(831)
+      return
+    end
     local x = "信用交易所列表" .. i
     if not findOne(x) then return end
+
     if not wait(function()
       if not findOne(x) then return true end
       tap(x)
+      -- TODO check if this is slow
+      disappear(x)
     end, 5) then return end
-    if not appear("购买物品") then return end
-    if not findOne("购买物品面板") then return end
+
+    if not appear("购买物品", 5) then return end
+    if not appear("购买物品面板") then return end
     if not wait(function()
       if not findOne("购买物品面板") then return true end
       if findOne("信用不足") then
@@ -846,9 +864,12 @@ path.信用购买 = function()
     if not wait(function()
       if findOne("信用交易所") then return true end
       tap("信用交易所2")
-    end, 5) then return end
+    end, 5) then
+      log(832)
+      return
+    end
   end
-  if speedrun then return f(1) end
+  if speedrun then return f(2) end
   for i = 1, 10 do if f(i) then break end end
 end
 
@@ -977,7 +998,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     end
     if not wait(function()
       if not findOne(state) then return true end
-      tap(state)
+      tap("开始行动红按钮")
     end, 10) then return end
     if not appear("接管作战", 60) then return end
     return path.base.接管作战()
@@ -1264,7 +1285,7 @@ path["1-11"] = function()
     if not findOne("开始行动红") and not appear("开始行动红", 1) then
       return true
     end
-    tap("开始行动红")
+    tap("开始行动红按钮")
   end, 5) then return end
   if not appear("跳过剧情", 20) then return end
   ssleep(.5)
@@ -1316,9 +1337,8 @@ path["1-11"] = function()
   pre_fight = "1-11"
 end
 
-path.访问好友 = function()
-  -- internal
-  if communication_enough then return end
+path.会客厅跳转好友 = function()
+  -- deprecated, we now first do 访问好友, then do 基建
   if not findOne("线索传递") then return end
 
   if not wait(function()
@@ -1345,10 +1365,22 @@ path.访问好友 = function()
     tap('访问基建')
   end, 10) then return end
 
-  if speedrun then return appear("主页", 10) end
+  -- if speedrun then return appear("主页", 10) end
+end
+
+path.访问好友 = function()
+  if communication_enough then return end
+  path.跳转("好友")
+  if not wait(function()
+    if findOne("好友列表") then return true end
+    tap('好友列表')
+  end, 5) then return end
+  if not wait(function()
+    if not findOne("主页") then return true end
+    tap('访问基建')
+  end, 10) then return end
 
   if not wait(function()
-
     if not disable_communication_check and
       findOne("今日参与交流已达上限") then
       log("今日参与交流已达上限")
@@ -1388,7 +1420,9 @@ path.公招刷新 = function()
     if see == "聘用候选人列表" .. i then
       log(i, 1001)
       if not wait(function()
-        if not findOne("公开招募") then return true end
+        if not findOne("公开招募") and not findOne("主页") then
+          return true
+        end
         if findTap("聘用候选人列表" .. i) then
           log(1052)
           -- disappear("公开招募", 1)
@@ -1505,9 +1539,14 @@ path.公招刷新 = function()
             ssleep(2)
             return g()
           else
-            tap("返回")
-            if not appear("公开招募箭头") or
-              not appear("公开招募列表" .. i) then return end
+            if not wait(function()
+              if findOne("公开招募箭头") and
+                findOne("公开招募列表" .. i) then return true end
+              if findOne("公开招募时间减") then
+                tap("返回")
+                disappear("公开招募箭头", .5)
+              end
+            end, 5) then return end
           end
         else
           for _, v in pairs(tag4) do max_star = max(max_star, v[2]) end

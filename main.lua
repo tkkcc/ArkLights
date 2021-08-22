@@ -15,6 +15,10 @@
 -- no_background_after_run = true
 -- longest_tag = true
 -- very_slow_state_check = true
+-- exec(
+--   "adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService")
+-- exec(
+--   "adb shell settings put secure enabled_accessibility_services com.bilabila.arknightsspeedrun/com.aojoy.server.CmdAccessibilityService")
 screen = getScreen()
 if screen.width < screen.height then
   screen.width, screen.height = screen.height, screen.width
@@ -39,40 +43,24 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  tap("进驻信息")
-  ssleep(.2)
-  wait(function()
-    if findOne("确认蓝") then return true end
-    tap("进驻第一人")
-  end, 2)
-  -- if the state change, we can go next loop
-  -- tap("进驻信息")
-  -- log(is_jmfight_enough("龙门市区",true))
-  -- tap("基建灯泡蓝")
-  -- tap({1856,342})
-  -- if disappear("进驻总览", .1) then log(44) end
-  exit()
-
-  chapter = '4'
-  swipc(distance['' .. chapter])
-  -- swipc(true)
-  -- swip("4-10")
-
-  exit()
+  -- findOne("面板")
+  -- local miui = R():text("立即开始")
+  -- wait(function() if click(miui) then return true end end, 5)
+  -- exit()
 end
 
 local outside = runThread("outside")
 
 local all_job = {
-  "邮件收取", "轮次作战", "基建收获", "基建换班",
-  "副手换人", "制造加速", "线索搜集", "信用购买",
-  "公招刷新", "任务收集", "每日任务速通",
+  "邮件收取", "轮次作战", "访问好友", "基建收获",
+  "副手换人", "线索搜集", "基建换班", "制造加速",
+  "信用购买", "公招刷新", "任务收集", "每日任务速通",
   "满练每日任务速通",
 }
 local now_job = {
-  "邮件收取", "轮次作战", "基建收获", "基建换班",
-  "副手换人", "制造加速", "线索搜集", "信用购买",
-  "公招刷新", "任务收集",
+  "邮件收取", "轮次作战", "访问好友", "基建收获",
+  "副手换人", "线索搜集", "基建换班", "制造加速",
+  "信用购买", "公招刷新", "任务收集",
 }
 
 local parse_id_to_ui = function(prefix, length)
@@ -99,12 +87,18 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.8.21）",
+  title = "明日方舟速通（2021.8.22 22:57）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
   time = ok_time or 60,
   views = {
+    -- {
+    --   title = "偏色",
+    --   type = "edit",
+    --   id = "default_findcolor_confidence",
+    --   value = "99",
+    -- }, 
     {title = "账号", type = "edit", id = "username"},
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
       title = "作战",
@@ -125,9 +119,10 @@ local ui = {
     }, {
       type = "text",
       value = [[须知：
-1. 尽量采用默认游戏设置。基建退出提示必须开启，异形屏UI适配必须为0。
-2. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
-3. 如果作战滑动距离错误，请尝试切换双指滑动选项。
+1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
+2. 刘海屏需要修改系统设置使得明日方舟全屏显示，两侧无黑边。
+3. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
+4. 如果作战滑动距离错误，请尝试切换双指滑动选项。
 ]],
     }, {
       type = 'div',
@@ -145,7 +140,7 @@ local ui = {
           click = {thread = outside, name = "goto_qq"},
         }, {
           type = "button",
-          value = "项目地址",
+          value = "项目主页",
           title = '',
           click = {thread = outside, name = "goto_github"},
         },
@@ -157,7 +152,7 @@ local ui = {
 };
 -- add server selection to ui
 if appid_need_user_select then
-  table.insert(ui.views, 3, {
+  table.insert(ui.views, 1, {
     title = "",
     type = "radio",
     value = "*官服|B服",
@@ -169,6 +164,18 @@ end
 ret = show(ui)
 if not ret then exit() end
 callThreadFun(outside, "preload")
+
+-- trigger color system rebuild
+home()
+
+-- trigger screen recording permission request using one second
+findColor({0, 0, 1, 1, "0,0,#000000"})
+local miui = R():text("立即开始|start now"):type("Button")
+click(miui)
+
+-- default_findcolor_confidence =
+--   math.round(tonumber(default_findcolor_confidence))
+default_findcolor_confidence = 95
 
 if server == "B服" then appid = bppid end
 log(appid)

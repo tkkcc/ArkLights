@@ -5,7 +5,8 @@
 
 ## 须知
 
-1. 尽量采用默认游戏设置。基建退出提示必须开启，异形屏UI适配必须为0。
+1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
+1. 刘海屏需要修改系统设置使得明日方舟全屏显示，两侧无黑边。
 1. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
 1. 如果作战滑动距离错误，请尝试切换双指滑动选项。
 
@@ -18,11 +19,12 @@
 
 ## 安装
 
-下载[明日方舟速通](https://github.com/tkkcc/arknights/releases/latest/download/arknightsspeedrun.apk)，或在[节点精灵](http://card.nspirit.cn/getApk)，搜索5963。均为自动更新。
+下载[明日方舟速通](https://github.com/tkkcc/arknights/releases/latest/download/arknightsspeedrun.apk)。或在[节点精灵](http://card.nspirit.cn/getApk)中搜索5963。
 
 ## 开发
 
-参考[节点精灵开发文档](http://www.nspirit.cn/api)。命令行用户可以使用仓库中的`./0.sh`开发：例如通过`./0.sh saverun`上传代码并运行。
+本仓库包含完整代码。开发参考[节点精灵开发文档](http://www.nspirit.cn/api)。
+命令行用户可以使用仓库中的`./0.sh`开发，例如通过`./0.sh saverun`上传代码并运行。
 
 ## 其他辅助（awesome-arknights-auto-helper）
 

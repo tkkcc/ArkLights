@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 {
-  declare -A default
-  default[dst]=z1
-  # default[dst]=z7
-  default[dst]=localhost
-  # default[dst]=z9
+  init() {
+    declare -A serial
+    serial=([k40]=df7592c8 [l]=localhost:5555)
+    export ANDROID_SERIAL=${serial[${1:-l}]}
+    adb forward --remove tcp:9095
+    adb forward --remove tcp:9090
+    adb forward tcp:9095 tcp:9095
+    adb forward tcp:9090 tcp:9090
+  }
   restartcolor() { # 重启节点精灵，以适应分辨率变更
     adb shell am force-stop com.aojoy.aplug
     # adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
@@ -18,22 +22,19 @@
     sleep 2
   }
   release() {
-    local dst=${1:-${default[dst]}}
     save "$@"
-    curl http://$dst:9090/script/export?name=test >arknights.nsp
+    curl http://localhost:9090/script/export?name=test >arknights.nsp
     xdg-open http://card.nspirit.cn/admin/apply/list/5963/edit
   }
   stop() {
-    local dst=${1:-${default[dst]}}
     echo ==\> stop
-    curl http://$dst:9090/script/stop \
+    curl http://localhost:9090/script/stop \
       --data-raw 'name=stop'
   }
   save() {
-    local dst=${1:-${default[dst]}}
     for x in *.lua; do
       echo ==\> upload "$x"
-      curl -sS http://$dst:9090/api/file/save \
+      curl -sS http://localhost:9090/api/file/save \
         --data-urlencode code="$(cat "$x")" \
         --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
       # sleep .2
@@ -44,8 +45,6 @@
     local option=(
       1080x2400
       720x1280
-      #1024x720
-      #2400x720
       1080x1920
     )
     if [[ -n $1 ]]; then
@@ -54,7 +53,7 @@
     fi
     for ((i = 0; i < ${#option[@]}; ++i)); do
       adb shell wm size ${option[$i]}
-      restartcolor
+      restartcolor "$@"
       if [[ $i -eq 0 ]]; then
         save "$@"
       fi
@@ -63,26 +62,24 @@
   }
 
   run() {
-    local dst=${1:-${default[dst]}}
-    stop "$dst"
-    listen "$dst" &
+    stop "$@"
+    listen "$@" &
     echo ==\> run
-    curl -sS http://$dst:9090/script/run \
+    curl -sS http://localhost:9090/script/run \
       --data-urlencode name=test \
       --data-urlencode code= \
       --data-urlencode path=/storage/emulated/0/freespace/scripts/test/placeholder.lua >/dev/null
   }
 
   saverun() {
-    #stop "$@"
+    stop "$@"
     save "$@"
     sleep .2
     run "$@"
   }
 
   listen() {
-    local dst=${1:-${default[dst]}}
-    websocat -n ws://$dst:9095
+    websocat -n ws://localhost:9095
   }
 
   timer() {
@@ -97,6 +94,9 @@
   scrcpy() {
     sudo scrcpy
   }
+
+  init $1
+  shift
   "$@"
   wait
 }

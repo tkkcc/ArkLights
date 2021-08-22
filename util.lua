@@ -306,7 +306,7 @@ findOne = function(x, confidence)
   -- findOne_last_time = time()
 
   local x0 = x
-  confidence = confidence or 99
+  confidence = confidence or default_findcolor_confidence
   if type(x) == 'string' and not x:find(coord_delimeter) then x = point[x] end
   if type(x) == "table" then return x end
   if type(x) == "function" then return x() end
@@ -326,7 +326,7 @@ end
 findAny = function(x) return appear(x, 0, 0) end
 
 findAll = function(x, confidence)
-  confidence = confidence or 99
+  confidence = confidence or default_findcolor_confidence
   local color = shallowCopy(rfl[x] or {0, 0, screen.width, screen.height})
   table.extend(color, {point[x], confidence})
   return findColors(color)
@@ -335,7 +335,9 @@ end
 tap_nil_count = 0
 -- x={2,3} "信用" func nil
 tap = function(x, retry, allow_outside_game)
+  -- log(338)
   if not allow_outside_game then wait_game_up() end
+  -- log(339)
   screen = getScreen()
   if screen.width < screen.height then
     stop("分辨率" .. screen.width .. 'x' .. screen.height .. '非横屏')
@@ -581,9 +583,9 @@ auto = function(p, fallback, timeout)
     if not e and fallback ~= false then
       -- log("auto -> fallback")
       local x = table.findv({
-        "返回确认", "返回确认2", "活动公告返回", "签到返回",
-        "返回", "返回2", "返回3", "返回4", "活动签到返回",
-        "抽签返回",
+        "返回确认", "返回确认2", "返回确认3", "活动公告返回",
+        "签到返回", "返回", "返回2", "返回3", "返回4",
+        "活动签到返回", "抽签返回",
       }, findOne)
       if x then
         log(x)
@@ -637,7 +639,7 @@ auto = function(p, fallback, timeout)
           --   disappear(x, 1)
           --   appear("进驻总览", 2)
           -- end, 10)
-        elseif x == "返回确认2" then
+        elseif x == "返回确认2" or x == "返回确认3" then
           tap("右确认")
         else
           tap(x)
@@ -872,23 +874,14 @@ disappear = function(target, timeout, interval)
   return appear(target, timeout, interval, true)
 end
 
-wait_game_up = function()
+wait_game_up = function(retry)
+  retry = retyr or 0
+  -- log("wait_game_up", retry)
   local game = R():name(appid):path("/FrameLayout/View")
-  local bilibili_login = R():id(
-                           "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
-  local miui = R():name("com.android.systemui"):path("/FrameLayout/Button")
-                 :text("立即开始");
+  if find(game) then return end
   bilibili_login_hook()
-  miui_hook()
-  if not find(game) then
-    open()
-    if not appear({game, bilibili_login, miui}, 10, 1) then
-      stop("游戏不在前台")
-    end
-    bilibili_login_hook()
-    miui_hook()
-  end
-
+  open()
+  return wait_game_up(retry + 1)
 end
 
 bilibili_login_hook = function()
@@ -906,9 +899,9 @@ bilibili_login_hook = function()
 end
 
 miui_hook = function()
-  local miui = R():name("com.android.systemui"):path("/FrameLayout/Button")
-                 :text("立即开始");
-  if not find(miui) then return end
-  click(miui)
-  home()
+  local miui = R():text("立即开始"):type("Button")
+  if not wait(function()
+    if not find(miui) then return true end
+    click(miui)
+  end, 10) then stop("不能消去立即开始") end
 end

@@ -25,3 +25,11 @@ function preload()
   ocr(0, 0, 1, 1)
   print("preload finish")
 end
+
+-- function miui_hook()
+--   local miui = R():text("立即开始")
+--   wait(function()
+--     if getColor(0, 0) then return true end
+--     wait(function() click(miui) end, 10)
+--   end, 30)
+-- end
