@@ -583,9 +583,9 @@ auto = function(p, fallback, timeout)
     if not e and fallback ~= false then
       -- log("auto -> fallback")
       local x = table.findv({
-        "返回确认", "返回确认2", "返回确认3", "活动公告返回",
-        "签到返回", "返回", "返回2", "返回3", "返回4",
-        "活动签到返回", "抽签返回",
+        "返回确认", "返回确认2", "活动公告返回", "签到返回",
+        "返回", "返回2", "返回3", "返回4", "活动签到返回",
+        "抽签返回",
       }, findOne)
       if x then
         log(x)
@@ -639,7 +639,7 @@ auto = function(p, fallback, timeout)
           --   disappear(x, 1)
           --   appear("进驻总览", 2)
           -- end, 10)
-        elseif x == "返回确认2" or x == "返回确认3" then
+        elseif x == "返回确认2" then
           tap("右确认")
         else
           tap(x)
@@ -875,12 +875,15 @@ disappear = function(target, timeout, interval)
 end
 
 wait_game_up = function(retry)
-  retry = retyr or 0
-  -- log("wait_game_up", retry)
+  retry = retry or 0
+  if retry > 20 then stop("不能启动游戏") end
   local game = R():name(appid):path("/FrameLayout/View")
-  if find(game) then return end
+  local screen = getScreen()
+  if screen.width > screen.height and find(game) then return end
   bilibili_login_hook()
   open()
+  ssleep(1)
+  log("wait_game_up", retry)
   return wait_game_up(retry + 1)
 end
 

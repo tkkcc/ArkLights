@@ -117,7 +117,7 @@ path.基建收获 = function()
 
   local x
 
-  -- 认为线索搜集提示弹出前一定能看到灯泡，但进入基建后灯泡需要一会儿才会出现
+  -- 认为线索搜集提示弹出前一定能看到灯泡，但进入基建后灯泡需要一会儿才会出现，必须等待
   -- 1s不够
   x = appear({"基建灯泡蓝", "基建灯泡蓝2"}, 2)
   log(103)
@@ -130,23 +130,17 @@ path.基建收获 = function()
 
   -- 唤出待办事项
   wait(function()
-    if findOne("待办事项") then
-      if not disappear("待办事项", .2) then return true end
+    -- 比较难不做延时, .2时有概率失败，也可能是因为后续函数？
+    if not findOne("进驻总览") and not appear("进驻总览", .25) then
+      return true
     end
-    if findOne("进驻总览") then
-      tap(x)
-      disappear("进驻总览", .2)
-    end
-  end, 5)
+    tap(x)
+    disappear("进驻总览", .25)
+  end, 10)
 
   wait(function()
-    local y = appear({
-      "点击全部收取", "小蓝圈", "正在提交反馈至神经",
-      "进驻总览",
-    }, 2)
-    log(147, y)
-    if not y or y == "小蓝圈" or y == "进驻总览" then return true end
-    tap("点击全部收取")
+    if findAny({"小蓝圈", "进驻总览"}) then return true end
+    tap("点击全部收取2")
   end, 10)
 
   -- 回到进驻总览
@@ -154,6 +148,7 @@ path.基建收获 = function()
     if findOne("进驻总览") then return true end
     tap("基建右上角")
   end, 5) then return end
+
   leaving_jump = true
 end
 
@@ -238,7 +233,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
           if home_target == "任务" or home_target == "好友" then
             ssleep(.1)
           end
-          wait(function() tap("主页列表" .. home_target) end, .1)
+          wait(function() tap("主页列表" .. home_target) end, .5)
           return true
         end
       end, 5) then return end
@@ -319,7 +314,9 @@ path.副手换人 = function()
   path.跳转("基建")
 
   if not wait(function()
-    if not findOne("进驻总览") then return true end
+    if not findOne("进驻总览") or not findOne("控制中枢") then
+      return true
+    end
     tap("控制中枢")
   end, 5) then return end
   if not appear({"进驻信息", "进驻信息选中"}) then return end
@@ -330,12 +327,10 @@ path.副手换人 = function()
 
   for i = 1, 5 do
     if not wait(function()
-      -- if findOne("副手确认蓝") then return true end
-      if not findOne("基建副手简报") then return true end
+      if findOne("副手确认蓝") then return true end
+      -- if not findOne("基建副手简报") then return true end
       tap("基建副手列表" .. i)
     end, 5) then return end
-
-
 
     if not findOne("干员未选中") then
       tap("干员选择列表1")
@@ -466,6 +461,7 @@ path.基建换班 = function()
       if findOne("筛选取消") then return true end
       tap("筛选")
     end, 5) then return end
+
     if not wait(function()
       if not findOne("筛选未进驻") then return true end
       tap("筛选未进驻")
@@ -490,11 +486,18 @@ path.基建换班 = function()
       if findOne("干员未选中") then return true end
       tap("清空选择")
     end, 5) then return end
-    for j = 1, limit do tap("干员选择列表" .. j) end
+
+    if not wait(function()
+      if not findOne("干员未选中") then return true end
+      for j = 1, limit do tap("干员选择列表" .. j) end
+      disappear("干员未选中", 1)
+    end, 5) then return true end
+
     if not wait(function()
       if findOne("撤下干员") then return true end
       tap("确认蓝")
     end, 5) then return end
+
     return true
   end
 
@@ -827,11 +830,11 @@ path.信用购买 = function()
     end
     f()
   end
+  disappear("信用不足", 5)
   local f
   f = function(i)
     local enough
     if not findOne("信用交易所") then
-
       log(831)
       return
     end
@@ -841,8 +844,8 @@ path.信用购买 = function()
     if not wait(function()
       if not findOne(x) then return true end
       tap(x)
-      -- TODO check if this is slow
-      disappear(x)
+      -- TODO check if this is slow => yes
+      -- disappear(x)
     end, 5) then return end
 
     if not appear("购买物品", 5) then return end
@@ -1455,12 +1458,14 @@ path.公招刷新 = function()
 
       -- 刷新
       log(1308)
+
       if not wait(function()
-        if findOne("公开招募取消") then return true end
-        if findOne("公开招募箭头") then
-          tap("公开招募列表" .. i)
-        end
+        -- if findOne("公开招募取消") then return true end
+        -- TODO: use prestate?
+        if not findOne("公开招募箭头") then return true end
+        tap("公开招募列表" .. i)
       end, 5) then return end
+
       log(1311)
       g = function()
         log("1243")
@@ -1581,27 +1586,24 @@ path.公招刷新 = function()
     f(i)
     if speedrun and success >= 3 then break end
   end
+  appear("主页", .5)
 end
+
 path.干员升级 = function()
   if no_update_operator then return end
-  -- 干员升级 1次
-  -- 最低等级干员必须小于30级
   path.跳转("干员")
-  if not findOne("等级升") then
-    if not wait(function()
-      if findOne("等级升") then return true end
-      tap("等级")
-      appear("等级升", .5)
-    end) then return end
-  end
+
   if not wait(function()
-    if findOne("升级") then return true end
+    if not findOne("干员界面") then return true end
     tap("干员1")
   end, 5) then return end
+
+  -- TODO 不需要看到副手确认蓝就可以点到经验书，但很难
   if not wait(function()
     if findOne("副手确认蓝") then return true end
     tap("升级")
   end, 5) then return end
+
   appear(point.录像列表)
   tap("清空选择")
   findTap(point.录像列表)

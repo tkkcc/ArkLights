@@ -43,23 +43,26 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  tap("基建灯泡蓝")
+  -- tap("待办事项")
+  -- tap("点击全部收取2")
   -- findOne("面板")
   -- local miui = R():text("立即开始")
   -- wait(function() if click(miui) then return true end end, 5)
-  -- exit()
+  exit()
 end
 
 local outside = runThread("outside")
 
 local all_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "副手换人", "线索搜集", "基建换班", "制造加速",
+  "线索搜集", "基建换班", "制造加速", "副手换人",
   "信用购买", "公招刷新", "任务收集", "每日任务速通",
   "满练每日任务速通",
 }
 local now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "副手换人", "线索搜集", "基建换班", "制造加速",
+  "线索搜集", "基建换班", "制造加速", "副手换人",
   "信用购买", "公招刷新", "任务收集",
 }
 
@@ -87,18 +90,12 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.8.22 22:57）",
+  title = "明日方舟速通（2021.8.24 10:14）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
   time = ok_time or 60,
   views = {
-    -- {
-    --   title = "偏色",
-    --   type = "edit",
-    --   id = "default_findcolor_confidence",
-    --   value = "99",
-    -- }, 
     {title = "账号", type = "edit", id = "username"},
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
       title = "作战",
@@ -118,11 +115,23 @@ local ui = {
       id = parse_id_to_ui("now_job_ui", #all_job),
     }, {
       type = "text",
-      value = [[须知：
+      value = [[
+已知问题：
+1. 如果出现死机，请反馈给我。
+2. 基建收获待测试。
+3. 基建换班还需要大量优化（智能换班与自定义换班）。
+
+须知：
 1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
 2. 刘海屏需要修改系统设置使得明日方舟全屏显示，两侧无黑边。
 3. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
 4. 如果作战滑动距离错误，请尝试切换双指滑动选项。
+
+每日任务速通准备：
+1. 确保有20个订单。
+2. 调整干员列表排序使第一位可升级。
+3. 公开招募前三个留空。
+4. 看一遍公告防止之后弹出。
 ]],
     }, {
       type = 'div',
@@ -161,20 +170,22 @@ if appid_need_user_select then
   })
 end
 
-ret = show(ui)
-if not ret then exit() end
-callThreadFun(outside, "preload")
-
--- trigger color system rebuild
-home()
-
 -- trigger screen recording permission request using one second
 findColor({0, 0, 1, 1, "0,0,#000000"})
 local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
+-- trigger color system rebuild
+-- home()
+
+ret = show(ui)
+if not ret then exit() end
+callThreadFun(outside, "preload")
+-- findColor({0, 0, 1, 1, "0,0,#000000"})
+
 -- default_findcolor_confidence =
 --   math.round(tonumber(default_findcolor_confidence))
+
 default_findcolor_confidence = 95
 
 if server == "B服" then appid = bppid end
@@ -200,8 +211,8 @@ for k, v in pairs(fight) do
 end
 fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
-all_open_time_start = parse_time("202007151600")
-all_open_time_end = parse_time("202007170400")
+all_open_time_start = parse_time("202108261600")
+all_open_time_end = parse_time("202109090400")
 update_open_time()
 
 if test_fight then
@@ -237,6 +248,6 @@ if test_fight then
   run("轮次作战")
   exit()
 end
-if test_some then end
+if test_some then path.公招刷新() end
 
 run(now_job)

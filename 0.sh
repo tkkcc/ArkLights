@@ -90,13 +90,10 @@
       printf "\r$(date -u -d "0 $cur seconds - $start seconds" +"%H:%M:%S:%3N")"
     done
   }
-
   scrcpy() {
-    sudo scrcpy
+    sudo scrcpy "$@"
   }
 
-  init $1
-  shift
   "$@"
   wait
 }
