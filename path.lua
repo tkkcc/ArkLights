@@ -114,32 +114,31 @@ end
 path.基建收获 = function()
   -- jump without zoom
   path.跳转("基建", nil, true)
-
   local x
-
-  -- 认为线索搜集提示弹出前一定能看到灯泡，但进入基建后灯泡需要一会儿才会出现，必须等待
-  -- 1s不够
   x = appear({"基建灯泡蓝", "基建灯泡蓝2"}, 2)
-  log(103)
   -- 没看到灯泡或线索提示
   if not x then
     leaving_jump = true
-    log(106)
     return
   end
 
   -- magick function without wait
+  log(130)
   wait(function()
     if not findOne("进驻总览") then return true end
     tap("点击全部收取2")
     tap(x)
   end, 10)
+  log(131)
 
-  -- work for 又浪起来了?
   wait(function()
+    log(132)
     if findAny({"小蓝圈", "进驻总览"}) then return true end
+    log(133)
     tap("点击全部收取2")
   end, 10)
+  log(findAny({"小蓝圈", "进驻总览"}))
+  log(134)
 
   -- 回到进驻总览
   if not wait(function()
@@ -1406,7 +1405,7 @@ path.访问好友 = function()
       log("访问下位灰")
       return true
     end
-    tap("访问下位")
+    tap("访问下位橘")
   end, 60) then return end
 end
 
@@ -1677,4 +1676,53 @@ end
 path.满练每日任务速通 = function()
   no_update_operator = true
   return path.每日任务速通()
+end
+
+path.指定换班 = function()
+  -- 解析用户设置，排除无效设置，缓存
+
+  -- 按设置跳转到依次制造、贸易、控制中枢、办公室
+  -- path.跳转("基建")
+  local f
+  f = function(i)
+    if not wait(function()
+      if not findOne("进驻总览") or not findOne("缩放结束") then
+        return true
+      end
+      tap("宿舍列表" .. i)
+    end, 10) then return end
+    if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
+    if not wait(function()
+      if findOne("确认蓝") then return true end
+      if findOne("进驻信息选中") then
+        wait(function()
+          if findOne("确认蓝") then return true end
+          tap("进驻第一人")
+        end, 1)
+      elseif findOne("进驻信息") then
+        tap("进驻信息")
+        ssleep(.2)
+        wait(function()
+          if findOne("确认蓝") then return true end
+          tap("进驻第一人")
+        end, 1)
+      end
+    end, 5) then return end
+
+    if not wait(function()
+      if findOne("干员未选中") then return true end
+      tap("清空选择")
+    end, 5) then return end
+
+    -- TODO do ocr on two lines
+    -- for j = 6, 6 + 6 do tap("干员选择列表" .. j) end
+
+    if not wait(function()
+      if findAny({
+        "隐藏", "进驻信息", "进驻信息选中",
+        "正在提交反馈至神经",
+      }) then return true end
+      tap("确认蓝")
+    end, 5) then return end
+  end
 end
