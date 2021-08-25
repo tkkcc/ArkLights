@@ -38,7 +38,6 @@
       curl -sS http://localhost:9090/api/file/save \
         --data-urlencode code="$(cat "$x")" \
         --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
-      # sleep .2
     done
   }
   find() {

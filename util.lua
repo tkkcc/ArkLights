@@ -283,6 +283,7 @@ stop = function(msg)
 end
 
 findColorAbsolute = function(color, confidence)
+  -- print(286, confidence)
   confidence = confidence or 100
   -- keepScreen(true)
   for x, y, c in color:gmatch("(%d+),(%d+),(#[^|]+)") do
@@ -307,6 +308,7 @@ findOne = function(x, confidence)
 
   local x0 = x
   confidence = confidence or default_findcolor_confidence
+  -- print(confidence)
   if type(x) == 'string' and not x:find(coord_delimeter) then x = point[x] end
   if type(x) == "table" then return x end
   if type(x) == "function" then return x() end

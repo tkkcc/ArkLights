@@ -137,8 +137,7 @@ path.基建收获 = function()
 
   -- work for 又浪起来了?
   wait(function()
-    if findOne("小蓝圈") and findOne("待办事项") or
-      findOne("进驻总览") then return true end
+    if findAny({"小蓝圈", "进驻总览"}) then return true end
     tap("点击全部收取2")
   end, 10)
 
@@ -408,13 +407,13 @@ path.基建换班 = function()
       if findOne("干员未选中") then return true end
       tap("清空选择")
     end, 5) then return end
-    local state = sample("心情")
-    tap("心情")
-    disappear(state, 1)
-    state = sample("心情")
-    tap("心情")
-    disappear(state, 1)
-    for j = 1, 6 do tap("干员选择列表" .. j) end
+    -- local state = sample("心情")
+    -- tap("心情")
+    -- disappear(state, 1)
+    -- state = sample("心情")
+    -- tap("心情")
+    -- disappear(state, 1)
+    for j = 6, 6 + 6 do tap("干员选择列表" .. j) end
 
     if not wait(function()
       if findAny({
@@ -1593,7 +1592,7 @@ end
 
 path.干员升级 = function()
   if no_update_operator then return end
-  path.跳转("主页")
+  path.跳转("首页")
 
   -- this will enforce we not see 面板
   tap("面板干员")
@@ -1613,13 +1612,17 @@ path.每日任务速通 = function()
   -- inspired by 1m57s https://www.bilibili.com/video/BV1P341167fe
   -- and 56s https://www.bilibili.com/video/BV1aM4y1L72i
   speedrun = true
+  log(1615)
 
   path.干员升级()
+  log(1614)
   path.基建收获()
 
+  log(1616)
   -- 宿舍换班 2次， may be this should be removed
   path.跳转("基建")
   f = function(i, last)
+    -- path.跳转("基建")
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
@@ -1647,13 +1650,13 @@ path.每日任务速通 = function()
       if findOne("干员未选中") then return true end
       tap("清空选择")
     end, 5) then return end
-    local state = sample("心情")
-    tap("心情")
-    disappear(state, 1)
-    state = sample("心情")
-    tap("心情")
-    disappear(state, 1)
-    for j = 1, 6 do tap("干员选择列表" .. j) end
+    -- local state = sample("心情")
+    -- tap("心情")
+    -- disappear(state, 1)
+    -- state = sample("心情")
+    -- tap("心情")
+    -- disappear(state, 1)
+    for j = 6, 6 + 6 do tap("干员选择列表" .. j) end
 
     local exit_state = {"进驻信息", "进驻信息选中"}
     if last then table.insert(exit_state, "正在提交反馈至神经") end

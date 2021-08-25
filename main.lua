@@ -23,6 +23,7 @@ screen = getScreen()
 if screen.width < screen.height then
   screen.width, screen.height = screen.height, screen.width
 end
+default_findcolor_confidence = 95
 
 require("util")
 require("point")
@@ -43,7 +44,11 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  log(findOne("线索传递"))
+  -- log(findOne("信用交易所"))
+  -- log(findOne("信用交易所列表1"))
+  -- log(findOne("信用交易所已购列表1"))
+  -- log(findOne("干员解锁进度"))
+  -- log(findOne("线索传递"))
   -- while true do log(findOne("信用交易所列表6")) end
   -- tap("基建灯泡蓝")
   -- tap("待办事项")
@@ -92,7 +97,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.08.25  0:35）",
+  title = "明日方舟速通（2021.08.25 22:51）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -118,11 +123,15 @@ local ui = {
     }, {
       type = "text",
       value = [[
-已知问题：
+待测试：
 1. 如果出现死机，请反馈给我。
-2. 基建收获待测试。
-3. 基建换班还需要大量优化（智能换班与自定义换班）。
-4. 信用交易所检测有问题，信用购买异常，信用交易所跳转公招异常。
+1. 信用交易所检测有问题，信用购买异常，信用交易所跳转公招异常。
+1. 基建收获待测试。
+
+已知问题：
+1. 主页展开有至多0.5s延时，影响从宿舍跳转出去，难优化。
+1. 进驻总览进入后有等待，不优化，以后不会采用该其他方式换班。
+1. 基建换班还需要大量优化（智能换班与自定义换班）。
 
 须知：
 1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
@@ -189,8 +198,6 @@ callThreadFun(outside, "preload")
 -- default_findcolor_confidence =
 --   math.round(tonumber(default_findcolor_confidence))
 
-default_findcolor_confidence = 95
-
 if server == "B服" then appid = bppid end
 log(appid)
 
@@ -254,3 +261,5 @@ end
 if test_some then path.公招刷新() end
 
 run(now_job)
+playAudio('/system/media/audio/ui/Effect_Tick.ogg')
+ssleep(.5)
