@@ -128,18 +128,17 @@ path.基建收获 = function()
     return
   end
 
-  -- 唤出待办事项
+  -- magick function without wait
   wait(function()
-    -- 比较难不做延时, .2时有概率失败，也可能是因为后续函数？
-    if not findOne("进驻总览") and not appear("进驻总览", .25) then
-      return true
-    end
+    if not findOne("进驻总览") then return true end
+    tap("点击全部收取2")
     tap(x)
-    disappear("进驻总览", .25)
   end, 10)
 
+  -- work for 又浪起来了?
   wait(function()
-    if findAny({"小蓝圈", "进驻总览"}) then return true end
+    if findOne("小蓝圈") and findOne("待办事项") or
+      findOne("进驻总览") then return true end
     tap("点击全部收取2")
   end, 10)
 
@@ -223,19 +222,26 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     end,
     主页 = function()
       p["主页"] = nil
-      local expand = false
       if not wait(function()
         -- if expand and findAny({"主页", "主页按过"}) then return true end
         -- if not findOne("主页") and not findOne("主页按过") then expand = true end
         local y = findAny({"主页", "主页按过"})
         tap(y)
+
+        -- TODO we can make this faster, gain .5s mostly
+        -- jump from 宿舍 to others
+        -- TODO .5 => .1 failed
         if not y or disappear(y, .5) then
+          -- not y 表示 当前主页列表正在展开、收缩或停止，这时
+          --
+          -- if not y or not findOne(y) then
           if home_target == "任务" or home_target == "好友" then
             ssleep(.1)
           end
           wait(function() tap("主页列表" .. home_target) end, .5)
           return true
         end
+
       end, 5) then return end
 
       -- if not wait(function()
@@ -411,9 +417,10 @@ path.基建换班 = function()
     for j = 1, 6 do tap("干员选择列表" .. j) end
 
     if not wait(function()
-      if findAny({"隐藏", "进驻信息", "进驻信息选中"}) then
-        return true
-      end
+      if findAny({
+        "隐藏", "进驻信息", "进驻信息选中",
+        "正在提交反馈至神经",
+      }) then return true end
       tap("确认蓝")
     end, 5) then return end
   end
@@ -486,12 +493,14 @@ path.基建换班 = function()
       if findOne("干员未选中") then return true end
       tap("清空选择")
     end, 5) then return end
+    -- we won't use the method in the future, so just wait
+    ssleep(.1)
 
-    if not wait(function()
-      if not findOne("干员未选中") then return true end
-      for j = 1, limit do tap("干员选择列表" .. j) end
-      disappear("干员未选中", 1)
-    end, 5) then return true end
+    -- if not wait(function()
+    --   if not findOne("干员未选中") then return true end
+    for j = 1, limit do tap("干员选择列表" .. j) end
+    -- disappear("干员未选中", 1)
+    -- end, 5) then return true end
 
     if not wait(function()
       if findOne("撤下干员") then return true end
@@ -839,15 +848,17 @@ path.信用购买 = function()
       return
     end
     local x = "信用交易所列表" .. i
-    if not findOne(x) then return end
+    if not findOne(x) then
+      log(845, i)
+      return
+    end
 
     if not wait(function()
       if not findOne(x) then return true end
       tap(x)
-      -- TODO check if this is slow => yes
-      -- disappear(x)
     end, 5) then return end
 
+    -- TODO we can tap "购买物品" before see it？
     if not appear("购买物品", 5) then return end
     if not appear("购买物品面板") then return end
     if not wait(function()
@@ -1263,7 +1274,7 @@ path.剿灭 = function(x)
     if not wait(function()
       if findOne("当前委托侧边栏") then return true end
       tap("切换")
-      disappear("切换")
+      appear("当前委托侧边栏")
     end, 5) then return end
     if not wait(function()
       if not findOne("当前委托侧边栏") then return true end
@@ -1443,7 +1454,6 @@ path.公招刷新 = function()
       if speedrun then
         if not wait(function()
           if findOne("公开招募取消") then return true end
-          -- TODO no tap->findtap
           tap("公开招募列表" .. i)
         end, 10) then return end
 
@@ -1456,20 +1466,12 @@ path.公招刷新 = function()
         return
       end
 
-      -- 刷新
-      log(1308)
-
       if not wait(function()
-        -- if findOne("公开招募取消") then return true end
-        -- TODO: use prestate?
         if not findOne("公开招募箭头") then return true end
         tap("公开招募列表" .. i)
       end, 5) then return end
 
-      log(1311)
       g = function()
-        log("1243")
-
         local empty_tags = true
         local tags = {}
         local ocr_text
@@ -1591,14 +1593,11 @@ end
 
 path.干员升级 = function()
   if no_update_operator then return end
-  path.跳转("干员")
+  path.跳转("主页")
 
-  if not wait(function()
-    if not findOne("干员界面") then return true end
-    tap("干员1")
-  end, 5) then return end
+  -- this will enforce we not see 面板
+  tap("面板干员")
 
-  -- TODO 不需要看到副手确认蓝就可以点到经验书，但很难
   if not wait(function()
     if findOne("副手确认蓝") then return true end
     tap("升级")
@@ -1620,7 +1619,7 @@ path.每日任务速通 = function()
 
   -- 宿舍换班 2次， may be this should be removed
   path.跳转("基建")
-  f = function(i)
+  f = function(i, last)
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
@@ -1656,16 +1655,16 @@ path.每日任务速通 = function()
     disappear(state, 1)
     for j = 1, 6 do tap("干员选择列表" .. j) end
 
+    local exit_state = {"进驻信息", "进驻信息选中"}
+    if last then table.insert(exit_state, "正在提交反馈至神经") end
     if not wait(function()
-      if findAny({"隐藏", "进驻信息", "进驻信息选中"}) then
-        return true
-      end
+      if findAny(exit_state) then return true end
       tap("确认蓝")
     end, 5) then return end
   end
 
   f(1)
-  f(1)
+  f(1, true)
 
   path.信用购买()
   path.公招刷新()

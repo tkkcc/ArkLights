@@ -22,6 +22,7 @@
     sleep 2
   }
   release() {
+    sed -i -r 's/(明日方舟速通)（.+）/\1（'"$(date +'%Y.%m.%d %k:%M')"'）/' main.lua
     save "$@"
     curl http://localhost:9090/script/export?name=test >arknights.nsp
     xdg-open http://card.nspirit.cn/admin/apply/list/5963/edit

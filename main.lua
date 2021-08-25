@@ -43,7 +43,9 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  tap("基建灯泡蓝")
+  log(findOne("线索传递"))
+  -- while true do log(findOne("信用交易所列表6")) end
+  -- tap("基建灯泡蓝")
   -- tap("待办事项")
   -- tap("点击全部收取2")
   -- findOne("面板")
@@ -90,7 +92,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.8.24 10:14）",
+  title = "明日方舟速通（2021.08.25  0:35）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -120,6 +122,7 @@ local ui = {
 1. 如果出现死机，请反馈给我。
 2. 基建收获待测试。
 3. 基建换班还需要大量优化（智能换班与自定义换班）。
+4. 信用交易所检测有问题，信用购买异常，信用交易所跳转公招异常。
 
 须知：
 1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
@@ -129,9 +132,9 @@ local ui = {
 
 每日任务速通准备：
 1. 确保有20个订单。
-2. 调整干员列表排序使第一位可升级。
+2. 调整干员列表排序使右上角干员可升级。
 3. 公开招募前三个留空。
-4. 看一遍公告防止之后弹出。
+4. 撤下全部干员。
 ]],
     }, {
       type = 'div',
