@@ -49,6 +49,11 @@ string.lpad = function(str, len, char)
   return str .. string.rep(char, len - #str)
 end
 
+table.slice = function(tbl, first, last, step)
+  local sliced = {}
+  for i = first or 1, last or #tbl, step or 1 do sliced[#sliced + 1] = tbl[i] end
+  return sliced
+end
 -- shallow table
 table.contains = function(a, b)
   for k, v in pairs(b) do if a[k] ~= v then return false end end
@@ -503,7 +508,6 @@ end
 -- single swip for chapter navigation
 swipc = function(dis)
   if not dis then return end
-  log("swipc", finger)
   local x1, y1, x2, y2
   x1, y1 = math.round((300 - 1920 / 2) * minscale + screen.width / 2),
            screen.height // 2
@@ -513,6 +517,25 @@ swipc = function(dis)
   duration = 500
   gesture(finger, duration)
   sleep(duration)
+end
+
+-- pagedown for operator
+swipo = function(left)
+  local x1, y1, x2, y2, duration
+  x1, y1 = screen.width - math.round(300 * minscale), screen.height // 2
+  x2, y2 = max(x1 - math.round(1565 * minscale), 0), screen.height
+  duration = 1000
+  if left then
+    x2 = 10000
+    duration = 500
+  end
+  local finger = {
+    {{x = x1, y = y1}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}},
+  }
+  table.insert(finger, 1, finger[1])
+  log(finger)
+  gesture(finger, duration)
+  ssleep(1) -- exit before gesture finish, because ocr
 end
 
 swip = function(dis)
@@ -532,7 +555,7 @@ end
 zoom = function(retry)
   log("zoom", retry)
   retry = retry or 0
-  if retry > 20 then return end
+  if retry > 3 then return true end
   if not findOne("进驻总览") then return path.跳转("基建") end
   if findOne("缩放结束") then
     log("缩放结束")
@@ -878,13 +901,14 @@ end
 
 wait_game_up = function(retry)
   retry = retry or 0
-  if retry > 20 then stop("不能启动游戏") end
+  if retry > 3 then stop("不能启动游戏") end
   local game = R():name(appid):path("/FrameLayout/View")
   local screen = getScreen()
   if screen.width > screen.height and find(game) then return end
   bilibili_login_hook()
   open()
-  ssleep(1)
+  appear(game, 5)
+  -- ssleep(5)
   log("wait_game_up", retry)
   return wait_game_up(retry + 1)
 end
@@ -909,4 +933,61 @@ miui_hook = function()
     if not find(miui) then return true end
     click(miui)
   end, 10) then stop("不能消去立即开始") end
+end
+
+coming_hour = function(a, b, starttime)
+  if a == nil then return b end
+  if b == nil then return a end
+  start = os.date("*t", starttime)
+
+  atime = os.time({
+    year = start.year,
+    month = start.month,
+    day = start.day,
+    hour = tonumber(a),
+  })
+  if atime < starttime then atime = atime + 24 * 3600 end
+
+  btime = os.time({
+    year = start.year,
+    month = start.month,
+    day = start.day,
+    hour = tonumber(b),
+  })
+  if btime < starttime then btime = btime + 24 * 3600 end
+
+  if atime - starttime < btime - starttime then return a end
+  return b
+end
+
+findtap_operator = function(operator)
+  operator_notfound = table.value2key(operator)
+  found = #operator
+  swipo(true)
+  -- swip 3 times only
+  for i = 1, 3 do
+    if found <= 0 then return end
+    if i ~= 1 then swipo() end
+    ssleep(1)
+    -- 616,107
+    local res = ocrp({
+      rect = {
+        math.round(616 * minscale), math.round(107 * minscale),
+        screen.width - 1, screen.height - 1,
+      },
+    })
+    for _, node in pairs(res) do
+      log(node.text)
+      for pattern, _ in pairs(operator_notfound) do
+        if string.find(node.text, pattern) then
+          log('found', pattern)
+          tap(node.text_box_position[1])
+          operator_notfound[pattern] = nil
+          found = found - 1
+          if found == 0 then return end
+          break
+        end
+      end
+    end
+  end
 end

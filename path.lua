@@ -127,6 +127,7 @@ path.基建收获 = function()
   wait(function()
     if not findOne("进驻总览") then return true end
     tap("点击全部收取2")
+    ssleep(.1)
     tap(x)
   end, 10)
   log(131)
@@ -153,9 +154,7 @@ prev_jump = "基建"
 path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   local sign = {
     好友 = "个人名片",
-    基建 = function()
-      return findOne("进驻总览") and not findOne("任务第一个")
-    end,
+    基建 = "进驻总览",
     公开招募 = function()
       return findOne("公开招募") and findOne("公开招募箭头")
     end,
@@ -332,7 +331,6 @@ path.副手换人 = function()
   for i = 1, 5 do
     if not wait(function()
       if findOne("副手确认蓝") then return true end
-      -- if not findOne("基建副手简报") then return true end
       tap("基建副手列表" .. i)
     end, 5) then return end
 
@@ -467,18 +465,12 @@ path.基建换班 = function()
       tap("筛选")
     end, 5) then return end
 
-    if not wait(function()
-      if not findOne("筛选未进驻") then return true end
-      tap("筛选未进驻")
-      disappear("筛选未进驻", .5)
-    end, 5) then return end
+    appear({"筛选未进驻选中", "筛选未进驻"})
 
-    if prefer_skill then
-      if not wait(function()
-        if not findOne("筛选技能") then return true end
-        tap("筛选技能")
-        disappear("筛选技能", .5)
-      end, 5) then return end
+    if not findOne("筛选未进驻选中") then tap("筛选未进驻选中") end
+
+    if prefer_skill and not findOne("筛选技能降序") then
+      tap("筛选技能降序")
     end
 
     if not wait(function()
@@ -528,7 +520,9 @@ path.制造加速 = function()
   local station
   for i = 1, #point.基建左侧列表 do
     local x, y = table.unpack(point["基建左侧列表" .. i])
-    if compareColor(x, y, "#FFCC00", 99) then
+    log(x, y, default_findcolor_confidence)
+    log(type(default_findcolor_confidence))
+    if compareColor(x, y, "#FFCC00", default_findcolor_confidence) then
       station = x .. coord_delimeter .. y .. coord_delimeter .. "#FFCC00"
       point.station = station
       rfl.station = true
@@ -791,7 +785,9 @@ path.任务收集 = function()
   end
 
   for i = 1, #point.任务有列表 do
+    log(794, i)
     if findOne("任务有列表" .. i) then
+      log(795, i)
 
       -- nagivate to tab
       if not wait(function()
@@ -821,60 +817,70 @@ end
 path.信用购买 = function()
   path.跳转("采购中心")
   if not wait(function()
-    if findOne("信用交易所") then return true end
+    if findAny({"信用交易所列表1", "信用交易所已购列表1"}) then
+      return true
+    end
     tap("信用交易所2")
   end, 10) then return end
+
   if findOne("收取信用有") then
     local f = function()
       if not wait(function()
-        if not findOne("信用交易所") then return true end
+        if not findOne("信用交易所横线") then return true end
         tap("收取信用有")
       end, 5) then return end
       if not wait(function()
-        if findOne("信用交易所") then return true end
+        if findOne("信用交易所横线") then return true end
         tap("收取信用有")
       end, 5) then return end
     end
     f()
   end
+
+  -- 等待前一个任务的提示消失
   disappear("信用不足", 5)
+
   local f
   f = function(i)
-    local enough
-    if not findOne("信用交易所") then
+    if not findOne("信用交易所横线") then
       log(831)
       return
     end
-    local x = "信用交易所列表" .. i
-    if not findOne(x) then
+
+    log(832)
+    if not appear({
+      "信用交易所列表" .. i, "信用交易所已购列表" .. i,
+    }) then return end
+    log(833)
+
+    if not findOne("信用交易所列表" .. i) then
       log(845, i)
       return
     end
 
     if not wait(function()
-      if not findOne(x) then return true end
-      tap(x)
+      if not findOne("信用交易所横线") then return true end
+      tap("信用交易所列表" .. i)
     end, 5) then return end
 
-    -- TODO we can tap "购买物品" before see it？
-    if not appear("购买物品", 5) then return end
-    if not appear("购买物品面板") then return end
     if not wait(function()
-      if not findOne("购买物品面板") then return true end
-      if findOne("信用不足") then
-        log("信用不足")
-        enough = true
+      if findAny({"信用交易所横线", "信用不足"}) then
         return true
       end
       tap("购买物品")
-    end, 10) then return end
-    if enough then return true end
+    end, 5) then return end
 
-    -- wait for popup
-    appear("信用交易所", 5)
-    disappear("信用交易所", 5)
+    if findOne("信用不足") then
+      log("信用不足")
+      return true
+    end
+
+    log(830)
+    disappear("信用交易所横线", 5)
+    log(831)
+
     if not wait(function()
-      if findOne("信用交易所") then return true end
+      if findOne("信用交易所横线") then return true end
       tap("信用交易所2")
     end, 5) then
       log(832)
@@ -882,7 +888,7 @@ path.信用购买 = function()
     end
   end
   if speedrun then return f(2) end
-  for i = 1, 10 do if f(i) then break end end
+  for i = 1, 10 do if f(i) then return end end
 end
 
 get_fight_type = function(x)
@@ -1261,7 +1267,7 @@ path.剿灭 = function(x)
     tap("当期委托")
   end, 5) then return end
   if is_jmfight_enough(x) then return end
-  if not appear("开始行动") then return end
+  if not appear("开始行动", 5) then return end
   if is_jmfight_enough(x) then return end
   if x ~= jmfight_current then
     -- 非当期委托需要切换
@@ -1279,7 +1285,12 @@ path.剿灭 = function(x)
       tap("作战列表" .. x)
       disappear("当前委托侧边栏")
     end, 5) then return end
+
+    log(1287)
   end
+  log(1289)
+  -- ssleep(1)
+  -- log(1290)
   appear("开始行动")
   path.开始游戏(x)
 end
@@ -1484,10 +1495,10 @@ path.公招刷新 = function()
             -- TODO dont's know if this function other function raise exception
             -- java.lang.StringIndexOutOfBoundsException: length=4; index=4
             local status
-            while not status do
-              log(1469, status)
+            if not wait(function()
+              if status then return true end
               status, ocr_text = pcall(ocr, table.unpack(p))
-            end
+            end, 5) then return end
 
             log(1463, ocr_text)
             if not ocr_text then break end
@@ -1679,34 +1690,92 @@ path.满练每日任务速通 = function()
 end
 
 path.指定换班 = function()
-  -- 解析用户设置，排除无效设置，缓存
-
+  -- if not debug then return end
   -- 按设置跳转到依次制造、贸易、控制中枢、办公室
   -- path.跳转("基建")
   local f
+  local count = {}
   f = function(i)
+    -- judge the type of facility i, and check if we need to do
+    local type, facility, operator
+    local x, y = table.unpack(point["基建列表" .. i])
+    if i <= 9 then
+      path.跳转("基建")
+      if not wait(function()
+        if type then return true end
+        if compareColor(x, y, "#FFCC00", default_findcolor_confidence) then
+          type = "制"
+        elseif compareColor(x, y, "#33CCFF", default_findcolor_confidence) then
+          type = "贸"
+        elseif compareColor(x, y, "#CCFF66", default_findcolor_confidence) then
+          type = "发"
+        end
+      end, 2) then return end
+
+    elseif i == 10 then
+      type = "控"
+    elseif i <= 14 then
+      type = "宿"
+    elseif i == 15 then
+      type = "会"
+    elseif i == 16 then
+      type = "加"
+    elseif i == 17 then
+      type = "办"
+    end
+    if not type then return end
+    -- log(count, type)
+    count[type] = (count[type] or 0) + 1
+    facility = type .. count[type]
+    operator = facility2operator[facility]
+    if not operator or #operator == 0 then return end
+    log(facility, operator)
+
+    path.跳转("基建")
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
       end
-      tap("宿舍列表" .. i)
+      tap({x, y})
     end, 10) then return end
+
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
     if not wait(function()
       if findOne("确认蓝") then return true end
-      if findOne("进驻信息选中") then
-        wait(function()
-          if findOne("确认蓝") then return true end
-          tap("进驻第一人")
-        end, 1)
+      if findOne("进驻信息选中") and
+        not disappear("进驻信息选中", .5) then
+        tap("进驻第一人左")
+        -- appear("确认蓝",.5)
+        -- wait(function()
+        --   if findOne("确认蓝") then return true end
+        --   tap("进驻第一人左")
+        -- end, 1)
       elseif findOne("进驻信息") then
         tap("进驻信息")
-        ssleep(.2)
-        wait(function()
-          if findOne("确认蓝") then return true end
-          tap("进驻第一人")
-        end, 1)
+        disappear("进驻信息", .5)
+        -- ssleep(.2)
+        -- wait(function()
+        --   if findOne("确认蓝") then return true end
+        --   tap("进驻第一人左")
+        -- end, 1)
       end
+    end, 5) then return end
+
+    if not wait(function()
+      if findOne("筛选取消") then return true end
+      tap("筛选")
+    end, 5) then return end
+
+    appear({"筛选未进驻选中", "筛选未进驻"})
+
+    if not findOne("筛选未进驻") then tap("筛选未进驻") end
+
+    if not findOne("筛选技能降序") then tap("筛选技能降序") end
+
+    if not wait(function()
+      if findOne("确认蓝") then return true end
+      tap("筛选确认")
+      appear("确认蓝")
     end, 5) then return end
 
     if not wait(function()
@@ -1714,8 +1783,7 @@ path.指定换班 = function()
       tap("清空选择")
     end, 5) then return end
 
-    -- TODO do ocr on two lines
-    -- for j = 6, 6 + 6 do tap("干员选择列表" .. j) end
+    findtap_operator(operator)
 
     if not wait(function()
       if findAny({
@@ -1725,4 +1793,5 @@ path.指定换班 = function()
       tap("确认蓝")
     end, 5) then return end
   end
+  for i = 1, #point.基建列表 do f(i) end
 end

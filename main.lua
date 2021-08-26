@@ -1,5 +1,6 @@
 -- debug option, should be commented in release
 -- disable_communication_check=true
+-- debug = true
 -- predebug = true
 -- verbose_fca = true
 -- no_dorm = true
@@ -44,18 +45,23 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  -- log(findOne("信用交易所"))
-  -- log(findOne("信用交易所列表1"))
-  -- log(findOne("信用交易所已购列表1"))
-  -- log(findOne("干员解锁进度"))
-  -- log(findOne("线索传递"))
-  -- while true do log(findOne("信用交易所列表6")) end
-  -- tap("基建灯泡蓝")
-  -- tap("待办事项")
-  -- tap("点击全部收取2")
-  -- findOne("面板")
-  -- local miui = R():text("立即开始")
-  -- wait(function() if click(miui) then return true end end, 5)
+  log(findOne("开始行动"))
+  -- zoom()
+  -- log(findOne("缩放结束"))
+  -- swipo()
+  -- findtap_operator("杜")
+  -- exit()
+  -- log(48)
+  -- start = time()
+  -- local res = ocrp({});
+  -- for _, v in pairs(res) do
+  --   if string.find(v.text, "杜") then tap(v.text_box_position[1]) end
+  -- end
+  -- log(time() - start)
+
+  -- swipo()
+  -- findtap_operator({"杜", "芬", "林者"})
+  -- exit()
   exit()
 end
 
@@ -63,14 +69,14 @@ local outside = runThread("outside")
 
 local all_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "线索搜集", "指定换班", "基建换班", "制造加速",
+  "指定换班", "基建换班", "线索搜集", "制造加速",
   "副手换人", "信用购买", "公招刷新", "任务收集",
   "每日任务速通", "满练每日任务速通",
 }
 local now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "线索搜集", "基建换班", "制造加速",
-  "副手换人", "信用购买", "公招刷新", "任务收集",
+  "线索搜集", "基建换班", "制造加速", "副手换人",
+  "信用购买", "公招刷新", "任务收集",
 }
 
 local parse_id_to_ui = function(prefix, length)
@@ -97,7 +103,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.08.26  1:04）",
+  title = "明日方舟速通（2021.08.26 21:52）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -114,11 +120,11 @@ R8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
       title = "换班",
       type = "edit",
       value = [[
-贸1 10 孑 银 刀
-贸2 10 能 拉 德
-贸1 18 孑 银 刀
+贸1 10 空 灰 刀
+贸2 10 天 拉 萨
+贸1 18 空 灰 刀
 贸2 18 巫 雪 芬
-贸1 2 能 拉 德
+贸1 2 天 拉 萨
 贸2 2 巫 雪 芬]],
       id = "dorm",
     }, {
@@ -140,7 +146,8 @@ R8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
 1. 好友界面跳转其他失败。
 1. 主页展开有至多0.5s延时，影响速通时从宿舍跳转采购中心。
 1. 进驻总览进入后有长时间等待。
-1. 基建换班还需要大量优化（智能换班与自定义换班）。
+1. 基建换班考虑制造站分类。
+1. 指定换班OCR耗时高达10秒。
 
 须知：
 1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
@@ -157,25 +164,26 @@ R8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
 
 指定换班策略（待完成）：
 每行表示由设施、时间与干员组成。换该设施时，将使用时间上大于脚本启动时间的最近设置干员。干员可以不满，或留空。 一个针对贸易站的设置为
-贸1 10 孑 银 刀
-贸2 10 能 拉 德
-贸1 18 孑 银 刀
+贸1 10 空 灰 刀
+贸2 10 天 拉 萨
+贸1 18 空 灰 刀
 贸2 18 巫 雪 芬
-贸1 2 能 拉 德
+贸1 2 天 拉 萨
 贸2 2 巫 雪 芬
-制1
-制2
-制3
-制4
+制1 2
 控1
 发1
 办1
+会1
+宿1
 
 每日任务速通准备：
 1. 确保有20个订单。
 1. 调整干员列表排序使右上角干员可升级。
 1. 公开招募前三个留空。
 1. 撤下全部干员。
+1. 进入信用交易所，提前加载。
+1. 切换为最快网络。
 ]],
     }, {
       type = 'div',
@@ -188,7 +196,7 @@ R8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
           click = {thread = outside, name = "goto_bilibili"},
         }, {
           type = "button",
-          value = "QQ群(1009619697)",
+          value = "QQ群",
           title = '',
           click = {thread = outside, name = "goto_qq"},
         }, {
@@ -257,6 +265,26 @@ all_open_time_start = parse_time("202108261600")
 all_open_time_end = parse_time("202109090400")
 update_open_time()
 
+startup_time = parse_time()
+facility2operator = {}
+facility2nexthour = {}
+for _, v in pairs(string.split(dorm, '\n')) do
+  v = string.split(v)
+  if #v > 3 then
+    local facility = v[1]
+    if #facility == 3 then facility = facility .. 1 end
+    local hour = tonumber(v[2])
+    local operator = table.slice(v, 3)
+    local cur_hour = facility2nexthour[facility]
+    if coming_hour(cur_hour, hour, startup_time) == hour then
+      facility2operator[facility] = operator
+      facility2nexthour[facility] = hour
+    end
+  end
+end
+log(facility2nexthour)
+log(facility2operator)
+
 if test_fight then
   fight = {
     "0-8", "1-9", "2-9", "S3-7", "4-10", "5-9", "6-10", "7-14", "R8-2",
@@ -291,7 +319,8 @@ if test_fight then
   exit()
 end
 if test_some then path.公招刷新() end
-
+log(318)
 run(now_job)
+log("end")
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
-ssleep(.5)
+ssleep(1)
