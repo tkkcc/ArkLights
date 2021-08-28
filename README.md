@@ -16,8 +16,7 @@
 
 ## 开发
 
-开发参考[节点精灵开发文档](http://www.nspirit.cn/api)。
-命令行用户可以使用仓库中的`./0.sh`开发，例如通过`./0.sh saverun`上传代码并运行。
+开发参考[节点精灵开发文档](http://www.nspirit.cn/api)。命令行用户可以使用仓库中的`./0.sh`开发，例如通过`./0.sh saverun`上传代码并运行。
 
 ## 其他辅助（awesome-arknights-auto-helper）
 

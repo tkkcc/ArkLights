@@ -263,6 +263,7 @@ end
 
 log_history = {}
 log = function(...)
+  if disable_log then return end
   local arg = {...}
   local l = {map(tostring, running, ' ', table.unpack(map(table2string, arg)))}
   l = map(removeFuncHash, l)
@@ -540,7 +541,8 @@ swipo = function(left)
   table.insert(finger, 1, finger[1])
   log(finger)
   gesture(finger, duration)
-  ssleep(1) -- exit before gesture finish, because ocr
+  sleep(duration)
+  if left then ssleep(1) end
 end
 
 swip = function(dis)
@@ -560,7 +562,11 @@ end
 zoom = function(retry)
   log("zoom", retry)
   retry = retry or 0
-  if retry > 3 then return true end
+  if retry > 3 then
+    -- TODO: 提示到底影响了什么，是不能缩放，还是缩放结束找不到
+    log("缩放结束未找到")
+    return true
+  end
   if not findOne("进驻总览") then return path.跳转("基建") end
   if findOne("缩放结束") then
     log("缩放结束")
@@ -999,6 +1005,76 @@ findtap_operator = function(operator)
   end
 end
 
+ocr_fast = function(x1, y1, x2, y2, timeout)
+  timeout = timeout or 10
+  local status, text, info
+  wait(function()
+    if status then return true end
+    status, text, info = pcall(ocr, x1, y1, x2, y2)
+  end, timeout)
+  if not status then
+    text = nil
+    info = {}
+  end
+  return text, info
+end
+
+findtap_operator_fast = function(operator)
+  operator_notfound = table.value2key(operator)
+  found = #operator
+  -- swipo(true)
+  -- swip 3 times only
+  for i = 1, 3 do
+    if found <= 0 then return end
+    swipo(i == 1 and true or false)
+
+    -- TODO: wait for 节点精灵 fix bug
+    -- we must ocr on small region if we want to use position
+    local region = {
+      {590, 487, 1059, 523}, {1033, 487, 1491, 523}, {1464, 487, 1919, 523},
+      {590, 907, 1059, 943}, {1033, 907, 1491, 943}, {1464, 907, 1919, 943},
+    }
+
+    -- {0,0,0,0,"1059,457,#D2D1D1|1033,455,#FFFFFF|1464,443,#D1CACE|1491,446,#D6D5D5",95}
+
+    for _, r in pairs(region) do
+      local text, info
+      text, info = ocr_fast(math.round(minscale * r[1]),
+                            math.round(minscale * r[2]),
+                            math.round(minscale * r[3]),
+                            math.round(minscale * r[4]))
+      if text then
+        log(text, info, r)
+        for _, w in pairs(info.words) do
+          if operator_notfound[w.word] then
+            log('found', w.word)
+            tap({
+              math.round(r[1] * minscale) + w.rect.left,
+              math.round(r[2] * minscale) + w.rect.top,
+            })
+            operator_notfound[w.word] = nil
+            found = found - 1
+            if found == 0 then return end
+          end
+        end
+        -- 补救节点精灵bug
+        for w in string.gmatch(text, "([%z\1-\127\194-\244][\128-\191]*)") do
+          if operator_notfound[w] then
+            log('found in text but not in words', w)
+            tap({
+              math.round((r[3] - 100) * minscale),
+              math.round((r[4] - 100) * minscale),
+            })
+            operator_notfound[w] = nil
+            found = found - 1
+            if found == 0 then return end
+          end
+        end
+      end
+    end
+  end
+end
+
 findtap_operator_type = function(operator)
   operator_notfound = table.value2key(operator)
   found = #operator
@@ -1037,4 +1113,16 @@ timeit = function(f)
   local start = time()
   f()
   log(time() - start)
+end
+
+tapAll = function(ks)
+  local duration = 1
+  local finger = {}
+  for _, k in pairs(ks) do
+    table.insert(finger, {{x = point[k][1], y = point[k][2]}})
+  end
+  log(finger)
+  gesture(finger, duration)
+  sleep(duration)
+  -- ssleep(1)
 end

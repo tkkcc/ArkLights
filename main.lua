@@ -1,6 +1,8 @@
 -- debug option, should be commented in release
 -- disable_communication_check=true
+-- speedrun=true
 -- debug = true
+-- disable_log = true
 -- predebug = true
 -- verbose_fca = true
 -- no_dorm = true
@@ -45,6 +47,63 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  path.跳转("基建")
+  f = function(i, last)
+    -- path.跳转("基建")
+    if not wait(function()
+      if not findOne("进驻总览") or not findOne("缩放结束") then
+        return true
+      end
+      tap("宿舍列表" .. i)
+    end, 10) then return end
+    if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
+    if not wait(function()
+      if findOne("确认蓝") then return true end
+      if findOne("进驻信息选中") then
+        wait(function()
+          if findOne("确认蓝") then return true end
+          tap("进驻第一人")
+        end, 1)
+      elseif findOne("进驻信息") then
+        tap("进驻信息")
+        ssleep(.2)
+        wait(function()
+          if findOne("确认蓝") then return true end
+          tap("进驻第一人")
+        end, 1)
+      end
+    end, 5) then return end
+    tap("清空选择")
+    if not wait(function()
+      if findOne("干员未选中") then return true end
+      tap("清空选择")
+    end, 5) then return end
+    -- local state = sample("心情")
+    -- tap("心情")
+    -- disappear(state, 1)
+    -- state = sample("心情")
+    -- tap("心情")
+    -- disappear(state, 1)
+    -- for j = 6, 6 + 6 do tap("干员选择列表" .. j) end
+    tapAll({
+      "干员选择列表6", "干员选择列表7", "干员选择列表8",
+      "干员选择列表9", "干员选择列表10", "干员选择列表11",
+    })
+
+    local exit_state = {"进驻信息", "进驻信息选中"}
+    if last then table.insert(exit_state, "正在提交反馈至神经") end
+    if not wait(function()
+      if findAny(exit_state) then return true end
+      tap("确认蓝")
+    end, 5) then return end
+  end
+
+  f(1)
+  -- f(1, true)
+  exit()
+  log(findOne("主页"))
+  log(findOne("个人名片"))
+  exit()
   timeit(function() path.跳转("基建") end)
   exit()
   local x
@@ -130,7 +189,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.08.28 20:45）",
+  title = "明日方舟速通（2021.08.29  1:09）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -177,10 +236,10 @@ R8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
 1. 线索搜集有概率卡住。
 1. 换班时进入进驻总览后有长时间等待。
 1. 主页展开有至多0.5s延时，影响速通时从宿舍跳转采购中心。
-1. 指定换班OCR耗时较为随机，3s到30s不等。
+1. 指定换班OCR在低分辨率（如720p）的错误率较高。
 
 指定换班策略：
-每行表示由设施、时间与干员组成。换该设施时，将使用时间上大于脚本启动时间的最近设置干员。干员可以不满或留空。 一个针对贸易站的设置为
+每行表示由设施、时间与干员组组成。换该设施时，将使用时间上大于脚本启动时间的最近设置干员。干员组可以不满或留空，但每个干员只能是单字。一个针对贸易站的设置为
 贸1 10 空 灰 刀
 贸2 10 天 拉 萨
 贸1 18 空 灰 刀
@@ -193,14 +252,15 @@ R8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
 办1
 会1
 宿1
+尽量使用常见字，比如用“子”而非“孑”
 
 每日任务速通准备：
-1. 切换为最快网络。
+1. 使用最快网络与设备。
 1. 确保有20个订单。
 1. 调整干员列表排序使右上角干员可升级。
-1. 公开招募前三个留空。
+1. 公开招募全部留空。
 1. 撤下全部干员。
-1. 提前加载信用交易所。
+1. 进入一次信用交易所。
 ]],
     }, {
       type = 'div',
@@ -336,8 +396,11 @@ if test_fight then
   exit()
 end
 if test_some then path.公招刷新() end
-log(318)
+
+local start_time = time()
+log("start")
 run(now_job)
-log("end")
+log("end", time() - start_time)
+
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)
