@@ -84,9 +84,9 @@ path.base = {
       -- 只有主线与物资芯片会存在same_page_fight，
       -- 物资芯片的appear是完备的，
       local x = get_fight_type(cur_fight)
-      if x == "物资芯片" then
-        appear("作战列表" .. cur_fight, .5)
-      elseif x == "主线" then
+      -- if x == "物资芯片" then
+      --   appear("作战列表" .. cur_fight, .5)
+      if x == "主线" then
         local x0 = cur_fight
         local chapter = x0:find("-")
         chapter = x0:sub(1, chapter - 1)
@@ -122,12 +122,11 @@ path.基建收获 = function()
     return
   end
 
-  -- magick function without wait
   log(130)
   wait(function()
     if not findOne("进驻总览") then return true end
-    tap("点击全部收取2")
     ssleep(.1)
+    tap("点击全部收取2")
     tap(x)
   end, 10)
   log(131)
@@ -255,6 +254,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
       log('wait appear', sign[home_target], timeout)
       -- appear(sign[home_target], timeout)
       -- TODO appear all?
+      log("appear all", table.values(sign), timeout)
       appear(table.values(sign), timeout)
     end,
   })
@@ -455,7 +455,9 @@ path.基建换班 = function()
     if not appear("入驻干员", timeout) then return end
     if not wait(function()
       if findOne("确认蓝") then return true end
-      if findTap("入驻干员") then appear("确认蓝") end
+      if findOne("撤下干员") and findTap("入驻干员") then
+        disappear("撤下干员", 1)
+      end
     end, 10) then return end
 
     local limit = findOne("清空选择") and 6 or 1
@@ -465,7 +467,10 @@ path.基建换班 = function()
       tap("筛选")
     end, 5) then return end
 
-    appear({"筛选未进驻选中", "筛选未进驻"})
+    if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
+    if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
+      return
+    end
 
     if not findOne("筛选未进驻选中") then tap("筛选未进驻选中") end
 
@@ -590,6 +595,7 @@ path.线索搜集 = function()
     if findOne("线索传递") then return true end
     tap("解锁线索上")
     if findOne("本次线索交流活动") then
+      log("find本次线索交流活动")
       tap("返回")
       -- 只能用返回必须等待
       disappear("本次线索交流活动", .5)
@@ -825,14 +831,24 @@ path.信用购买 = function()
 
   if findOne("收取信用有") then
     local f = function()
+
       if not wait(function()
         if not findOne("信用交易所横线") then return true end
         tap("收取信用有")
       end, 5) then return end
+
       if not wait(function()
         if findOne("信用交易所横线") then return true end
         tap("收取信用有")
       end, 5) then return end
+
+      -- 危机合约期间启用
+      if disappear("信用交易所横线", 1) then
+        if not wait(function()
+          if findOne("信用交易所横线") then return true end
+          tap("收取信用有")
+        end, 5) then return end
+      end
     end
     f()
   end
@@ -843,8 +859,12 @@ path.信用购买 = function()
   local f
   f = function(i)
     if not findOne("信用交易所横线") then
-      log(831)
-      return
+
+      if not wait(function()
+        if findOne("信用交易所横线") then return true end
+        tap("收取信用有")
+      end, 5) then return end
+
     end
 
     log(832)
@@ -1043,19 +1063,28 @@ path.主线 = function(x)
   chapter = x:sub(1, chapter - 1)
   chapter = chapter:sub(chapter:find("%d"))
   local chapter_index = tonumber(chapter) + 1
+  local state_with_home = function(y)
+    local f = function() return findOne("主页") and findOne(y) end
+    return f
+  end
+  local go = function()
+    ssleep(.5)
+    log(928, x)
+    swip(x)
+    tap("作战列表" .. x)
+    appear("开始行动")
+  end
   local p
   p = {
-    ["当前进度列表" .. chapter_index] = function()
-      ssleep(.5)
-      log(928, x)
-      swip(x)
-      tap("作战列表" .. x)
-      appear("开始行动")
+    [state_with_home("当前进度列表" .. chapter_index)] = function()
+      go()
+      return true
+    end,
+    [state_with_home("按下当前进度列表" .. chapter_index)] = function()
+      go()
       return true
     end,
   }
-  p["按下当前进度列表" .. chapter_index] =
-    p["当前进度列表" .. chapter_index]
   if chapter_index <= 4 then -- chapter 0 to 3
     switch_start = 1
     switch_end = 4
@@ -1068,9 +1097,10 @@ path.主线 = function(x)
   end
   for i = switch_start, switch_end do
     if chapter_index ~= i then
-      p["当前进度列表" .. i] = "当前进度列表" ..
-                                       (i > chapter_index and "左" or "右")
-      p["按下当前进度列表" .. i] = p["当前进度列表" .. i]
+      p[state_with_home("当前进度列表" .. i)] =
+        "当前进度列表" .. (i > chapter_index and "左" or "右")
+      p[state_with_home("按下当前进度列表" .. i)] =
+        p["当前进度列表" .. i]
     end
   end
 
@@ -1766,7 +1796,10 @@ path.指定换班 = function()
       tap("筛选")
     end, 5) then return end
 
-    appear({"筛选未进驻选中", "筛选未进驻"})
+    if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
+    if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
+      return
+    end
 
     if not findOne("筛选未进驻") then tap("筛选未进驻") end
 

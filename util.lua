@@ -324,6 +324,7 @@ findOne = function(x, confidence)
     else
       local color = shallowCopy(rfg[x0])
       table.extend(color, {x, confidence})
+      log(color)
       pos = findColor(color, confidence)
     end
     if pos then return {pos.x, pos.y} end
@@ -347,7 +348,11 @@ tap = function(x, retry, allow_outside_game)
   -- log(339)
   screen = getScreen()
   if screen.width < screen.height then
-    stop("分辨率" .. screen.width .. 'x' .. screen.height .. '非横屏')
+    stop("分辨率" .. screen.width .. 'x' .. screen.height .. '。非横屏')
+  end
+  if screen.width / screen.height < 16 / 9 then
+    stop("分辨率" .. screen.width .. 'x' .. screen.height ..
+           '。不支持平板')
   end
   local x0 = x
   if x == true then return true end
@@ -976,6 +981,8 @@ findtap_operator = function(operator)
         screen.width - 1, screen.height - 1,
       },
     })
+    res = res or {}
+
     for _, node in pairs(res) do
       log(node.text)
       for pattern, _ in pairs(operator_notfound) do
@@ -990,4 +997,44 @@ findtap_operator = function(operator)
       end
     end
   end
+end
+
+findtap_operator_type = function(operator)
+  operator_notfound = table.value2key(operator)
+  found = #operator
+  swipo(true)
+  -- swip 3 times only
+  for i = 1, 3 do
+    if found <= 0 then return end
+    if i ~= 1 then swipo() end
+    ssleep(1)
+    -- 616,107
+    local res = ocrp({
+      rect = {
+        math.round(616 * minscale), math.round(107 * minscale),
+        screen.width - 1, screen.height - 1,
+      },
+    })
+    res = res or {}
+
+    for _, node in pairs(res) do
+      log(node.text)
+      for pattern, _ in pairs(operator_notfound) do
+        if string.find(node.text, pattern) then
+          log('found', pattern)
+          tap(node.text_box_position[1])
+          operator_notfound[pattern] = nil
+          found = found - 1
+          if found == 0 then return end
+          break
+        end
+      end
+    end
+  end
+end
+
+timeit = function(f)
+  local start = time()
+  f()
+  log(time() - start)
 end

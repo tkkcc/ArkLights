@@ -8,15 +8,15 @@
 1. 支持明日方舟官服与B服。
 1. 支持常见真机、云手机及模拟器（安卓7至11，DPI>=320，分辨率>=720x1280，长宽比>=16:9）。
 1. 支持热更新。免root。极低等待耗时，快过手操。
-1. 不支持多帐号，不支持基建指定排班干员，不支持无人机加速贸易站，不支持赠送寻访，不检测代理失误。
+1. 不支持多帐号，不支持无人机加速贸易站，不支持赠送寻访，不检测代理失误，不区分赤金加速与经验加速干员。
 
 ## 安装
 
-下载[明日方舟速通](https://github.com/tkkcc/arknights/releases/latest/download/arknightsspeedrun.apk)。或在[节点精灵](http://card.nspirit.cn/getApk)中搜索5963。
+在[节点精灵](http://card.nspirit.cn/getApk)中搜索5963，或下载[明日方舟速通](https://github.com/tkkcc/arknights/releases/latest/download/arknightsspeedrun.apk)。
 
 ## 开发
 
-本仓库包含完整代码。开发参考[节点精灵开发文档](http://www.nspirit.cn/api)。
+开发参考[节点精灵开发文档](http://www.nspirit.cn/api)。
 命令行用户可以使用仓库中的`./0.sh`开发，例如通过`./0.sh saverun`上传代码并运行。
 
 ## 其他辅助（awesome-arknights-auto-helper）
