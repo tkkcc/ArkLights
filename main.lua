@@ -3,6 +3,7 @@
 -- speedrun=true
 -- debug = true
 -- disable_log = true
+-- unsafe_tap = true
 -- predebug = true
 -- verbose_fca = true
 -- no_dorm = true
@@ -47,6 +48,38 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+
+  start = time()
+  log(findOne("缩放结束"))
+  -- tap("主页")
+  -- tap("主页")
+  -- path.跳转("首页")
+  -- path.跳转("干员")
+  -- path.跳转("基建")
+
+  -- if not wait(function()
+  --   -- if findOne("副手确认蓝") then return true end
+  --   tap("升级")
+  --   log("升级")
+  -- end, 5) then return end
+
+  -- findOne("副手确认蓝")
+  -- findOne("副手确认蓝")
+  -- findOne("副手确认蓝")
+  -- findOne("副手确认蓝")
+  -- findOne("副手确认蓝")
+  -- tap("面板干员")
+  -- tap("面板干员")
+  -- tap("面板干员")
+  -- tap("面板干员")
+  -- tap("面板干员")
+  -- tap("干员1")
+  -- tap("干员1")
+  -- tap("干员1")
+  -- tap("干员1")
+  -- tap("干员1")
+  print(time() - start)
+  exit()
   path.跳转("基建")
   f = function(i, last)
     -- path.跳转("基建")
@@ -189,7 +222,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.08.29  1:09）",
+  title = "明日方舟速通（2021.09.01 21:59）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -200,7 +233,7 @@ local ui = {
       title = "作战",
       type = "edit",
       value = [[龙门市区,LMSQ,
-R8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
+4-4,4-9,7-15,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
       id = "fight",
     }, {
       title = "换班",
@@ -255,6 +288,7 @@ R8-2,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
 尽量使用常见字，比如用“子”而非“孑”
 
 每日任务速通准备：
+1. 用B服新号，比用官服老号快得多。
 1. 使用最快网络与设备。
 1. 确保有20个订单。
 1. 调整干员列表排序使右上角干员可升级。
@@ -395,7 +429,8 @@ if test_fight then
   run("轮次作战")
   exit()
 end
-if test_some then path.公招刷新() end
+if test_some then
+end
 
 local start_time = time()
 log("start")

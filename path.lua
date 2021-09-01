@@ -266,7 +266,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
           if not first_time_see_home then
             first_time_see_home = time()
           elseif (time() - first_time_see_home) > 1000 then
-            return true -- we see 主页 for 1 seconds, and target still not appear
+            return true -- we see 主页 for some time, and target still not appear
           end
         else
           first_time_see_home = nil
@@ -842,8 +842,8 @@ path.任务收集 = function()
 
   if speedrun then
     -- 只保留日常任务
-    point.任务有列表 = {point.任务有列表[3]}
-    point.任务有列表1 = point.任务有列表3
+    point.任务有列表2 = nil
+    point.任务有列表4 = nil
   end
 
   for i = 1, #point.任务有列表 do
@@ -1488,6 +1488,11 @@ path.访问好友 = function()
     if not findOne("主页") then return true end
     tap('访问基建')
   end, 10) then return end
+  if speedrun then
+    disappear("正在提交反馈至神经", 20)
+    appear("主页", 5)
+    return
+  end
 
   if not wait(function()
     if not disable_communication_check and
@@ -1519,11 +1524,16 @@ path.公招刷新 = function()
     log(1286)
     if not appear("公开招募箭头", 1) then return end
     log(1287)
-    -- 有灰，等待检测所有状态
-    local see = appear({
-      "聘用候选人列表" .. i, "公开招募列表" .. i,
-      "立即招募列表" .. i,
-    })
+    local see
+    if speedrun then
+      see = "公开招募列表" .. i
+    else
+      -- 有灰，等待检测所有状态
+      see = appear({
+        "聘用候选人列表" .. i, "公开招募列表" .. i,
+        "立即招募列表" .. i,
+      })
+    end
     log(1288)
 
     if see == "聘用候选人列表" .. i then
@@ -1700,13 +1710,10 @@ path.每日任务速通 = function()
   -- inspired by 1m57s https://www.bilibili.com/video/BV1P341167fe
   -- and 56s https://www.bilibili.com/video/BV1aM4y1L72i
   speedrun = true
-  log(1615)
 
   path.干员升级()
-  log(1614)
   path.基建收获()
 
-  log(1616)
   -- 宿舍换班 2次， may be this should be removed
   path.跳转("基建")
   f = function(i, last)
@@ -1762,9 +1769,9 @@ path.每日任务速通 = function()
 
   f(1)
   f(1, true)
-
   path.信用购买()
   path.公招刷新()
+
   path.任务收集()
 end
 
@@ -1845,6 +1852,12 @@ path.指定换班 = function()
       end
     end, 5) then return end
 
+    tap("清空选择")
+    if not wait(function()
+      if findOne("干员未选中") then return true end
+      tap("清空选择")
+    end, 5) then return end
+
     if not wait(function()
       if findOne("筛选取消") then return true end
       tap("筛选")
@@ -1881,13 +1894,10 @@ path.指定换班 = function()
       appear("确认蓝")
     end, 5) then return end
 
-    if not wait(function()
-      if findOne("干员未选中") then return true end
-      tap("清空选择")
-    end, 5) then return end
-
-    -- findtap_operator(operator)
+    swipo(true)
+    ssleep(2)
     findtap_operator_fast(operator)
+    swipo(true)
 
     if not wait(function()
       if findAny({

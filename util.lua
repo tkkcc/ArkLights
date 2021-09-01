@@ -341,31 +341,20 @@ findAll = function(x, confidence)
   return findColors(color)
 end
 
-tap_nil_count = 0
+first_time_tap_nil = time()
 -- x={2,3} "信用" func nil
 tap = function(x, retry, allow_outside_game)
-  -- log(338)
-  if not allow_outside_game then wait_game_up() end
-  -- log(339)
-  screen = getScreen()
-  if screen.width < screen.height then
-    stop("分辨率" .. screen.width .. 'x' .. screen.height .. '。非横屏')
-  end
-  if screen.width / screen.height < 16 / 9 then
-    stop("分辨率" .. screen.width .. 'x' .. screen.height ..
-           '。不支持平板')
-  end
+  if not unsafe_tap and not allow_outside_game then wait_game_up() end
   local x0 = x
   if x == true then return true end
   if x == nil then
-    tap_nil_count = tap_nil_count + 1
-    if tap_nil_count > 50 then -- about 5 s ?
+    first_time_tap_nil = time()
+    if time() - first_time_tap_nil > 5000 then -- 5 seconds
       tap("返回")
-      tap_nil_count = 0
+      first_time_tap_nil = time()
     end
     return
   end
-
   if type(x) == "function" then return x() end
   if type(x) == "string" and not x:find(coord_delimeter) then
     x = point[x]
@@ -437,6 +426,7 @@ end
 -- swip to end
 swipe = function(x)
   log("swipe", x)
+  wait_game_up()
   local duration = 150
   local x1 = screen.width - math.round(300 * minscale) - 1
   local d = x == "right" and x1 or -x1
@@ -542,7 +532,6 @@ swipo = function(left)
   log(finger)
   gesture(finger, duration)
   sleep(duration)
-  if left then ssleep(1) end
 end
 
 swip = function(dis)
@@ -593,7 +582,6 @@ zoom = function(retry)
 end
 
 auto = function(p, fallback, timeout)
-  wait_game_up()
   if type(p) == "function" then return p() end
   if type(p) ~= "table" then return true end
   while true do
@@ -717,6 +705,7 @@ run = function(...)
   menuConfig({x = 0, y = screen.height})
   logConfig({mode = 3})
   update_state()
+  wait_game_up()
   for _, v in ipairs(arg) do
     running = v
     if type(v) == 'function' then
@@ -915,7 +904,13 @@ wait_game_up = function(retry)
   if retry > 3 then stop("不能启动游戏") end
   local game = R():name(appid):path("/FrameLayout/View")
   local screen = getScreen()
-  if screen.width > screen.height and find(game) then return end
+  if screen.width > screen.height and find(game) then
+    if screen.width / screen.height < 16 / 9 then
+      stop("分辨率" .. screen.width .. 'x' .. screen.height ..
+             '。不支持平板')
+    end
+    return
+  end
   bilibili_login_hook()
   open()
   appear(game, 5)
@@ -1022,11 +1017,10 @@ end
 findtap_operator_fast = function(operator)
   operator_notfound = table.value2key(operator)
   found = #operator
-  -- swipo(true)
   -- swip 3 times only
   for i = 1, 3 do
     if found <= 0 then return end
-    swipo(i == 1 and true or false)
+    if i ~= 1 then swipo() end
 
     -- TODO: wait for 节点精灵 fix bug
     -- we must ocr on small region if we want to use position

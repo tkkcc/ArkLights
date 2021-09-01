@@ -49,8 +49,8 @@
 ### 记录
 
 - [39.75s！明日方舟每日任务速刷突破40s](https://www.bilibili.com/video/BV1Ky4y1572P)
+- [【明日方舟】【TAS】每日任务速通40.48秒](https://www.bilibili.com/video/BV1i44y1k7Nx)
 - [44.12秒！再次突破记录！明日方舟每日任务速通再次突破【any%】](https://www.bilibili.com/video/BV1zh411i7ea)
-- [【明日方舟】【TAS】每日任务速通52.22秒失败记录](https://www.bilibili.com/video/BV1i44y1k7Nx)
 - [1分57秒！【明日方舟】每日任务速通极限再突破！](https://www.bilibili.com/video/BV1P341167fe)
 
 ### 使用
