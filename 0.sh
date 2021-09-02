@@ -2,7 +2,7 @@
 {
   init() {
     declare -A serial
-    serial=([k40]=df7592c8 [l]=localhost:5555)
+    serial=([k40]=df7592c8 [l]=localhost:5555 [z9]=172.30.25.19:5555 )
     export ANDROID_SERIAL=${serial[${1:-l}]}
     adb forward --remove tcp:9095
     adb forward --remove tcp:9090

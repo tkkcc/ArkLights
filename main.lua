@@ -4,6 +4,8 @@
 -- debug = true
 -- disable_log = true
 -- unsafe_tap = true
+zero_wait_click = true
+check_after_tap = true
 -- predebug = true
 -- verbose_fca = true
 -- no_dorm = true
@@ -49,138 +51,17 @@ if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
 
-  start = time()
-  log(findOne("缩放结束"))
-  -- tap("主页")
-  -- tap("主页")
-  -- path.跳转("首页")
-  -- path.跳转("干员")
-  -- path.跳转("基建")
-
-  -- if not wait(function()
-  --   -- if findOne("副手确认蓝") then return true end
-  --   tap("升级")
-  --   log("升级")
-  -- end, 5) then return end
-
-  -- findOne("副手确认蓝")
-  -- findOne("副手确认蓝")
-  -- findOne("副手确认蓝")
-  -- findOne("副手确认蓝")
-  -- findOne("副手确认蓝")
-  -- tap("面板干员")
-  -- tap("面板干员")
-  -- tap("面板干员")
-  -- tap("面板干员")
-  -- tap("面板干员")
-  -- tap("干员1")
-  -- tap("干员1")
-  -- tap("干员1")
-  -- tap("干员1")
-  -- tap("干员1")
-  print(time() - start)
-  exit()
-  path.跳转("基建")
-  f = function(i, last)
-    -- path.跳转("基建")
-    if not wait(function()
-      if not findOne("进驻总览") or not findOne("缩放结束") then
-        return true
-      end
-      tap("宿舍列表" .. i)
-    end, 10) then return end
-    if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
-    if not wait(function()
-      if findOne("确认蓝") then return true end
-      if findOne("进驻信息选中") then
-        wait(function()
-          if findOne("确认蓝") then return true end
-          tap("进驻第一人")
-        end, 1)
-      elseif findOne("进驻信息") then
-        tap("进驻信息")
-        ssleep(.2)
-        wait(function()
-          if findOne("确认蓝") then return true end
-          tap("进驻第一人")
-        end, 1)
-      end
-    end, 5) then return end
-    tap("清空选择")
-    if not wait(function()
-      if findOne("干员未选中") then return true end
-      tap("清空选择")
-    end, 5) then return end
-    -- local state = sample("心情")
-    -- tap("心情")
-    -- disappear(state, 1)
-    -- state = sample("心情")
-    -- tap("心情")
-    -- disappear(state, 1)
-    -- for j = 6, 6 + 6 do tap("干员选择列表" .. j) end
-    tapAll({
-      "干员选择列表6", "干员选择列表7", "干员选择列表8",
-      "干员选择列表9", "干员选择列表10", "干员选择列表11",
-    })
-
-    local exit_state = {"进驻信息", "进驻信息选中"}
-    if last then table.insert(exit_state, "正在提交反馈至神经") end
-    if not wait(function()
-      if findAny(exit_state) then return true end
-      tap("确认蓝")
-    end, 5) then return end
-  end
-
-  f(1)
-  -- f(1, true)
-  exit()
   log(findOne("主页"))
-  log(findOne("个人名片"))
-  exit()
-  timeit(function() path.跳转("基建") end)
-  exit()
-  local x
-  x = {
-    '#161614-80',
-    '[{"a":-0.027,"d":2.063,"id":"1","r":232.0,"s":"19|5W&5W&co&co&py&lGv&lGv&lGu&O)&m$&Ni&J~&J~&1nW&18dG&18dK&18dG&2LC&2E>&2r!&2r!&2r!&2r!&4TK&53[&aYe&aYe&aYe&aYe&2Sa"}]',
-    0.85,
-  }
-  -- x = {'#19191C-80','[{"a":-0.299,"d":1.891,"id":"1","r":116.0,"s":"10|6G&d9&c?&cv&cv&cv&cv&cD&d9&d9&cU&co&co&co&co&co&co&co"}]',0.85}
-  -- x = {'#19191C-80','[{"a":0.016,"d":1.955,"id":"1","r":132.0,"s":"10|bQ&bQ&bQ&cC&d6&d6&6E&6E&6E&6E&6E&6E&d8&cC&cC&cD&cD&bR&bC"}]',0.85}
-  x = {
-    '#19192A-80,#282000-80,#141422-80',
-    '[{"a":0.003,"d":2.829,"id":"1","r":110.0,"s":"8|3l&3l&3k&36&36&36&3e&3e&3l&3l&3e&3e&36&36&36&3e&3l&3l&1M"}]',
-    0.85,
-  }
-  res = findShape(x)
-  for k, v in pairs(res) do
-    -- if res.sim > 0.9 then
-    -- print(v.id); -- 图形id
-
-    -- end
-    log(v); -- 图形相似度
-    -- print(v.scale); -- 图形的缩放倍数
-    -- print(v.x); -- 图形重心 x坐标
-    -- print(v.y); -- 图形重心 y坐标
-  end
-  log(#res)
-  -- log(findTap("赤金加速"))
-  -- zoom()
-  -- log(findOne("缩放结束"))
-  -- swipo()
-  -- findtap_operator("杜")
-  -- exit()
-  -- log(48)
-  -- start = time()
-  -- local res = ocrp({});
-  -- for _, v in pairs(res) do
-  --   if string.find(v.text, "杜") then tap(v.text_box_position[1]) end
-  -- end
-  -- log(time() - start)
-
-  -- swipo()
-  -- findtap_operator({"杜", "芬", "林者"})
-  -- exit()
+  log(findOne("主页按过"))
+  -- tapAll({
+  --   "干员选择列表6", "干员选择列表7", "干员选择列表8",
+  --   "干员选择列表9", "干员选择列表10", "干员选择列表11",
+  --   "干员选择列表12",
+  -- })
+  -- tap("访问下位橘")
+  -- tap("访问下位橘")
+  -- tap("访问下位橘")
+  -- tap("访问下位橘")
   exit()
 end
 
@@ -222,7 +103,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.09.01 21:59）",
+  title = "明日方舟速通（2021.09.02 22:47）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -263,13 +144,13 @@ local ui = {
 1. 如果作战滑动距离错误，请尝试切换双指滑动选项。
 
 已知问题：
-1. 危机合约被使用次数弹窗导致速通失败。
-1. 基建收获有概率被跳过。
-1. 好友界面跳转其他失败。
+1. 基建收获有概率遗漏。
 1. 线索搜集有概率卡住。
+1. 副手换人有概率错过。
 1. 换班时进入进驻总览后有长时间等待。
 1. 主页展开有至多0.5s延时，影响速通时从宿舍跳转采购中心。
-1. 指定换班OCR在低分辨率（如720p）的错误率较高。
+1. 指定换班OCR目前错误率较高。
+1. 危机合约被使用次数弹窗导致速通慢0.7s。
 
 指定换班策略：
 每行表示由设施、时间与干员组组成。换该设施时，将使用时间上大于脚本启动时间的最近设置干员。干员组可以不满或留空，但每个干员只能是单字。一个针对贸易站的设置为
@@ -398,13 +279,17 @@ log(facility2operator)
 
 if test_fight then
   fight = {
-    "0-8", "1-9", "2-9", "S3-7", "4-10", "5-9", "6-10", "7-14", "R8-2",
-    -- "积水潮窟", "切尔诺伯格", "龙门外环", "龙门市区",
-    -- "废弃矿区", "大骑士领郊外", "北原冰封废城", "PR-A-1",
+    "CA-5", "CE-5", 'AP-5', 'SK-5', 'LS-5', "PR-D-2", "PR-C-2", "PR-B-2",
+    "PR-A-2",
+
     -- "PR-A-2", "PR-B-1", "PR-B-2", "PR-C-1", "PR-C-2", "PR-D-1", "PR-D-2",
     -- "CE-1", "CE-2", "CE-3", "CE-4", "CE-5", "CA-1", "CA-2", "CA-3", "CA-4",
     -- "CA-5", "AP-1", "AP-2", "AP-3", "AP-4", "AP-5", "LS-1", "LS-2", "LS-3",
     -- "LS-4", "LS-5", "SK-1", "SK-2", "SK-3", "SK-4", "SK-5", "0-1", "0-2", "0-3",
+    -- "0-8", "1-9", "2-9", "S3-7", "4-10", "5-9", "6-10", "7-14", "R8-2",
+    --
+    -- "积水潮窟", "切尔诺伯格", "龙门外环", "龙门市区",
+    -- "废弃矿区", "大骑士领郊外", "北原冰封废城", "PR-A-1",
     -- "0-4", "0-5", "0-6", "0-7", "0-8", "0-9", "0-10", "0-11", "1-1", "1-3",
     -- "1-4", "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12", "2-1",
     -- "2-2", "2-3", "2-4", "2-5", "2-6", "2-7", "2-8", "2-9", "2-10", "S2-1",
@@ -429,8 +314,7 @@ if test_fight then
   run("轮次作战")
   exit()
 end
-if test_some then
-end
+if test_some then end
 
 local start_time = time()
 log("start")

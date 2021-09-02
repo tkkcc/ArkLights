@@ -22,7 +22,7 @@ end
 function preload()
   -- ocr initialization needs 5 seconds
   -- ocr font need downlaod
-  pcall(ocr, 0, 0, 1, 1)
+  pcall(ocr, 0, 0, 1,1)
   print("preload finish")
 end
 
