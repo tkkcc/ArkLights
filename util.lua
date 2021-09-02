@@ -441,7 +441,7 @@ end
 -- swip to end
 swipe = function(x)
   log("swipe", x)
-  wait_game_up()
+  -- wait_game_up()
   local duration = 150
   local x1 = screen.width - math.round(300 * minscale) - 1
   local d = x == "right" and x1 or -x1
@@ -466,7 +466,7 @@ end
 -- input distance => {x,y,x',y',time} / list of them
 swipu = function(dis)
   log('swipu', dis)
-  wait_game_up()
+  -- wait_game_up()
   -- preprocess distance
   if type(dis) == "string" then dis = distance[dis] end
   if type(dis) ~= "table" then dis = {dis} end
@@ -554,7 +554,7 @@ swip = function(dis)
   if type(dis) ~= "table" then dis = {dis} end
   if not dis then return end
   for _, d in pairs(dis) do
-    -- if i ~= 1 then ssleep(0.05) end
+    if i ~= 1 then ssleep(0.1) end
     if math.abs(d) == swip_right_max then
       swipe(d == swip_right_max and "right" or "left")
     else

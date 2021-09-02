@@ -1195,10 +1195,22 @@ path.主线 = function(x)
     path.跳转("首页")
     tap("面板作战")
     if not appear("主页") then return end
-    -- this wait is needed for K40
-    ssleep(.2)
-    tap("主题曲")
-    if not appear("怒号光明") then return end
+
+    -- if not wait(function()
+    --   if findOne("主题曲", 90) and not findOne("资源收集", 90) and
+    --     not findOne("每周部署", 90) then return true end
+    --   tap("主题曲")
+    -- end) then return end
+
+    -- log(findOne("主题曲", 90))
+    -- log(findOne("资源收集", 90))
+    -- log(findOne("每周部署", 90))
+
+    if not appear("主页") then return end
+    if not wait(function()
+      if findOne("怒号光明") then return true end
+      tap("主题曲")
+    end) then return end
 
     if chapter_index <= 4 then
       tap("觉醒")
@@ -1327,8 +1339,23 @@ path.物资芯片 = function(x)
     path.跳转("首页")
     tap("面板作战")
     if not appear("主页") then return end
-    ssleep(.2)
+
+    if not wait(function()
+      if findOne("怒号光明") then return true end
+      tap("主题曲")
+    end) then return end
+
+    -- if not wait(function()
+    --   if findOne("资源收集", 90) and not findOne("主题曲", 90) and
+    --     not findOne("每周部署", 90) then return true end
     tap("资源收集")
+    -- end) then return end
+    -- if not wait(function()
+    --   if findOne("资源收集", 90) then return true end
+    --   tap("资源收集")
+    -- end) then return end
+    -- ssleep(.5)
+    -- tap("资源收集")
     ssleep(.2)
     log("资源收集", index, point["资源收集列表" .. index])
     local p = point["资源收集列表" .. index][1]
@@ -1372,8 +1399,21 @@ path.剿灭 = function(x)
   path.跳转("首页")
   tap("面板作战")
   if not appear("主页") then return end
-  ssleep(.2)
+
+  if not wait(function()
+    if findOne("怒号光明") then return true end
+    tap("主题曲")
+  end) then return end
+
+  -- if not wait(function()
+  --   if findOne("每周部署", 90) and not findOne("主题曲", 90) and
+  --     not findOne("资源收集", 90) then return true end
   tap("每周部署")
+  -- end) then return end
+  -- if not wait(function()
+  --   if findOne("每周部署", 90) then return true end
+  --   tap("每周部署")
+  -- end) then return end
 
   if not findOne("主页") then return end
   if not wait(function()
@@ -1603,7 +1643,6 @@ path.公招刷新 = function()
         if not findOne("公开招募箭头") then return true end
         tap("公开招募列表" .. i)
       end, 5) then return end
-
 
       g = function()
         local empty_tags = true

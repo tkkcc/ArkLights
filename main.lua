@@ -50,8 +50,12 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  while true do 
+    if findOne("资源收集", 90) then log(1) end
+    if findOne("主题曲", 90) then log(2) end
+    if findOne("每周部署", 90) then log(3) end
+end
 
-  log(findOne("主页"))
   log(findOne("主页按过"))
   -- tapAll({
   --   "干员选择列表6", "干员选择列表7", "干员选择列表8",
@@ -103,7 +107,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.09.02 22:47）",
+  title = "明日方舟速通（2021.09.03  0:02）",
   cache = not no_config_cache,
   width = -1,
   height = -1,

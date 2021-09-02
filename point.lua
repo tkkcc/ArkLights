@@ -570,10 +570,9 @@ point = {
     ["M8-7"] = {960, 700},
     ["M8-6"] = {960, 700},
   },
-  主题曲 = {400, 1000},
-  插曲 = {700, 1000},
-  资源收集 = {1200, 1000},
-  每周部署 = {1500, 1000},
+  主题曲 = "407,963,#ECECEC",
+  资源收集 = "1229,963,#ECECEC",
+  每周部署 = "1504,963,#ECECEC",
   觉醒 = {95, 198},
   幻灭 = {95, 349},
   炎国龙门 = {460, 700},
@@ -953,11 +952,11 @@ center = {
   觉醒 = "left_center",
   幻灭 = "left_center",
 
-  主题曲 = "center_bottom_maxscale",
-  资源收集 = "center_bottom_maxscale",
-  插曲 = "center_bottom_maxscale",
-  别传 = "center_bottom_maxscale",
-  每周部署 = "center_bottom_maxscale",
+  主题曲 = "center_bottom_maxscalex",
+  资源收集 = "center_bottom_maxscalex",
+  插曲 = "center_bottom_maxscalex",
+  别传 = "center_bottom_maxscalex",
+  每周部署 = "center_bottom_maxscalex",
 
   面板作战 = "right_center",
   面板作战活动上 = "right_center",
@@ -1254,7 +1253,10 @@ convert_coords = function(point)
   local origin_center, new_center
   local hs, ws
   for k, v in pairs(point) do
-    if center[k] and center[k]:find("maxscale") then
+    if center[k] and center[k]:find("maxscalex") then
+      hs = hscale
+      ws = maxscale
+    elseif center[k] and center[k]:find("maxscale") then
       hs = maxscale
       ws = maxscale
     elseif center[k] and center[k]:find("anisotropy") then
