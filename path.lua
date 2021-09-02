@@ -125,9 +125,10 @@ path.基建收获 = function()
   log(130)
   wait(function()
     if not findOne("进驻总览") then return true end
-    ssleep(.1)
     tap("点击全部收取2")
+    ssleep(.1)
     tap(x)
+    disappear("进驻总览", .1)
   end, 10)
   log(131)
 
@@ -177,8 +178,9 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     任务 = "面板任务",
     终端 = "面板作战",
   }
-  local timeout = (x == "基建" or prev_jump == "基建") and 20 or 20
-  if prev_jump == "采购中心" then timeout = 20 end
+  local timeout = 20
+  -- local timeout = (x == "基建" or prev_jump == "基建") and 20 or 20
+  -- if prev_jump == "采购中心" then timeout = 20 end
 
   local target = sign[x]
   local home_target = x == "邮件" and "首页" or x
@@ -193,6 +195,17 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     return true
   end
 
+  -- TODO: manually make 返回确认 for zero_wait_click
+  -- if x == "基建" and prev_jump == "基建" then
+  --   if not wait(function()
+  --     if findAny({
+  --       "返回确认", "返回确认2", "活动公告返回", "签到返回",
+  --       "活动签到返回", "抽签返回",
+  --     }) then return true end
+  --     tap("返回")
+  --   end, 10) then return end
+  -- end
+
   local bypass = function(t)
     log("bypass 基建返回确认", prev_jump)
     if prev_jump == "基建" and appear({"返回确认", t}) == "返回确认" then
@@ -204,6 +217,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     log("bypass 基建返回确认", "end")
     return true
   end
+
   local p
   p = update(path.base, {
     面板 = function()
@@ -232,9 +246,12 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
           --
           -- if not y or not findOne(y) then
           if home_target == "任务" or home_target == "好友" then
-            ssleep(.1)
+            ssleep(.2)
           end
-          wait(function() tap("主页列表" .. home_target) end, .5)
+          wait(function()
+            if not findAny({"返回", "返回2"}) then return true end
+            tap("主页列表" .. home_target)
+          end, .5)
           return true
         end
 
@@ -336,7 +353,7 @@ path.副手换人 = function()
   path.跳转("基建")
 
   if not wait(function()
-    if not findOne("进驻总览") or not findOne("控制中枢") then
+    if not findOne("进驻总览") or not findOne("缩放结束") then
       return true
     end
     tap("控制中枢")
@@ -419,11 +436,14 @@ path.基建换班 = function()
         end, 1)
       end
     end, 5) then return end
-    tap("清空选择")
+
     if not wait(function()
-      if findOne("干员未选中") then return true end
+      if findOne("干员未选中") and findOne("筛选横线") then
+        return true
+      end
       tap("清空选择")
     end, 5) then return end
+    -- ssleep(.2)
 
     -- local state = sample("心情")
     -- tap("心情")
@@ -432,7 +452,11 @@ path.基建换班 = function()
     -- tap("心情")
     -- disappear(state, 1)
 
-    -- for j = 6, 6 + 6 do tap("干员选择列表" .. j) end
+    -- for j = 6, 6 + 6 do tap("干员选择列表" .. j, nil, true) end
+
+    -- TODO: 确认蓝 need fix
+    -- ssleep(.5)
+
     tapAll({
       "干员选择列表6", "干员选择列表7", "干员选择列表8",
       "干员选择列表9", "干员选择列表10", "干员选择列表11",
@@ -496,17 +520,19 @@ path.基建换班 = function()
       end
     end, 10) then return end
 
-    local limit = findOne("清空选择") and 6 or 1
+    local limit = findOne("清空选择") and 7 or 1
 
     if not wait(function()
       if findOne("筛选取消") then return true end
       tap("筛选")
     end, 5) then return end
 
+    log(521)
     if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
     if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
       return
     end
+    log(522)
 
     if not findOne("筛选未进驻选中") then
       if not wait(function()
@@ -525,31 +551,23 @@ path.基建换班 = function()
     end
 
     if not wait(function()
-      if findOne("确认蓝") then return true end
+      if not findOne("筛选取消") then return true end
       tap("筛选确认")
-      appear("确认蓝")
     end, 5) then return end
 
-    tap("清空选择")
     if not wait(function()
-      if findOne("干员未选中") then return true end
+      if findOne("干员未选中") and findOne("筛选横线") then
+        return true
+      end
       tap("清空选择")
     end, 5) then return end
-    -- we won't use the method in the future, so just wait
-    -- ssleep(.1)
-
-    -- if not wait(function()
-    --   if not findOne("干员未选中") then return true end
-    -- for j = 1, limit do tap("干员选择列表" .. j) end
-    if limit == 1 then
-      tap("干员选择列表1")
-    else
-      tapAll(table.slice({
-        "干员选择列表1", "干员选择列表2", "干员选择列表3",
-        "干员选择列表4", "干员选择列表5", "干员选择列表6",
-        "干员选择列表7",
-      }, 1, limit))
-    end
+    log("limit", limit)
+    tapAll(table.slice({
+      "干员选择列表1", "干员选择列表2", "干员选择列表3",
+      "干员选择列表4", "干员选择列表5", "干员选择列表6",
+      "干员选择列表7",
+    }, 1, limit))
+    -- end
     -- disappear("干员未选中", 1)
     -- end, 5) then return true end
 
@@ -561,7 +579,7 @@ path.基建换班 = function()
     return true
   end
 
-  local bottom = sample("进驻总览底部")
+  local bottom
   local reach_bottom = false
   for i = 1, 15 do
     if i ~= 1 then
@@ -570,6 +588,8 @@ path.基建换班 = function()
     end
     while f(i) do log(475) end
     if reach_bottom then break end
+    -- sample bottom after first detect
+    if not bottom then bottom = sample("进驻总览底部") end
   end
   if not findOne("撤下干员") then return end
   tap("返回")
@@ -1369,7 +1389,6 @@ path.剿灭 = function(x)
     if not wait(function()
       if not findOne("当前委托侧边栏") then return true end
       tap("作战列表" .. x)
-      disappear("当前委托侧边栏")
     end, 5) then return end
 
     log(1287)
@@ -1741,9 +1760,11 @@ path.每日任务速通 = function()
         end, 1)
       end
     end, 5) then return end
-    tap("清空选择")
+    -- tap("清空选择")
     if not wait(function()
-      if findOne("干员未选中") then return true end
+      if findOne("干员未选中") and findOne("筛选横线") then
+        return true
+      end
       tap("清空选择")
     end, 5) then return end
     -- local state = sample("心情")
@@ -1852,9 +1873,11 @@ path.指定换班 = function()
       end
     end, 5) then return end
 
-    tap("清空选择")
+    -- tap("清空选择")
     if not wait(function()
-      if findOne("干员未选中") then return true end
+      if findOne("确认蓝") and findOne("干员未选中") then
+        return true
+      end
       tap("清空选择")
     end, 5) then return end
 
@@ -1885,15 +1908,13 @@ path.指定换班 = function()
     end
 
     -- if not findOne("筛选未进驻") then tap("筛选未进驻") end
-
     -- if not findOne("筛选技能降序") then tap("筛选技能降序") end
-
     if not wait(function()
-      if findOne("确认蓝") then return true end
+      if not findOne("筛选取消") then return true end
       tap("筛选确认")
-      appear("确认蓝")
     end, 5) then return end
-
+    appear("筛选横线", 1)
+    ssleep(1)
     swipo(true)
     ssleep(2)
     findtap_operator_fast(operator)

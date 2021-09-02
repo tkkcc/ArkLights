@@ -344,7 +344,10 @@ end
 first_time_tap_nil = time()
 -- x={2,3} "信用" func nil
 tap = function(x, retry, allow_outside_game)
-  if not unsafe_tap and not allow_outside_game then wait_game_up() end
+  if not unsafe_tap and not allow_outside_game and not check_after_tap then
+    wait_game_up()
+  end
+
   local x0 = x
   if x == true then return true end
   if x == nil then
@@ -367,8 +370,19 @@ tap = function(x, retry, allow_outside_game)
   end
   log("tap", x0, x)
   if type(x) ~= "table" then return end
-  -- log('click', x[1], x[2], type(x[1]))
-  click(x[1], x[2])
+  -- log(373)
+  if zero_wait_click then
+    gesture({{{x = x[1], y = x[2]}}}, 1)
+    sleep(2)
+    -- log(374)
+  else
+    click(x[1], x[2])
+  end
+
+  if not unsafe_tap and not allow_outside_game and check_after_tap then
+    wait_game_up()
+  end
+
   -- log(399)
   if retry then return end
 
@@ -381,6 +395,7 @@ tap = function(x, retry, allow_outside_game)
       log(352)
     end, 10)
   end
+  -- log(375)
 end
 
 -- quick multiple swip, for fights
@@ -539,6 +554,7 @@ swip = function(dis)
   if type(dis) ~= "table" then dis = {dis} end
   if not dis then return end
   for _, d in pairs(dis) do
+    -- if i ~= 1 then ssleep(0.05) end
     if math.abs(d) == swip_right_max then
       swipe(d == swip_right_max and "right" or "left")
     else
@@ -650,12 +666,12 @@ auto = function(p, fallback, timeout)
             if fallback then
               log("tap fallback[x]")
               tap(fallback[x])
+              disappear("返回确认", .5)
             else
               tap("右确认")
             end
-            disappear("返回确认", .5)
           end, 10) then return end
-          if appear("进驻总览") then leaving_jump = true end
+          if appear("进驻总览", 1) then leaving_jump = true end
 
           -- wait(function()
           --   if not findOne(x) then return true end
@@ -1110,13 +1126,13 @@ timeit = function(f)
 end
 
 tapAll = function(ks)
-  local duration = 1
+  log("tapAll", ks)
+  local duration = 100 -- 1 漏 20漏 50 漏 1000可以，问题还是在前一步
   local finger = {}
   for _, k in pairs(ks) do
     table.insert(finger, {{x = point[k][1], y = point[k][2]}})
   end
-  log(finger)
+  -- log(finger)
   gesture(finger, duration)
   sleep(duration)
-  -- ssleep(1)
 end
