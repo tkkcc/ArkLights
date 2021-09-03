@@ -50,6 +50,23 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+
+  local region = {
+    {590, 487, 1919, 523}, {1033, 487, 1491, 523}, {1464, 487, 1919, 523},
+    {590, 907, 1059, 943}, {1033, 907, 1491, 943}, {1464, 907, 1919, 943},
+  }
+
+  -- {0,0,0,0,"1059,457,#D2D1D1|1033,455,#FFFFFF|1464,443,#D1CACE|1491,446,#D6D5D5",95}
+
+  local r = region[1]
+  text, info = ocr_fast(math.round(minscale * r[1]),
+                        math.round(minscale * r[2]),
+                        math.round(minscale * r[3]), math.round(minscale * r[4]))
+  log(text, info)
+  -- p={}
+  -- ocr_text, _ = ocr_fast(table.unpack(p))
+  exit()
+
   zoom()
   log(findOne("缩放结束"))
   exit()
@@ -57,7 +74,7 @@ if predebug then
   --   if findOne("资源收集", 90) then log(1) end
   --   if findOne("主题曲", 90) then log(2) end
   --   if findOne("每周部署", 90) then log(3) end
--- end
+  -- end
 
   log(findOne("主页按过"))
   -- tapAll({
@@ -110,7 +127,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.09.03 22:38）",
+  title = "明日方舟速通（2021.09.04  0:18）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -145,10 +162,10 @@ local ui = {
       type = "text",
       value = [[
 须知：
-1. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡应采用该方式刷。
-1. 刘海屏需要修改系统设置使得明日方舟全屏显示，两侧无黑边。
+1. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡或跳转失败关卡应采用该方式刷。
+1. 游戏必须全屏显示，两侧无刘海黑边，无虚拟键。
 1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
-1. 如果作战滑动距离错误，请尝试切换双指滑动选项。
+1. 如果作战滑动距离错误，请尝试切换双指滑动选项，并反馈给我。
 
 已知问题：
 1. 基建收获有概率遗漏。
@@ -156,7 +173,7 @@ local ui = {
 1. 副手换人有概率错过。
 1. 换班时进入进驻总览后有长时间等待。
 1. 主页展开有至多0.5s延时，影响速通时从宿舍跳转采购中心。
-1. 指定换班OCR目前错误率较高。
+1. 指定换班OCR错误率极高。
 1. 危机合约被使用次数弹窗导致速通慢0.7s。
 
 指定换班策略：
@@ -183,6 +200,7 @@ local ui = {
 1. 公开招募全部留空。
 1. 撤下全部干员。
 1. 进入一次信用交易所。
+1. 展示日常任务界面。
 ]],
     }, {
       type = 'div',

@@ -919,6 +919,15 @@ wait_game_up = function(retry)
   retry = retry or 0
   if retry > 3 then stop("不能启动游戏") end
   local game = R():name(appid):path("/FrameLayout/View")
+  local bilibili_wrapper = R():name(appid):path("/FrameLayout")
+  local bilibili_input = R():id(
+                           "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin")
+  local bilibili_login = R():id(
+                           "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
+  local bilibili_oneclicklogin = R():id(
+                                   "com.hypergryph.arknights.bilibili:id/bsgamesdk_button_oneClickLogin")
+  local bilibili_ok = R():id("tv.danmaku.bili:id/ok")
+
   local screen = getScreen()
   if screen.width > screen.height and find(game) then
     if screen.width / screen.height < 16 / 9 then
@@ -927,9 +936,35 @@ wait_game_up = function(retry)
     end
     return
   end
-  bilibili_login_hook()
-  open()
-  appear(game, 5)
+  if appid ~= bppid then
+    open()
+    appear(game, 5)
+  else
+    if not appear({
+      game, bilibili_wrapper, bilibili_input, bilibili_oneclicklogin,
+      bilibili_ok,
+    }, 1) then
+      open()
+      appear(game, 5)
+    elseif find(bilibili_input) then
+      local username_inputbox = R():id(
+                                  "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_username_login");
+      local password_inputbox = R():id(
+                                  "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_password_login");
+      input(username_inputbox, username)
+      input(password_inputbox, password)
+      click(bilibili_login)
+      appear(game, 5)
+    elseif find(bilibili_oneclicklogin) then
+      click(bilibili_oneclicklogin)
+      appear(bilibili_ok, 5)
+    elseif find(bilibili_ok) then
+      click(bilibili_ok)
+      appear(game, 5)
+    elseif find(bilibili_wrapper) then
+
+    end
+  end
   -- ssleep(5)
   log("wait_game_up", retry)
   return wait_game_up(retry + 1)
@@ -939,7 +974,7 @@ bilibili_login_hook = function()
   if appid ~= bppid then return end
   local login = R():id(
                   "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
-  if not find(login) then return end
+  if not appear(login, 1) then return end
   local username_inputbox = R():id(
                               "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_username_login");
   local password_inputbox = R():id(
