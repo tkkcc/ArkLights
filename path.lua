@@ -589,7 +589,8 @@ path.基建换班 = function()
   for i = 1, 15 do
     if i ~= 1 then
       swipd()
-      if not findOne(bottom) then reach_bottom = true end
+      -- TODO wait bottom for stable
+      if not appear(bottom, .5) then reach_bottom = true end
     end
     while f(i) do log(475) end
     if reach_bottom then break end
@@ -705,7 +706,7 @@ path.线索搜集 = function()
       tap("信用奖励有")
     end, 5) then return end
 
-    if not appear("未达线索上限", .05) then
+    if not appear("未达线索上限", .1) and findOne("信用奖励返回") then
       tap("返回")
       appear("线索传递")
       clue_unlocked = false
@@ -713,6 +714,8 @@ path.线索搜集 = function()
       if not clue_unlocked then path.线索传递() end
       return f()
     end
+
+    -- if not findOne("信用奖励返回") then return f() end
 
     if findOne("信用奖励领取") then
       if not wait(function()
