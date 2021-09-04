@@ -128,7 +128,7 @@ path.基建收获 = function()
     tap("点击全部收取2")
     ssleep(.1)
     tap(x)
-    disappear("进驻总览", .1)
+    ssleep(.1)
   end, 10)
   log(131)
 
@@ -969,6 +969,8 @@ path.信用购买 = function()
     if not wait(function()
       if not findOne("信用交易所横线") then return true end
       tap("信用交易所列表" .. i)
+      -- 快速点击物品导致二次弹出
+      disappear("信用交易所横线", .1)
     end, 5) then return end
 
     if not wait(function()
@@ -1351,7 +1353,10 @@ path.物资芯片 = function(x)
     -- if not wait(function()
     --   if findOne("资源收集", 90) and not findOne("主题曲", 90) and
     --     not findOne("每周部署", 90) then return true end
-    tap("资源收集")
+    wait(function()
+      if not findOne("怒号光明") then return true end
+      tap("资源收集")
+    end, 1)
     -- end) then return end
     -- if not wait(function()
     --   if findOne("资源收集", 90) then return true end
@@ -1408,10 +1413,14 @@ path.剿灭 = function(x)
     tap("主题曲")
   end) then return end
 
+  wait(function()
+    if not findOne("怒号光明") then return true end
+    tap("每周部署")
+  end, 1)
   -- if not wait(function()
   --   if findOne("每周部署", 90) and not findOne("主题曲", 90) and
   --     not findOne("资源收集", 90) then return true end
-  tap("每周部署")
+  -- tap("每周部署")
   -- end) then return end
   -- if not wait(function()
   --   if findOne("每周部署", 90) then return true end

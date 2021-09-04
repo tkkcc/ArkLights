@@ -494,6 +494,7 @@ swipu = function(dis)
   for _, d in pairs(disf) do
     local duration = 200
     local delay = 50
+    -- local delay = 100 
     local x1 = screen.width - math.round(300 * minscale)
     if d > 0 then x1 = math.round(300 * minscale) end
     local y1 = math.round(128 * minscale)
@@ -553,7 +554,7 @@ swip = function(dis)
   if type(dis) == "string" then dis = distance[dis] end
   if type(dis) ~= "table" then dis = {dis} end
   if not dis then return end
-  for _, d in pairs(dis) do
+  for i, d in pairs(dis) do
     if i ~= 1 then ssleep(0.1) end
     if math.abs(d) == swip_right_max then
       swipe(d == swip_right_max and "right" or "left")
