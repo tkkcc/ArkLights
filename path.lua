@@ -255,7 +255,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
               return true
             end
             tap("主页列表" .. home_target)
-          end, x == "采购中心" and .2 or 5)
+          end, .5)
           return true
         end
 
@@ -426,17 +426,17 @@ path.基建换班 = function()
     end, 10) then return end
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
     if not wait(function()
-      if findOne("确认蓝") then return true end
+      if findOne("筛选") then return true end
       if findOne("进驻信息选中") then
         wait(function()
-          if findOne("确认蓝") then return true end
+          if findOne("筛选") then return true end
           tap("进驻第一人")
         end, 1)
       elseif findOne("进驻信息") then
         tap("进驻信息")
         ssleep(.2)
         wait(function()
-          if findOne("确认蓝") then return true end
+          if findOne("筛选") then return true end
           tap("进驻第一人")
         end, 1)
       end
@@ -519,10 +519,7 @@ path.基建换班 = function()
     if not appear("入驻干员", timeout) then return end
     if not wait(function()
       if findOne("确认蓝") then return true end
-      -- if not findOne("撤下干员") then return true end
-      if findOne("撤下干员") and findTap("入驻干员") then
-        disappear("撤下干员", 1)
-      end
+      if findOne("撤下干员") then findTap("入驻干员") end
     end, 10) then return end
 
     local limit = findOne("清空选择") and 7 or 1
@@ -561,9 +558,8 @@ path.基建换班 = function()
     end, 5) then return end
 
     if not wait(function()
-      if findOne("干员未选中") and findOne("筛选横线") then
-        return true
-      end
+      if findOne("干员未选中") and findOne("筛选横线") and
+        findOne("筛选") then return true end
       tap("清空选择")
     end, 5) then return end
     log("limit", limit)
@@ -1784,7 +1780,8 @@ path.干员升级 = function()
   tap("清空选择")
   findTap(point.录像列表)
   tap("副手确认蓝")
-  ssleep(.1)
+  -- TODO 0.1等待仍然可能直接跳转走，
+  ssleep(.2)
 end
 
 path.每日任务速通 = function()
@@ -1807,17 +1804,20 @@ path.每日任务速通 = function()
     end, 10) then return end
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
     if not wait(function()
-      if findOne("确认蓝") then return true end
+      log(1807)
+      if findOne("筛选") then return true end
+      log(1808)
       if findOne("进驻信息选中") then
         wait(function()
-          if findOne("确认蓝") then return true end
+          if findOne("筛选") then return true end
+          log(1809)
           tap("进驻第一人")
         end, 1)
       elseif findOne("进驻信息") then
         tap("进驻信息")
         ssleep(.2)
         wait(function()
-          if findOne("确认蓝") then return true end
+          if findOne("筛选") then return true end
           tap("进驻第一人")
         end, 1)
       end

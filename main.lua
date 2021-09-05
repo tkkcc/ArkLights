@@ -50,6 +50,7 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  log(findOne("筛选"))
 
   local region = {
     {590, 487, 1919, 523}, {1033, 487, 1491, 523}, {1464, 487, 1919, 523},
@@ -127,7 +128,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.09.04 20:29）",
+  title = "明日方舟速通（2021.09.06  0:25）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
