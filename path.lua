@@ -682,12 +682,17 @@ path.线索搜集 = function()
 
   log(588)
   --  TODO may be overlaped by notification
+  --  so we put it after some job without notification
   if findOne("接收线索有") then
     if not wait(function()
       if not findOne("线索传递") then return true end
       tap("接收线索有")
     end, 5) then return end
-    appearTap("全部收取")
+    if not appear("接收线索", 5) then return end
+    if not wait(function()
+      if not findOne("接收线索第一个") then return true end
+      tap("全部收取")
+    end, 5) then return end
     if not wait(function()
       if findOne("线索传递") then return true end
       tap("解锁线索上")
@@ -1049,14 +1054,15 @@ path.轮次作战 = function()
 end
 
 jianpin2name = {
-  JSCK = "积水潮窟",
-  CMHB = "潮没海滨",
+  DQWT = "当期委托",
+  -- JSCK = "积水潮窟",
+  -- CMHB = "潮没海滨",
   LMSQ = "龙门市区",
   LMWH = "龙门外环",
   QENBG = "切尔诺伯格",
-  BYBFFC = "北原冰封废城",
-  DQSLJW = "大骑士领郊外",
-  FQKQ = "废弃矿区",
+  -- BYBFFC = "北原冰封废城",
+  -- DQSLJW = "大骑士领郊外",
+  -- FQKQ = "废弃矿区",
 }
 
 path.作战 = function(x)
@@ -1380,7 +1386,7 @@ path.物资芯片 = function(x)
   end
 end
 
-jmfight_current = "积水潮窟"
+jmfight_current = ""
 is_jmfight_enough = function(x, outside)
   log("is_jmfight_enough", x)
   if ignore_jmfight_enough_check then return false end
@@ -1389,7 +1395,6 @@ is_jmfight_enough = function(x, outside)
 
   if not outside and findOne("报酬合成玉已满") or outside and
     findOne("报酬合成玉已满2") then
-
     log("find报酬合成玉已满")
     jmfight_enough = true
     return true
@@ -1413,6 +1418,7 @@ path.剿灭 = function(x)
     if not findOne("怒号光明") then return true end
     tap("每周部署")
   end, 1)
+
   -- if not wait(function()
   --   if findOne("每周部署", 90) and not findOne("主题曲", 90) and
   --     not findOne("资源收集", 90) then return true end
@@ -1976,11 +1982,8 @@ path.指定换班 = function()
       tap("筛选确认")
     end, 5) then return end
     appear("筛选横线", 1)
-    log(18)
     ssleep(1)
-    log(19)
     swipo(true)
-    log(20)
     ssleep(2)
     findtap_operator_fast(operator)
     swipo(true)

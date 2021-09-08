@@ -128,7 +128,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.09.06  0:25）",
+  title = "明日方舟速通（2021.09.08 21:25）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -138,8 +138,8 @@ local ui = {
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
       title = "作战",
       type = "edit",
-      value = [[龙门市区,LMSQ,
-4-4,4-9,7-15,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
+      value = [[当期委托,dqwt,龙门市区，LMSQ,
+4-4,4-9,1-7,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
       id = "fight",
     }, {
       title = "换班",
@@ -168,13 +168,11 @@ local ui = {
 1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
 1. 如果作战滑动距离错误，请尝试切换双指滑动选项，并反馈给我。
 
-已知问题：
-1. 基建收获有概率遗漏。
-1. 线索搜集有概率卡住。
-1. 副手换人有概率错过。
+待解决问题：
+1. 赤金经验加速不分
 1. 换班时进入进驻总览后有长时间等待。
 1. 主页展开有至多0.5s延时，影响速通时从宿舍跳转采购中心。
-1. 指定换班OCR错误率极高。
+1. 指定换班OCR错误率极高。干员只能单字。
 1. 危机合约被使用次数弹窗导致速通慢0.7s。
 
 指定换班策略：
