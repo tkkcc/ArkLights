@@ -1,6 +1,6 @@
 .vim/
 *.nsp
-*.apk
+*.apk*
 *.jpg
 *.png
 *.mp4

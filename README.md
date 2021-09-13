@@ -28,7 +28,8 @@
 1. [PRTS](https://github.com/AgainstEntropy/PRTS)：完成度还不足，使用autojs实现。
 1. [明日方舟托管助手](https://www.bilibili.com/video/BV1kA41147HA)：适配异形屏，但未适配红手指，等待耗时较多，收费，使用节点精灵实现。
 1. [明日方舟全日常辅助](https://github.com/tkkcc/arknights/tree/xxzhushou)：不再更新，只适配安卓8以下1920x1080分辨率已root机型，使用叉叉助手实现，本工具前身。
-1. [基于按键精灵安卓版的明日方舟脚本](https://github.com/Lancarus/a-mobile-anjian-script-for-arknight)：支持多账号，完成度高，但“为了适应云手机破烂的性能加大了很多地方的延时”。
+1. [明日再肝（基于按键精灵安卓版的明日方舟脚本）](https://github.com/Lancarus/a-mobile-anjian-script-for-arknight)：支持多账号，完成度高。
+1. [明日方舟自动化脚本](https://github.com/Nick-Hopps/Arkknights_autoscript)：目前只能刷图，使用autojs实现。
 
 ### 非板载（需PC算力）
 
@@ -37,12 +38,26 @@
 1. [MeoAssistance](https://github.com/MistEO/MeoAssistance)：使用C#实现。
 1. [ArknightsAutoHelper](https://github.com/GreenSulley/ArknightsAutoHelper)：使用python实现，by GreenSulley。
 1. [Arknights-Sora](https://github.com/zsppp/Arknights-Sora)：使用python实现。
+1. [完全基于深度学习的明日方舟小助手](https://github.com/leng-yue/ai-arkhelper)：开发中。
 
 ### 其他辅助平台（2021年7月测试）：
 
 1. 游戏蜂窝（按键精灵）：最新的2个脚本在2021年7月更新，收费，在红手指上试用时等待耗时极高。
 1. 触动精灵：最新的2个脚本在2021年5月更新，收费，在红手指上试用时未正常工作。
 1. 自动精灵：脚本较多，免费，完成度普遍较低。
+
+### 防沉迷
+
+1. [明日方舟防沉迷破解](https://github.com/Tao0Lu/Arknights_Anti-addiction_Cheater)
+1. [明日方舟屏蔽防沉迷](https://github.com/fhyuncai/Arknights-Anti-addiction)
+1. [B站游戏防沉迷不限制](https://github.com/FuckAntiAddiction/BiligameAddictionNotLimited)
+
+### 网络改包
+
+1. [明日方舟修改器](https://github.com/GhostStar/Arknights-Armada)
+1. [明日方舟中间人攻击框架](https://github.com/LXG-Shadow/Arknights-Dolos)
+1. [明日方舟破解-GUI](https://github.com/Tao0Lu/Arknights-Cheater)
+1. [Rhine-DFramwork](https://github.com/Rhine-Department-0xf/Rhine-DFramwork)
 
 ## 每日任务速通
 
@@ -56,7 +71,7 @@
 
 ### 使用
 
-1. 按说明做好准备后，仅勾选"每日任务速通"或"每日任务速通"，登出账号后再运行。
+1. 按说明做好准备后，仅勾选"每日任务速通"或"满练每日任务速通"，登出账号后再运行。
 
 ### 理论
 
@@ -88,7 +103,7 @@
 1 访问1次好友的基建
 ```
 排除其中一个使总耗时最低。
-本工具排除的是 访问1次好友的基建，但目前第二快记录排除的是 进行1次干员强化。实测前者慢2s左右。
+本工具排除的是 访问1次好友的基建，但目前第二快记录排除的是 进行1次干员强化。实测排除前者快2s左右。
 
 ## 任务排序理论
 
