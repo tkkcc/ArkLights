@@ -461,15 +461,16 @@ swipe = function(x)
 end
 
 -- TODO: 暂定安卓11以下的滑动需要双指滑动, 可以被用户override。
-android_verison_code = getAppinfo("android").versionCode
-if android_verison_code < 30 then
-  is_device_swipe_too_fast = true
-else
-  is_device_swipe_too_fast = false
-end
+-- android_verison_code = getAppinfo("android").versionCode
+-- if android_verison_code < 30 then
+--   is_device_swipe_too_fast = true
+-- else
+--   is_device_swipe_too_fast = false
+-- end
+is_device_swipe_too_fast = false
 
 -- TODO: 暂定华为手机需要慢速滑动, 可以被用户override。
-is_device_need_slow_swipe = false
+is_device_need_slow_swipe = true
 
 -- universal multiple swip, for fights
 -- input distance => {x,y,x',y',time} / list of them
@@ -1190,3 +1191,5 @@ tapAll = function(ks)
   gesture(finger, duration)
   sleep(duration)
 end
+
+-- 

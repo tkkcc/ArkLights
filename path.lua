@@ -1082,11 +1082,12 @@ jianpin2name = {
   -- DQSLJW = "大骑士领郊外",
   -- FQKQ = "废弃矿区",
 }
+extrajianpin2name = {SYC = "上一次"}
 
 path.作战 = function(x)
   log(table.values(jmfight2name), x)
   local f = startsWithX(x)
-  if table.any({"SYC", "上一次"}, f) then
+  if table.any({"上一次"}, f) then
     path.上一次(x)
   elseif table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
@@ -1246,6 +1247,7 @@ path.主线 = function(x)
       tap("幻灭")
       ssleep(.5)
     end
+    if not appear("怒号光明") then return end
 
     log("1046", chapter)
     swipc(distance['' .. chapter])
@@ -1253,7 +1255,7 @@ path.主线 = function(x)
     if not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
-    end, 1) then tap("作战主线章节列表8") end
+    end, 2) then wait(function() tap("作战主线章节列表8") end, .5) end
 
     if not appear(table.keys(p), 5) then return end
   end
@@ -1264,6 +1266,7 @@ end
 path.上一次 = function(x)
   log("1265")
   if findOne("开始行动") then return path.开始行动(x) end
+  log("1266")
   path.跳转("首页")
   tap("面板作战")
   if not appear("主页") then return end
@@ -2035,3 +2038,4 @@ path.指定换班 = function()
   end
   for i = 1, #point.基建列表 do f(i) end
 end
+-- 

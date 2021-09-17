@@ -29,6 +29,7 @@
   release() {
     sed -i -r 's/(明日方舟速通)（.+）/\1（'"$(date +'%Y.%m.%d %k:%M')"'）/' main.lua
     save "$@"
+    sleep .2
     curl http://localhost:9090/script/export?name=test >arknights.nsp
     xdg-open http://card.nspirit.cn/admin/apply/list/5963/edit
   }
@@ -44,6 +45,7 @@
         --data-urlencode code="$(cat "$x")" \
         --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
       sleep .2
+    
     done
   }
   find() {
@@ -79,6 +81,7 @@
 
   saverun() {
     stop "$@"
+    sleep .2
     save "$@"
     sleep .2
     run "$@"

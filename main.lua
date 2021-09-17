@@ -50,7 +50,9 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  tap("上一次")
+  log(point["主页列表首页"])
+  -- log(findOne("活动签到返回"))
+  -- tap("觉醒")
   -- tap("主页列表首页")
   exit()
 
@@ -139,7 +141,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.09.17 23:20）",
+  title = "明日方舟速通（2021.09.18  1:23）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -164,8 +166,10 @@ local ui = {
     }, {
       type = "check",
       value = "*吃药|吃石头|*保底最高4星时自动招募|*换班技能优先|" ..
-        (is_device_swipe_too_fast and "*" or '') .. "双指滑动|" ..
-        (is_device_need_slow_swipe and "*" or '') .. "慢速滑动",
+        (is_device_swipe_too_fast and "*" or '') ..
+        "双指滑动（模拟器建议选）|" ..
+        (is_device_need_slow_swipe and "*" or '') ..
+        "慢速滑动（华为建议选）",
       ore = 1,
       id = "drug_enable|stone_enable|star4_auto|prefer_skill|is_device_swipe_too_fast|is_device_need_slow_swipe",
     }, {
@@ -176,20 +180,20 @@ local ui = {
     }, {
       type = "text",
       value = [[
-须知：
+必读：
+1. 如果作战滑动距离错误，请尝试开关 双指滑动 和 慢速滑动。
 1. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡或跳转失败关卡应采用该方式刷。
 1. 游戏必须全屏显示，两侧无刘海黑边，无虚拟键。
 1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
-1. 如果作战滑动距离错误，请尝试开关双指滑动和慢速滑动。
 
 待解决问题：
-1. 换班时进入进驻总览后有长时间等待。待测试。
-1. 线索接收有概率错过。待测试。
+1. 副手换班漏换。
 1. 赤金经验加速不分。
 1. 主页展开有至多0.5s延时，影响速通时从宿舍跳转采购中心。
 1. 指定换班OCR错误率极高。干员只能单字。
+1. 换班组合设计
 
-指定换班策略：
+指定换班策略（需重新设计）：
 每行表示由设施、时间与干员组组成。换该设施时，将使用时间上大于脚本启动时间的最近设置干员。干员组可以不满或留空，但每个干员只能是单字。一个针对贸易站的设置为
 贸1 10 空 灰 刀
 贸2 10 天 拉 萨
@@ -257,18 +261,9 @@ findColor({0, 0, 1, 1, "0,0,#000000"})
 local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
--- trigger color system rebuild
--- home()
--- exit()
-log(259)
 ret = show(ui)
-log(260)
 if not ret then exit() end
 callThreadFun(outside, "preload")
--- findColor({0, 0, 1, 1, "0,0,#000000"})
-
--- default_findcolor_confidence =
---   math.round(tonumber(default_findcolor_confidence))
 
 if server == "B服" then appid = bppid end
 log(appid)
@@ -276,6 +271,8 @@ log(appid)
 now_job = parse_from_ui("now_job_ui", all_job)
 
 fight = string.map(fight, {
+  [";"] = " ",
+  ["；"] = " ",
   [","] = " ",
   ["_"] = "-",
   ["、"] = " ",
@@ -289,6 +286,9 @@ fight = map(string.upper, fight)
 for k, v in pairs(fight) do
   if table.includes(table.keys(jianpin2name), v) then
     fight[k] = jianpin2name[v]
+  end
+  if table.includes(table.keys(extrajianpin2name), v) then
+    fight[k] = extrajianpin2name[v]
   end
 end
 fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
@@ -320,7 +320,9 @@ log(facility2operator)
 if test_fight then
   fight = {
     "CA-5", "CE-5", 'AP-5', 'SK-5', 'LS-5', "PR-D-2", "PR-C-2", "PR-B-2",
-    "PR-A-2",
+    "PR-A-2", "龙门外环", "龙门市区", "1-7", "1-12", "2-3", "2-4",
+    "2-9", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-6", "7-15", "S7-2",
+    "JT8-2", "R8-2", "M8-8",
 
     -- "PR-A-2", "PR-B-1", "PR-B-2", "PR-C-1", "PR-C-2", "PR-D-1", "PR-D-2",
     -- "CE-1", "CE-2", "CE-3", "CE-4", "CE-5", "CA-1", "CA-2", "CA-3", "CA-4",
@@ -363,3 +365,4 @@ log("end", time() - start_time)
 
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)
+-- 
