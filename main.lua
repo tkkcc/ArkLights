@@ -1,7 +1,9 @@
+-- debug option, should be commented in release
+-- predebug = true
 -- pcall(exec,
 --       "settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService")
 -- exec("settings put secure enabled_accessibility_services com.bilabila.arknightsspeedrun/com.aojoy.server.CmdAccessibilityService")
--- debug option, should be commented in release
+-- during_crisis_contract =true
 -- disable_communication_check=true
 -- speedrun=true
 -- debug = true
@@ -9,7 +11,6 @@
 -- unsafe_tap = true
 zero_wait_click = true
 check_after_tap = true
--- predebug = true
 -- verbose_fca = true
 -- no_dorm = true
 -- test_some = true
@@ -49,23 +50,34 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  log(findOne("筛选"))
+  tap("上一次")
+  -- tap("主页列表首页")
+  exit()
 
+  log(findOne("接管作战"))
+  exit()
   local region = {
     {590, 487, 1919, 523}, {1033, 487, 1491, 523}, {1464, 487, 1919, 523},
     {590, 907, 1059, 943}, {1033, 907, 1491, 943}, {1464, 907, 1919, 943},
   }
-
-  -- {0,0,0,0,"1059,457,#D2D1D1|1033,455,#FFFFFF|1464,443,#D1CACE|1491,446,#D6D5D5",95}
-
   local r = region[1]
-  text, info = ocr_fast(math.round(minscale * r[1]),
-                        math.round(minscale * r[2]),
-                        math.round(minscale * r[3]), math.round(minscale * r[4]))
-  log(text, info)
+  r[3] = screen.width - 1
+  text, info = ocr(table.unpack(r))
+  log(text)
+  local res = ocrp({rect = r})
+  log(map(function(x) return x.text end, res))
+  exit()
+
+  -- -- {0,0,0,0,"1059,457,#D2D1D1|1033,455,#FFFFFF|1464,443,#D1CACE|1491,446,#D6D5D5",95}
+
+  -- local r = region[1]
+  -- text, info = ocr_fast(math.round(minscale * r[1]),
+  --                       math.round(minscale * r[2]),
+  --                       math.round(minscale * r[3]), math.round(minscale * r[4]))
+  -- log(text, info)
   -- p={}
   -- ocr_text, _ = ocr_fast(table.unpack(p))
-  exit()
+  --
 
   zoom()
   log(findOne("缩放结束"))
@@ -127,7 +139,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.09.10 20:57）",
+  title = "明日方舟速通（2021.09.17 23:20）",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -137,8 +149,10 @@ local ui = {
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
       title = "作战",
       type = "edit",
-      value = [[当期委托,dqwt,龙门市区，LMSQ,
-4-4,4-9,1-7,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5]],
+      value = [[上一次,syc
+当期委托,dqwt,龙门市区，LMSQ
+4-4,4-9,1-7,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5,
+]],
       id = "fight",
     }, {
       title = "换班",
@@ -150,9 +164,10 @@ local ui = {
     }, {
       type = "check",
       value = "*吃药|吃石头|*保底最高4星时自动招募|*换班技能优先|" ..
-        (is_device_swipe_too_fast and "*" or '') .. "双指滑动",
+        (is_device_swipe_too_fast and "*" or '') .. "双指滑动|" ..
+        (is_device_need_slow_swipe and "*" or '') .. "慢速滑动",
       ore = 1,
-      id = "drug_enable|stone_enable|star4_auto|prefer_skill|is_device_swipe_too_fast",
+      id = "drug_enable|stone_enable|star4_auto|prefer_skill|is_device_swipe_too_fast|is_device_need_slow_swipe",
     }, {
       type = "check",
       ore = 1,
@@ -165,14 +180,14 @@ local ui = {
 1. 在接管作战界面启动本辅助将重复刷当前关卡，活动关卡或跳转失败关卡应采用该方式刷。
 1. 游戏必须全屏显示，两侧无刘海黑边，无虚拟键。
 1. 游戏内尽量采用默认设置。基建退出提示必须开启，异形屏UI适配必须为0。
-1. 如果作战滑动距离错误，请尝试切换双指滑动选项，并反馈给我。
+1. 如果作战滑动距离错误，请尝试开关双指滑动和慢速滑动。
 
 待解决问题：
-1. 赤金经验加速不分
-1. 换班时进入进驻总览后有长时间等待。
+1. 换班时进入进驻总览后有长时间等待。待测试。
+1. 线索接收有概率错过。待测试。
+1. 赤金经验加速不分。
 1. 主页展开有至多0.5s延时，影响速通时从宿舍跳转采购中心。
 1. 指定换班OCR错误率极高。干员只能单字。
-1. 危机合约被使用次数弹窗导致速通慢0.7s。
 
 指定换班策略：
 每行表示由设施、时间与干员组组成。换该设施时，将使用时间上大于脚本启动时间的最近设置干员。干员组可以不满或留空，但每个干员只能是单字。一个针对贸易站的设置为
@@ -244,8 +259,10 @@ click(miui)
 
 -- trigger color system rebuild
 -- home()
-
+-- exit()
+log(259)
 ret = show(ui)
+log(260)
 if not ret then exit() end
 callThreadFun(outside, "preload")
 -- findColor({0, 0, 1, 1, "0,0,#000000"})

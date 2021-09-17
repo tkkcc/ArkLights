@@ -13,7 +13,12 @@
     adb shell am force-stop com.aojoy.aplug
     # adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
     sleep 1
-    adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService
+
+    ## to find the name
+    # adb shell dumpsys activity services aojoy
+
+    # adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService
+    adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdService
     sleep 2
     #adb shell am start com.hypergryph.arknights
     adb shell input keyevent KEYCODE_APP_SWITCH
@@ -38,6 +43,7 @@
       curl -sS http://localhost:9090/api/file/save \
         --data-urlencode code="$(cat "$x")" \
         --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
+      sleep .2
     done
   }
   find() {

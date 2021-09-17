@@ -410,8 +410,8 @@ swipq = function(dis, disable_end_sleep, duration)
   log("367", dis)
   for idx, x in ipairs(dis) do
     if type(x) == 'number' then
-      local left_boundary = math.round(200 * minscale)
-      local right_boundary = math.round((1720 - 1920) * minscale + screen.width)
+      local left_boundary = math.round(100 * minscale)
+      local right_boundary = math.round((1620 - 1920) * minscale + screen.width)
       local height = screen.height // 2
       if x == 0 then -- special wait sign
         ssleep(.4)
@@ -443,15 +443,21 @@ swipe = function(x)
   log("swipe", x)
   -- wait_game_up()
   local duration = 150
-  local x1 = screen.width - math.round(300 * minscale) - 1
+  -- if is_device_need_slow_swipe then duration = duration * 2 end
+
+  local x1 = screen.width - math.round(300 * minscale) * 2
   local d = x == "right" and x1 or -x1
   if d == x1 then x1 = math.round(300 * minscale) end
   local y1 = math.round(128 * minscale)
   local x2 = math.round(x1 + d)
   slid(x1, y1, x2, y1, duration)
+  sleep(50)
   slid(x1, y1, x2, y1, duration)
+  sleep(50)
   slid(x1, y1, x2, y1, duration)
+  sleep(50)
   slid(x1, y1, x2, y1, duration)
+  sleep(50)
 end
 
 -- TODO: 暂定安卓11以下的滑动需要双指滑动, 可以被用户override。
@@ -461,6 +467,9 @@ if android_verison_code < 30 then
 else
   is_device_swipe_too_fast = false
 end
+
+-- TODO: 暂定华为手机需要慢速滑动, 可以被用户override。
+is_device_need_slow_swipe = false
 
 -- universal multiple swip, for fights
 -- input distance => {x,y,x',y',time} / list of them
@@ -494,7 +503,10 @@ swipu = function(dis)
   for _, d in pairs(disf) do
     local duration = 200
     local delay = 50
-    -- local delay = 100 
+    if is_device_need_slow_swipe then
+      duration = duration * 2
+      delay = delay * 2
+    end
     local x1 = screen.width - math.round(300 * minscale)
     if d > 0 then x1 = math.round(300 * minscale) end
     local y1 = math.round(128 * minscale)
@@ -684,6 +696,9 @@ auto = function(p, fallback, timeout)
           tap("右确认")
         else
           tap(x)
+          -- TODO
+          log(687, 'tryto fix 基建返回 stuck', x)
+          ssleep(.05)
         end
       else
         -- log("no fallback sign found")

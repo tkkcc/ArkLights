@@ -517,10 +517,20 @@ path.基建换班 = function()
     local timeout = first_look and .5 or 0
     first_look = false
     if not appear("入驻干员", timeout) then return end
+
+    local last_time_see_plus = time()
     if not wait(function()
       if findOne("确认蓝") then return true end
-      if findOne("撤下干员") then findTap("入驻干员") end
+      if findOne("撤下干员") then
+        if findTap("入驻干员") then
+          last_time_see_plus = time()
+        elseif time() - last_time_see_plus > 1000 then
+          return true
+        end
+      end
     end, 10) then return end
+
+    if not findOne("确认蓝") then return true end
 
     local limit = findOne("清空选择") and 7 or 1
 
@@ -650,6 +660,8 @@ end
 path.线索搜集 = function()
   path.跳转("基建")
 
+  local f
+
   if not wait(function()
     if not findOne("进驻总览") or not findOne("缩放结束") then
       return true
@@ -681,26 +693,29 @@ path.线索搜集 = function()
   end, 5) then return end
 
   log(588)
+
   --  TODO may be overlaped by notification
   --  so we put it after some job without notification
-  if findOne("接收线索有") then
+  wait(function()
+    if not findOne("线索传递") then return true end
+    if not findOne("接收线索有") then return true end
     if not wait(function()
       if not findOne("线索传递") then return true end
       tap("接收线索有")
-    end, 5) then return end
-    if not appear("接收线索", 5) then return end
-    if not wait(function()
-      if not findOne("接收线索第一个") then return true end
-      tap("全部收取")
-    end, 5) then return end
+    end, 5) then return true end
+
+    if not appear("接收线索", 5) then return true end
+    wait(function() tap("全部收取") end, 1)
+
     if not wait(function()
       if findOne("线索传递") then return true end
       tap("解锁线索上")
-    end, 5) then return end
-  end
+    end, 5) then return true end
+  end, 10)
+  if not findOne("线索传递") then return end
 
   log(501)
-  local f
+
   f = function()
     if not wait(function()
       if findOne("信用奖励返回") then return true end
@@ -777,7 +792,10 @@ path.线索布置 = function()
 
         if not wait(function()
           if not findOne(p) then return true end
-          tap("线索库列表1")
+
+          -- TODO: will this better
+          wait(function() tap("线索库列表1") end, .5)
+
           -- we must wait network
           disappear(p, 5)
         end, 50) then return end
@@ -932,7 +950,7 @@ path.信用购买 = function()
       end, 5) then return end
 
       -- 危机合约期间启用
-      if disappear("信用交易所横线", 1) then
+      if during_crisis_contract and disappear("信用交易所横线", 1) then
         if not wait(function()
           if findOne("信用交易所横线") then return true end
           tap("收取信用有")
@@ -1042,7 +1060,7 @@ path.轮次作战 = function()
     fight_tick = fight_tick % #fight + 1
     if fight_tick == 1 then
       no_success_one_loop = no_success_one_loop + 1
-      if no_success_one_loop > 10 then break end
+      if no_success_one_loop > 2 then break end
     end
     cur_fight = fight[fight_tick]
     log(971)
@@ -1068,7 +1086,9 @@ jianpin2name = {
 path.作战 = function(x)
   log(table.values(jmfight2name), x)
   local f = startsWithX(x)
-  if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
+  if table.any({"SYC", "上一次"}, f) then
+    path.上一次(x)
+  elseif table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     path.物资芯片(x)
   elseif table.any(table.values(jianpin2name), f) then
     path.剿灭(x)
@@ -1222,6 +1242,9 @@ path.主线 = function(x)
     if chapter_index <= 4 then
       tap("觉醒")
       ssleep(.5)
+    elseif chapter_index <= 9 then
+      tap("幻灭")
+      ssleep(.5)
     end
 
     log("1046", chapter)
@@ -1235,6 +1258,20 @@ path.主线 = function(x)
     if not appear(table.keys(p), 5) then return end
   end
   auto(p, false, 10)
+  path.开始游戏(x)
+end
+
+path.上一次 = function(x)
+  log("1265")
+  if findOne("开始行动") then return path.开始行动(x) end
+  path.跳转("首页")
+  tap("面板作战")
+  if not appear("主页") then return end
+  wait(function()
+    if not findOne("主页") then return true end
+    tap("上一次")
+  end, 5)
+  if not appear("开始行动", 5) then return end
   path.开始游戏(x)
 end
 
