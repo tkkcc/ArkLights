@@ -9,6 +9,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+
   上一次 = "1880,881,#242424",
   接收线索 = "1276,1,#E5E5E5",
   接收线索第一个 = "1882,218,#EBEBEB",
@@ -1419,4 +1420,5 @@ end
 
 update_rfl()
 
--- log(point)
+log(point)
+log(point["面板基建"])

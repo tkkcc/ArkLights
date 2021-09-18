@@ -48,7 +48,9 @@ path.base = {
     end
   end,
   接管作战 = function()
-    if not disappear("接管作战", 60 * 60, 1) then stop("接管作战") end
+    if not disappear("接管作战", 24 * 60 * 60, 1) then
+      stop("接管作战")
+    end
 
     -- this calllback only works for 主线、资源、剿灭
     if not wait(function()
@@ -57,8 +59,8 @@ path.base = {
       tap("开始行动")
       appear({"开始行动", "接管作战"}, 1)
     end, 30) then return end
+    if not findOne("开始行动") then return path.base.接管作战() end
 
-    if findOne("接管作战") then return path.base.接管作战() end
     log(89, repeat_fight_mode)
     if repeat_fight_mode then return path.开始游戏('', true) end
 
@@ -391,10 +393,14 @@ path.副手换人 = function()
       tap("干员选择列表" .. i)
       disappear("干员未选中", .5)
     end, 5) then return end
+
     if not wait(function()
-      if findOne("基建副手简报") then return true end
+      if not findOne("副手确认蓝") and findOne("基建副手简报") then
+        return true
+      end
       tap("副手确认蓝")
     end, 5) then return end
+
   end
 end
 
@@ -449,7 +455,6 @@ path.基建换班 = function()
       tap("清空选择")
     end, 5) then return end
     -- ssleep(.2)
-
     -- local state = sample("心情")
     -- tap("心情")
     -- disappear(state, 1)
@@ -570,7 +575,9 @@ path.基建换班 = function()
     if not wait(function()
       if findOne("干员未选中") and findOne("筛选横线") and
         findOne("筛选") then return true end
+
       tap("清空选择")
+
     end, 5) then return end
     log("limit", limit)
     tapAll(table.slice({
@@ -596,9 +603,9 @@ path.基建换班 = function()
     if i ~= 1 then
       swipd()
       -- TODO wait bottom for stable
-      if not appear(bottom, .5) then reach_bottom = true end
+      if not appear(bottom, .2) then reach_bottom = true end
     end
-    while f(i) do log(475) end
+    while f() do log(475) end
     if reach_bottom then break end
     -- sample bottom after first detect
     if not bottom then bottom = sample("进驻总览底部") end
@@ -723,6 +730,7 @@ path.线索搜集 = function()
     end, 5) then return end
 
     if not appear("未达线索上限", .1) and findOne("信用奖励返回") then
+      log(733)
       tap("返回")
       appear("线索传递")
       clue_unlocked = false
@@ -730,6 +738,7 @@ path.线索搜集 = function()
       if not clue_unlocked then path.线索传递() end
       return f()
     end
+    log(734)
 
     -- if not findOne("信用奖励返回") then return f() end
 
@@ -854,7 +863,7 @@ path.线索传递 = function()
       local ps = findAll("线索传递橙框")
       if ps then
         for _, p in pairs(ps) do
-          log(857,p)
+          log(857, p)
           local i = 1
           for j = 1, 4 do
             if p.y < point["传递列表" .. j][2] then
@@ -1252,6 +1261,7 @@ path.主线 = function(x)
       tap("幻灭")
       ssleep(.5)
     end
+
     if not appear("怒号光明") then return end
 
     log("1046", chapter)
@@ -1260,10 +1270,10 @@ path.主线 = function(x)
     if not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
-    end, 5) and not wait(function()
+    end, 2) and not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
-    end, 5) then return end
+    end, 2) then return end
     if not appear(table.keys(p), 5) then return end
   end
   auto(p, false, 10)
@@ -1830,7 +1840,9 @@ path.干员升级 = function()
   end, 5) then return end
 
   appear(point.录像列表)
+
   tap("清空选择")
+
   findTap(point.录像列表)
   tap("副手确认蓝")
   -- TODO 0.1等待仍然可能直接跳转走，
@@ -1880,7 +1892,9 @@ path.每日任务速通 = function()
       if findOne("干员未选中") and findOne("筛选横线") then
         return true
       end
+      --
       tap("清空选择")
+      --
     end, 5) then return end
     -- local state = sample("心情")
     -- tap("心情")
@@ -1993,7 +2007,9 @@ path.指定换班 = function()
       if findOne("确认蓝") and findOne("干员未选中") then
         return true
       end
+
       tap("清空选择")
+
     end, 5) then return end
 
     if not wait(function()

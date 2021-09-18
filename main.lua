@@ -51,6 +51,15 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  logConfig({mode = 3})
+  exit()
+  chapter = 4
+  swipc(distance['' .. chapter])
+  exit()
+  wait(function()
+    if not findOne("怒号光明") then return true end
+    tap("作战主线章节列表" .. chapter)
+  end, 5)
   log(findOne("线索传递橙框"))
   -- log(point["主页列表首页"])
   -- log(findOne("活动签到返回"))
@@ -111,7 +120,7 @@ local all_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
   "指定换班", "基建换班", "线索搜集", "制造加速",
   "副手换人", "信用购买", "公招刷新", "任务收集",
-  "每日任务速通（慎点）"
+  "每日任务速通（慎点）",
 }
 local now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
@@ -143,7 +152,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通（2021.09.18  1:23）",
+  title = "明日方舟速通 2021.09.18 21:38",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -191,7 +200,6 @@ local ui = {
 待解决问题：
 1. 副手换班漏换。
 1. 赤金经验加速不分。
-1. 主页展开有至多0.5s延时，影响速通时从宿舍跳转采购中心。
 1. 指定换班OCR错误率极高。干员只能单字。
 1. 换班组合设计。
 
@@ -312,10 +320,14 @@ log(facility2operator)
 
 if test_fight then
   fight = {
-    "CA-5", "CE-5", 'AP-5', 'SK-5', 'LS-5', "PR-D-2", "PR-C-2", "PR-B-2",
-    "PR-A-2", "龙门外环", "龙门市区", "1-7", "1-12", "2-3", "2-4",
-    "2-9", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-6", "7-15", "S7-2",
-    "JT8-2", "R8-2", "M8-8",
+    "0-8", "1-7", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-15", "R8-2",
+    --
+    -- "JT8-2", "R8-2", "M8-8",
+    -- "CA-5", "CE-5", 'AP-5', 'SK-5', 'LS-5', "PR-D-2", "PR-C-2", "PR-B-2",
+    -- "PR-A-2", "龙门外环", "龙门市区", 
+    -- "1-7", "1-12", "2-3", "2-4",
+    -- "2-9", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-6", "7-15", "S7-2",
+    -- "JT8-2", "R8-2", "M8-8",
 
     -- "PR-A-2", "PR-B-1", "PR-B-2", "PR-C-1", "PR-C-2", "PR-D-1", "PR-D-2",
     -- "CE-1", "CE-2", "CE-3", "CE-4", "CE-5", "CA-1", "CA-2", "CA-3", "CA-4",
@@ -363,3 +375,4 @@ log("end", time() - start_time)
 
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)
+

@@ -28,9 +28,8 @@
     sleep 2
   }
   release() {
-    sed -i -r 's/(明日方舟速通)（.+）/\1（'"$(date +'%Y.%m.%d %k:%M')"'）/' main.lua
+    sed -i -r 's/(明日方舟速通).+"/\1 '"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
     save "$@"
-    sleep .2
     curl http://localhost:9090/script/export?name=test >arknights.nsp
     xdg-open http://card.nspirit.cn/admin/apply/list/5963/edit
   }
@@ -42,11 +41,28 @@
   save() {
     for x in *.lua; do
       echo ==\> upload "$x"
-      curl -sS http://localhost:9090/api/file/save \
+      curl 'http://localhost:9090/api/file/save' \
+        -H 'Connection: keep-alive' \
+        -H 'sec-ch-ua: "Chromium";v="93", " Not;A Brand";v="99"' \
+        -H 'Accept: */*' \
+        -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+        -H 'X-Requested-With: XMLHttpRequest' \
+        -H 'sec-ch-ua-mobile: ?0' \
+        -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36' \
+        -H 'sec-ch-ua-platform: "Linux"' \
+        -H 'Origin: http://localhost:9090' \
+        -H 'Sec-Fetch-Site: same-origin' \
+        -H 'Sec-Fetch-Mode: cors' \
+        -H 'Sec-Fetch-Dest: empty' \
+        -H 'Referer: http://localhost:9090/create/edit?p=test' \
+        -H 'Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7' \
         --data-urlencode code="$(cat "$x")" \
-        --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
-      sleep .2
-    
+        --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x"
+      # exit
+      # curl -sS http://localhost:9090/api/file/save \
+      #   --data-urlencode code="$(cat "$x")" \
+      #   --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
+      sleep 1
     done
   }
   find() {
@@ -75,6 +91,7 @@
     listen "$@" &
     echo ==\> run
     curl -sS http://localhost:9090/script/run \
+      -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
       --data-urlencode name=test \
       --data-urlencode code= \
       --data-urlencode path=/storage/emulated/0/freespace/scripts/test/placeholder.lua >/dev/null
@@ -82,9 +99,7 @@
 
   saverun() {
     stop "$@"
-    sleep .2
     save "$@"
-    sleep .2
     run "$@"
   }
 

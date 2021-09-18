@@ -534,7 +534,7 @@ end
 swipc = function(dis)
   if not dis then return end
   local x1, y1, x2, y2
-  x1, y1 = math.round((300 - 1920 / 2) * minscale + screen.width / 2),
+  x1, y1 = math.round((500 - 1920 / 2) * minscale + screen.width / 2),
            screen.height // 2
   x2, y2 = math.round((1500 - 1920 / 2) * minscale + screen.width / 2),
            math.round(100 * minscale)
@@ -1191,5 +1191,3 @@ tapAll = function(ks)
   gesture(finger, duration)
   sleep(duration)
 end
-
-
