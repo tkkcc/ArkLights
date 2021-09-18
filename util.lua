@@ -699,7 +699,7 @@ auto = function(p, fallback, timeout)
           tap(x)
           -- TODO
           log(687, 'tryto fix 基建返回 stuck', x)
-          ssleep(.05)
+          ssleep(.1)
         end
       else
         -- log("no fallback sign found")
@@ -1192,4 +1192,4 @@ tapAll = function(ks)
   sleep(duration)
 end
 
--- 
+

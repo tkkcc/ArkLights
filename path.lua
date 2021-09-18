@@ -824,7 +824,9 @@ end
 
 path.线索传递 = function()
   -- internal
+  -- log(827)
   if not findTap("线索传递") then return end
+  -- log(828)
   if not appear("线索传递数字列表8", 5) then return end
 
   for i = 1, 8 do
@@ -833,10 +835,11 @@ path.线索传递 = function()
       tap("线索传递数字列表" .. i)
     end, 5) then return end
     log(653)
-    if findOne("线索传递数字重复") then break end
+    if findOne("线索传递数字重复") and findOne("线索列表1") then
+      break
+    end
     log(654)
   end
-
   if not wait(function()
     if not findOne("线索列表1") then return true end
     tap("线索列表1")
@@ -851,6 +854,7 @@ path.线索传递 = function()
       local ps = findAll("线索传递橙框")
       if ps then
         for _, p in pairs(ps) do
+          log(857,p)
           local i = 1
           for j = 1, 4 do
             if p.y < point["传递列表" .. j][2] then
@@ -868,11 +872,11 @@ path.线索传递 = function()
 
     if idx then
       log("线索传递", idx, point.传递列表[idx])
-      tap(point.传递列表[idx])
+      if not fake_transfer then tap(point.传递列表[idx]) end
       wait(function()
         if findOne("线索传递") then return true end
         tap("线索传递返回")
-      end, 5)
+      end, 10)
       return true
     end
   end
@@ -883,6 +887,7 @@ path.线索传递 = function()
       return true
     end
     local state = sample("好友")
+    log(state, point['sample'])
     tap("线索传递右白")
     disappear(state, .5)
   end, 5) then return end
@@ -1255,8 +1260,10 @@ path.主线 = function(x)
     if not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
-    end, 2) then wait(function() tap("作战主线章节列表8") end, .5) end
-
+    end, 5) and not wait(function()
+      if not findOne("怒号光明") then return true end
+      tap("作战主线章节列表" .. chapter)
+    end, 5) then return end
     if not appear(table.keys(p), 5) then return end
   end
   auto(p, false, 10)
@@ -2038,4 +2045,7 @@ path.指定换班 = function()
   end
   for i = 1, #point.基建列表 do f(i) end
 end
--- 
+
+path["克洛丝单人1-12"] = function()
+  -- TODO
+end

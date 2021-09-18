@@ -11,6 +11,7 @@
 -- unsafe_tap = true
 zero_wait_click = true
 check_after_tap = true
+-- fake_transfer= true
 -- verbose_fca = true
 -- no_dorm = true
 -- test_some = true
@@ -50,7 +51,8 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  log(point["主页列表首页"])
+  log(findOne("线索传递橙框"))
+  -- log(point["主页列表首页"])
   -- log(findOne("活动签到返回"))
   -- tap("觉醒")
   -- tap("主页列表首页")
@@ -109,7 +111,7 @@ local all_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
   "指定换班", "基建换班", "线索搜集", "制造加速",
   "副手换人", "信用购买", "公招刷新", "任务收集",
-  "每日任务速通", "满练每日任务速通",
+  "每日任务速通（慎点）"
 }
 local now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
@@ -191,7 +193,7 @@ local ui = {
 1. 赤金经验加速不分。
 1. 主页展开有至多0.5s延时，影响速通时从宿舍跳转采购中心。
 1. 指定换班OCR错误率极高。干员只能单字。
-1. 换班组合设计
+1. 换班组合设计。
 
 指定换班策略（需重新设计）：
 每行表示由设施、时间与干员组组成。换该设施时，将使用时间上大于脚本启动时间的最近设置干员。干员组可以不满或留空，但每个干员只能是单字。一个针对贸易站的设置为
@@ -209,15 +211,6 @@ local ui = {
 宿1
 尽量使用常见字，比如用“子”而非“孑”
 
-每日任务速通准备：
-1. 用B服新号，比用官服老号快得多。
-1. 使用最快网络与设备。
-1. 调整干员列表排序使右上角干员可升级。
-1. 确保有20个订单。
-1. 撤下全部干员。
-1. 进入一次信用交易所。
-1. 公开招募全部留空。
-1. 展示日常任务界面。
 ]],
     }, {
       type = 'div',
@@ -356,7 +349,12 @@ if test_fight then
   run("轮次作战")
   exit()
 end
-if test_some then end
+
+if test_some then
+  ssleep(1)
+  path.线索传递()
+  exit()
+end
 
 local start_time = time()
 log("start")
@@ -365,4 +363,3 @@ log("end", time() - start_time)
 
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)
--- 
