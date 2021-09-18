@@ -51,23 +51,10 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  logConfig({mode = 3})
-  exit()
-  chapter = 4
-  swipc(distance['' .. chapter])
-  exit()
-  wait(function()
-    if not findOne("怒号光明") then return true end
-    tap("作战主线章节列表" .. chapter)
-  end, 5)
-  log(findOne("线索传递橙框"))
-  -- log(point["主页列表首页"])
-  -- log(findOne("活动签到返回"))
-  -- tap("觉醒")
-  -- tap("主页列表首页")
-  exit()
-
-  log(findOne("接管作战"))
+  -- swipe("left")
+  -- x="9-2"
+  -- swip(x)
+  -- tap("作战列表" .. x)
   exit()
   local region = {
     {590, 487, 1919, 523}, {1033, 487, 1491, 523}, {1464, 487, 1919, 523},
@@ -152,7 +139,7 @@ local parse_from_ui = function(prefix, reference)
 end
 
 local ui = {
-  title = "明日方舟速通 2021.09.18 21:38",
+  title = "明日方舟速通 2021.09.19  0:20",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -200,25 +187,25 @@ local ui = {
 待解决问题：
 1. 副手换班漏换。
 1. 赤金经验加速不分。
-1. 指定换班OCR错误率极高。干员只能单字。
-1. 换班组合设计。
+1. 指定换班需重设计。
 
-指定换班策略（需重新设计）：
-每行表示由设施、时间与干员组组成。换该设施时，将使用时间上大于脚本启动时间的最近设置干员。干员组可以不满或留空，但每个干员只能是单字。一个针对贸易站的设置为
-贸1 10 空 灰 刀
-贸2 10 天 拉 萨
-贸1 18 空 灰 刀
-贸2 18 巫 雪 芬
-贸1 2 天 拉 萨
-贸2 2 巫 雪 芬
-制1 2
+指定换班策略（未完成）：
+每个排版组合第一行为时间（小时），后续每行为设施与干员组。换班时使用将使用时间上大于脚本启动时间的最近设置干员。干员组可以不满或留空，但每个干员只能是单字。一个针对贸易站的设置为
+10
+贸1 空 灰 刀
+贸2 能 拉普 萨
+18
+贸1 空 灰 刀
+贸2 巫 雪 芬
+2
+贸1 天 拉 萨
+贸2 巫 雪 芬
+制1
 控1
-发1
+发1 
 办1
-会1
+会1 安洁莉娜
 宿1
-尽量使用常见字，比如用“子”而非“孑”
-
 ]],
     }, {
       type = 'div',
@@ -320,7 +307,10 @@ log(facility2operator)
 
 if test_fight then
   fight = {
-    "0-8", "1-7", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-15", "R8-2",
+    "9-2", "9-3", "9-4", "9-5", "9-6", "9-7", "9-9", "9-10", "9-11", "9-12",
+    "9-13", "S9-1", "9-14", "9-15", "9-16", "9-17", "9-18", "9-19",
+
+    -- "0-8", "1-7", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-15", "R8-2",
     --
     -- "JT8-2", "R8-2", "M8-8",
     -- "CA-5", "CE-5", 'AP-5', 'SK-5', 'LS-5', "PR-D-2", "PR-C-2", "PR-B-2",
@@ -364,7 +354,9 @@ end
 
 if test_some then
   ssleep(1)
-  path.线索传递()
+  -- tap("基建副手列表4")
+  -- tap("基建副手列表5")
+  path.副手换人()
   exit()
 end
 
@@ -375,4 +367,3 @@ log("end", time() - start_time)
 
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)
-

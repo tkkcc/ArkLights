@@ -379,7 +379,7 @@ path.副手换人 = function()
 
     if not findOne("干员未选中") then
       tap("干员选择列表1")
-      if not appear("干员未选中", .5) then return end
+      if not appear("干员未选中") then return end
     end
     local state = sample("信赖")
     tap("信赖")
@@ -1698,7 +1698,7 @@ path.公招刷新 = function()
       if speedrun then
         if not wait(function()
           if not findOne("公开招募箭头") then return true end
-          tap("公开招募列表" .. i)
+          tap("公开招募点击列表" .. i)
         end, 10) then return end
         if not appear("公开招募时间减") then return true end
         if not wait(function()
@@ -1712,7 +1712,7 @@ path.公招刷新 = function()
 
       if not wait(function()
         if not findOne("公开招募箭头") then return true end
-        tap("公开招募列表" .. i)
+        tap("公开招募点击列表" .. i)
       end, 5) then return end
 
       g = function()
@@ -1931,6 +1931,7 @@ path.满练每日任务速通 = function()
 end
 
 path.指定换班 = function()
+  if true then return end
   -- if not debug then return end
   -- 按设置跳转到依次制造、贸易、控制中枢、办公室
   -- path.跳转("基建")
