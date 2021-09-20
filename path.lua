@@ -263,30 +263,16 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
 
       end, 5) then return end
 
-      -- if not wait(function()
-      --   if findOne("主页列表展开") and
-      --     not disappear("主页列表展开", .05) then
-      --     tap("主页列表" .. home_target)
-      --     if disappear("主页列表展开") then return true end
-      --   end
-      --   if findTap({"主页", "主页按过"}) then
-      --     appear("主页按下", .5)
-      --   end
-      -- end, 10) then return end
-
       if not bypass(sign[home_target]) then return end
       log('wait appear', sign[home_target], timeout)
-      -- appear(sign[home_target], timeout)
-      -- TODO appear all? no just 主页 is enough
-      -- log("appear all", table.values(sign), timeout)
-      -- log(appear(table.values(sign), timeout))
       local first_time_see_home
       if not wait(function()
         if findOne(sign[home_target]) then
           p["主页"] = nil
           return true
         end
-        if findOne("主页") then
+        -- TODO check
+        if findAny({"返回", "返回2"}) then
           if not first_time_see_home then
             first_time_see_home = time()
           elseif (time() - first_time_see_home) > 1000 then
@@ -424,12 +410,13 @@ path.基建换班 = function()
   local f
   f = function(i)
     path.跳转("基建")
+    -- if enable_dorm_check and not findOne("宿舍列表" .. i) then return end
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
       end
       tap("宿舍列表" .. i)
-    end, 10) then return end
+    end) then return end
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
     if not wait(function()
       if findOne("筛选") then return true end
@@ -773,29 +760,47 @@ path.线索布置 = function()
     return
   end
   log(643)
-  -- TODO need wait: yes!
-  -- that is find"线索传递"
-  local p = appear(point.线索布置列表, .5)
-  -- local p = findAny(point.线索布置列表)
+
+  -- 在左侧判断，不会右侧提示挡住
+  if not wait(function()
+    log(766)
+    if findOne("线索布置展开") then return true end
+    if findOne("线索传递") then
+      tapCard("线索布置列表1")
+      disappear("线索传递")
+    end
+  end, 5) then return end
+
+  -- 一个红点都没找到
+  -- TODO still need wait? maybe
+  if not findAny(point.线索布置左列表) then
+    wait(function()
+      if findOne("线索传递") then return true end
+      tap("解锁线索上")
+    end, 5)
+    return
+  end
 
   log(644)
-  if p then
+  if true then
     log(645)
-    if not wait(function()
-      if not findOne(p) then return true end
-      tapCard(p)
-      disappear(p)
-    end, 5) then return end
-    log(646)
-    if not appear("线索布置左列表" .. p:sub(#p)) then return end
-    log(647)
+    -- if not wait(function()
+    --   if not findOne(p) then return true end
+    --   tapCard(p)
+    --   disappear(p)
+    -- end, 5) then return end
+    -- log(646)
+    -- if not appear("线索布置左列表" .. p:sub(#p)) then return end
+    -- log(647)
 
     for i = 1, 7 do
       if findOne("线索布置左列表" .. i) then
         p = "线索布置左列表" .. i
         -- TODO: half seconds should be enough?
         if not wait(function()
-          if findOne("线索布置按下列表" .. i) then return true end
+          if findOne("线索布置数字右列表" .. i) then
+            return true
+          end
           tapCard(p)
         end, 1) then return end
 
@@ -803,7 +808,7 @@ path.线索布置 = function()
           if not findOne(p) then return true end
 
           -- TODO: will this better
-          wait(function() tap("线索库列表1") end, .5)
+          wait(function() tap("线索库列表1") end, .1)
 
           -- we must wait network
           disappear(p, 5)
@@ -881,7 +886,8 @@ path.线索传递 = function()
 
     if idx then
       log("线索传递", idx, point.传递列表[idx])
-      if not fake_transfer then tap(point.传递列表[idx]) end
+      if fake_transfer then exit() end
+      tap(point.传递列表[idx])
       wait(function()
         if findOne("线索传递") then return true end
         tap("线索传递返回")
@@ -1137,7 +1143,9 @@ path.开始游戏 = function(x, disable_ptrs_check)
   if not wait(function()
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
+      "单选确认框",
     })
+    if state == "单选确认框" then return true end
     if state == "开始行动红" then return true end
     if state and not disappear(state, .2) then return true end
 
@@ -1165,7 +1173,8 @@ path.开始游戏 = function(x, disable_ptrs_check)
       if not findOne(state) then return true end
       tap("开始行动红按钮")
     end, 10) then return end
-    if not appear("接管作战", 60) then return end
+    if not appear({"接管作战", "单选确认框"}, 10) then return end
+    if findOne("单选确认框") then return end
     return path.base.接管作战()
   elseif stone_enable and state == "源石恢复理智取消" or drug_enable and
     state == "药剂恢复理智取消" then
@@ -1255,9 +1264,12 @@ path.主线 = function(x)
     end) then return end
 
     if chapter_index <= 4 then
+      -- 从上到下，命中第一篇, 专为还没过3-8的玩家
       tap("觉醒")
+      tap("幻灭")
       ssleep(.5)
     elseif chapter_index <= 9 then
+      -- 只打到3-8，第9章也会解锁，无需特殊处理
       tap("幻灭")
       ssleep(.5)
     end
@@ -1626,7 +1638,7 @@ path.访问好友 = function()
   if not wait(function()
     if not findOne("主页") then return true end
     tap('访问基建')
-  end, 10) then return end
+  end, 5) then return end
   if speedrun then
     disappear("正在提交反馈至神经", 20)
     appear("主页", 5)
@@ -1860,13 +1872,12 @@ path.每日任务速通 = function()
   -- 宿舍换班 2次， may be this should be removed
   path.跳转("基建")
   f = function(i, last)
-    -- path.跳转("基建")
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
       end
       tap("宿舍列表" .. i)
-    end, 10) then return end
+    end) then return end
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
     if not wait(function()
       log(1807)
@@ -2065,4 +2076,39 @@ end
 
 path["克洛丝单人1-12"] = function()
   -- TODO
+end
+
+is_screen_on = function()
+  -- TODO
+  return false
+end
+
+unlock = function(route, swip_mode)
+  -- 判断是否熄屏，亮屏不做
+  if is_screen_on() then return end
+
+  -- 亮屏
+  pcall(exec, "input keyevent 224")
+  ssleep(2)
+
+  -- 上滑
+  local width = min(screen.width, screen.height)
+  local height = max(screen.width, screen.height)
+  gesture({{{x = width // 2, y = height - 1}, {x = width // 2, y = 1}}}, 1000)
+  ssleep(2)
+
+  -- 手势或密码，通过catchClick录入
+  if swip_mode then
+    local finger = {}
+    for _, p in pairs(route) do table.insert(finger, {x = p[1], y = p[2]}) end
+    log(finger)
+    gesture({finger}, 3000)
+    ssleep(3)
+  else
+    for _, p in pairs(route) do
+      tap(p)
+      ssleep(.5)
+    end
+  end
+  ssleep(1)
 end

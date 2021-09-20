@@ -22,7 +22,7 @@ end
 function preload()
   -- ocr initialization needs 5 seconds
   -- ocr font need downlaod
-  pcall(ocr, 0, 0, 1,1)
+  pcall(ocr, 0, 0, 1, 1)
   print("preload finish")
 end
 
@@ -33,3 +33,19 @@ end
 --     wait(function() click(miui) end, 10)
 --   end, 30)
 -- end
+--
+require('util')
+function capture_screen_on_gesture() capture_screen_on_password(true) end
+function capture_screen_on_password(swip_mode)
+  print(39)
+  local finger = {}
+  local idle_start_time = time()
+  -- TODO 怎么实现一个
+  wait(function()
+    local p = catchClick()
+    table.insert(finger, {p.x, p.y})
+  end)
+  save("screen_on_swip_mode", "true")
+  print(get("screen_on_swip_mode"))
+  exit()
+end

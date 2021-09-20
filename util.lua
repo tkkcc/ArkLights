@@ -639,7 +639,7 @@ auto = function(p, fallback, timeout)
       local x = table.findv({
         "返回确认", "返回确认2", "活动公告返回", "签到返回",
         "返回", "返回2", "返回3", "返回4", "活动签到返回",
-        "抽签返回",
+        "抽签返回", "单选确认框",
       }, findOne)
       if x then
         log(x)
@@ -694,6 +694,8 @@ auto = function(p, fallback, timeout)
           --   appear("进驻总览", 2)
           -- end, 10)
         elseif x == "返回确认2" then
+          tap("右确认")
+        elseif x == "单选确认框" then
           tap("右确认")
         else
           tap(x)
@@ -934,16 +936,18 @@ end
 
 wait_game_up = function(retry)
   retry = retry or 0
-  if retry > 3 then stop("不能启动游戏") end
+  if retry > 10 then stop("不能启动游戏") end
   local game = R():name(appid):path("/FrameLayout/View")
-  local bilibili_wrapper = R():name(appid):path("/FrameLayout")
-  local bilibili_input = R():id(
-                           "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin")
+  local bilibili_wrapper = R():name("com.hypergryph.arknights.bilibili"):path(
+                             "/FrameLayout/TextView")
   local bilibili_login = R():id(
-                           "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
+                           "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login");
   local bilibili_oneclicklogin = R():id(
-                                   "com.hypergryph.arknights.bilibili:id/bsgamesdk_button_oneClickLogin")
+                                   "com.hypergryph.arknights.bilibili:id/tv_gsc_record_login")
   local bilibili_ok = R():id("tv.danmaku.bili:id/ok")
+
+  local bilibili_account_login = R():id(
+                                   "com.hypergryph.arknights.bilibili:id/iv_gsc_account_login")
 
   local screen = getScreen()
   if screen.width > screen.height and find(game) then
@@ -953,21 +957,27 @@ wait_game_up = function(retry)
     end
     return
   end
+
   if appid ~= bppid then
     open()
     appear(game, 5)
   else
+    log(961)
     if not appear({
-      game, bilibili_wrapper, bilibili_input, bilibili_oneclicklogin,
-      bilibili_ok,
+      game, bilibili_wrapper, bilibili_oneclicklogin, bilibili_ok,
+      bilibili_account_login,
     }, 1) then
+      log(965)
       open()
       appear(game, 5)
-    elseif find(bilibili_input) then
+    elseif find(bilibili_account_login) then
+      click(bilibili_account_login)
+      appear(bilibili_login)
+    elseif find(bilibili_login) then
       local username_inputbox = R():id(
-                                  "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_username_login");
+                                  "com.hypergryph.arknights.bilibili:id/et_gsc_account");
       local password_inputbox = R():id(
-                                  "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_password_login");
+                                  "com.hypergryph.arknights.bilibili:id/et_gsc_account_pwd");
       input(username_inputbox, username)
       input(password_inputbox, password)
       click(bilibili_login)
@@ -979,11 +989,10 @@ wait_game_up = function(retry)
       click(bilibili_ok)
       appear(game, 5)
     elseif find(bilibili_wrapper) then
-
+      retry = retry - 1
     end
   end
-  -- ssleep(5)
-  log("wait_game_up", retry)
+  log("wait_game_up next", retry)
   return wait_game_up(retry + 1)
 end
 

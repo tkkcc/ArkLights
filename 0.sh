@@ -102,7 +102,7 @@
     done
   }
   scrcpy() {
-    sudo scrcpy "$@"
+    scrcpy "$@"
   }
   "$@"
   wait
