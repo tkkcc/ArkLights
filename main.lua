@@ -27,11 +27,15 @@ check_after_tap = true
 -- no_background_after_run = true
 -- longest_tag = true
 -- very_slow_state_check = true
+
+default_findcolor_confidence = 95
+default_max_drug_times = 9999
+default_max_stone_times = 0
+
 screen = getScreen()
 if screen.width < screen.height then
   screen.width, screen.height = screen.height, screen.width
 end
-default_findcolor_confidence = 95
 
 require("util")
 require("point")
@@ -181,7 +185,7 @@ local parse_from_ui = function(prefix, reference)
   return ans
 end
 local ui = {
-  title = "明日方舟速通 2021.09.21 20:35",
+  title = "明日方舟速通 2021.09.21 21:43",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -195,14 +199,23 @@ local ui = {
 9-19, 4-4, 4-9, 1-7,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5,
 上一次,syc]],
       id = "fight",
-    }, {title = "换班", type = "edit", value = [[]], id = "dorm"}, {
+    },
+    {title = "换班", type = "edit", value = [[]], id = "dorm"},
+    {
+      title = "设置",
+      type = "edit",
+      value = [[最大吃药次数=]] .. default_max_drug_times .. [[
+
+最大吃石头次数=]] .. default_max_stone_times,
+      id = "lua_setting",
+    }, {
       type = "check",
-      value = "*吃药|吃石头|*保底最高4星时自动招募|*换班技能优先|" ..
+      value = "*保底最高4星时自动招募|*换班技能优先|" ..
         (is_device_swipe_too_fast and "*" or '') ..
         "双指滑动（非真机建议选）|" ..
         (is_device_need_slow_swipe and "*" or '') .. "慢速滑动",
       ore = 1,
-      id = "drug_enable|stone_enable|star4_auto|prefer_skill|is_device_swipe_too_fast|is_device_need_slow_swipe",
+      id = "star4_auto|prefer_skill|is_device_swipe_too_fast|is_device_need_slow_swipe",
     }, {
       type = "check",
       ore = 1,
@@ -212,11 +225,36 @@ local ui = {
       type = "text",
       value = [[
 注意：
-找不对关卡：试试开关 双指滑动 和 慢速滑动。
+找不对关卡？试试开关 双指滑动 和 慢速滑动。
 刷活动关卡：在接管作战界面运行脚本。
 游戏全屏无黑边，基建退出提示必须开，miui游戏模式别开，还是有问题建议用vmos。
 ]],
-    }, {
+    }, -- {
+    --   type = 'div',
+    --   title = '',
+    --   views = {
+    --     {
+    --       type = "check",
+    --       value = "亮屏解锁（需root，开发中别用）",
+    --       ore = 1,
+    --       id = "need_screen_on",
+    --     }, {
+    --       type = "text",
+    --       value = [[需要手机半夜亮屏执行脚本的可以开，模拟器云手机等常亮设备没必要开。录入亮屏解锁手势或密码：点击下方按钮后脚本将进入亮屏解锁界面，依次点击（注意不是滑动）手势关键点或密码（包括最后的确认键），然后静置5秒，脚本将保存信息并尝试解锁。重启脚本无需重新录入。]],
+    --     }, {
+    --       type = "button",
+    --       value = "录入手势",
+    --       title = '',
+    --       click = {thread = outside, name = "capture_screen_on_gesture"},
+    --     }, {
+    --       type = "button",
+    --       value = "录入密码",
+    --       title = '',
+    --       click = {thread = outside, name = "capture_screen_on_password"},
+    --     },
+    --   },
+    -- },     
+    {
       type = 'div',
       title = '',
       views = {
@@ -227,12 +265,12 @@ local ui = {
           click = {thread = outside, name = "goto_bilibili"},
         }, {
           type = "button",
-          value = "QQ群",
+          value = "反馈群",
           title = '',
           click = {thread = outside, name = "goto_qq"},
         }, {
           type = "button",
-          value = "项目源码(好用给个star啊)",
+          value = "源码(好用请star)",
           title = '',
           click = {thread = outside, name = "goto_github"},
         },
@@ -371,10 +409,16 @@ if test_some then
   exit()
 end
 
+loadstring(lua_setting)()
+drug_times = 0
+max_drug_times = 最大吃药次数 or default_max_drug_times
+stone_times = 0
+max_stone_times = 最大吃石头次数 or default_max_stone_times
+-- log(max_stone_times, max_drug_times)
+
 local start_time = time()
 log("start")
 run(now_job)
 log("end", time() - start_time)
-
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)

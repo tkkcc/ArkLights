@@ -1147,7 +1147,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     })
     if state == "单选确认框" then return true end
     if state == "开始行动红" then return true end
-    if state and not disappear(state, .2) then return true end
+    if state and not disappear(state, .5) then return true end
 
     if findOne("开始行动") then
       tap("开始行动蓝")
@@ -1176,8 +1176,14 @@ path.开始游戏 = function(x, disable_ptrs_check)
     if not appear({"接管作战", "单选确认框"}, 10) then return end
     if findOne("单选确认框") then return end
     return path.base.接管作战()
-  elseif stone_enable and state == "源石恢复理智取消" or drug_enable and
-    state == "药剂恢复理智取消" then
+  elseif stone_times < max_stone_times and state == "源石恢复理智取消" or
+    drug_times < max_drug_times and state == "药剂恢复理智取消" then
+    if state == "源石恢复理智取消" then
+      stone_times = stone_times + 1
+    else
+      drug_times = drug_times + 1
+    end
+
     if not wait(function()
       if findOne("开始行动") then return true end
       if findOne(state) then
