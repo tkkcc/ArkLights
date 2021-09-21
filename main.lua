@@ -52,6 +52,17 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  log(is_screen_on())
+  exit()
+  log(catchClick())
+  exit()
+  status, result = pcall(home)
+  log(status, result)
+  log(findColor({0, 0, 1, 1, "0,0,#000000"}))
+  exit()
+  -- while true do tap("线索布置5") end
+  path.线索布置()
+  exit()
   unlock({{529, 2100}, {577, 1410}, {839, 1427}}, true)
   -- tap({467,2248},0,1)
   -- tap({467,1890},0,1)
@@ -169,9 +180,8 @@ local parse_from_ui = function(prefix, reference)
   end
   return ans
 end
-
 local ui = {
-  title = "明日方舟速通 2021.09.21  3:29",
+  title = "明日方舟速通 2021.09.21 20:35",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -181,18 +191,16 @@ local ui = {
     {title = "密码", type = "edit", id = "password", mode = "password"}, {
       title = "作战",
       type = "edit",
-      value = [[上一次,syc
-当期委托,dqwt,龙门市区，LMSQ
-4-4,4-9,1-7,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5,
-]],
+      value = [[当期委托,dqwt,龙门市区，LMSQ
+9-19, 4-4, 4-9, 1-7,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5,
+上一次,syc]],
       id = "fight",
     }, {title = "换班", type = "edit", value = [[]], id = "dorm"}, {
       type = "check",
       value = "*吃药|吃石头|*保底最高4星时自动招募|*换班技能优先|" ..
         (is_device_swipe_too_fast and "*" or '') ..
-        "双指滑动（模拟器建议选）|" ..
-        (is_device_need_slow_swipe and "*" or '') ..
-        "慢速滑动（华为建议选）",
+        "双指滑动（非真机建议选）|" ..
+        (is_device_need_slow_swipe and "*" or '') .. "慢速滑动",
       ore = 1,
       id = "drug_enable|stone_enable|star4_auto|prefer_skill|is_device_swipe_too_fast|is_device_need_slow_swipe",
     }, {
@@ -204,34 +212,10 @@ local ui = {
       type = "text",
       value = [[
 注意：
-找不到关卡：试试开关 双指滑动 和 慢速滑动。
+找不对关卡：试试开关 双指滑动 和 慢速滑动。
 刷活动关卡：在接管作战界面运行脚本。
 游戏全屏无黑边，基建退出提示必须开，miui游戏模式别开，还是有问题建议用vmos。
 ]],
-    }, {
-      type = 'div',
-      title = '',
-      views = {
-        {
-          type = "check",
-          value = "亮屏解锁（需root，开发中别用）",
-          ore = 1,
-          id = "need_screen_on",
-        }, {
-          type = "text",
-          value = [[需要手机半夜亮屏执行脚本的可以开，模拟器云手机等常亮设备没必要开。录入亮屏解锁手势或密码：点击下方按钮后脚本将进入亮屏解锁界面，依次点击（注意不是滑动）手势关键点或密码（包括最后的确认键），然后静置5秒，脚本将保存信息并尝试解锁。重启脚本无需重新录入。]],
-        }, {
-          type = "button",
-          value = "录入手势",
-          title = '',
-          click = {thread = outside, name = "capture_screen_on_gesture"},
-        }, {
-          type = "button",
-          value = "录入密码",
-          title = '',
-          click = {thread = outside, name = "capture_screen_on_password"},
-        },
-      },
     }, {
       type = 'div',
       title = '',

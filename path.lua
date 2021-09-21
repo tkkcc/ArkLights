@@ -763,17 +763,16 @@ path.线索布置 = function()
 
   -- 在左侧判断，不会右侧提示挡住
   if not wait(function()
-    log(766)
-    if findOne("线索布置展开") then return true end
-    if findOne("线索传递") then
-      tapCard("线索布置列表1")
-      disappear("线索传递")
+    if findOne("线索布置展开") and findOne("线索布置数字右列表6") then
+      return true
     end
+    tap("线索布置5")
   end, 5) then return end
 
   -- 一个红点都没找到
-  -- TODO still need wait? maybe
-  if not findAny(point.线索布置左列表) then
+  -- TODO still need wait?
+  -- with findAny, skip happens on collect, not sure if this is
+  if not appear(point.线索布置左列表, .5) then
     wait(function()
       if findOne("线索传递") then return true end
       tap("解锁线索上")
@@ -807,8 +806,9 @@ path.线索布置 = function()
         if not wait(function()
           if not findOne(p) then return true end
 
-          -- TODO: will this better
-          wait(function() tap("线索库列表1") end, .1)
+          -- TODO: will this better, can cause error
+          tap("线索库列表1")
+          -- wait(function() tap("线索库列表1") end, .1)
 
           -- we must wait network
           disappear(p, 5)
@@ -1459,6 +1459,14 @@ jmfight_current = ""
 is_jmfight_enough = function(x, outside)
   log("is_jmfight_enough", x)
   if ignore_jmfight_enough_check then return false end
+
+  -- all fights should check first, because x may not be in jmfight
+  if findOne("报酬合成玉已满") then
+    jmfight_enough = true
+    return true
+  end
+
+  -- use state, jmfight only
   if not table.includes(table.values(jianpin2name), x) then return false end
   if jmfight_enough then return true end
 
@@ -2079,7 +2087,10 @@ path["克洛丝单人1-12"] = function()
 end
 
 is_screen_on = function()
-  -- TODO
+  -- TODO exec can not return output
+  result = exec("service call power 12|grep '00000000 00000000'")
+  log(type(result))
+  log(status, result)
   return false
 end
 

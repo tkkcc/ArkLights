@@ -37,6 +37,9 @@ end
 require('util')
 function capture_screen_on_gesture() capture_screen_on_password(true) end
 function capture_screen_on_password(swip_mode)
+  while true do
+
+  end
   print(39)
   local finger = {}
   local idle_start_time = time()
