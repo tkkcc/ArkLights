@@ -762,17 +762,20 @@ path.线索布置 = function()
   log(643)
 
   -- 在左侧判断，不会右侧提示挡住
-  if not wait(function()
-    if findOne("线索布置展开") and findOne("线索布置数字右列表6") then
+  wait(function()
+    if findOne("线索布置展开") and disappear("线索布置白列表5", 1) then
       return true
     end
     tap("线索布置5")
-  end, 5) then return end
+  end, 5)
+
+  log(642)
 
   -- 一个红点都没找到
   -- TODO still need wait?
   -- with findAny, skip happens on collect, not sure if this is
-  if not appear(point.线索布置左列表, .5) then
+  -- if not appear(point.线索布置左列表, .5) then
+  if not findAny(point.线索布置左列表) then
     wait(function()
       if findOne("线索传递") then return true end
       tap("解锁线索上")
@@ -795,13 +798,11 @@ path.线索布置 = function()
     for i = 1, 7 do
       if findOne("线索布置左列表" .. i) then
         p = "线索布置左列表" .. i
-        -- TODO: half seconds should be enough?
-        if not wait(function()
-          if findOne("线索布置数字右列表" .. i) then
-            return true
-          end
+
+        wait(function()
+          if findOne("线索布置白列表" .. i) then return true end
           tapCard(p)
-        end, 1) then return end
+        end, 2)
 
         if not wait(function()
           if not findOne(p) then return true end
@@ -812,7 +813,7 @@ path.线索布置 = function()
 
           -- we must wait network
           disappear(p, 5)
-        end, 50) then return end
+        end, 20) then return end
       end
     end
     log(648)

@@ -192,8 +192,11 @@ point = {
   线索库列表 = {{1645, 470}},
   解锁线索上 = {1008, 900},
   线索布置展开 = "1277,55,#FFFFFF|1282,55,#FFFFFF|1289,55,#FFFFFF",
-  线索布置数字右列表 = { -- "148,233,#FFFFFF", "451,339,#FFFFFF", "753,203,#FFFFFF", "1078,268,#FFFFFF",
-    -- "570,665,#FFFFFF", "880,578,#FFFFFF", "229,612,#FFFFFF",
+  线索布置白列表 = {
+    "148,231,#FFFFFF", "451,339,#FFFFFF", "753,202,#FFFFFF", "1078,268,#FFFFFF",
+    "570,665,#FFFFFF", "880,578,#FFFFFF", "229,612,#FFFFFF",
+  },
+  线索布置数字右列表 = {
     "1417,128,#FFFFFF", "1499,131,#FFFFFF", "1575,130,#FFFFFF",
     "1651,131,#FFFFFF", "1730,131,#FFFFFF", "1806,130,#FFFFFF",
     "1883,131,#FFFFFF",
@@ -690,6 +693,7 @@ center = {
   好友采样列表 = "center_center",
   干员选中列表 = "left_top",
   邮件提示采样列表 = "right_top",
+  线索布置白列表="center_center",
   线索布置数字右列表 = "right_top",
   小蓝圈 = "left_bottom",
   主页按下 = "left_top",
