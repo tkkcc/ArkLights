@@ -1123,6 +1123,14 @@ path.开始游戏 = function(x, disable_ptrs_check)
   log("开始游戏", fight_tick, x)
   if not findOne("开始行动") then return end
   if x == "1-11" then return auto(path["1-11"]) end
+  -- TODO 活动时需要注意这个地方，活动关的代理指挥不长这样
+  -- 目的是剿灭
+  if not appear("代理指挥开", 1) then return end
+  -- log(findOne("开始行动"))
+  -- log(findOne("返还规则"))
+  -- log(findOne("报酬合成玉已满"))
+  -- log(findOne("开始行动"))
+  -- exit()
   if is_jmfight_enough(x) then return end
   if not disable_ptrs_check and not appear("代理指挥开", .2) then
     if not wait(function()
@@ -1152,11 +1160,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
     if findOne("开始行动") then
       tap("开始行动蓝")
-      disappear("开始行动", 2)
-      -- appear({
-      --   "开始行动红", "源石恢复理智取消",
-      --   "药剂恢复理智取消",
-      -- }, .5)
+      disappear("开始行动", 1)
     end
   end, 30) then return end
 
@@ -1312,6 +1316,8 @@ path.上一次 = function(x)
     tap("上一次")
   end, 5)
   if not appear("开始行动", 5) then return end
+  -- 专为剿灭设计
+  -- 但活动时可能有点问题会，因为
   path.开始游戏(x)
 end
 
