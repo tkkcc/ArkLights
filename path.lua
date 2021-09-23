@@ -405,7 +405,7 @@ sample = function(v)
   return "sample"
 end
 
-path.基建换班 = function()
+path.宿舍换班 = function()
   -- 宿舍换班 4间
   local f
   f = function(i)
@@ -477,7 +477,105 @@ path.基建换班 = function()
     end, 5) then return end
   end
   if not no_dorm then for i = 1, 4 do f(i) end end
+end
 
+path.制造换班 = function()
+  if not debug then return end
+  path.跳转("基建")
+  -- TODO: 颜色有风险，所以需要找一个制造站，或者用更鲁棒的特征
+  local found
+  for i = 1, 9 do
+    local x, y = table.unpack(point["基建列表" .. i])
+    if not compareColor(x, y, "#FFCC00", default_findcolor_confidence) then
+      found = true
+      break
+    end
+  end
+  if not found then
+    log("一个制造站都没找到")
+    return
+  end
+
+  -- 进入制造站
+  if not wait(function()
+    if not findOne("进驻总览") or not findOne("缩放结束") then
+      return true
+    end
+    tap({x, y})
+  end, 10) then return end
+
+  if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
+
+  -- TODO 确认制造站类型：三种中的一种
+
+  -- TODO 更保守地进入，需要吗？看下宿舍换班怎么写的
+  if not wait(function()
+    if findOne("确认蓝") then return true end
+    if findOne("进驻信息选中") and not disappear("进驻信息选中", .5) then
+      tap("进驻第一人左")
+    elseif findOne("进驻信息") then
+      tap("进驻信息")
+      disappear("进驻信息", .5)
+    end
+  end, 5) then return end
+
+  -- TODO: 清空后按技能排，需要检查下
+  if not wait(function()
+    if findOne("确认蓝") and findOne("干员未选中") then return true end
+    tap("清空选择")
+  end, 5) then return end
+
+  if not wait(function()
+    if findOne("筛选取消") then return true end
+    tap("筛选")
+  end, 5) then return end
+
+  if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
+  if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
+    return
+  end
+
+  if not findOne("筛选未进驻") then
+    if not wait(function()
+      if findOne("筛选未进驻") then return true end
+      tap("筛选未进驻")
+      appear("筛选未进驻", .5)
+    end, 5) then return end
+  end
+
+  if not findOne("筛选技能降序") then
+    if not wait(function()
+      if findOne("筛选技能降序") then return true end
+      tap("筛选技能降序")
+      appear("筛选技能降序", .5)
+    end, 5) then return end
+  end
+
+  if not wait(function()
+    if not findOne("筛选取消") then return true end
+    tap("筛选确认")
+  end, 5) then return end
+  appear("筛选横线", 1)
+
+  ssleep(1)
+  swipo(true)
+  ssleep(2)
+
+  -- TODO 找指定类型的干员
+  findtap_operator_fast(operator)
+  swipo(true)
+
+  if not wait(function()
+    if findAny({
+      "隐藏", "进驻信息", "进驻信息选中",
+      "正在提交反馈至神经",
+    }) then return true end
+    tap("确认蓝")
+  end, 5) then return end
+end
+
+path.总览换班 = function()
+  local f
   -- no doing this any more
   -- if 1 then return end
 
@@ -600,6 +698,12 @@ path.基建换班 = function()
   if not findOne("撤下干员") then return end
   tap("返回")
   if appear("进驻总览") then leaving_jump = true end
+end
+
+path.基建换班 = function()
+  path.宿舍换班()
+  path.制造换班()
+  path.总览换班()
 end
 
 path.制造加速 = function()
