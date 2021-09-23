@@ -56,6 +56,8 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  log(findOne("开始行动"))
+  exit()
   path.线索布置()
   exit()
   log(is_screen_on())
@@ -187,7 +189,7 @@ local parse_from_ui = function(prefix, reference)
   return ans
 end
 local ui = {
-  title = "明日方舟速通 2021.09.22 22:00",
+  title = "明日方舟速通 2021.09.23 16:49",
   cache = not no_config_cache,
   width = -1,
   height = -1,

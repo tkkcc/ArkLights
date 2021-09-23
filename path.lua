@@ -1152,10 +1152,11 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
     if findOne("开始行动") then
       tap("开始行动蓝")
-      appear({
-        "开始行动红", "源石恢复理智取消",
-        "药剂恢复理智取消",
-      }, .5)
+      disappear("开始行动", 2)
+      -- appear({
+      --   "开始行动红", "源石恢复理智取消",
+      --   "药剂恢复理智取消",
+      -- }, .5)
     end
   end, 30) then return end
 
@@ -1285,7 +1286,7 @@ path.主线 = function(x)
 
     log("1046", chapter)
     swipc(distance['' .. chapter])
-
+    wait(function() tap("作战主线章节列表" .. chapter) end, 1)
     if not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
