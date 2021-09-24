@@ -548,7 +548,7 @@ end
 swipo = function(left)
   local x1, y1, x2, y2, duration
   x1, y1 = screen.width - math.round(300 * minscale), screen.height // 2
-  x2, y2 = max(x1 - math.round(1565 * minscale), 0), screen.height
+  x2, y2 = max(x1 - math.round(1565 * minscale), 0), screen.height - 1
   duration = 1000
   if left then
     x2 = 10000
@@ -1047,6 +1047,7 @@ findtap_operator = function(operator)
   operator_notfound = table.value2key(operator)
   found = #operator
   swipo(true)
+  tap("清空选择")
   -- swip 3 times only
   for i = 1, 3 do
     if found <= 0 then return end
@@ -1149,38 +1150,48 @@ findtap_operator_fast = function(operator)
   end
 end
 
-findtap_operator_type = function(operator)
-  operator_notfound = table.value2key(operator)
-  found = #operator
+findtap_operator_type = function(type)
   swipo(true)
+  tap("清空选择")
+  ssleep(2)
+  log('type', type)
+  local 经验加速 = {
+    '#261500-50',
+    '[{"a":0.129,"d":1.622,"id":"1","r":529.0,"s":"34|5<fOm>&5~9zPN&5~amm]&5>Yg}@&5]8m]^&5X[L$H&5X[L$H&5X[L$X&5>xRmv&5<quBx&5>GERF&5>GERE&5X[L$Y&5X[Npu&5X[Npu&5Y6o!c&5>YhCE&5~a15*&5~9z^6&5~9z^6&2~zjVe"}]',
+    0.85,
+  }
+  local 赤金加速 = {
+    '#202020-50',
+    '[{"a":-0.044,"d":1.807,"id":"1","r":358.0,"s":"22|py&PS&PS&PS&H6!&18dN&18dN&18dM&18dM&2OY&2OY&2LC&2LC&2gre&4wSA&8{v2&8{v2&4wSs&aL6&ax~&ax~&lgc&k]*&k]*&lGs&H6!&H6!&H6!&18dM&H6Y"}]',
+    0.85,
+  }
+  if type == '经验站' then
+    type = 经验加速
+  elseif type == "赤金站" then
+    type = 赤金加速
+  end
   -- swip 3 times only
   for i = 1, 3 do
-    if found <= 0 then return end
     if i ~= 1 then swipo() end
-    ssleep(1)
-    -- 616,107
-    local res = ocrp({
-      rect = {
-        math.round(616 * minscale), math.round(107 * minscale),
-        screen.width - 1, screen.height - 1,
-      },
-    })
-    res = res or {}
 
-    for _, node in pairs(res) do
-      log(node.text)
-      for pattern, _ in pairs(operator_notfound) do
-        if string.find(node.text, pattern) then
-          log('found', pattern)
-          tap(node.text_box_position[1])
-          operator_notfound[pattern] = nil
-          found = found - 1
-          if found == 0 then return end
-          break
+    local candidate = findShape(type)
+    if candidate then
+      log(11777, #candidate)
+      local p = {}
+      for j, c in pairs(candidate) do
+        -- 宽度不超过
+        if c['x'] < 1920 * minscale then
+          table.insert(p, 'candidates' .. j)
+          point['candidates' .. j] = {c['x'], c['y']}
         end
+      end
+      if #p > 0 then
+        tapAll(p)
+        ssleep(.1)
       end
     end
   end
+  swipo(true)
 end
 
 timeit = function(f)
@@ -1191,7 +1202,10 @@ end
 
 tapAll = function(ks)
   log("tapAll", ks)
-  local duration = 100 -- 1 漏 20漏 50 漏 1000可以，问题还是在前一步
+
+  -- 100时仍然可能不按序，试试200
+  local duration = 200 -- 1 漏 20漏 50 漏 1000可以，问题还是在前一步
+  if speedrun then duration = 100 end
   local finger = {}
   for _, k in pairs(ks) do
     table.insert(finger, {{x = point[k][1], y = point[k][2]}})

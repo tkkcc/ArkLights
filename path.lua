@@ -480,98 +480,119 @@ path.宿舍换班 = function()
 end
 
 path.制造换班 = function()
-  if not debug then return end
-  path.跳转("基建")
-  -- TODO: 颜色有风险，所以需要找一个制造站，或者用更鲁棒的特征
-  local found
-  for i = 1, 9 do
+  -- if not debug then return end
+
+  local f
+  f = function(i)
+
+    path.跳转("基建")
     local x, y = table.unpack(point["基建列表" .. i])
-    if not compareColor(x, y, "#FFCC00", default_findcolor_confidence) then
-      found = true
-      break
+    -- 检测kernel，因为可能被条纹挡住
+    if not (compareColor(x, y, "#FFCC00", default_findcolor_confidence) or
+      compareColor(x - 5, y - 10, "#FFCC00", default_findcolor_confidence) or
+      compareColor(x - 5, y + 10, "#FFCC00", default_findcolor_confidence) or
+      compareColor(x + 5, y + 10, "#FFCC00", default_findcolor_confidence) or
+      compareColor(x - 5, y - 10, "#FFCC00", default_findcolor_confidence)) then
+      log("skip", i)
+      return
     end
-  end
-  if not found then
-    log("一个制造站都没找到")
-    return
-  end
-
-  -- 进入制造站
-  if not wait(function()
-    if not findOne("进驻总览") or not findOne("缩放结束") then
-      return true
-    end
-    tap({x, y})
-  end, 10) then return end
-
-  if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
-
-  -- TODO 确认制造站类型：三种中的一种
-
-  -- TODO 更保守地进入，需要吗？看下宿舍换班怎么写的
-  if not wait(function()
-    if findOne("确认蓝") then return true end
-    if findOne("进驻信息选中") and not disappear("进驻信息选中", .5) then
-      tap("进驻第一人左")
-    elseif findOne("进驻信息") then
-      tap("进驻信息")
-      disappear("进驻信息", .5)
-    end
-  end, 5) then return end
-
-  -- TODO: 清空后按技能排，需要检查下
-  if not wait(function()
-    if findOne("确认蓝") and findOne("干员未选中") then return true end
-    tap("清空选择")
-  end, 5) then return end
-
-  if not wait(function()
-    if findOne("筛选取消") then return true end
-    tap("筛选")
-  end, 5) then return end
-
-  if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
-  if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
-    return
-  end
-
-  if not findOne("筛选未进驻") then
+    -- 进入制造站
     if not wait(function()
-      if findOne("筛选未进驻") then return true end
-      tap("筛选未进驻")
-      appear("筛选未进驻", .5)
+      if not findOne("进驻总览") or not findOne("缩放结束") then
+        return true
+      end
+      tap({x, y})
+    end, 10) then return end
+
+    -- 收起进驻信息
+    if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
+    if not wait(function()
+      if findOne("进驻信息") then return true end
+      if findOne("进驻信息选中") then
+        tap("进驻信息选中")
+        disappear("进驻信息选中")
+      end
+    end, 5) then return end
+
+    -- 确认类型
+    local type = appear({"经验站", "赤金站"}, 5)
+    if not type then
+      log("not support", i)
+      return
+    end
+    log(524, type)
+
+    -- 进入干员列表
+    if not wait(function()
+      if findOne("确认蓝") then return true end
+      if findOne("进驻信息选中") and
+        not disappear("进驻信息选中", .5) then
+        tap("进驻第一人左")
+      elseif findOne("进驻信息") then
+        tap("进驻信息")
+        disappear("进驻信息", .5)
+      end
+    end, 5) then return end
+
+    -- 筛选出无进驻技能排序
+    local limit = findOne("清空选择") and 7 or 1
+
+    if not wait(function()
+      if findOne("筛选取消") then return true end
+      tap("筛选")
+    end, 5) then return end
+
+    if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
+    if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
+      return
+    end
+
+    if not findOne("筛选未进驻选中") then
+      if not wait(function()
+        if findOne("筛选未进驻选中") then return true end
+        tap("筛选未进驻选中")
+        appear("筛选未进驻选中", .5)
+      end, 5) then return end
+    end
+
+    if prefer_skill and not findOne("筛选技能降序") then
+      if not wait(function()
+        if findOne("筛选技能降序") then return true end
+        tap("筛选技能降序")
+        appear("筛选技能降序", .5)
+      end, 5) then return end
+    end
+
+    if not wait(function()
+      if not findOne("筛选取消") then return true end
+      tap("筛选确认")
+    end, 5) then return end
+
+    if not wait(function()
+      if findOne("干员未选中") and findOne("筛选横线") and
+        findOne("筛选") then return true end
+      tap("清空选择")
+    end, 5) then return end
+    log("limit", limit)
+
+    -- if not wait(function()
+    --   if not findOne("筛选取消") then return true end
+    --   tap("筛选确认")
+    -- end, 5) then return end
+    -- appear("筛选横线", 1)
+
+    findtap_operator_type(type)
+
+    if not wait(function()
+      if findAny({
+        "隐藏", "进驻信息", "进驻信息选中",
+        "正在提交反馈至神经",
+      }) then return true end
+      tap("确认蓝")
     end, 5) then return end
   end
-
-  if not findOne("筛选技能降序") then
-    if not wait(function()
-      if findOne("筛选技能降序") then return true end
-      tap("筛选技能降序")
-      appear("筛选技能降序", .5)
-    end, 5) then return end
-  end
-
-  if not wait(function()
-    if not findOne("筛选取消") then return true end
-    tap("筛选确认")
-  end, 5) then return end
-  appear("筛选横线", 1)
-
-  ssleep(1)
-  swipo(true)
-  ssleep(2)
-
-  -- TODO 找指定类型的干员
-  findtap_operator_fast(operator)
-  swipo(true)
-
-  if not wait(function()
-    if findAny({
-      "隐藏", "进驻信息", "进驻信息选中",
-      "正在提交反馈至神经",
-    }) then return true end
-    tap("确认蓝")
-  end, 5) then return end
+  -- 找到所有制造站
+  for i = 1, 9 do f(i) end
 end
 
 path.总览换班 = function()
@@ -629,12 +650,10 @@ path.总览换班 = function()
       tap("筛选")
     end, 5) then return end
 
-    log(521)
     if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
     if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
       return
     end
-    log(522)
 
     if not findOne("筛选未进驻选中") then
       if not wait(function()
@@ -660,10 +679,9 @@ path.总览换班 = function()
     if not wait(function()
       if findOne("干员未选中") and findOne("筛选横线") and
         findOne("筛选") then return true end
-
       tap("清空选择")
-
     end, 5) then return end
+
     log("limit", limit)
     tapAll(table.slice({
       "干员选择列表1", "干员选择列表2", "干员选择列表3",
@@ -2006,13 +2024,10 @@ path.每日任务速通 = function()
     end) then return end
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
     if not wait(function()
-      log(1807)
       if findOne("筛选") then return true end
-      log(1808)
       if findOne("进驻信息选中") then
         wait(function()
           if findOne("筛选") then return true end
-          log(1809)
           tap("进驻第一人")
         end, 1)
       elseif findOne("进驻信息") then
@@ -2024,14 +2039,12 @@ path.每日任务速通 = function()
         end, 1)
       end
     end, 5) then return end
-    -- tap("清空选择")
+
     if not wait(function()
       if findOne("干员未选中") and findOne("筛选横线") then
         return true
       end
-      --
       tap("清空选择")
-      --
     end, 5) then return end
     -- local state = sample("心情")
     -- tap("心情")
@@ -2124,19 +2137,9 @@ path.指定换班 = function()
       if findOne("进驻信息选中") and
         not disappear("进驻信息选中", .5) then
         tap("进驻第一人左")
-        -- appear("确认蓝",.5)
-        -- wait(function()
-        --   if findOne("确认蓝") then return true end
-        --   tap("进驻第一人左")
-        -- end, 1)
       elseif findOne("进驻信息") then
         tap("进驻信息")
         disappear("进驻信息", .5)
-        -- ssleep(.2)
-        -- wait(function()
-        --   if findOne("确认蓝") then return true end
-        --   tap("进驻第一人左")
-        -- end, 1)
       end
     end, 5) then return end
 

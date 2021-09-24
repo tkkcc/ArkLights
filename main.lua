@@ -56,6 +56,49 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  -- swipo()
+  -- exit()
+  -- findtap_operator_type("赤金站")
+  -- exit()
+  path.制造换班()
+  exit()
+
+  local feature
+
+  -- 1080p feature
+  经验加速 = {
+    '#261500-50',
+    '[{"a":0.129,"d":1.622,"id":"1","r":529.0,"s":"34|5<fOm>&5~9zPN&5~amm]&5>Yg}@&5]8m]^&5X[L$H&5X[L$H&5X[L$X&5>xRmv&5<quBx&5>GERF&5>GERE&5X[L$Y&5X[Npu&5X[Npu&5Y6o!c&5>YhCE&5~a15*&5~9z^6&5~9z^6&2~zjVe"}]',
+    0.85,
+  }
+  赤金加速 = {
+    '#202020-50',
+    '[{"a":-0.044,"d":1.807,"id":"1","r":358.0,"s":"22|py&PS&PS&PS&H6!&18dN&18dN&18dM&18dM&2OY&2OY&2LC&2LC&2gre&4wSA&8{v2&8{v2&4wSs&aL6&ax~&ax~&lgc&k]*&k]*&lGs&H6!&H6!&H6!&18dM&H6Y"}]',
+    0.85,
+  }
+
+  feature = 经验加速
+
+  -- 720p feature
+  -- feature = {'#16161E-50','[{"a":0.128,"d":1.582,"id":"1","r":217.0,"s":"22|8uPW&8RKD&8SH^&7!GH&7!GD&7!GH&8Nd(&8Nd(&7!GI&7!GA&7!JW&8SMU&8{4Q&8RL~"}]',0.85}
+  feature = findShape(feature)
+  log(feature)
+  log(#feature)
+  exit()
+  -- log(info)
+  local region = {
+    {590, 487, 1919, 523}, {1033, 487, 1491, 523}, {1464, 487, 1919, 523},
+    {590, 907, 1059, 943}, {1033, 907, 1491, 943}, {1464, 907, 1919, 943},
+  }
+  local r = region[1]
+  r = {590, 907, 1059, 943}
+  r[3] = screen.width - 1
+  text, info = ocr(table.unpack(r))
+  log(text)
+  -- log(info)
+  local res = ocrp({rect = r})
+  log(map(function(x) return x.text end, res))
+  exit()
   log(findOne("开始行动"))
   log(findOne("返还规则"))
   log(findOne("报酬合成玉已满"))
@@ -108,17 +151,6 @@ if predebug then
   -- x="9-2"
   -- swip(x)
   -- tap("作战列表" .. x)
-  exit()
-  local region = {
-    {590, 487, 1919, 523}, {1033, 487, 1491, 523}, {1464, 487, 1919, 523},
-    {590, 907, 1059, 943}, {1033, 907, 1491, 943}, {1464, 907, 1919, 943},
-  }
-  local r = region[1]
-  r[3] = screen.width - 1
-  text, info = ocr(table.unpack(r))
-  log(text)
-  local res = ocrp({rect = r})
-  log(map(function(x) return x.text end, res))
   exit()
 
   -- -- {0,0,0,0,"1059,457,#D2D1D1|1033,455,#FFFFFF|1464,443,#D1CACE|1491,446,#D6D5D5",95}
@@ -191,7 +223,7 @@ local parse_from_ui = function(prefix, reference)
   return ans
 end
 local ui = {
-  title = "明日方舟速通 2021.09.23 22:00",
+  title = "明日方舟速通 2021.09.25  0:29",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -205,9 +237,7 @@ local ui = {
 9-19, 4-4, 4-9, 1-7,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5,
 上一次,syc]],
       id = "fight",
-    },
-    {title = "换班", type = "edit", value = [[]], id = "dorm"},
-    {
+    }, {title = "换班", type = "edit", value = [[]], id = "dorm"}, {
       title = "设置",
       type = "edit",
       value = [[最大吃药次数=]] .. default_max_drug_times .. [[
