@@ -9,7 +9,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
-
+  线索传递有好友="1793,182,#FFFFFF",
   返还规则 = "1449,937,#FFFFFF",
   未解锁第9章 = "97,825,#282828",
 
@@ -682,6 +682,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 
 
 center = {
+  线索传递有好友="center_center",
   赤金站="left_bottom",
   经验站="left_bottom",
   返还规则 = "right_bottom",

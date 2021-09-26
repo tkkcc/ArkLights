@@ -62,7 +62,7 @@ path.base = {
     if not findOne("开始行动") then return path.base.接管作战() end
 
     log(89, repeat_fight_mode)
-    if repeat_fight_mode then return path.开始游戏('', true) end
+    if repeat_fight_mode then return path.开始游戏('') end
 
     -- current fight success
     pre_fight = cur_fight
@@ -275,8 +275,9 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
         if findAny({"返回", "返回2"}) then
           if not first_time_see_home then
             first_time_see_home = time()
-          elseif (time() - first_time_see_home) > 1000 then
-            return true -- we see 主页 for some time, and target still not appear
+          elseif (time() - first_time_see_home) > 5000 then
+            p["主页"] = nil
+            return true -- we see 返回 for some time, but target still not appear
           end
         else
           first_time_see_home = nil
@@ -832,20 +833,22 @@ path.线索搜集 = function()
 
   log(501)
 
-  f = function()
+  f = function(retry)
+    if retry > 10 or no_friend then return true end
+
     if not wait(function()
       if findOne("信用奖励返回") then return true end
       tap("信用奖励有")
     end, 5) then return end
 
-    if not appear("未达线索上限", .1) and findOne("信用奖励返回") then
+    if not appear("未达线索上限", .2) and findOne("信用奖励返回") then
       log(733)
       tap("返回")
       appear("线索传递")
       clue_unlocked = false
       path.线索布置()
       if not clue_unlocked then path.线索传递() end
-      return f()
+      return f(retry + 1)
     end
     log(734)
 
@@ -862,7 +865,7 @@ path.线索搜集 = function()
     if not appear("线索传递") then return end
     return true
   end
-  if not f() then return end
+  if not f(0) then return end
   if not appear("线索传递") then return end
   path.线索布置()
   -- if not appear("线索传递") then return end
@@ -965,6 +968,14 @@ path.线索传递 = function()
   if not findTap("线索传递") then return end
   -- log(828)
   if not appear("线索传递数字列表8", 5) then return end
+  if not appear("线索传递有好友", .5) then
+    no_friend = true
+    wait(function()
+      if findOne("线索传递") then return true end
+      tap("线索传递返回")
+    end, 10)
+    return
+  end
 
   for i = 1, 8 do
     if not wait(function()
@@ -986,7 +997,7 @@ path.线索传递 = function()
     local idx
     if random then
       tap("线索传递左白")
-      idx = math.random(4)
+      idx = 1 -- 有人只有一个好友
     else
       local ps = findAll("线索传递橙框")
       if ps then
@@ -1247,14 +1258,14 @@ path.开始游戏 = function(x, disable_ptrs_check)
   if x == "1-11" then return auto(path["1-11"]) end
   -- TODO 活动时需要注意这个地方，活动关的代理指挥不长这样
   -- 目的是剿灭
-  if not appear("代理指挥开", 1) then return end
+  -- if not appear("代理指挥开", 1) then return end
   -- log(findOne("开始行动"))
   -- log(findOne("返还规则"))
   -- log(findOne("报酬合成玉已满"))
   -- log(findOne("开始行动"))
   -- exit()
-  if is_jmfight_enough(x) then return end
-  if not disable_ptrs_check and not appear("代理指挥开", .2) then
+
+  if not appear("代理指挥开", .2) then
     if not wait(function()
       if findOne("代理指挥开") and not disappear("代理指挥开", .2) then
         return true
@@ -1263,6 +1274,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
       appear("代理指挥开", .5)
     end, 5) then return end
   end
+  if is_jmfight_enough(x) then return end
 
   -- quick tap .5s
   wait(function()

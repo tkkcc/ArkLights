@@ -60,7 +60,8 @@ if predebug then
   -- exit()
   -- findtap_operator_type("赤金站")
   -- exit()
-  path.制造换班()
+  path.线索传递()
+  -- path.制造换班()
   exit()
 
   local feature
@@ -223,7 +224,7 @@ local parse_from_ui = function(prefix, reference)
   return ans
 end
 local ui = {
-  title = "明日方舟速通 2021.09.25  0:29",
+  title = "明日方舟速通 2021.09.26 17:50",
   cache = not no_config_cache,
   width = -1,
   height = -1,
