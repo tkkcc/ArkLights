@@ -56,6 +56,10 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  fake_fight = true
+  fight = {"1-7", "4-4"}
+  path.轮次作战()
+  exit()
   -- swipo()
   -- exit()
   -- findtap_operator_type("赤金站")
@@ -224,7 +228,7 @@ local parse_from_ui = function(prefix, reference)
   return ans
 end
 local ui = {
-  title = "明日方舟速通 2021.09.26 17:50",
+  title = "明日方舟速通 2021.09.27 22:08",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -392,6 +396,7 @@ log(facility2operator)
 if test_fight then
 
   fight = {
+    "1-7", "4-1",
 
     -- "9-2", "9-3", "9-4", "9-5", "9-6", "9-7", "9-9", "9-10", "9-11", "9-12",
     -- "9-13", "S9-1", "9-14", "9-15", "9-16", "9-17", "9-18", "9-19",

@@ -742,6 +742,7 @@ run = function(...)
   update_state()
   wait_game_up()
   for _, v in ipairs(arg) do
+    menuConfig({x = 0, y = screen.height})
     running = v
     if type(v) == 'function' then
       v()

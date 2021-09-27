@@ -81,10 +81,12 @@ path.base = {
         if not findOne("开始行动") then return true end
         tap("主页右侧")
       end, 20) then return end
+
       -- TODO how to ignore this sleep
       -- ssleep(.5)
       -- 只有主线与物资芯片会存在same_page_fight，
-      -- 物资芯片的appear是完备的，
+      -- 物资芯片的appear是完备的
+
       local x = get_fight_type(cur_fight)
       -- if x == "物资芯片" then
       --   appear("作战列表" .. cur_fight, .5)
@@ -117,7 +119,7 @@ path.基建收获 = function()
   -- jump without zoom
   path.跳转("基建", nil, true)
   local x
-  x = appear({"基建灯泡蓝", "基建灯泡蓝2"}, 2)
+  x = appear({"基建灯泡蓝", "基建灯泡蓝2"}, 3)
   -- 没看到灯泡或线索提示
   if not x then
     leaving_jump = true
@@ -1214,7 +1216,7 @@ path.轮次作战 = function()
     fight_tick = fight_tick % #fight + 1
     if fight_tick == 1 then
       no_success_one_loop = no_success_one_loop + 1
-      if no_success_one_loop > 2 then break end
+      if no_success_one_loop > 5 then break end
     end
     cur_fight = fight[fight_tick]
     log(971)
@@ -1265,9 +1267,9 @@ path.开始游戏 = function(x, disable_ptrs_check)
   -- log(findOne("开始行动"))
   -- exit()
 
-  if not appear("代理指挥开", .2) then
+  if not appear("代理指挥开", .5) then
     if not wait(function()
-      if findOne("代理指挥开") and not disappear("代理指挥开", .2) then
+      if findOne("代理指挥开") and not disappear("代理指挥开", .5) then
         return true
       end
       tap("代理指挥开")
@@ -1411,11 +1413,13 @@ path.主线 = function(x)
 
     if chapter_index <= 4 then
       -- 从上到下，命中第一篇, 专为还没过3-8的玩家
+      ssleep(.5)
       tap("觉醒")
       tap("幻灭")
       ssleep(.5)
     elseif chapter_index <= 9 then
       -- 只打到3-8，第9章也会解锁，无需特殊处理
+      ssleep(.5)
       tap("幻灭")
       ssleep(.5)
     end
@@ -1428,10 +1432,10 @@ path.主线 = function(x)
     if not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
-    end, 2) and not wait(function()
+    end, 3) and not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
-    end, 2) then return end
+    end, 3) then return end
     if not appear(table.keys(p), 5) then return end
   end
   auto(p, false, 10)
@@ -1751,6 +1755,7 @@ path["1-11"] = function()
     tap("开始行动")
   end, 60 * 2, 1) then return end
   pre_fight = "1-11"
+  no_success_one_loop = 0
 end
 
 path.会客厅跳转好友 = function()
