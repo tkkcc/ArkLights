@@ -460,16 +460,15 @@ swipe = function(x)
   sleep(50)
 end
 
--- TODO: 暂定安卓11以下的滑动需要双指滑动, 可以被用户override。
--- android_verison_code = getAppinfo("android").versionCode
--- if android_verison_code < 30 then
---   is_device_swipe_too_fast = true
--- else
---   is_device_swipe_too_fast = false
--- end
-is_device_swipe_too_fast = false
+-- 安卓8以下的滑动用双指
+android_verison_code = getAppinfo("android").versionCode
+if android_verison_code < 26 then
+  is_device_swipe_too_fast = true
+else
+  is_device_swipe_too_fast = false
+end
 
--- TODO: 暂定华为手机需要慢速滑动, 可以被用户override。
+-- 华为手机需要慢速滑动
 is_device_need_slow_swipe = true
 
 -- universal multiple swip, for fights
@@ -1231,3 +1230,7 @@ captureqqimagedeliver = function(info, to)
   }
   httpPost(req)
 end
+
+poweroff = function() exec('reboot -p') end
+closeapp = function() exec("am force-stop " .. appid) end
+screenoff = function() exec('input keyevent 26') end

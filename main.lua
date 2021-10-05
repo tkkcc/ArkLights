@@ -16,11 +16,11 @@ check_after_tap = true
 -- verbose_fca = true
 -- no_dorm = true
 -- test_some = true
--- ok_time = 1
+ok_time = 1000
 -- ignore_jmfight_enough_check=true
 -- test_fight = true
 -- fake_fight = true
--- no_config_cache = true
+no_config_cache = true
 -- prefer_bapp = true
 -- prefer_bapp_on_android7 = true
 -- debug0721 = true
@@ -29,8 +29,8 @@ check_after_tap = true
 -- very_slow_state_check = true
 
 default_findcolor_confidence = 95
-default_max_drug_times = 9999
-default_max_stone_times = 0
+-- default_max_drug_times = 9999
+-- default_max_stone_times = 0
 
 screen = getScreen()
 if screen.width < screen.height then
@@ -210,8 +210,8 @@ local all_job = {
 }
 local now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "线索搜集", "基建换班", "制造加速", "副手换人",
-  "信用购买", "公招刷新", "任务收集",
+  "指定换班", "基建换班", "线索搜集", "制造加速",
+  "副手换人", "信用购买", "公招刷新", "任务收集",
 }
 
 local parse_id_to_ui = function(prefix, length)
@@ -243,44 +243,118 @@ local ui = {
   height = -1,
   time = ok_time or 60,
   views = {
-    {title = "账号", type = "edit", id = "username"},
-    {title = "密码", type = "edit", id = "password", mode = "password"}, {
-      title = "作战",
-      type = "edit",
-      value = [[当期委托,dqwt,龙门市区，LMSQ
-9-19, 4-4, 4-9, 1-7,JT8-3,PR-D-2,PR-D-1,CE-5,LS-5,
-上一次,syc]],
-      id = "fight",
-    }, {title = "换班", type = "edit", value = [[]], id = "dorm"}, {
-      title = "设置",
-      type = "edit",
-      value = [[最大吃药次数=]] .. default_max_drug_times .. [[
-
-最大吃石头次数=]] .. default_max_stone_times,
-      id = "lua_setting",
+    {
+      type = 'div',
+      ore = 0,
+      views = {
+        {type = 'text', value = '账号1：'},
+        {type = 'edit', value = '', id = 'username1'},
+        {type = 'text', value = '密码1：'},
+        {type = 'edit', value = '', id = 'password1'},
+        {type = 'radio', value = '*官服|B服', id = 'server1', ore = 1},
+      },
     }, {
-      type = "check",
-      value = "*保底最高4星时自动招募|*换班技能优先|" ..
-        (is_device_swipe_too_fast and "*" or '') ..
-        "双指滑动（安卓7可选）|" ..
-        (is_device_need_slow_swipe and "*" or '') .. "慢速滑动",
+      type = 'div',
       ore = 1,
-      id = "star4_auto|prefer_skill|is_device_swipe_too_fast|is_device_need_slow_swipe",
+      views = {
+        {type = 'text', value = '账号2：'},
+        {type = 'edit', value = '', id = 'username2'},
+        {type = 'text', value = '密码2：'},
+        {type = 'edit', value = '', id = 'password2'},
+        {type = 'radio', value = '*官服|B服', id = 'server2', ore = 1},
+      },
     }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '作战：'}, {
+          type = 'edit',
+          value = [[当期委托 dqwt 龙门市区 LMSQ
+9-19 4-4 4-9 JT8-3 PR-D-2 PR-D-1 CE-5 LS-5
+上一次 syc]],
+          id = 'fight',
+        },
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '最多吃'},
+        {type = 'edit', value = '9999', id = 'max_drug_times'},
+        {type = 'text', value = '次药和'},
+        {type = 'edit', value = '0', id = 'max_stone_times'},
+        {type = 'text', value = '次石头'},
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '指定换班：'},
+        {type = 'edit', value = [[]], id = 'dorm'},
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '换班优先'},
+        {
+          type = 'radio',
+          value = '工作状态|*技能',
+          id = '换班优先',
+          ore = 1,
+        },
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '自动招募'}, {
+          type = 'check',
+          value = '6星|5星|*4星|*小车',
+          id = '6星|5星|4星|小车',
+          ore = 1,
+        },
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '截屏发给QQ(需加群管理好友)：'},
+        {type = 'edit', value = [[]], id = 'QQ'},
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '结束后(需root)'}, {
+          type = 'check',
+          value = '关闭游戏|熄屏|关机',
+          id = '关闭游戏|熄屏|关机',
+          ore = 1,
+        },
+      },
+    }, -- {
+    --   type = "check",
+    --   value = "*换班技能优先|" ..
+    --     (is_device_need_slow_swipe and "*" or '') .. "慢速滑动",
+    --   ore = 1,
+    --   id = "prefer_skill|is_device_need_slow_swipe",
+    -- }, 
+    --
+    {
       type = "check",
       ore = 1,
       value = parse_value_to_ui(all_job, now_job),
       id = parse_id_to_ui("now_job_ui", #all_job),
-    }, {
-      type = "text",
-      value = [[结束后发送主界面截图给：（下面填QQ号，然后加群管理员为好友，可设为置顶免打扰）]],
-    }, {title = "QQ", type = "edit", id = "QQ"}, {
+    }, -- {
+    --   type = "text",
+    --   value = [[结束后发送主界面截图给：（下面填QQ号，然后加群管理员为好友，可设为置顶免打扰）]],
+    -- }, {title = "QQ", type = "edit", id = "QQ"}, 
+    {
       type = "text",
       value = [[
-注意：
-找不对关卡？试试开关 双指滑动 和 慢速滑动。
-刷活动关卡：在接管作战界面运行脚本。
-游戏全屏无黑边，基建退出提示必须开，miui游戏模式深色模式别开，还是有问题建议用vmos。
+刷活动关：在接管作战界面运行脚本。
+游戏全屏无黑边，开基建退出提示，关miui游戏模式深色模式，还有问题群里反馈。
 ]],
     }, -- {
     --   type = 'div',
@@ -335,13 +409,14 @@ local ui = {
 }
 -- add server selection to ui
 if appid_need_user_select then
-  table.insert(ui.views, 1, {
-    title = "",
-    type = "radio",
-    value = "*官服|B服",
-    ore = 2,
-    id = "server",
-  })
+  -- TODO
+  -- table.insert(ui.views, 3, {
+  --   title = "",
+  --   type = "radio",
+  --   value = "*官服|B服",
+  --   ore = 1,
+  --   id = "server",
+  -- })
 end
 
 -- trigger screen recording permission request using one second
@@ -463,12 +538,12 @@ if test_some then
   exit()
 end
 
-loadstring(lua_setting)()
+-- loadstring(lua_setting)()
 drug_times = 0
-max_drug_times = 最大吃药次数 or default_max_drug_times
+max_drug_times = tonumber(max_drug_times)
 stone_times = 0
-max_stone_times = 最大吃石头次数 or default_max_stone_times
--- log(max_stone_times, max_drug_times)
+max_stone_times = tonumber(max_stone_times)
+log(max_stone_times, max_drug_times)
 
 local start_time = time()
 log("start")
