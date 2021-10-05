@@ -56,6 +56,16 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
+  path.跳转("首页")
+  exit()
+  log(os.date('%Y.%m.%d %H:%M:%S'))
+  -- captureqqimagedeliver("剩余理智27", 2367739198)
+  exit()
+  ssleep(1)
+  log(1)
+  pid = getPhoneId();
+  print(pid);
+  exit()
   fake_fight = true
   fight = {"1-7", "4-4"}
   path.轮次作战()
@@ -197,7 +207,6 @@ local all_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
   "指定换班", "基建换班", "线索搜集", "制造加速",
   "副手换人", "信用购买", "公招刷新", "任务收集",
-  "每日任务速通（慎点）",
 }
 local now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
@@ -228,7 +237,7 @@ local parse_from_ui = function(prefix, reference)
   return ans
 end
 local ui = {
-  title = "明日方舟速通 2021.09.27 22:08",
+  title = "明日方舟速通 2021.10.05 13:24",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -253,7 +262,7 @@ local ui = {
       type = "check",
       value = "*保底最高4星时自动招募|*换班技能优先|" ..
         (is_device_swipe_too_fast and "*" or '') ..
-        "双指滑动（非真机建议选）|" ..
+        "双指滑动（安卓7可选）|" ..
         (is_device_need_slow_swipe and "*" or '') .. "慢速滑动",
       ore = 1,
       id = "star4_auto|prefer_skill|is_device_swipe_too_fast|is_device_need_slow_swipe",
@@ -264,11 +273,14 @@ local ui = {
       id = parse_id_to_ui("now_job_ui", #all_job),
     }, {
       type = "text",
+      value = [[结束后发送主界面截图给：（下面填QQ号，然后加群管理员为好友，可设为置顶免打扰）]],
+    }, {title = "QQ", type = "edit", id = "QQ"}, {
+      type = "text",
       value = [[
 注意：
 找不对关卡？试试开关 双指滑动 和 慢速滑动。
 刷活动关卡：在接管作战界面运行脚本。
-游戏全屏无黑边，基建退出提示必须开，miui游戏模式别开，还是有问题建议用vmos。
+游戏全屏无黑边，基建退出提示必须开，miui游戏模式深色模式别开，还是有问题建议用vmos。
 ]],
     }, -- {
     --   type = 'div',
@@ -294,7 +306,7 @@ local ui = {
     --       click = {thread = outside, name = "capture_screen_on_password"},
     --     },
     --   },
-    -- },     
+    -- },
     {
       type = 'div',
       title = '',

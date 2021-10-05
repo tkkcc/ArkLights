@@ -53,13 +53,20 @@ path.base = {
     end
 
     -- this calllback only works for 主线、资源、剿灭
+    local unfinished
     if not wait(function()
-      if findOne("开始行动") then return true end
-      if findOne("接管作战") then return true end
+      if findOne("开始行动") and findOne("代理指挥开") then
+        return true
+      end
+      if findOne("接管作战") then
+        unfinished = true
+        return true
+      end
       tap("开始行动")
       appear({"开始行动", "接管作战"}, 1)
     end, 30) then return end
-    if not findOne("开始行动") then return path.base.接管作战() end
+
+    if unfinished then return path.base.接管作战() end
 
     log(89, repeat_fight_mode)
     if repeat_fight_mode then return path.开始游戏('') end
@@ -1209,7 +1216,7 @@ fight_tick = 0
 no_success_one_loop = 0
 path.轮次作战 = function()
   if #fight == 0 then return true end
-  path.跳转("首页")
+  -- path.跳转("首页")
   pre_fight = nil
   no_success_one_loop = 0
   while not zero_san do

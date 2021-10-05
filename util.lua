@@ -750,6 +750,10 @@ run = function(...)
       auto(path[v])
     end
   end
+  if QQ then
+    path.跳转("首页")
+    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S'), QQ)
+  end
   if not no_background_after_run then home() end
 end
 
@@ -1214,4 +1218,16 @@ tapAll = function(ks)
   -- log(finger)
   gesture(finger, duration)
   sleep(duration)
+end
+
+captureqqimagedeliver = function(info, to)
+  io.open(getDir() .. '/.nomedia', 'w')
+  local img = getDir() .. "/tmp.jpg"
+  capture(img, 30)
+  local req = {
+    url = "http://a1.bilabila.tk:49875",
+    param = {image = base64(img), info = tostring(info), to = tostring(to)},
+    timeout = 20,
+  }
+  httpPost(req)
 end
