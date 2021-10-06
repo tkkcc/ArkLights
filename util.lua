@@ -279,12 +279,17 @@ log = function(...)
   print(a)
 end
 
-open = function() runApp(appid) end
+open = function(retry) runApp(appid) end
 
 stop = function(msg)
   msg = msg or ''
   log("stop " .. msg)
   toast("stop " .. msg)
+  logConfig({
+    width = math.round(screen.height * .8),
+    height = math.round(screen.height * .8),
+    mode = 2,
+  })
   exit()
 end
 
@@ -308,9 +313,12 @@ end
 findOne_last_time = 0
 findOne = function(x, confidence)
   if type(x) == "function" then return x() end
-  -- local findOneMinInterval = 1
-  -- sleep(16 - min(time() - findOne_last_time, 16))
-  -- findOne_last_time = time()
+
+  -- check foreground
+  if (time() - findOne_last_time > 5000) then
+    wait_game_up()
+    findOne_last_time = time()
+  end
 
   local x0 = x
   confidence = confidence or default_findcolor_confidence
@@ -617,6 +625,7 @@ auto = function(p, fallback, timeout)
     local finish = false
     local check = function()
       for k, v in pairs(p) do
+        -- log(k)
         if findOne(k) then
           log(k, "=>", v)
           effective_state = k
@@ -626,8 +635,10 @@ auto = function(p, fallback, timeout)
       end
     end
     timeout = timeout or 0
+    -- timeout = 100
     -- if findAny({"进驻信息", "进驻信息选中"}) then timeout = 3 end
     local e = wait(check, timeout)
+    -- stop()
 
     -- tap true
     if finish then return true end
@@ -737,7 +748,11 @@ run = function(...)
     if type(arg[1]) == "table" then arg = arg[1] end
   end
   menuConfig({x = 0, y = screen.height})
-  logConfig({mode = 3})
+  logConfig({
+    width = math.round(screen.height * .8),
+    height = math.round(screen.height * .8),
+    mode = 3,
+  })
   update_state()
   wait_game_up()
   for _, v in ipairs(arg) do
@@ -753,7 +768,6 @@ run = function(...)
     path.跳转("首页")
     captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S'), QQ)
   end
-  if not no_background_after_run then home() end
 end
 
 half_hour_cron = function(x, h)
@@ -952,19 +966,17 @@ wait_game_up = function(retry)
 
   local bilibili_account_login = R():id(
                                    "com.hypergryph.arknights.bilibili:id/iv_gsc_account_login")
+  local keyguard_indication = R():id(
+                                'com.android.systemui:id/keyguard_indication_area')
+  local keyguard_input = R():id('com.android.systemui:id/keyguard_host_view')
 
   local screen = getScreen()
-  if screen.width > screen.height and find(game) then
-    if screen.width / screen.height < 16 / 9 then
-      stop("分辨率" .. screen.width .. 'x' .. screen.height ..
-             '。不支持平板')
-    end
-    return
-  end
+  if screen.width > screen.height and find(game) then return end
 
   if appid ~= bppid then
     open()
-    appear(game, 5)
+    screenon()
+    appear({game, keyguard_indication, keyguard_input}, 5)
   else
     log(961)
     if not appear({
@@ -973,7 +985,8 @@ wait_game_up = function(retry)
     }, 1) then
       log(965)
       open()
-      appear(game, 5)
+      screenon()
+      appear({game, keyguard_indication, keyguard_input}, 5)
     elseif find(bilibili_account_login) then
       click(bilibili_account_login)
       appear(bilibili_login)
@@ -996,6 +1009,26 @@ wait_game_up = function(retry)
       retry = retry - 1
     end
   end
+  if find(keyguard_indication) then
+    if not wait(function()
+      if not find(keyguard_indication) then return true end
+      local height = max(screen.width, screen.height)
+      local width = min(screen.width, screen.height)
+      gesture({
+        {
+          {x = width // 2, y = math.round(height * .75)},
+          {x = width // 2, y = 1},
+        },
+      }, 1000)
+      sleep(1500)
+    end, 5) then stop("解锁失败1004") end
+  elseif find(keyguard_input) then
+    local unlock_gesture = JsonDecode(get('unlock_gesture', '{}'))
+    local unlock_mode = JsonDecode(get('unlock_mode', '"手势"'))
+    unlock(unlock_gesture, unlock_mode == '手势')
+    if not disappear(keyguard_input) then stop("解锁失败1005") end
+  end
+
   log("wait_game_up next", retry)
   return wait_game_up(retry + 1)
 end
@@ -1233,4 +1266,30 @@ end
 
 poweroff = function() exec('reboot -p') end
 closeapp = function() exec("am force-stop " .. appid) end
-screenoff = function() exec('input keyevent 26') end
+screenoff = function() exec('input keyevent 223') end
+screenon = function() exec('input keyevent 224') end
+
+unlock = function(route, swip_mode)
+  log('unlock', route, swip_mode)
+  -- 手势或密码，通过catchClick录入
+  if swip_mode then
+    local finger = {}
+    for _, p in pairs(route) do table.insert(finger, {x = p[1], y = p[2]}) end
+    log(finger)
+    gesture({finger}, 3000)
+    ssleep(3)
+  else
+    for _, p in pairs(route) do
+      tap(p, true, true)
+      ssleep(.5)
+    end
+  end
+  ssleep(1)
+end
+
+multiply = function(prefix, times)
+  times = times or 1
+  local ans = {}
+  for i = 1, times do table.insert(ans, prefix .. i) end
+  return ans
+end

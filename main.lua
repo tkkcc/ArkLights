@@ -1,8 +1,5 @@
 -- debug option, should be commented in release
 -- predebug = true
--- pcall(exec,
---       "settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService")
--- exec("settings put secure enabled_accessibility_services com.bilabila.arknightsspeedrun/com.aojoy.server.CmdAccessibilityService")
 -- during_crisis_contract =true
 -- disable_communication_check=true
 -- speedrun=true
@@ -32,6 +29,12 @@ default_findcolor_confidence = 95
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
 
+-- root启动无障碍服务
+-- pcall(exec,
+--       "settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService")
+-- exec("settings put secure enabled_accessibility_services com.bilabila.arknightsspeedrun/com.aojoy.server.CmdAccessibilityService")
+-- pcall(exec, "settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService")
+
 screen = getScreen()
 if screen.width < screen.height then
   screen.width, screen.height = screen.height, screen.width
@@ -41,12 +44,17 @@ require("util")
 require("point")
 require("path")
 require("tag")
+
 log(time() .. " 分辨率：" .. screen.width .. "x" .. screen.height)
+if screen.width / screen.height < 16 / 9 or screen.height < 720 then
+  stop("不支持分辨率" .. screen.width .. 'x' .. screen.height)
+end
 
 -- auto switch 官服 and B服
 appid_need_user_select = false
-appid = "com.hypergryph.arknights"
+oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
+appid = oppid
 if prefer_bapp then appid = bppid end
 if prefer_bapp_on_android7 and android_verison_code < 30 then appid = bppid end
 local app_info = getAppinfo(appid)
@@ -56,148 +64,15 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  path.跳转("首页")
-  exit()
-  log(os.date('%Y.%m.%d %H:%M:%S'))
-  -- captureqqimagedeliver("剩余理智27", 2367739198)
-  exit()
-  ssleep(1)
-  log(1)
-  pid = getPhoneId();
-  print(pid);
-  exit()
-  fake_fight = true
-  fight = {"1-7", "4-4"}
-  path.轮次作战()
-  exit()
-  -- swipo()
+  -- log(findOne("解锁线索"))
   -- exit()
-  -- findtap_operator_type("赤金站")
-  -- exit()
-  path.线索传递()
-  -- path.制造换班()
-  exit()
-
-  local feature
-
-  -- 1080p feature
-  经验加速 = {
-    '#261500-50',
-    '[{"a":0.129,"d":1.622,"id":"1","r":529.0,"s":"34|5<fOm>&5~9zPN&5~amm]&5>Yg}@&5]8m]^&5X[L$H&5X[L$H&5X[L$X&5>xRmv&5<quBx&5>GERF&5>GERE&5X[L$Y&5X[Npu&5X[Npu&5Y6o!c&5>YhCE&5~a15*&5~9z^6&5~9z^6&2~zjVe"}]',
-    0.85,
-  }
-  赤金加速 = {
-    '#202020-50',
-    '[{"a":-0.044,"d":1.807,"id":"1","r":358.0,"s":"22|py&PS&PS&PS&H6!&18dN&18dN&18dM&18dM&2OY&2OY&2LC&2LC&2gre&4wSA&8{v2&8{v2&4wSs&aL6&ax~&ax~&lgc&k]*&k]*&lGs&H6!&H6!&H6!&18dM&H6Y"}]',
-    0.85,
-  }
-
-  feature = 经验加速
-
-  -- 720p feature
-  -- feature = {'#16161E-50','[{"a":0.128,"d":1.582,"id":"1","r":217.0,"s":"22|8uPW&8RKD&8SH^&7!GH&7!GD&7!GH&8Nd(&8Nd(&7!GI&7!GA&7!JW&8SMU&8{4Q&8RL~"}]',0.85}
-  feature = findShape(feature)
-  log(feature)
-  log(#feature)
-  exit()
-  -- log(info)
-  local region = {
-    {590, 487, 1919, 523}, {1033, 487, 1491, 523}, {1464, 487, 1919, 523},
-    {590, 907, 1059, 943}, {1033, 907, 1491, 943}, {1464, 907, 1919, 943},
-  }
-  local r = region[1]
-  r = {590, 907, 1059, 943}
-  r[3] = screen.width - 1
-  text, info = ocr(table.unpack(r))
-  log(text)
-  -- log(info)
-  local res = ocrp({rect = r})
-  log(map(function(x) return x.text end, res))
-  exit()
-  log(findOne("开始行动"))
-  log(findOne("返还规则"))
-  log(findOne("报酬合成玉已满"))
-  exit()
-  path.线索布置()
-  exit()
-  log(is_screen_on())
-  exit()
-  log(catchClick())
-  exit()
-  status, result = pcall(home)
-  log(status, result)
-  log(findColor({0, 0, 1, 1, "0,0,#000000"}))
-  exit()
-  -- while true do tap("线索布置5") end
-  path.线索布置()
-  exit()
-  unlock({{529, 2100}, {577, 1410}, {839, 1427}}, true)
-  -- tap({467,2248},0,1)
-  -- tap({467,1890},0,1)
-
-  gesture({{{x = 529, y = 2154}, {x = 577, y = 1410}, {x = 839, y = 1427}}},
-          5000)
-  -- gesture({{{x = 529, y = 2100}, {x = 577, y = 1410}, {x = 839, y = 1427}}},
-  --         1000)
-  -- swip()
-  exit()
-  -- log(findOne('线索布置按下列表1'))
-  -- path.线索布置()
-  path.线索传递()
-
-  -- while true do if not findOne("未解锁第9章") then log(375) end end
-  -- tap("觉醒")
-  -- tap("幻灭")
-  exit()
-  -- tap("觉醒")
-  -- log(findOne("宿舍列表" .. i))
-
-  exit()
-  log(958)
-  ssleep(1)
-  local game = R():name(appid):path("/FrameLayout/View")
-  log(find(game))
-  game = R():name("com.hypergryph.arknights.bilibili"):path("/FrameLayout")
-  log(find(game))
-  log(find(R():name("com.hypergryph.arknights.bilibili"):path("/FrameLayout")))
-  exit()
-
-  -- swipe("left")
-  -- x="9-2"
-  -- swip(x)
-  -- tap("作战列表" .. x)
-  exit()
-
-  -- -- {0,0,0,0,"1059,457,#D2D1D1|1033,455,#FFFFFF|1464,443,#D1CACE|1491,446,#D6D5D5",95}
-
-  -- local r = region[1]
-  -- text, info = ocr_fast(math.round(minscale * r[1]),
-  --                       math.round(minscale * r[2]),
-  --                       math.round(minscale * r[3]), math.round(minscale * r[4]))
-  -- log(text, info)
-  -- p={}
-  -- ocr_text, _ = ocr_fast(table.unpack(p))
-  --
-
-  zoom()
-  log(findOne("缩放结束"))
-  exit()
-  -- while true do 
-  --   if findOne("资源收集", 90) then log(1) end
-  --   if findOne("主题曲", 90) then log(2) end
-  --   if findOne("每周部署", 90) then log(3) end
-  -- end
-
-  log(findOne("主页按过"))
-  -- tapAll({
-  --   "干员选择列表6", "干员选择列表7", "干员选择列表8",
-  --   "干员选择列表9", "干员选择列表10", "干员选择列表11",
-  --   "干员选择列表12",
-  -- })
-  -- tap("访问下位橘")
-  -- tap("访问下位橘")
-  -- tap("访问下位橘")
-  -- tap("访问下位橘")
+  -- local qq = "1009619697"
+  -- local key = "KlYYiyXj2VRJg1qNqRo3tExo959SrKhT"
+  -- i = {
+  --   action = "android.intent.action.VIEW",
+  --   uri = "mqqwpa://im/chat?chat_type=wpa&uin=605597237",
+  -- }
+  runIntent(i);
   exit()
 end
 
@@ -238,6 +113,7 @@ local parse_from_ui = function(prefix, reference)
 end
 local ui = {
   title = "明日方舟速通 2021.10.05 13:24",
+  name = 'main',
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -245,33 +121,13 @@ local ui = {
   views = {
     {
       type = 'div',
-      ore = 0,
-      views = {
-        {type = 'text', value = '账号1：'},
-        {type = 'edit', value = '', id = 'username1'},
-        {type = 'text', value = '密码1：'},
-        {type = 'edit', value = '', id = 'password1'},
-        {type = 'radio', value = '*官服|B服', id = 'server1', ore = 1},
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '账号2：'},
-        {type = 'edit', value = '', id = 'username2'},
-        {type = 'text', value = '密码2：'},
-        {type = 'edit', value = '', id = 'password2'},
-        {type = 'radio', value = '*官服|B服', id = 'server2', ore = 1},
-      },
-    }, {
-      type = 'div',
       ore = 1,
       views = {
         {type = 'text', value = '作战：'}, {
           type = 'edit',
-          value = [[当期委托 dqwt 龙门市区 LMSQ
-9-19 4-4 4-9 JT8-3 PR-D-2 PR-D-1 CE-5 LS-5
-上一次 syc]],
+          value = [[当期委托 dwqt 龙门市区 LMSQ
+9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
+ 上一次 syc]],
           id = 'fight',
         },
       },
@@ -319,8 +175,13 @@ local ui = {
       type = 'div',
       ore = 1,
       views = {
-        {type = 'text', value = '截屏发给QQ(需加群管理好友)：'},
-        {type = 'edit', value = [[]], id = 'QQ'},
+        {type = 'text', value = '结束后通知QQ：'},
+        {type = 'edit', value = [[]], id = 'QQ'}, {
+          type = "button",
+          value = "需加群管理好友",
+          title = '',
+          click = {thread = outside, name = "goto_qq"},
+        },
       },
     }, {
       type = 'div',
@@ -329,7 +190,7 @@ local ui = {
         {type = 'text', value = '结束后(需root)'}, {
           type = 'check',
           value = '关闭游戏|熄屏|关机',
-          id = '关闭游戏|熄屏|关机',
+          id = 'end_closeapp|end_screenoff|end_poweroff',
           ore = 1,
         },
       },
@@ -353,52 +214,32 @@ local ui = {
     {
       type = "text",
       value = [[
-刷活动关：在接管作战界面运行脚本。
+刷活动关：代理作战中启动。
 游戏全屏无黑边，开基建退出提示，关miui游戏模式深色模式，还有问题群里反馈。
 ]],
-    }, -- {
-    --   type = 'div',
-    --   title = '',
-    --   views = {
-    --     {
-    --       type = "check",
-    --       value = "亮屏解锁（需root，开发中别用）",
-    --       ore = 1,
-    --       id = "need_screen_on",
-    --     }, {
-    --       type = "text",
-    --       value = [[需要手机半夜亮屏执行脚本的可以开，模拟器云手机等常亮设备没必要开。录入亮屏解锁手势或密码：点击下方按钮后脚本将进入亮屏解锁界面，依次点击（注意不是滑动）手势关键点或密码（包括最后的确认键），然后静置5秒，脚本将保存信息并尝试解锁。重启脚本无需重新录入。]],
-    --     }, {
-    --       type = "button",
-    --       value = "录入手势",
-    --       title = '',
-    --       click = {thread = outside, name = "capture_screen_on_gesture"},
-    --     }, {
-    --       type = "button",
-    --       value = "录入密码",
-    --       title = '',
-    --       click = {thread = outside, name = "capture_screen_on_password"},
-    --     },
-    --   },
-    -- },
-    {
+    }, {
       type = 'div',
       title = '',
       views = {
         {
           type = "button",
-          value = "视频演示",
-          title = '',
+          value = "亮屏解锁",
+          click = {thread = outside, name = "show_gesture_capture_ui"},
+        }, {
+          type = "button",
+          value = "多账号",
+          click = {thread = outside, name = "show_multi_account_ui"},
+        }, {
+          type = "button",
+          value = "演示",
           click = {thread = outside, name = "goto_bilibili"},
         }, {
           type = "button",
           value = "反馈群",
-          title = '',
-          click = {thread = outside, name = "goto_qq"},
+          click = {thread = outside, name = "goto_qqgroup"},
         }, {
           type = "button",
-          value = "源码(好用请star)",
-          title = '',
+          value = "源码",
           click = {thread = outside, name = "goto_github"},
         },
       },
@@ -409,14 +250,14 @@ local ui = {
 }
 -- add server selection to ui
 if appid_need_user_select then
-  -- TODO
-  -- table.insert(ui.views, 3, {
-  --   title = "",
-  --   type = "radio",
-  --   value = "*官服|B服",
-  --   ore = 1,
-  --   id = "server",
-  -- })
+  table.insert(ui.views, 1, {
+    type = 'div',
+    views = {
+      {type = 'text', value = '服务器'},
+
+      {type = "radio", value = "*官服|B服", ore = 1, id = "server"},
+    },
+  })
 end
 
 -- trigger screen recording permission request using one second
@@ -424,17 +265,30 @@ findColor({0, 0, 1, 1, "0,0,#000000"})
 local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
-ret = show(ui)
-if not ret then exit() end
+while true do
+  local ret = show(ui)
+  if not ret then exit() end
+  if not unlock_mode and not server1 then break end
+  if unlock_mode then save('unlock_mode', JsonEncode(unlock_mode)) end
+  if server1 then
+    for _, x in pairs({"username", "password", 'server'}) do
+      save(x .. 's', JsonEncode(parse_from_ui(x, multiply(x, 20))))
+    end
+  end
+end
+
 callThreadFun(outside, "preload")
-
+prefer_skill = 换班优先 == "技能"
+drug_times = 0
+max_drug_times = tonumber(max_drug_times)
+stone_times = 0
+max_stone_times = tonumber(max_stone_times)
 if server == "B服" then appid = bppid end
-log(appid)
-
 now_job = parse_from_ui("now_job_ui", all_job)
-
 fight = string.map(fight, {
   [";"] = " ",
+  ['"'] = " ",
+  ["'"] = " ",
   ["；"] = " ",
   [","] = " ",
   ["_"] = "-",
@@ -455,11 +309,9 @@ for k, v in pairs(fight) do
   end
 end
 fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
-
 all_open_time_start = parse_time("202108261600")
 all_open_time_end = parse_time("202109090400")
 update_open_time()
-
 startup_time = parse_time()
 facility2operator = {}
 facility2nexthour = {}
@@ -481,7 +333,6 @@ log(facility2nexthour)
 log(facility2operator)
 
 if test_fight then
-
   fight = {
     "1-7", "4-1",
 
@@ -522,7 +373,6 @@ if test_fight then
     -- "R8-7", "R8-8", "R8-9", "R8-10", "R8-11", "JT8-2", "JT8-3", "M8-6", "M8-7",
     -- "M8-8",
   }
-
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
   log(fight)
   repeat_fight_mode = false
@@ -530,24 +380,36 @@ if test_fight then
   exit()
 end
 
-if test_some then
-  ssleep(1)
-  -- tap("基建副手列表4")
-  -- tap("基建副手列表5")
-  path.副手换人()
-  exit()
+if test_some then exit() end
+
+local usernames = get(JsonDecode('usernames'))
+local passwords = get(JsonDecode('passwords'))
+local servers = get(JsonDecode('servers'))
+local no_valid_account = true
+-- fileter
+for i = 1, #usernames do
+  username = usernames[i]
+  password = passwords[i]
+  server = servers[i]
+  if username and password and server ~= '不启用' then
+    no_valid_account = false
+    appid = server == "官服" and oppid or bppid
+    path.退出账号()
+    -- TODO 重新初始化状态
+    run(now_job)
+  end
 end
 
--- loadstring(lua_setting)()
-drug_times = 0
-max_drug_times = tonumber(max_drug_times)
-stone_times = 0
-max_stone_times = tonumber(max_stone_times)
-log(max_stone_times, max_drug_times)
+if no_valid_account then
+  -- TODO 重新初始化状态
+  run(now_job)
+end
 
-local start_time = time()
-log("start")
-run(now_job)
-log("end", time() - start_time)
+if not no_background_after_run then home() end
+if end_closeapp then closeapp() end
+if end_screenoff then screenoff() end
+if end_poweroff then poweroff() end
+-- local device notification
+vibrate(1000)
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)

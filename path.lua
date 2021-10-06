@@ -320,6 +320,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
 
   local fallback = {返回确认 = "右确认"}
   if x == "基建" then fallback.返回确认 = function() back() end end
+
   auto(p, fallback)
 
   -- post processing especially for 基建
@@ -950,6 +951,7 @@ path.线索布置 = function()
         end, 20) then return end
       end
     end
+    if findOne("解锁线索左") then clue_unlocked = true end
     log(648)
     if not wait(function()
       if findOne("线索传递") then return true end
@@ -957,8 +959,10 @@ path.线索布置 = function()
     end, 5) then return end
   end
 
-  if findTap("解锁线索") then
-    clue_unlocked = true
+  if clue_unlocked then
+    wait(function() tap("解锁线索") end, .5)
+
+    -- clue_unlocked = true
     if not appear({"进驻信息", "进驻信息选中"}, 5) then
       return path.线索搜集()
     end
@@ -2231,40 +2235,10 @@ path["克洛丝单人1-12"] = function()
   -- TODO
 end
 
-is_screen_on = function()
-  -- TODO exec can not return output
-  result = exec("service call power 12|grep '00000000 00000000'")
-  log(type(result))
-  log(status, result)
-  return false
-end
-
-unlock = function(route, swip_mode)
-  -- 判断是否熄屏，亮屏不做
-  if is_screen_on() then return end
-
-  -- 亮屏
-  pcall(exec, "input keyevent 224")
-  ssleep(2)
-
-  -- 上滑
-  local width = min(screen.width, screen.height)
-  local height = max(screen.width, screen.height)
-  gesture({{{x = width // 2, y = height - 1}, {x = width // 2, y = 1}}}, 1000)
-  ssleep(2)
-
-  -- 手势或密码，通过catchClick录入
-  if swip_mode then
-    local finger = {}
-    for _, p in pairs(route) do table.insert(finger, {x = p[1], y = p[2]}) end
-    log(finger)
-    gesture({finger}, 3000)
-    ssleep(3)
-  else
-    for _, p in pairs(route) do
-      tap(p)
-      ssleep(.5)
-    end
-  end
-  ssleep(1)
+path["退出账号"] = function()
+  -- TODO
+  path.跳转("首页")
+  tap('设置')
+  tap('退出登录')
+  tap('退出登录')
 end
