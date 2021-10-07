@@ -1,5 +1,5 @@
--- debug option, should be commented in release
--- predebug = true
+predebug = true
+-- fake_recruit = true
 -- during_crisis_contract =true
 -- disable_communication_check=true
 -- speedrun=true
@@ -17,8 +17,8 @@ ok_time = 1000
 -- ignore_jmfight_enough_check=true
 -- test_fight = true
 -- fake_fight = true
-no_config_cache = true
--- prefer_bapp = true
+-- no_config_cache = true
+prefer_bapp = true
 -- prefer_bapp_on_android7 = true
 -- debug0721 = true
 -- no_background_after_run = true
@@ -29,29 +29,14 @@ default_findcolor_confidence = 95
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
 
--- root启动无障碍服务
--- pcall(exec,
---       "settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService")
--- exec("settings put secure enabled_accessibility_services com.bilabila.arknightsspeedrun/com.aojoy.server.CmdAccessibilityService")
--- pcall(exec, "settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService")
-
-screen = getScreen()
-if screen.width < screen.height then
-  screen.width, screen.height = screen.height, screen.width
-end
-
-require("util")
+outside = runThread("outside")
+require('util')
 require("point")
 require("path")
 require("tag")
 
-log(time() .. " 分辨率：" .. screen.width .. "x" .. screen.height)
-if screen.width / screen.height < 16 / 9 or screen.height < 720 then
-  stop("不支持分辨率" .. screen.width .. 'x' .. screen.height)
-end
-
 -- auto switch 官服 and B服
-appid_need_user_select = false
+local appid_need_user_select = false
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 appid = oppid
@@ -64,53 +49,20 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  -- log(findOne("解锁线索"))
-  -- exit()
-  -- local qq = "1009619697"
-  -- local key = "KlYYiyXj2VRJg1qNqRo3tExo959SrKhT"
-  -- i = {
-  --   action = "android.intent.action.VIEW",
-  --   uri = "mqqwpa://im/chat?chat_type=wpa&uin=605597237",
-  -- }
-  runIntent(i);
+  log(appid, oppid)
+  path.退出账号()
+  log("end")
+  -- if findOne("账户设置") then log(1) end
+  -- log(findOne("退出登录"))
+  -- log(findOne("返回3"))
   exit()
 end
 
-local outside = runThread("outside")
+-- trigger screen recording permission request using one second
+findColor({0, 0, 1, 1, "0,0,#000000"})
+local miui = R():text("立即开始|start now"):type("Button")
+click(miui)
 
-local all_job = {
-  "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "指定换班", "基建换班", "线索搜集", "制造加速",
-  "副手换人", "信用购买", "公招刷新", "任务收集",
-}
-local now_job = {
-  "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "指定换班", "基建换班", "线索搜集", "制造加速",
-  "副手换人", "信用购买", "公招刷新", "任务收集",
-}
-
-local parse_id_to_ui = function(prefix, length)
-  local ans = ''
-  for i = 1, length do ans = ans .. prefix .. i .. '|' end
-  return ans:sub(1, #ans - 1)
-end
-
-local parse_value_to_ui = function(all, select)
-  local ans = ''
-  for _, v in pairs(all) do
-    if table.includes(select, v) then ans = ans .. '*' end
-    ans = ans .. v .. '|'
-  end
-  return ans:sub(1, #ans - 1)
-end
-
-local parse_from_ui = function(prefix, reference)
-  local ans = {}
-  for i = 1, #reference do
-    if _G[prefix .. i] then table.insert(ans, reference[i]) end
-  end
-  return ans
-end
 local ui = {
   title = "明日方舟速通 2021.10.05 13:24",
   name = 'main',
@@ -123,62 +75,10 @@ local ui = {
       type = 'div',
       ore = 1,
       views = {
-        {type = 'text', value = '作战：'}, {
-          type = 'edit',
-          value = [[当期委托 dwqt 龙门市区 LMSQ
-9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
- 上一次 syc]],
-          id = 'fight',
-        },
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '最多吃'},
-        {type = 'edit', value = '9999', id = 'max_drug_times'},
-        {type = 'text', value = '次药和'},
-        {type = 'edit', value = '0', id = 'max_stone_times'},
-        {type = 'text', value = '次石头'},
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '指定换班：'},
-        {type = 'edit', value = [[]], id = 'dorm'},
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '换班优先'},
-        {
-          type = 'radio',
-          value = '工作状态|*技能',
-          id = '换班优先',
-          ore = 1,
-        },
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '自动招募'}, {
-          type = 'check',
-          value = '6星|5星|*4星|*小车',
-          id = '6星|5星|4星|小车',
-          ore = 1,
-        },
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
         {type = 'text', value = '结束后通知QQ：'},
         {type = 'edit', value = [[]], id = 'QQ'}, {
           type = "button",
-          value = "需加群管理好友",
+          value = "需加机器人好友",
           title = '',
           click = {thread = outside, name = "goto_qq"},
         },
@@ -189,29 +89,12 @@ local ui = {
       views = {
         {type = 'text', value = '结束后(需root)'}, {
           type = 'check',
-          value = '关闭游戏|熄屏|关机',
+          value = '*关闭游戏|熄屏|关机',
           id = 'end_closeapp|end_screenoff|end_poweroff',
           ore = 1,
         },
       },
-    }, -- {
-    --   type = "check",
-    --   value = "*换班技能优先|" ..
-    --     (is_device_need_slow_swipe and "*" or '') .. "慢速滑动",
-    --   ore = 1,
-    --   id = "prefer_skill|is_device_need_slow_swipe",
-    -- }, 
-    --
-    {
-      type = "check",
-      ore = 1,
-      value = parse_value_to_ui(all_job, now_job),
-      id = parse_id_to_ui("now_job_ui", #all_job),
-    }, -- {
-    --   type = "text",
-    --   value = [[结束后发送主界面截图给：（下面填QQ号，然后加群管理员为好友，可设为置顶免打扰）]],
-    -- }, {title = "QQ", type = "edit", id = "QQ"}, 
-    {
+    }, {
       type = "text",
       value = [[
 刷活动关：代理作战中启动。
@@ -248,89 +131,90 @@ local ui = {
   submit = {type = "text", value = "启动"},
   cancle = {type = "text", value = "退出"},
 }
+
+for i, x in pairs(make_account_setting_ui()) do table.insert(ui.views, i, x) end
+
 -- add server selection to ui
 if appid_need_user_select then
   table.insert(ui.views, 1, {
     type = 'div',
     views = {
       {type = 'text', value = '服务器'},
-
       {type = "radio", value = "*官服|B服", ore = 1, id = "server"},
     },
   })
 end
 
--- trigger screen recording permission request using one second
-findColor({0, 0, 1, 1, "0,0,#000000"})
-local miui = R():text("立即开始|start now"):type("Button")
-click(miui)
-
+-- ui loop
 while true do
   local ret = show(ui)
   if not ret then exit() end
   if not unlock_mode and not server1 then break end
-  if unlock_mode then save('unlock_mode', JsonEncode(unlock_mode)) end
-  if server1 then
-    for _, x in pairs({"username", "password", 'server'}) do
-      save(x .. 's', JsonEncode(parse_from_ui(x, multiply(x, 20))))
-    end
+  if unlock_mode then
+    save('unlock_mode', JsonEncode(unlock_mode))
+    unlock_mode = nil
   end
+  if server1 then server1 = nil end
 end
 
 callThreadFun(outside, "preload")
-prefer_skill = 换班优先 == "技能"
-drug_times = 0
-max_drug_times = tonumber(max_drug_times)
-stone_times = 0
-max_stone_times = tonumber(max_stone_times)
-if server == "B服" then appid = bppid end
-now_job = parse_from_ui("now_job_ui", all_job)
-fight = string.map(fight, {
-  [";"] = " ",
-  ['"'] = " ",
-  ["'"] = " ",
-  ["；"] = " ",
-  [","] = " ",
-  ["_"] = "-",
-  ["、"] = " ",
-  ["，"] = " ",
-  ["|"] = " ",
-  ["\n"] = " ",
-  ["\t"] = " ",
-})
-fight = string.split(fight, ' ')
-fight = map(string.upper, fight)
-for k, v in pairs(fight) do
-  if table.includes(table.keys(jianpin2name), v) then
-    fight[k] = jianpin2name[v]
-  end
-  if table.includes(table.keys(extrajianpin2name), v) then
-    fight[k] = extrajianpin2name[v]
-  end
-end
-fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
-all_open_time_start = parse_time("202108261600")
-all_open_time_end = parse_time("202109090400")
-update_open_time()
-startup_time = parse_time()
-facility2operator = {}
-facility2nexthour = {}
-for _, v in pairs(string.split(dorm, '\n')) do
-  v = string.split(v)
-  if #v > 3 then
-    local facility = v[1]
-    if #facility == 3 then facility = facility .. 1 end
-    local hour = tonumber(v[2])
-    local operator = table.slice(v, 3)
-    local cur_hour = facility2nexthour[facility]
-    if coming_hour(cur_hour, hour, startup_time) == hour then
-      facility2operator[facility] = operator
-      facility2nexthour[facility] = hour
+
+update_state_from_ui = function()
+  prefer_skill = prefer_skill == "技能"
+  drug_times = 0
+  max_drug_times = tonumber(max_drug_times)
+  stone_times = 0
+  max_stone_times = tonumber(max_stone_times)
+  appid = server == "官服" and oppid or bppid
+  job = parse_from_ui("now_job_ui", all_job)
+  fight = string.map(fight, {
+    [";"] = " ",
+    ['"'] = " ",
+    ["'"] = " ",
+    ["；"] = " ",
+    [","] = " ",
+    ["_"] = "-",
+    ["、"] = " ",
+    ["，"] = " ",
+    ["|"] = " ",
+    ["\n"] = " ",
+    ["\t"] = " ",
+  })
+  fight = string.split(fight, ' ')
+  fight = map(string.upper, fight)
+  for k, v in pairs(fight) do
+    if table.includes(table.keys(jianpin2name), v) then
+      fight[k] = jianpin2name[v]
+    end
+    if table.includes(table.keys(extrajianpin2name), v) then
+      fight[k] = extrajianpin2name[v]
     end
   end
+  fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
+  all_open_time_start = parse_time("202108261600")
+  all_open_time_end = parse_time("202109090400")
+  update_open_time()
+  startup_time = parse_time()
+  facility2operator = {}
+  facility2nexthour = {}
+  for _, v in pairs(string.split(dorm, '\n')) do
+    v = string.split(v)
+    if #v > 3 then
+      local facility = v[1]
+      if #facility == 3 then facility = facility .. 1 end
+      local hour = tonumber(v[2])
+      local operator = table.slice(v, 3)
+      local cur_hour = facility2nexthour[facility]
+      if coming_hour(cur_hour, hour, startup_time) == hour then
+        facility2operator[facility] = operator
+        facility2nexthour[facility] = hour
+      end
+    end
+  end
+  log(facility2nexthour)
+  log(facility2operator)
 end
-log(facility2nexthour)
-log(facility2operator)
+update_state_from_ui()
 
 if test_fight then
   fight = {
@@ -382,34 +266,57 @@ end
 
 if test_some then exit() end
 
-local usernames = get(JsonDecode('usernames'))
-local passwords = get(JsonDecode('passwords'))
-local servers = get(JsonDecode('servers'))
+-- 多账号模式 load by builtin ui, tricky
+ui = make_multi_account_setting_ui()
+ui.cache = true
+ui.time = 1
+ui.width = 1
+ui.height = 1
+show(ui)
+
 local no_valid_account = true
+local default_state_idx = 1
 -- fileter
-for i = 1, #usernames do
-  username = usernames[i]
-  password = passwords[i]
-  server = servers[i]
-  if username and password and server ~= '不启用' then
+--
+for i = 1, 20 do
+  username = "username" .. i
+  password = "password" .. i
+  log(username, password)
+  if #username > 0 and #password > 0 and multi_account and
+    _G["multi_account" .. i] then
+    if no_valid_account then default_state_idx = i end
     no_valid_account = false
-    appid = server == "官服" and oppid or bppid
+    server = _G["server" .. i]
+    transfer_global_variable("multi_account_user" .. i)
+    if get("multi_account_new_setting" .. i, 0) == 0 then
+      local inherit = _G["multi_account_inherit_setting" .. i]
+      if inherit == "默认" then
+        transfer_global_variable("multi_account_user" ..
+                                   inherit.substr(#"账号"))
+      else
+        transfer_global_variable("multi_account_user" .. default_state_idx)
+      end
+    end
+    update_state_from_ui()
     path.退出账号()
     -- TODO 重新初始化状态
-    run(now_job)
+    run(job)
   end
 end
 
+-- 单帐号模式
 if no_valid_account then
   -- TODO 重新初始化状态
-  run(now_job)
+  run(job)
 end
 
+-- 全部结束后
 if not no_background_after_run then home() end
 if end_closeapp then closeapp() end
 if end_screenoff then screenoff() end
 if end_poweroff then poweroff() end
--- local device notification
+
+-- local notification
 vibrate(1000)
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)

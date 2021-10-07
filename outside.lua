@@ -1,3 +1,5 @@
+require('util')
+log("outside")
 function goto_qqgroup()
   local qq = "1009619697"
   local key = "KlYYiyXj2VRJg1qNqRo3tExo959SrKhT"
@@ -60,7 +62,6 @@ end
 -- print(get("screen_on_swip_mode"))
 -- exit()
 -- end
-require('util')
 function show_gesture_capture_ui()
   home()
   local ui = {
@@ -109,26 +110,14 @@ end
 
 function show_multi_account_ui()
   home()
-  local ui = {
-    name = 'main',
-    title = "多账号",
-    submit = {type = "text", value = "保存"},
-    cancle = {type = "text", value = "退出"},
-    views = {},
-  }
-  for i = 1, 20 do
-    table.insert(ui.views,
-                 {type = 'edit', title = '账号' .. i, id = 'username' .. i})
-    table.insert(ui.views,
-                 {type = 'edit', title = '密码' .. i, id = 'password' .. i})
-    table.insert(ui.views, {
-      type = 'div',
-      views = {
-        {type = 'text', value = '服务器'..i},
-        {type = 'radio', value = '官服|B服|*不启用', id = 'server' .. i,ore=1},
+  updateUI(make_multi_account_setting_ui() )
+end
 
-      },
-    })
+for i = 1, 20 do
+  _G["multi_account_new_setting" .. i] = function()
+    local newstate = 1 - get("multi_account_new_setting" .. i, 0)
+    if newstate == 0 then log(i, 194) end
+    save("multi_account_new_setting" .. i, newstate)
+    return show_multi_account_ui()
   end
-  updateUI(ui)
 end

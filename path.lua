@@ -321,7 +321,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   local fallback = {返回确认 = "右确认"}
   if x == "基建" then fallback.返回确认 = function() back() end end
 
-  auto(p, fallback)
+  auto(p, fallback, nil, 1800)
 
   -- post processing especially for 基建
   if x == "基建" and not disable_postprocess then zoom() end
@@ -1268,7 +1268,7 @@ end
 path.开始游戏 = function(x, disable_ptrs_check)
   log("开始游戏", fight_tick, x)
   if not findOne("开始行动") then return end
-  if x == "1-11" then return auto(path["1-11"]) end
+  if x == "1-11" then return path["1-11"] end
   -- TODO 活动时需要注意这个地方，活动关的代理指挥不长这样
   -- 目的是剿灭
   -- if not appear("代理指挥开", 1) then return end
@@ -1299,7 +1299,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
   if not wait(function()
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
-      "单选确认框",
+      "单选确认框", "源石恢复理智不足",
     })
     if state == "单选确认框" then return true end
     if state == "开始行动红" then return true end
@@ -1346,7 +1346,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     end, 10) then return end
     return path.开始游戏(x)
   elseif state == "源石恢复理智取消" or state ==
-    "药剂恢复理智取消" then
+    "药剂恢复理智取消" or state == '源石恢复理智不足' then
     zero_san = true
     tap("药剂恢复理智取消")
   end
@@ -1445,11 +1445,11 @@ path.主线 = function(x)
       tap("作战主线章节列表" .. chapter)
     end, 3) and not wait(function()
       if not findOne("怒号光明") then return true end
-      tap("作战主线章节列表" .. chapter)
+      tap("作战主线章节列表" .. 8)
     end, 3) then return end
     if not appear(table.keys(p), 5) then return end
   end
-  auto(p, false, 10)
+  auto(p, false, 10, 10)
   path.开始游戏(x)
 end
 
@@ -1903,7 +1903,7 @@ path.公招刷新 = function()
         local empty_tags = true
         local tags = {}
         local ocr_text
-        local max_star = 4
+        -- local max_star = 4
 
         -- retry ocr if contains invalid tags
         for j = 1, 6 do
@@ -1976,27 +1976,39 @@ path.公招刷新 = function()
             end, 5) then return end
           end
         else
-          for _, v in pairs(tag4) do max_star = max(max_star, v[2]) end
-          log(max_star)
-          if max_star == 4 and star4_auto then
-            log(1144)
-
-            local list = tag4[1][1]
-            if longest_tag then
-              list = {{}}
-              for _, v in pairs(tag4) do
-                if #list[1] < #v[1] then list = v end
-              end
-              list = list[1]
+          -- 最大星数
+          local max_star = 0
+          local list
+          for _, v in pairs(tag4) do
+            if max_star < v[2] then
+              max_star = v[2]
+              list = v[1]
             end
-            log(1145)
+          end
 
-            for _, v in pairs(list) do
-              log("tap", v)
-              tap(tags[v])
+          if max_star > 0 and not _G['auto_recruit' .. max_star] then
+            log("notify 存在", max_star, list)
+            table.insert(qqmessage, "可招募：" .. table.join(list))
+          end
+
+          if max_star > 0 and _G['auto_recruit' .. max_star] then
+            for _, v in pairs(list) do tap(tags[v]) end
+            if max_star == 1 then
+              -- 3.5小时
+              tap("公开招募时间加")
+              tap("公开招募时间加")
+              tap("公开招募时间加")
+              tap("公开招募时间减2")
+            else
+              -- 9小时
+              tap("公开招募时间减")
             end
-            tap("公开招募时间减")
-            tap("公开招募确认蓝")
+            if fake_recruit then
+              log("fake_recruit", list)
+              tap("返回")
+            else
+              tap("公开招募确认蓝")
+            end
             if not appear("公开招募箭头") then return end
           end
         end
@@ -2235,10 +2247,21 @@ path["克洛丝单人1-12"] = function()
   -- TODO
 end
 
-path["退出账号"] = function()
-  -- TODO
-  path.跳转("首页")
-  tap('设置')
-  tap('退出登录')
-  tap('退出登录')
+path.退出账号 = function()
+  change_account_mode = true
+  local bilibili_login = R():id(
+                           "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login");
+  local f = function() return find(bilibili_login) end
+  auto(update(path.base, {
+    f = true,
+    面板 = function()
+      tap("面板设置")
+      if not appear({"返回3", "返回4"}) then return end
+      tap("退出登录" .. (appid == oppid and '' or '2'))
+      wait(function() tap("右确认") end, 1)
+    end,
+    开始唤醒 = "账号管理",
+    手机验证码登录 = true,
+  }), nil, nil, 1800)
+  change_account_mode = false
 end

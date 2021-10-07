@@ -1,3 +1,4 @@
+print('util')
 max = math.max
 min = math.min
 math.round = function(x) return math.floor(x + 0.5) end
@@ -618,10 +619,14 @@ zoom = function(retry)
   return zoom(retry + 1)
 end
 
-auto = function(p, fallback, timeout)
+auto = function(p, fallback, timeout, total_timeout)
   if type(p) == "function" then return p() end
   if type(p) ~= "table" then return true end
+  local start_time = time()
   while true do
+    if total_timeout and time() - start_time > total_timeout * 1000 then
+      return true
+    end
     local finish = false
     local check = function()
       for k, v in pairs(p) do
@@ -639,7 +644,6 @@ auto = function(p, fallback, timeout)
     -- if findAny({"进驻信息", "进驻信息选中"}) then timeout = 3 end
     local e = wait(check, timeout)
     -- stop()
-
     -- tap true
     if finish then return true end
 
@@ -753,6 +757,7 @@ run = function(...)
     height = math.round(screen.height * .8),
     mode = 3,
   })
+  qqmessage = {' '}
   update_state()
   wait_game_up()
   for _, v in ipairs(arg) do
@@ -766,7 +771,8 @@ run = function(...)
   end
   if QQ then
     path.跳转("首页")
-    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S'), QQ)
+    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') .. table.join(qqmessage),
+                          QQ)
   end
 end
 
@@ -966,6 +972,10 @@ wait_game_up = function(retry)
 
   local bilibili_account_login = R():id(
                                    "com.hypergryph.arknights.bilibili:id/iv_gsc_account_login")
+  local bilibili_change = R():id(
+                            "com.hypergryph.arknights.bilibili:id/tv_gsc_record_login_change")
+  local bilibili_change2 = R():id(
+                             "com.hypergryph.arknights.bilibili:id/tv_gsc_wel_change")
   local keyguard_indication = R():id(
                                 'com.android.systemui:id/keyguard_indication_area')
   local keyguard_input = R():id('com.android.systemui:id/keyguard_host_view')
@@ -977,16 +987,30 @@ wait_game_up = function(retry)
     open()
     screenon()
     appear({game, keyguard_indication, keyguard_input}, 5)
+
   else
     log(961)
     if not appear({
       game, bilibili_wrapper, bilibili_oneclicklogin, bilibili_ok,
-      bilibili_account_login,
+      bilibili_account_login, bilibili_change, bilibili_change2,
     }, 1) then
       log(965)
       open()
       screenon()
       appear({game, keyguard_indication, keyguard_input}, 5)
+    elseif change_account_mode then
+      if find(bilibili_login) then
+        return
+      elseif find(bilibili_change2) then
+        click(bilibili_change2)
+        disappear(bilibili_change2)
+      elseif find(bilibili_change) then
+        click(bilibili_change)
+        appear(bilibili_account_login)
+      elseif find(bilibili_account_login) then
+        click(bilibili_account_login)
+        appear(bilibili_login)
+      end
     elseif find(bilibili_account_login) then
       click(bilibili_account_login)
       appear(bilibili_login)
@@ -1253,6 +1277,7 @@ tapAll = function(ks)
 end
 
 captureqqimagedeliver = function(info, to)
+  toast("正在通知QQ：" .. info)
   io.open(getDir() .. '/.nomedia', 'w')
   local img = getDir() .. "/tmp.jpg"
   capture(img, 30)
@@ -1292,4 +1317,218 @@ multiply = function(prefix, times)
   local ans = {}
   for i = 1, times do table.insert(ans, prefix .. i) end
   return ans
+end
+
+parse_id_to_ui = function(prefix, length)
+  local ans = ''
+  for i = 1, length do ans = ans .. prefix .. i .. '|' end
+  return ans:sub(1, #ans - 1)
+end
+
+parse_value_to_ui = function(all, select)
+  local ans = ''
+  for _, v in pairs(all) do
+    if table.includes(select, v) then ans = ans .. '*' end
+    ans = ans .. v .. '|'
+  end
+  return ans:sub(1, #ans - 1)
+end
+
+parse_from_ui = function(prefix, reference)
+  local ans = {}
+  for i = 1, #reference do
+    if _G[prefix .. i] then table.insert(ans, reference[i]) end
+  end
+  return ans
+end
+
+all_job = {
+  "邮件收取", "轮次作战", "访问好友", "基建收获",
+  "指定换班", "基建换班", "线索搜集", "制造加速",
+  "副手换人", "信用购买", "公招刷新", "任务收集",
+}
+
+now_job = {
+  "邮件收取", "轮次作战", "访问好友", "基建收获",
+  "指定换班", "基建换班", "线索搜集", "制造加速",
+  "副手换人", "信用购买", "公招刷新", "任务收集",
+}
+
+make_account_setting_ui = function(prefix)
+  print(1327)
+  prefix = prefix or ''
+  local ui = {
+    {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '作战：'}, {
+          type = 'edit',
+          value = [[当期委托 dwqt 龙门市区 LMSQ
+9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
+ 上一次 syc]],
+          id = prefix .. 'fight',
+        },
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '最多吃'},
+        {type = 'edit', value = '9999', id = prefix .. 'max_drug_times'},
+        {type = 'text', value = '次药和'},
+        {type = 'edit', value = '0', id = prefix .. 'max_stone_times'},
+        {type = 'text', value = '次石头'},
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '指定换班(待设计)：'},
+        {type = 'edit', value = [[]], id = prefix .. 'dorm'},
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '换班优先'}, {
+          type = 'radio',
+          value = '工作状态|*技能',
+          id = prefix .. 'prefer_skill',
+          ore = 1,
+        },
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
+        {type = 'text', value = '自动招募'}, {
+          type = 'check',
+          value = '*小车|*4星|5星|6星',
+          id = table.join(map(function(i)
+            return prefix .. 'auto_recruit' .. i
+          end, {1, 4, 5, 6}), '|'),
+          ore = 1,
+        },
+      },
+    }, {
+      type = "check",
+      ore = 1,
+      value = parse_value_to_ui(all_job, now_job),
+      id = parse_id_to_ui(prefix .. "now_job_ui", #all_job),
+    },
+  }
+  -- log(1388)
+  -- log(ui)
+  return ui
+end
+
+make_multi_account_setting_ui = function()
+  -- local inherit_setting_selection = 
+  local ui = {
+    name = 'main',
+    title = "多账号",
+    submit = {type = "text", value = "保存"},
+    cancle = {type = "text", value = "退出"},
+    views = {
+      {
+        type = 'div',
+        views = {
+          {
+            type = 'check',
+            value = '*多账号模式总开关',
+            id = 'multi_account',
+          },
+        },
+      }, {
+        type = 'div',
+        views = {
+          {
+            ore = 1,
+            type = 'check',
+            value = table.join(map(function(i) return '*账号' .. i end,
+                                   range(1, 20)), '|'),
+            id = table.join(map(function(i)
+              return 'multi_account' .. i
+            end, range(1, 20)), '|'),
+          },
+        },
+      },
+    },
+  }
+
+  for i = 1, 20 do
+    -- 基本设置
+    table.insert(ui.views, {
+      type = 'edit',
+      title = '账号' .. i,
+      id = 'username' .. i,
+      value = '',
+    })
+    table.insert(ui.views, {
+      type = 'edit',
+      title = '密码' .. i,
+      id = 'password' .. i,
+      value = '',
+    })
+    table.insert(ui.views, {
+      type = 'div',
+      views = {
+        {type = 'text', value = '服务器' .. i},
+        {type = 'radio', value = '*官服|B服', id = 'server' .. i, ore = 1},
+      },
+    })
+
+    -- 详细设置
+    if get("multi_account_new_setting" .. i, 0) == 0 then
+      table.insert(ui.views, {
+        type = 'div',
+        ore = 1,
+        views = {
+          {type = "text", value = "账号" .. i .. "使用"}, {
+            type = "spinner",
+            value = "默认" .. (i > 1 and "|" or '') ..
+              table.join(
+                map(function(j) return "账号" .. j end, range(1, i - 1)), '|'),
+            id = "multi_account_inherit_setting" .. i,
+          }, {type = "text", value = "设置"}, {
+            type = "button",
+            value = "切换为独立设置",
+            title = '',
+            click = {thread = 0, name = "multi_account_new_setting" .. i},
+          },
+        },
+      })
+    else
+      table.insert(ui.views, {
+        type = 'div',
+        ore = 1,
+        views = {
+          {type = "text", value = "账号" .. i .. "使用独立"},
+          {type = "text", value = "设置"}, {
+            type = "button",
+            value = "切换为默认设置",
+            title = '',
+            click = {thread = 0, name = "multi_account_new_setting" .. i},
+          },
+        },
+      })
+
+      for _, x in pairs(make_account_setting_ui("multi_account_user" .. i)) do
+        -- log(x)
+        table.insert(ui.views, x)
+      end
+
+    end
+  end
+  return ui
+end
+
+transfer_global_variable = function(prefix)
+  local t
+  for k, v in pairs(_G) do
+    if k:startsWith(prefix) then
+      _G[k.substr(#prefix)], _G[k] = v, _G[k.substr(#prefix)]
+    end
+  end
 end
