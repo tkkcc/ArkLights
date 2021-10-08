@@ -31,8 +31,12 @@
     #adb shell monkey -p com.hypergryph.arknights -c android.intent.category.LAUNCHER 1
     sleep 2
   }
+  remove() {
+    curl 'http://localhost:9090/script/del?name=test' -X 'POST'
+  }
   release() {
     sed -i -r 's/(明日方舟速通).+"/\1 '"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
+    remove "$@"
     save "$@"
     curl http://localhost:9090/script/export?name=test >arknights.nsp
     xdg-open http://card.nspirit.cn/admin/apply/list/5963/edit

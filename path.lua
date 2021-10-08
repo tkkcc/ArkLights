@@ -237,7 +237,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
       log(208)
       appear({
         target, "活动公告返回", "签到返回", "活动签到返回",
-        "抽签返回",
+        "抽签返回","单选确认框"
       }, timeout)
       log(209)
     end,
@@ -924,17 +924,17 @@ path.线索布置 = function()
 
   log(642)
 
-  -- 一个红点都没找到
+  -- 一个红点都没找到 且
   -- TODO still need wait?
   -- with findAny, skip happens on collect, not sure if this is
   -- if not appear(point.线索布置左列表, .5) then
-  if not findAny(point.线索布置左列表) then
-    wait(function()
-      if findOne("线索传递") then return true end
-      tap("解锁线索上")
-    end, 5)
-    return
-  end
+  -- if not findAny(point.线索布置左列表) and not findOne("解锁线索左") then
+  --   wait(function()
+  --     if findOne("线索传递") then return true end
+  --     tap("解锁线索上")
+  --   end, 5)
+  --   return
+  -- end
 
   log(644)
   if true then
@@ -970,7 +970,6 @@ path.线索布置 = function()
         end, 20) then return end
       end
     end
-    if findOne("解锁线索左") then clue_unlocked = true end
     log(648)
     if not wait(function()
       if findOne("线索传递") then return true end
@@ -978,10 +977,15 @@ path.线索布置 = function()
     end, 5) then return end
   end
 
+  if findOne("正在提交反馈至神经") then
+    disappear("正在提交反馈至神经", 5)
+  end
+  if appear("解锁线索", .5) then clue_unlocked = true end
+
   if clue_unlocked then
+
     wait(function() tap("解锁线索") end, .5)
 
-    -- clue_unlocked = true
     if not appear({"进驻信息", "进驻信息选中"}, 5) then
       return path.线索搜集()
     end
@@ -991,6 +995,7 @@ path.线索布置 = function()
       tap("制造站进度")
     end, 10) then return path.线索搜集() end
     return path.线索布置()
+
   end
 end
 
