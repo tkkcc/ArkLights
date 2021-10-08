@@ -340,8 +340,8 @@ start_time = parse_time("202101010400")
 
 -- 对于不同用户的首次任务
 init_state = function()
-  -- 不再启用重复刷模式
-  -- repeat_fight_mode = true
+  -- 启用重复刷模式
+  repeat_fight_mode = true
 
   fight_tick = 0
   no_success_one_loop = 0
