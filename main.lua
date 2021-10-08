@@ -40,6 +40,7 @@ local appid_need_user_select = false
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 appid = oppid
+
 if prefer_bapp then appid = bppid end
 if prefer_bapp_on_android7 and android_verison_code < 30 then appid = bppid end
 local app_info = getAppinfo(appid)
@@ -47,40 +48,25 @@ local bpp_info = getAppinfo(bppid)
 if not app_info and not bpp_info then stop("未安装明日方舟官服或B服") end
 if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
+server = appid == oppid and "官服" or "B服"
 
 if predebug then
-  log(queue_length())
-  queue_push(1)
-  log(queue_length())
-  queue_pop()
-  log(queue_length())
-  exit()
-  log(JsonEncode({}))
-  a = JsonDecode('[]')
-  print(type(a))
-  log(a)
-  -- exec('input keyevent 224')
-  -- log(table.join(map(function(i) return prefix .. 'shift' .. i end),"|"))
-  -- local req = {
-  --   url = "http://82.156.198.12:49875",
-  --   param = {info = '1', to = '2367739198'},
-  --   timeout = 60,
-  -- }
-  -- httpPost(req)
-  -- path.退出账号()
+  log(findOne("LS-0"))
+  log(findOne("作战列表AP-0"))
   log("end")
   exit()
 end
+
+-- 提前获取root权限
+if pcall(exec) then root_mode = true end
 
 -- trigger screen recording permission request using one second
 findColor({0, 0, 1, 1, "0,0,#000000"})
 local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
--- 提前获取root权限
-screenon()
 
 local ui = {
-  title = "明日方舟速通 2021.10.08 15:24",
+  title = "明日方舟速通 2021.10.08 20:25",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
@@ -311,16 +297,19 @@ apply_multi_account_setting = function(i, visited)
     transfer_global_variable("multi_account_user" .. i)
   end
 end
-for i = 1, 20 do
+for i = 1, dual_server and 2 or 20 do
   username = _G["username" .. i]
   password = _G["password" .. i]
-  if #username > 0 and #password > 0 and multi_account and
-    _G["multi_account" .. i] then
+  if (multi_account and _G["multi_account" .. i]) and
+    (#username > 0 and #password > 0 or dual_server) then
     server = _G["server" .. i]
     no_valid_account = false
     apply_multi_account_setting(i)
     update_state_from_ui()
-    table.insert(job, 1, "退出账号")
+    if multi_account_end_closeapp then
+      closeapp(appid == oppid and bppid or oppid)
+    end
+    if not dual_server then table.insert(job, 1, "退出账号") end
     log(job)
     run(job)
   end

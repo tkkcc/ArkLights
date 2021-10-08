@@ -1591,7 +1591,9 @@ path.物资芯片 = function(x)
   else
     index = index + 5 - #cur_open
   end
-  if not findOne("作战列表" .. x) then
+
+  local fight_notation = "作战列表" .. x:sub(1, #x - 1) .. "0"
+  if not findOne(fight_notation) then
     path.跳转("首页")
     tap("面板作战")
     if not appear("主页") then return end
@@ -1627,9 +1629,10 @@ path.物资芯片 = function(x)
     else
       tap("资源收集列表" .. index)
     end
-    appear("作战列表" .. x)
+    appear(fight_notation)
   end
-  if findTap("作战列表" .. x) then
+  if findOne(fight_notation) then
+    tap("作战列表" .. x)
     appear("开始行动")
     path.开始游戏(x)
   end

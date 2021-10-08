@@ -1310,10 +1310,16 @@ captureqqimagedeliver = function(info, to)
   -- notifyqq(base64(img),tostring(info),tostring(to))
 end
 
-poweroff = function() exec('reboot -p') end
-closeapp = function(package) exec("am force-stop " .. package) end
-screenoff = function() exec('input keyevent 223') end
-screenon = function() exec('input keyevent 224') end
+poweroff = function() if root_mode then exec('reboot -p') end end
+closeapp = function(package)
+  if root_mode then
+    exec("am force-stop " .. package)
+  else
+    -- TODO 无障碍关app
+  end
+end
+screenoff = function() if root_mode then exec('input keyevent 223') end end
+screenon = function() if root_mode then exec('input keyevent 224') end end
 
 unlock = function(route, swip_mode)
   log('unlock', route, swip_mode)
@@ -1462,17 +1468,21 @@ make_multi_account_setting_ui = function()
   -- local inherit_setting_selection = 
   local ui = {
     name = 'main',
-    title = "填入账密才有效",
+    title = "多账号",
     submit = {type = "text", value = "保存"},
     cancle = {type = "text", value = "退出"},
     views = {
       {
+        type = 'text',
+        value = '填入账密才有效。双服无账密模式至多执行前两个账号且不会重登，账密可不填。',
+      }, {
         type = 'div',
         views = {
           {
             type = 'check',
-            value = '*多账号模式总开关',
-            id = 'multi_account',
+            ore = 1,
+            value = '*多账号总开关|双服无账密|切换时关闭其他账号游戏',
+            id = 'multi_account|dual_server|multi_account_end_closeapp',
           },
         },
       }, {
