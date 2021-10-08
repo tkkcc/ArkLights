@@ -630,8 +630,10 @@ auto = function(p, fallback, timeout, total_timeout)
     local finish = false
     local check = function()
       for k, v in pairs(p) do
-        -- log(k)
+        -- log(663, k)
+        -- print(type(k))
         if findOne(k) then
+          -- log(664, k)
           log(k, "=>", v)
           effective_state = k
           if tap(v) then finish = true end
@@ -982,6 +984,7 @@ wait_game_up = function(retry)
 
   local screen = getScreen()
   if screen.width > screen.height and find(game) then return end
+  if change_account_mode and find(bilibili_login) then return end
 
   if appid ~= bppid then
     open()
@@ -1301,8 +1304,10 @@ unlock = function(route, swip_mode)
     local finger = {}
     for _, p in pairs(route) do table.insert(finger, {x = p[1], y = p[2]}) end
     log(finger)
-    gesture({finger}, 3000)
-    ssleep(3)
+    if #finger > 0 then
+      gesture({finger}, 3000)
+      ssleep(3)
+    end
   else
     for _, p in pairs(route) do
       tap(p, true, true)

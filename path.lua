@@ -2251,9 +2251,8 @@ path.退出账号 = function()
   change_account_mode = true
   local bilibili_login = R():id(
                            "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login");
-  local f = function() return find(bilibili_login) end
   auto(update(path.base, {
-    f = true,
+    [function() return find(bilibili_login) end] = true,
     面板 = function()
       tap("面板设置")
       if not appear({"返回3", "返回4"}) then return end

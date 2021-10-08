@@ -49,12 +49,8 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  log(appid, oppid)
   path.退出账号()
   log("end")
-  -- if findOne("账户设置") then log(1) end
-  -- log(findOne("退出登录"))
-  -- log(findOne("返回3"))
   exit()
 end
 
