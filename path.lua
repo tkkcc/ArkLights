@@ -161,7 +161,6 @@ path.基建收获 = function()
   leaving_jump = true
 end
 
-prev_jump = "基建"
 path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   local sign = {
     好友 = "个人名片",
@@ -216,6 +215,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   --     tap("返回")
   --   end, 10) then return end
   -- end
+  log(218)
 
   local bypass = function(t)
     log("bypass 基建返回确认", prev_jump)
@@ -321,10 +321,14 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   local fallback = {返回确认 = "右确认"}
   if x == "基建" then fallback.返回确认 = function() back() end end
 
+  -- log(219)
+  wait_game_up()
   auto(p, fallback, nil, 1800)
+  -- log(220)
 
   -- post processing especially for 基建
   if x == "基建" and not disable_postprocess then zoom() end
+  log(221)
 
   prev_jump = x
 
@@ -333,13 +337,24 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
 end
 
 start_time = parse_time("202101010400")
-update_state_last_day = 0
-update_state_last_week = 0
-communication_enough = false
-jmfight_enough = false
-zero_san = false
-repeat_fight_mode = true
 
+-- 对于不同用户的首次任务
+init_state = function()
+  -- 不再启用重复刷模式
+  -- repeat_fight_mode = true
+
+  fight_tick = 0
+  no_success_one_loop = 0
+  prev_jump = "基建"
+
+  update_state_last_day = 0
+  update_state_last_week = 0
+  communication_enough = false
+  jmfight_enough = false
+  zero_san = false
+end
+
+-- 对于单个用户的不同任务
 update_state = function()
   zero_san = false
 
@@ -730,9 +745,12 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
-  path.宿舍换班()
-  path.制造换班()
-  path.总览换班()
+  log(shift1, shift2, shift3)
+  log(751)
+  if shift1 then path.宿舍换班() end
+  if shift2 then path.制造换班() end
+  if shift3 then path.总览换班() end
+  log(752)
 end
 
 path.制造加速 = function()
@@ -943,6 +961,7 @@ path.线索布置 = function()
           if not findOne(p) then return true end
 
           -- TODO: will this better, can cause error
+          tap("线索库列表1")
           tap("线索库列表1")
           -- wait(function() tap("线索库列表1") end, .1)
 
@@ -1216,8 +1235,6 @@ same_page_fight = function(pre, cur)
   log("not same page fight", pre, cur)
 end
 
-fight_tick = 0
-no_success_one_loop = 0
 path.轮次作战 = function()
   if #fight == 0 then return true end
   -- path.跳转("首页")
@@ -1618,7 +1635,6 @@ path.物资芯片 = function(x)
   end
 end
 
-jmfight_current = ""
 is_jmfight_enough = function(x, outside)
   log("is_jmfight_enough", x)
   if ignore_jmfight_enough_check then return false end
@@ -1678,7 +1694,7 @@ path.剿灭 = function(x)
   if is_jmfight_enough(x) then return end
   if not appear("开始行动", 5) then return end
   if is_jmfight_enough(x) then return end
-  if x ~= jmfight_current then
+  if x ~= "当期委托" then
     -- 非当期委托需要切换
     if not wait(function()
       if findOne("切换") then return true end
@@ -2256,8 +2272,10 @@ path.退出账号 = function()
     面板 = function()
       tap("面板设置")
       if not appear({"返回3", "返回4"}) then return end
-      tap("退出登录" .. (appid == oppid and '' or '2'))
-      wait(function() tap("右确认") end, 1)
+      wait(function()
+        tap("退出登录" .. (appid == oppid and '' or '2'))
+        tap("右确认")
+      end, 1)
     end,
     开始唤醒 = "账号管理",
     手机验证码登录 = true,

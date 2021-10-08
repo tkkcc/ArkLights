@@ -110,7 +110,7 @@ end
 
 function show_multi_account_ui()
   home()
-  updateUI(make_multi_account_setting_ui() )
+  updateUI(make_multi_account_setting_ui())
 end
 
 for i = 1, 20 do
@@ -120,4 +120,17 @@ for i = 1, 20 do
     save("multi_account_new_setting" .. i, newstate)
     return show_multi_account_ui()
   end
+end
+
+function notifyqq(x)
+  -- image, info, to
+  log(image)
+  local req = {
+    url = "http://82.156.198.12:49875",
+    -- param = {image = image, info = info, to = to},
+    param = JsonDecode(x),
+    timeout = 30,
+  }
+  httpPost(req)
+  queue_pop()
 end

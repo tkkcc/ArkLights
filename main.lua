@@ -1,4 +1,4 @@
-predebug = true
+-- predebug = true
 -- fake_recruit = true
 -- during_crisis_contract =true
 -- disable_communication_check=true
@@ -13,12 +13,12 @@ check_after_tap = true
 -- verbose_fca = true
 -- no_dorm = true
 -- test_some = true
-ok_time = 1000
+-- ok_time = 1000
 -- ignore_jmfight_enough_check=true
 -- test_fight = true
 -- fake_fight = true
 -- no_config_cache = true
-prefer_bapp = true
+-- prefer_bapp = true
 -- prefer_bapp_on_android7 = true
 -- debug0721 = true
 -- no_background_after_run = true
@@ -49,7 +49,25 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 
 if predebug then
-  path.退出账号()
+  log(queue_length())
+  queue_push(1)
+  log(queue_length())
+  queue_pop()
+  log(queue_length())
+  exit()
+  log(JsonEncode({}))
+  a = JsonDecode('[]')
+  print(type(a))
+  log(a)
+  -- exec('input keyevent 224')
+  -- log(table.join(map(function(i) return prefix .. 'shift' .. i end),"|"))
+  -- local req = {
+  --   url = "http://82.156.198.12:49875",
+  --   param = {info = '1', to = '2367739198'},
+  --   timeout = 60,
+  -- }
+  -- httpPost(req)
+  -- path.退出账号()
   log("end")
   exit()
 end
@@ -58,14 +76,16 @@ end
 findColor({0, 0, 1, 1, "0,0,#000000"})
 local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
+-- 提前获取root权限
+screenon()
 
 local ui = {
-  title = "明日方舟速通 2021.10.05 13:24",
+  title = "明日方舟速通 2021.10.08 15:24",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
   height = -1,
-  time = ok_time or 60,
+  time = ok_time or 120,
   views = {
     {
       type = 'div',
@@ -93,7 +113,6 @@ local ui = {
     }, {
       type = "text",
       value = [[
-刷活动关：代理作战中启动。
 游戏全屏无黑边，开基建退出提示，关miui游戏模式深色模式，还有问题群里反馈。
 ]],
     }, {
@@ -143,6 +162,7 @@ end
 
 -- ui loop
 while true do
+  home()
   local ret = show(ui)
   if not ret then exit() end
   if not unlock_mode and not server1 then break end
@@ -163,7 +183,8 @@ update_state_from_ui = function()
   max_stone_times = tonumber(max_stone_times)
   appid = server == "官服" and oppid or bppid
   job = parse_from_ui("now_job_ui", all_job)
-  fight = string.map(fight, {
+
+  fight = string.map(fight_ui, {
     [";"] = " ",
     ['"'] = " ",
     ["'"] = " ",
@@ -187,6 +208,7 @@ update_state_from_ui = function()
     end
   end
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
+
   all_open_time_start = parse_time("202108261600")
   all_open_time_end = parse_time("202109090400")
   update_open_time()
@@ -210,7 +232,6 @@ update_state_from_ui = function()
   log(facility2nexthour)
   log(facility2operator)
 end
-update_state_from_ui()
 
 if test_fight then
   fight = {
@@ -271,48 +292,64 @@ ui.height = 1
 show(ui)
 
 local no_valid_account = true
-local default_state_idx = 1
--- fileter
---
+
+transfer_global_variable("multi_account_user1", "multi_account_user0")
+
+local apply_multi_account_setting
+apply_multi_account_setting = function(i, visited)
+  visited = visited or {}
+  table.insert(visited, i)
+  if get("multi_account_new_setting" .. i, 0) == 0 then
+    local inherit = _G["multi_account_inherit_setting" .. i]
+    local j = tonumber(string.sub(inherit, #"账号" + 1))
+    if inherit == "默认" or table.includes(visited, j) then
+      transfer_global_variable("multi_account_user0")
+    else
+      apply_multi_account_setting(j, visited)
+    end
+  else
+    transfer_global_variable("multi_account_user" .. i)
+  end
+end
 for i = 1, 20 do
-  username = "username" .. i
-  password = "password" .. i
-  log(username, password)
+  username = _G["username" .. i]
+  password = _G["password" .. i]
   if #username > 0 and #password > 0 and multi_account and
     _G["multi_account" .. i] then
-    if no_valid_account then default_state_idx = i end
-    no_valid_account = false
     server = _G["server" .. i]
-    transfer_global_variable("multi_account_user" .. i)
-    if get("multi_account_new_setting" .. i, 0) == 0 then
-      local inherit = _G["multi_account_inherit_setting" .. i]
-      if inherit == "默认" then
-        transfer_global_variable("multi_account_user" ..
-                                   inherit.substr(#"账号"))
-      else
-        transfer_global_variable("multi_account_user" .. default_state_idx)
-      end
-    end
+    no_valid_account = false
+    apply_multi_account_setting(i)
     update_state_from_ui()
-    path.退出账号()
-    -- TODO 重新初始化状态
+    table.insert(job, 1, "退出账号")
+    log(job)
     run(job)
   end
 end
 
 -- 单帐号模式
 if no_valid_account then
-  -- TODO 重新初始化状态
+  transfer_global_variable("multi_account_user0")
+  update_state_from_ui()
   run(job)
 end
 
 -- 全部结束后
 if not no_background_after_run then home() end
-if end_closeapp then closeapp() end
+if end_closeapp then
+  closeapp(oppid)
+  closeapp(bppid)
+end
 if end_screenoff then screenoff() end
 if end_poweroff then poweroff() end
 
+-- 等待所有QQ通知结束
+local start = time()
+while queue_length() > 0 and (time() - start) < 30 * 1000 do
+  -- log(338)
+end
+
 -- local notification
-vibrate(1000)
+vibrate(100)
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)
+log(344)

@@ -262,7 +262,7 @@ table2string = function(t)
   return t
 end
 
-log_history = {}
+-- log_history = {}
 log = function(...)
   if disable_log then return end
   local arg = {...}
@@ -760,18 +760,26 @@ run = function(...)
     mode = 3,
   })
   qqmessage = {' '}
+  init_state()
+
+  -- 目前每个账号不同任务的状态共享，因此只在外层执行一次
   update_state()
+
   wait_game_up()
   for _, v in ipairs(arg) do
     menuConfig({x = 0, y = screen.height})
     running = v
     if type(v) == 'function' then
+      log(773)
       v()
+      log(774)
     else
       auto(path[v])
     end
   end
-  if QQ then
+
+  -- 对每个账号的远程提醒，本地无需装QQ。
+  if #QQ > 0 then
     path.跳转("首页")
     captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') .. table.join(qqmessage),
                           QQ)
@@ -986,11 +994,13 @@ wait_game_up = function(retry)
   if screen.width > screen.height and find(game) then return end
   if change_account_mode and find(bilibili_login) then return end
 
-  if appid ~= bppid then
+  if appid == oppid then
     open()
+    log(999)
     screenon()
+    log(1000)
     appear({game, keyguard_indication, keyguard_input}, 5)
-
+    menuConfig({x = 0, y = screen.height})
   else
     log(961)
     if not appear({
@@ -1000,7 +1010,12 @@ wait_game_up = function(retry)
       log(965)
       open()
       screenon()
-      appear({game, keyguard_indication, keyguard_input}, 5)
+      appear({
+        game, bilibili_wrapper, bilibili_oneclicklogin, bilibili_ok,
+        bilibili_account_login, bilibili_change, bilibili_change2,
+        keyguard_indication, keyguard_input,
+      }, 5)
+      menuConfig({x = 0, y = screen.height})
     elseif change_account_mode then
       if find(bilibili_login) then
         return
@@ -1022,6 +1037,7 @@ wait_game_up = function(retry)
                                   "com.hypergryph.arknights.bilibili:id/et_gsc_account");
       local password_inputbox = R():id(
                                   "com.hypergryph.arknights.bilibili:id/et_gsc_account_pwd");
+      -- appear({username_inputbox})
       input(username_inputbox, username)
       input(password_inputbox, password)
       click(bilibili_login)
@@ -1036,6 +1052,8 @@ wait_game_up = function(retry)
       retry = retry - 1
     end
   end
+
+  -- 亮屏解锁
   if find(keyguard_indication) then
     if not wait(function()
       if not find(keyguard_indication) then return true end
@@ -1058,28 +1076,6 @@ wait_game_up = function(retry)
 
   log("wait_game_up next", retry)
   return wait_game_up(retry + 1)
-end
-
-bilibili_login_hook = function()
-  if appid ~= bppid then return end
-  local login = R():id(
-                  "com.hypergryph.arknights.bilibili:id/bsgamesdk_buttonLogin");
-  if not appear(login, 1) then return end
-  local username_inputbox = R():id(
-                              "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_username_login");
-  local password_inputbox = R():id(
-                              "com.hypergryph.arknights.bilibili:id/bsgamesdk_edit_password_login");
-  input(username_inputbox, username)
-  input(password_inputbox, password)
-  click(login)
-end
-
-miui_hook = function()
-  local miui = R():text("立即开始"):type("Button")
-  if not wait(function()
-    if not find(miui) then return true end
-    click(miui)
-  end, 10) then stop("不能消去立即开始") end
 end
 
 coming_hour = function(a, b, starttime)
@@ -1279,21 +1275,43 @@ tapAll = function(ks)
   sleep(duration)
 end
 
+save("queue", '[]')
+queue_push = function(e)
+  local queue = JsonDecode(get("queue", '[]'))
+  log(1281, queue)
+  table.insert(queue, e)
+  save("queue", JsonEncode(queue))
+end
+queue_pop = function()
+  save("queue", JsonEncode(table.slice(JsonDecode(get("queue", '[]')), 2)))
+end
+queue_length = function() return #JsonDecode(get('queue', '[]')) end
+
 captureqqimagedeliver = function(info, to)
   toast("正在通知QQ：" .. info)
   io.open(getDir() .. '/.nomedia', 'w')
   local img = getDir() .. "/tmp.jpg"
   capture(img, 30)
-  local req = {
-    url = "http://a1.bilabila.tk:49875",
-    param = {image = base64(img), info = tostring(info), to = tostring(to)},
-    timeout = 20,
-  }
-  httpPost(req)
+
+  -- 快速退回主界面
+  home()
+  queue_push(1)
+  log(img, info, to)
+
+  -- 多线程有问题这个
+  callThreadFun(0, 'notifyqq', JsonEncode(
+                  {
+      image = base64(img),
+      info = tostring(info),
+      to = tostring(to),
+    }))
+  -- callThreadFun(0, 'notifyqq', base64(img), tostring(info), tostring(to))
+
+  -- notifyqq(base64(img),tostring(info),tostring(to))
 end
 
 poweroff = function() exec('reboot -p') end
-closeapp = function() exec("am force-stop " .. appid) end
+closeapp = function(package) exec("am force-stop " .. package) end
 screenoff = function() exec('input keyevent 223') end
 screenon = function() exec('input keyevent 224') end
 
@@ -1372,7 +1390,7 @@ make_account_setting_ui = function(prefix)
           value = [[当期委托 dwqt 龙门市区 LMSQ
 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
  上一次 syc]],
-          id = prefix .. 'fight',
+          id = prefix .. 'fight_ui',
         },
       },
     }, {
@@ -1407,6 +1425,18 @@ make_account_setting_ui = function(prefix)
       type = 'div',
       ore = 1,
       views = {
+        {type = 'text', value = '基建换班'}, {
+          type = 'check',
+          value = '*宿舍|*制造|*总览',
+          id = table.join(map(function(i) return prefix .. 'shift' .. i end,
+                              range(1, 3)), "|"),
+          ore = 1,
+        },
+      },
+    }, {
+      type = 'div',
+      ore = 1,
+      views = {
         {type = 'text', value = '自动招募'}, {
           type = 'check',
           value = '*小车|*4星|5星|6星',
@@ -1432,7 +1462,7 @@ make_multi_account_setting_ui = function()
   -- local inherit_setting_selection = 
   local ui = {
     name = 'main',
-    title = "多账号",
+    title = "填入账密才有效",
     submit = {type = "text", value = "保存"},
     cancle = {type = "text", value = "退出"},
     views = {
@@ -1475,6 +1505,7 @@ make_multi_account_setting_ui = function()
       title = '密码' .. i,
       id = 'password' .. i,
       value = '',
+      mode = 'password',
     })
     table.insert(ui.views, {
       type = 'div',
@@ -1492,9 +1523,14 @@ make_multi_account_setting_ui = function()
         views = {
           {type = "text", value = "账号" .. i .. "使用"}, {
             type = "spinner",
-            value = "默认" .. (i > 1 and "|" or '') ..
-              table.join(
-                map(function(j) return "账号" .. j end, range(1, i - 1)), '|'),
+            -- value = "默认" .. (i > 1 and "|" or '') ..
+            --   table.join(
+            --     map(function(j) return "账号" .. j end, range(1, i - 1)), '|'),
+            value = "默认|" ..
+              table.join(map(function(j) return "账号" .. j end, table.filter(
+                               range(1, 20), function(k)
+                  return k ~= i
+                end)), '|'),
             id = "multi_account_inherit_setting" .. i,
           }, {type = "text", value = "设置"}, {
             type = "button",
@@ -1529,11 +1565,26 @@ make_multi_account_setting_ui = function()
   return ui
 end
 
-transfer_global_variable = function(prefix)
-  local t
+transfer_global_variable = function(prefix, save_prefix)
+  local stem
   for k, v in pairs(_G) do
     if k:startsWith(prefix) then
-      _G[k.substr(#prefix)], _G[k] = v, _G[k.substr(#prefix)]
+      stem = string.sub(k, #prefix + 1)
+      if save_prefix and #save_prefix > 0 then
+        _G[save_prefix .. stem] = _G[stem]
+      end
+      _G[stem] = v
     end
   end
+end
+
+function notifyqq(image, info, to)
+  log(image)
+  local req = {
+    url = "http://82.156.198.12:49875",
+    param = {image = image, info = info, to = to},
+    timeout = 30,
+  }
+  httpPost(req)
+  queue_pop()
 end
