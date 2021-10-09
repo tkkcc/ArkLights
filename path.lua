@@ -61,6 +61,12 @@ path.base = {
     end, 30) then return end
     if not findOne("开始行动") then return path.base.接管作战() end
 
+    -- TODO: 只适用于常规代理指挥开
+    if not appear("代理指挥开", 5) then
+      log(66)
+      return
+    end
+
     log(89, repeat_fight_mode)
     if repeat_fight_mode then return path.开始游戏('') end
 
@@ -1084,6 +1090,10 @@ path.任务收集 = function()
 end
 
 path.信用购买 = function()
+  if speedrun then
+    point.信用交易所列表 = {"信用交易所列表2"}
+    point.信用交易所已购列表 = {"信用交易所已购列表2"}
+  end
   path.跳转("采购中心")
   if not wait(function()
     if findAny({"信用交易所列表1", "信用交易所已购列表1"}) then
@@ -1120,6 +1130,25 @@ path.信用购买 = function()
   disappear("信用不足", 5)
 
   local f
+  if not wait(function()
+    if findOne("信用不足") then
+      log("信用不足")
+      return true
+    end
+    if findOne("信用交易所横线") then
+      if findAny({"信用交易所列表1", "信用交易所已购列表1"}) then
+        if not findTap(point.信用交易所列表) and
+          table.all(point.信用交易所已购列表, findOne) then
+          log("买光了")
+          return true
+        end
+      end
+    else
+      tap("购买物品")
+    end
+  end, 60) then return end
+
+
   f = function(i)
     if not findOne("信用交易所横线") then
 
@@ -1172,8 +1201,6 @@ path.信用购买 = function()
       return
     end
   end
-  if speedrun then return f(2) end
-  for i = 1, 10 do if f(i) then return end end
 end
 
 get_fight_type = function(x)
@@ -1209,10 +1236,10 @@ fight_tick = 0
 no_success_one_loop = 0
 path.轮次作战 = function()
   if #fight == 0 then return true end
-  path.跳转("首页")
+  -- path.跳转("首页")
   pre_fight = nil
   no_success_one_loop = 0
-  while not zero_san do
+  while not zero_san and fight_times < max_fight_times do
     fight_tick = fight_tick % #fight + 1
     if fight_tick == 1 then
       no_success_one_loop = no_success_one_loop + 1
@@ -1267,7 +1294,9 @@ path.开始游戏 = function(x, disable_ptrs_check)
   -- log(findOne("开始行动"))
   -- exit()
 
+  log(1270)
   if not appear("代理指挥开", .5) then
+    log(1271)
     if not wait(function()
       if findOne("代理指挥开") and not disappear("代理指挥开", .5) then
         return true
@@ -1276,6 +1305,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
       appear("代理指挥开", .5)
     end, 5) then return end
   end
+  log(1272)
   if is_jmfight_enough(x) then return end
 
   -- quick tap .5s
@@ -1300,7 +1330,9 @@ path.开始游戏 = function(x, disable_ptrs_check)
     end
   end, 30) then return end
 
+  log(1274, state)
   if state == "开始行动红" then
+    fight_times = fight_times + 1
     no_success_one_loop = 0
     if fake_fight then
       log("debug0415", x)
@@ -1320,6 +1352,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     return path.base.接管作战()
   elseif stone_times < max_stone_times and state == "源石恢复理智取消" or
     drug_times < max_drug_times and state == "药剂恢复理智取消" then
+    log(1275)
     if state == "源石恢复理智取消" then
       stone_times = stone_times + 1
     else
@@ -1327,18 +1360,22 @@ path.开始游戏 = function(x, disable_ptrs_check)
     end
 
     if not wait(function()
+      log(1276)
       if findOne("开始行动") then return true end
       if findOne(state) then
         tap("药剂恢复理智确认")
         disappear(state, 10)
       end
     end, 10) then return end
+    log(1277)
     return path.开始游戏(x)
   elseif state == "源石恢复理智取消" or state ==
     "药剂恢复理智取消" then
     zero_san = true
+    log("zero_san", zero_san)
     tap("药剂恢复理智取消")
   end
+  log(1278)
 end
 
 path.主线 = function(x)
@@ -1393,18 +1430,6 @@ path.主线 = function(x)
     log(1041)
     path.跳转("首页")
     tap("面板作战")
-    if not appear("主页") then return end
-
-    -- if not wait(function()
-    --   if findOne("主题曲", 90) and not findOne("资源收集", 90) and
-    --     not findOne("每周部署", 90) then return true end
-    --   tap("主题曲")
-    -- end) then return end
-
-    -- log(findOne("主题曲", 90))
-    -- log(findOne("资源收集", 90))
-    -- log(findOne("每周部署", 90))
-
     if not appear("主页") then return end
     if not wait(function()
       if findOne("怒号光明") then return true end

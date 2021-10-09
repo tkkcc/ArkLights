@@ -20,7 +20,7 @@ check_after_tap = true
 -- ignore_jmfight_enough_check=true
 -- test_fight = true
 -- fake_fight = true
--- no_config_cache = true
+no_config_cache = true
 -- prefer_bapp = true
 -- prefer_bapp_on_android7 = true
 -- debug0721 = true
@@ -30,6 +30,7 @@ check_after_tap = true
 
 default_findcolor_confidence = 95
 default_max_drug_times = 9999
+default_max_fight_times = 9999
 default_max_stone_times = 0
 
 screen = getScreen()
@@ -228,7 +229,7 @@ local parse_from_ui = function(prefix, reference)
   return ans
 end
 local ui = {
-  title = "明日方舟速通 2021.09.27 22:08",
+  title = "明日方舟速通 2021.09.29  0:27",
   cache = not no_config_cache,
   width = -1,
   height = -1,
@@ -245,9 +246,12 @@ local ui = {
     }, {title = "换班", type = "edit", value = [[]], id = "dorm"}, {
       title = "设置",
       type = "edit",
-      value = [[最大吃药次数=]] .. default_max_drug_times .. [[
+      value = [[最大作战次数=]] .. default_max_fight_times .. [[
+
+最大吃药次数=]] .. default_max_drug_times .. [[
 
 最大吃石头次数=]] .. default_max_stone_times,
+
       id = "lua_setting",
     }, {
       type = "check",
@@ -456,7 +460,8 @@ drug_times = 0
 max_drug_times = 最大吃药次数 or default_max_drug_times
 stone_times = 0
 max_stone_times = 最大吃石头次数 or default_max_stone_times
--- log(max_stone_times, max_drug_times)
+fight_times = 0
+max_fight_times = 最大作战次数 or default_max_fight_times
 
 local start_time = time()
 log("start")
