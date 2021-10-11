@@ -237,7 +237,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
       log(208)
       appear({
         target, "活动公告返回", "签到返回", "活动签到返回",
-        "抽签返回","单选确认框"
+        "抽签返回", "单选确认框",
       }, timeout)
       log(209)
     end,
@@ -257,7 +257,8 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
             ssleep(.2)
           end
 
-          -- TODO no wait?
+          -- TODO no wait can cause stuck 5 seconds
+          tap("主页列表" .. home_target)
           tap("主页列表" .. home_target)
 
           wait(function()
@@ -284,7 +285,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
         if findAny({"返回", "返回2"}) then
           if not first_time_see_home then
             first_time_see_home = time()
-          elseif (time() - first_time_see_home) > 5000 then
+          elseif (time() - first_time_see_home) > 3000 then
             p["主页"] = nil
             return true -- we see 返回 for some time, but target still not appear
           end
@@ -461,6 +462,7 @@ path.宿舍换班 = function()
       end
     end, 5) then return end
 
+    tap("清空选择")
     if not wait(function()
       if findOne("干员未选中") and findOne("筛选横线") then
         return true
@@ -480,11 +482,13 @@ path.宿舍换班 = function()
     -- TODO: 确认蓝 need fix
     -- ssleep(.5)
 
-    tapAll({
-      "干员选择列表6", "干员选择列表7", "干员选择列表8",
-      "干员选择列表9", "干员选择列表10", "干员选择列表11",
-      "干员选择列表12",
-    })
+    tapAll(map(function(i) return "干员选择列表" .. i end, range(6, 10)))
+    -- tapAll({
+    --   "干员选择列表6", "干员选择列表7", "干员选择列表8",
+    --   "干员选择列表9", "干员选择列表10",
+    --   -- "干员选择列表11",
+    --   -- "干员选择列表12",
+    -- })
 
     -- local duration = 1
     -- finger = {
@@ -561,7 +565,6 @@ path.制造换班 = function()
     end, 5) then return end
 
     -- 筛选出无进驻技能排序
-    local limit = findOne("清空选择") and 7 or 1
 
     if not wait(function()
       if findOne("筛选取消") then return true end
@@ -599,13 +602,6 @@ path.制造换班 = function()
         findOne("筛选") then return true end
       tap("清空选择")
     end, 5) then return end
-    log("limit", limit)
-
-    -- if not wait(function()
-    --   if not findOne("筛选取消") then return true end
-    --   tap("筛选确认")
-    -- end, 5) then return end
-    -- appear("筛选横线", 1)
 
     findtap_operator_type(type)
 
@@ -650,8 +646,10 @@ path.总览换班 = function()
   end
 
   local first_look = true
+  local visitedy = {}
   f = function()
     local timeout = first_look and .5 or 0
+    local p
     first_look = false
     if not appear("入驻干员", timeout) then return end
 
@@ -659,7 +657,9 @@ path.总览换班 = function()
     if not wait(function()
       if findOne("确认蓝") then return true end
       if findOne("撤下干员") then
-        if findTap("入驻干员") then
+        p = findOne("入驻干员")
+        if p then
+          tap(p)
           last_time_see_plus = time()
         elseif time() - last_time_see_plus > 1000 then
           return true
@@ -669,7 +669,23 @@ path.总览换班 = function()
 
     if not findOne("确认蓝") then return true end
 
-    local limit = findOne("清空选择") and 7 or 1
+    local limit = findOne("清空选择") and 5 or 1
+
+    -- 处理异格干员:出现同高度第二次缺人，不清空从后往前选人。还是要等鹰角更新。
+    log('visitedy', visitedy)
+    local height = tostring(p[2])
+    if (visitedy[height] or 0) > 0 then
+      log(676, limit, height)
+      tapAll(map(function(i) return "干员选择列表" .. i end,
+                 range(2 * limit, limit + 1, -1)))
+      if not wait(function()
+        if findOne("撤下干员") then return true end
+        tap("确认蓝")
+      end, 5) then return end
+      return true
+    end
+
+    visitedy[height] = (visitedy[height] or 0) + 1
 
     if not wait(function()
       if findOne("筛选取消") then return true end
@@ -709,11 +725,16 @@ path.总览换班 = function()
     end, 5) then return end
 
     log("limit", limit)
-    tapAll(table.slice({
-      "干员选择列表1", "干员选择列表2", "干员选择列表3",
-      "干员选择列表4", "干员选择列表5", "干员选择列表6",
-      "干员选择列表7",
-    }, 1, limit))
+
+    -- local list=
+
+    tapAll(
+      map(function(j) return "干员选择列表" .. j end, range(1, limit)))
+    -- tapAll(table.slice({
+    --   "干员选择列表1", "干员选择列表2", "干员选择列表3",
+    --   "干员选择列表4", "干员选择列表5", "干员选择列表6",
+    --   "干员选择列表7",
+    -- }, 1, limit))
     -- end
     -- disappear("干员未选中", 1)
     -- end, 5) then return true end
@@ -729,11 +750,13 @@ path.总览换班 = function()
   local bottom
   local reach_bottom = false
   for i = 1, 15 do
+
     if i ~= 1 then
       swipd()
       -- TODO wait bottom for stable
       if not appear(bottom, .2) then reach_bottom = true end
     end
+    visitedy = {}
     while f() do log(475) end
     if reach_bottom then break end
     -- sample bottom after first detect
@@ -873,7 +896,6 @@ path.线索搜集 = function()
       log(733)
       tap("返回")
       appear("线索传递")
-      clue_unlocked = false
       path.线索布置()
       if not clue_unlocked then path.线索传递() end
       return f(retry + 1)
@@ -907,6 +929,8 @@ tapCard = function(k)
 end
 
 path.线索布置 = function()
+
+  clue_unlocked = false
   -- internal
   if not findOne("线索传递") then
     log("线索布置未找到线索传递")
@@ -938,7 +962,9 @@ path.线索布置 = function()
 
   log(644)
   if true then
+
     log(645)
+
     -- if not wait(function()
     --   if not findOne(p) then return true end
     --   tapCard(p)
@@ -994,8 +1020,8 @@ path.线索布置 = function()
       if findOne("线索传递") then return true end
       tap("制造站进度")
     end, 10) then return path.线索搜集() end
-    return path.线索布置()
 
+    return path.线索布置()
   end
 end
 
@@ -1057,7 +1083,7 @@ path.线索传递 = function()
 
     if idx then
       log("线索传递", idx, point.传递列表[idx])
-      if fake_transfer then exit() end
+      if fake_transfer then safeexit() end
       tap(point.传递列表[idx])
       wait(function()
         if findOne("线索传递") then return true end
@@ -1298,7 +1324,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
   -- log(findOne("返还规则"))
   -- log(findOne("报酬合成玉已满"))
   -- log(findOne("开始行动"))
-  -- exit()
+  -- safeexit()
 
   if not appear("代理指挥开", .5) then
     if not wait(function()
@@ -1461,7 +1487,7 @@ path.主线 = function(x)
 
     log("1046", chapter)
     swipc(distance['' .. chapter])
-    wait(function() tap("作战主线章节列表" .. chapter) end, 1)
+    -- wait(function() tap("作战主线章节列表" .. chapter) end, 1)
     if not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
@@ -1614,7 +1640,7 @@ path.物资芯片 = function(x)
     wait(function()
       if not findOne("怒号光明") then return true end
       tap("资源收集")
-    end, 1)
+    end)
     -- end) then return end
     -- if not wait(function()
     --   if findOne("资源收集", 90) then return true end
@@ -1681,7 +1707,7 @@ path.剿灭 = function(x)
   wait(function()
     if not findOne("怒号光明") then return true end
     tap("每周部署")
-  end, 1)
+  end)
 
   -- if not wait(function()
   --   if findOne("每周部署", 90) and not findOne("主题曲", 90) and
@@ -2117,11 +2143,13 @@ path.每日任务速通 = function()
     -- tap("心情")
     -- disappear(state, 1)
     -- for j = 6, 6 + 6 do tap("干员选择列表" .. j) end
-    tapAll({
-      "干员选择列表6", "干员选择列表7", "干员选择列表8",
-      "干员选择列表9", "干员选择列表10", "干员选择列表11",
-      "干员选择列表12",
-    })
+    tapAll(map(function(j) return "干员选择列表" .. j end, range(6, 10)))
+    -- tapAll({
+    --   "干员选择列表6", "干员选择列表7", "干员选择列表8",
+    --   "干员选择列表9", "干员选择列表10",
+    --   -- "干员选择列表11",
+    --   -- "干员选择列表12",
+    -- })
 
     local exit_state = {"进驻信息", "进驻信息选中"}
     if last then table.insert(exit_state, "正在提交反馈至神经") end

@@ -51,11 +51,13 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and "官服" or "B服"
 
 if predebug then
-  -- log(findOne("解锁线索左"))
+  -- log(appear {"返回","返回2"})
+  -- log(appear {"主页"})
+  -- log(findOne("剿灭说明"))
   -- log(findOne("LS-0"))
   -- log(findOne("作战列表AP-0"))
   log("end")
-  exit()
+  safeexit()
 end
 
 -- 提前获取root权限
@@ -67,12 +69,12 @@ local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
 local ui = {
-  title = "明日方舟速通 2021.10.08 22:05",
+  title = "明日方舟速通 2021.10.11 20:17",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
   height = -1,
-  time = ok_time or 120,
+  time = ok_time or 60,
   views = {
     {
       type = 'div',
@@ -98,19 +100,28 @@ local ui = {
         },
       },
     }, {
-      type = "text",
-      value = [[
-游戏全屏无黑边，开基建退出提示，关miui游戏模式深色模式，还有问题群里反馈。
-]],
+      type = 'div',
+      views = {
+        {
+          type = "text",
+          value = [[注意：异形屏适配设为0，开基建退出提示，关miui游戏模式深色模式，关隐藏刘海，还有问题加群反馈。]],
+        },
+      },
     }, {
       type = 'div',
       title = '',
       views = {
+        -- {
+        --   type = "button",
+        --   value = "教程",
+        --   click = {thread = outside, name = "show_tutorial_ui"},
+        -- },
         {
           type = "button",
           value = "亮屏解锁",
           click = {thread = outside, name = "show_gesture_capture_ui"},
-        }, {
+        }, 
+        {
           type = "button",
           value = "多账号",
           click = {thread = outside, name = "show_multi_account_ui"},
@@ -151,13 +162,14 @@ end
 while true do
   home()
   local ret = show(ui)
-  if not ret then exit() end
+  if not ret then safeexit() end
   if not unlock_mode and not server1 then break end
   if unlock_mode then
     save('unlock_mode', JsonEncode(unlock_mode))
     unlock_mode = nil
   end
   if server1 then server1 = nil end
+  log(168, ret)
 end
 
 callThreadFun(outside, "preload")
@@ -265,10 +277,12 @@ if test_fight then
   log(fight)
   repeat_fight_mode = false
   run("轮次作战")
-  exit()
+  safeexit()
 end
 
-if test_some then exit() end
+if test_some then
+  safeexit()
+end
 
 -- 多账号模式 load by builtin ui, tricky
 ui = make_multi_account_setting_ui()

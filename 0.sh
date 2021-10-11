@@ -15,21 +15,24 @@
     sleep 1
 
     # === no need to start from launcher
-    # adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
+    adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
+    sleep 1
+
 
     # === to find the service name
     # adb shell dumpsys activity services aojoy
-
+    # com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService
+    # adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.floatwin.FloatService
     # adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService
-    adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdService
-    sleep 2
+    # adb shell settings put secure enabled_accessibility_services com.aojoy.aplug/com.aojoy.server.CmdService
+    # sleep 2
 
     # adb shell am start com.hypergryph.arknights
-    adb shell input keyevent KEYCODE_APP_SWITCH
-    adb shell input keyevent KEYCODE_APP_SWITCH
+    # adb shell input keyevent KEYCODE_APP_SWITCH
+    # adb shell input keyevent KEYCODE_APP_SWITCH
 
     #adb shell monkey -p com.hypergryph.arknights -c android.intent.category.LAUNCHER 1
-    sleep 2
+    # sleep 2
   }
   remove() {
     curl 'http://localhost:9090/script/del?name=test' -X 'POST'
@@ -73,10 +76,10 @@
     for ((i = 0; i < ${#option[@]}; ++i)); do
       adb shell wm size ${option[$i]}
       restartcolor "$@"
-      if [[ $i -eq 0 ]]; then
-        save "$@"
-      fi
-      run "$@"
+      # if [[ $i -eq 0 ]]; then
+      #   save "$@"
+      # fi
+      # run "$@"
     done
   }
   run() {

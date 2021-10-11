@@ -108,9 +108,10 @@ table.values = function(t)
 end
 
 -- a,a+1,...b
-range = function(a, b)
+range = function(a, b, s)
   local t = {}
-  for i = a, b do table.insert(t, i) end
+  s = s or 1
+  for i = a, b, s do table.insert(t, i) end
   return t
 end
 
@@ -284,14 +285,15 @@ open = function(retry) runApp(appid) end
 
 stop = function(msg)
   msg = msg or ''
-  log("stop " .. msg)
-  toast("stop " .. msg)
+  msg = "stop " .. msg .. "\n请截图反馈开发者！"
+  log(msg)
+  toast(msg)
   logConfig({
     width = math.round(screen.height * .8),
     height = math.round(screen.height * .8),
     mode = 2,
   })
-  exit()
+  safeexit()
 end
 
 findColorAbsolute = function(color, confidence)
@@ -471,6 +473,7 @@ end
 
 -- 安卓8以下的滑动用双指
 android_verison_code = getAppinfo("android").versionCode
+if android_verison_code < 24 then stop("安卓版本7以下不可用") end
 if android_verison_code < 26 then
   is_device_swipe_too_fast = true
 else
@@ -655,7 +658,7 @@ auto = function(p, fallback, timeout, total_timeout)
       local x = table.findv({
         "返回确认", "返回确认2", "活动公告返回", "签到返回",
         "返回", "返回2", "返回3", "返回4", "活动签到返回",
-        "抽签返回", "单选确认框",
+        "抽签返回", "单选确认框", "剿灭说明",
       }, findOne)
       if x then
         log(x)
@@ -713,6 +716,8 @@ auto = function(p, fallback, timeout, total_timeout)
           tap("右确认")
         elseif x == "单选确认框" then
           tap("右确认")
+        elseif x == "剿灭说明" then
+          tap("剿灭说明")
         else
           tap(x)
           -- TODO
@@ -1056,15 +1061,13 @@ wait_game_up = function(retry)
   -- 亮屏解锁
   if find(keyguard_indication) then
     if not wait(function()
-      if not find(keyguard_indication) then return true end
-      local height = max(screen.width, screen.height)
+      local node = find(keyguard_indication)
+      if not node then return true end
+      local center = (node.rect.top + node.rect.bottom) // 2
+      -- local height = max(screen.width, screen.height)
       local width = min(screen.width, screen.height)
-      gesture({
-        {
-          {x = width // 2, y = math.round(height * .75)},
-          {x = width // 2, y = 1},
-        },
-      }, 1000)
+      -- find(keyguard_indication)
+      gesture({{{x = width // 2, y = center}, {x = width // 2, y = 1}}}, 1000)
       sleep(1500)
     end, 5) then stop("解锁失败1004") end
   elseif find(keyguard_input) then
@@ -1481,7 +1484,7 @@ make_multi_account_setting_ui = function()
           {
             type = 'check',
             ore = 1,
-            value = '*多账号总开关|双服无账密|切换时关闭其他账号游戏',
+            value = '*多账号总开关|双服无账密|切换账号时关闭其他账号游戏',
             id = 'multi_account|dual_server|multi_account_end_closeapp',
           },
         },
@@ -1597,4 +1600,10 @@ function notifyqq(image, info, to)
   }
   httpPost(req)
   queue_pop()
+end
+
+safeexit = function()
+  -- 节点精灵bug，exit后还会执行一会儿
+  exit()
+  ssleep(3600)
 end
