@@ -674,9 +674,34 @@ path.总览换班 = function()
     -- 处理异格干员:出现同高度第二次缺人，不清空从后往前选人。还是要等鹰角更新。
     log('visitedy', visitedy)
     local height = tostring(p[2])
+
+    -- 多次进入同一高度，直接翻页
+    if (visitedy[height] or 0) > 2 then
+      if not wait(function()
+        if findOne("撤下干员") then return true end
+        tap("确认蓝")
+      end, 5) then return end
+      return
+    end
+
+    -- 两次进入同一高度，从后往前选
+    -- visitedy[height] = 1
     if (visitedy[height] or 0) > 0 then
       log(676, limit, height)
-      tapAll(map(function(i) return "干员选择列表" .. i end,
+      if not wait(function()
+        if findOne("筛选取消") then return true end
+        tap("筛选")
+      end, 5) then return end
+      if not wait(function()
+        if not findOne("筛选取消") then return true end
+        tap("筛选确认")
+      end, 5) then return end
+
+      if not wait(function()
+        if findOne("筛选横线") and findOne("筛选") then return true end
+      end, 5) then return end
+
+      tapAll(map(function(j) return "干员选择列表" .. j end,
                  range(2 * limit, limit + 1, -1)))
       if not wait(function()
         if findOne("撤下干员") then return true end
