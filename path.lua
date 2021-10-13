@@ -921,6 +921,7 @@ path.线索搜集 = function()
       log(733)
       tap("返回")
       appear("线索传递")
+      clue_unlocked = false
       path.线索布置()
       if not clue_unlocked then path.线索传递() end
       return f(retry + 1)
@@ -954,8 +955,6 @@ tapCard = function(k)
 end
 
 path.线索布置 = function()
-
-  clue_unlocked = false
   -- internal
   if not findOne("线索传递") then
     log("线索布置未找到线索传递")
@@ -1031,9 +1030,7 @@ path.线索布置 = function()
   if findOne("正在提交反馈至神经") then
     disappear("正在提交反馈至神经", 5)
   end
-  if appear("解锁线索", .5) then clue_unlocked = true end
-
-  if clue_unlocked then
+  if appear("解锁线索", .5) then
 
     wait(function() tap("解锁线索") end, .5)
 
