@@ -35,32 +35,209 @@ adb connect z9:5555 # adb连接到目标设备
 
 ## 对比
 
-TODO format
-
 ### 板载
 
-| 名称                                                                        | 开源 | 免费     | 免root | 分辨率 | 服务器               | 多账号 | 指定作战 | 基建换班 | 备注                         |
-|-----------------------------------------------------------------------------|------|----------|--------|--------|----------------------|--------|----------|----------|------------------------------|
-| [明日方舟速通](https://github.com/tkkcc/arknighs)                           | 是   | 是       | 是     | >=16:9 | 官服+B服             | 支持   | 支持     | 支持     | 完成度高，最速，节点精灵实现 |
-| [明日再肝](https://github.com/Lancarus/a-mobile-anjian-script-for-arknight) | 是   | 是       | 否     | =16:9  | 官服+B服(单帐号模式) | 支持   | 支持     | 支持     | 完成度高，按键精灵实现       |
-| [月明辅助](https://www.aistool.com/)                                        | 否   | 需红手指 | 否     | 720p   | 官服+B服+日服        | 支持   | 支持     | 支持     | 完成度极高，飞天助手实现     |
-| [明日计划](https://space.bilibili.com/271091178/video)                      | 否   | 是       | 是     | 多     | 多                   | 不支持 | 不支持   |          | autojs实现                   |
-| [arkayo](https://github.com/mslxl/arkayo)                                   | 是   | 是       | 是     | 多     | 多                   |        |          |          | autojs实现                   |
-| [PRTS](https://github.com/AgainstEntropy/PRTS)                              | 是   | 是       | 是     | 多     |                      |        |          |          | autojs实现                   |
-| [明日方舟托管助手](https://www.bilibili.com/video/BV1kA41147HA)             | 否   | 否       | 是     |        |                      |        |          | 支持     | 节点精灵实现                 |
-| [明日方舟自动化脚本](https://github.com/Nick-Hopps/Arkknights_autoscript)   | 是   | 是       | 是     | 多     |                      |        |          |          | autojs实现                   |
+<table>
+   <tr>
+      <td nowrap><b>名称&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;<b></td>
+      <td nowrap><b>开源<b></td>
+      <td nowrap><b>免费<b></td>
+      <td nowrap><b>免root<b></td>
+      <td nowrap><b>分辨率<b></td>
+      <td nowrap><b>服务器&#12288;<b></td>
+      <td nowrap><b>多账号<b></td>
+      <td nowrap><b>指定作战<b></td>
+      <td nowrap><b>基建换班<b></td>
+      <td nowrap><b>备注&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;<b></td>
+   </tr>
+   <tr>
+      <td><a href="https://github.com/tkkcc/arknights">明日方舟速通</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>>=16:9且 >=1280x720</td>
+      <td>官服B服</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>最速，完成度高，节点精灵实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/Lancarus/a-mobile-anjian-script-for-arknight">明日再肝</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10006;</td>
+      <td>1920x1080 1280x720</td>
+      <td>官服B服</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>完成度高，按键精灵实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://www.aistool.com/">月明辅助</a></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>1280x720</td>
+      <td>官服B服日服</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>完成度极高，飞天助手实现</td>
+   </tr>
+
+   <tr>
+   <td><a href="https://github.com/mslxl/arkayo">arkayo</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td>官服</td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>&#10006;</td>
+      <td>autojs实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/AgainstEntropy/PRTS">PRTS</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>autojs实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://space.bilibili.com/271091178/video">明日计划</a></td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td>国台日美</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>autojs实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://www.bilibili.com/video/BV1kA41147HA">明日方舟托管助手</a></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>节点精灵实现</td>
+   </tr>
+</table>
 
 ### 非板载（需PC算力）
 
-| 名称                                                                             | 开源 | 免费 | 免root | 分辨率 | 服务器 | 多账号 | 指定作战 | 基建换班 | 备注       |
-|----------------------------------------------------------------------------------|------|------|--------|--------|--------|--------|----------|----------|------------|
-| [ArknightsAutoHelper](https://github.com/ninthDevilHAUNSTER/ArknightsAutoHelper) | 是   | 是   | 是     | 多     |        |        | 支持     | 不支持   | python实现 |
-| [MeoAssistance](https://github.com/MistEO/MeoAssistance)                         | 是   | 是   | 是     | 多     |        |        | 支持     |          | C++/C#实现 |
-| [arknights-mower](https://github.com/Konano/arknights-mower)                | 是   | 是   | 是     | 多     |        |        | 支持     |          | python实现 |
-| [arkHelper](https://github.com/MangetsuC/arkHelper)                              | 是   | 是   | 是     |        |        |        | 支持     | 不支持   | python实现 |
-| [Arknights-Sora](https://github.com/zsppp/Arknights-Sora)                        | 是   | 是   | 是     |        |        |        |          |          | python实现 |
-| [AutoArknights](https://github.com/DargonXuan/AutoArknights)                     | 是   | 是   | 是     |        |        |        |          |          | python实现 |
-| [完全基于深度学习的明日方舟小助手](https://github.com/leng-yue/ai-arkhelper)   | 是   | 是   | 是     |        |        |        |          |          | python实现 |
+
+<table>
+   <tr>
+      <td nowrap ><b>名称&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;<b></td>
+      <td nowrap ><b>开源<b></td>
+      <td nowrap ><b>免费<b></td>
+      <td nowrap ><b>免root<b></td>
+      <td nowrap ><b>分辨率<b></td>
+      <td nowrap ><b>服务器&#12288;<b></td>
+      <td nowrap ><b>多账号<b></td>
+      <td nowrap ><b>指定作战<b></td>
+      <td nowrap ><b>基建换班<b></td>
+      <td nowrap colspan=2><b>备注&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;<b></td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/ninthDevilHAUNSTER/ArknightsAutoHelper">ArknightsAutoHelper</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>&#10006;</td>
+      <td>python实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/MistEO/MeoAssistance">MeoAssistance</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>C++/C#实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/Konano/arknights-mower">arknights-mower</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>&#10006;</td>
+      <td>python实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/MangetsuC/arkHelper">arkHelper</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>&#10006;</td>
+      <td>python实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/zsppp/Arknights-Sora">Arknights-Sora</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>python实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/DargonXuan/AutoArknights">AutoArknights</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>python实现</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/leng-yue/ai-arkhelper">完全基于深度学习的 明日方舟小助手</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>开发中</td>
+   </tr>
+</table>
 
 ### 其他辅助平台（2021年7月测试）：
 
@@ -68,18 +245,6 @@ TODO format
 1. 触动精灵：最新的2个脚本在2021年5月更新，收费，在红手指720p设备上试用时未正常工作。
 1. 自动精灵：脚本较多，免费，完成度普遍较低。
 
-### 防沉迷
-
-1. [明日方舟防沉迷破解](https://github.com/tanenrumu/Arknights_Anti-addiction_Cheater)
-1. [明日方舟屏蔽防沉迷](https://github.com/fhyuncai/Arknights-Anti-addiction)
-1. [B站游戏防沉迷不限制](https://github.com/FuckAntiAddiction/BiligameAddictionNotLimited)
-
-### 抓包改包
-
-1. [Darknights](https://github.com/Darknights-dev/Darknights-server)
-1. [明日方舟修改器](https://github.com/GhostStar/Arknights-Armada)
-1. [明日方舟中间人攻击框架](https://github.com/LXG-Shadow/Arknights-Dolos)
-1. [Rhine-DFramwork](https://github.com/Rhine-Department-0xf/Rhine-DFramwork)
 
 ## 每日任务速通
 
@@ -105,7 +270,6 @@ TODO format
 1. 公开招募全部留空。
 1. 展示日常任务界面。
 1. 登出帐号。
-
 
 ### 理论
 
@@ -152,3 +316,18 @@ TODO format
 1. 信用购买：唯一的从基建跳转后不需要加载的任务，再跳转时不会出现基建退出提示（但加载时间还有），可以减少一次提示时间。
 1. 公招刷新：需要在任务收集前做。
 1. 任务收集：需要在结束前做。
+
+## 其他
+
+### 防沉迷
+
+1. [明日方舟防沉迷破解](https://github.com/tanenrumu/Arknights_Anti-addiction_Cheater)
+1. [明日方舟屏蔽防沉迷](https://github.com/fhyuncai/Arknights-Anti-addiction)
+1. [B站游戏防沉迷不限制](https://github.com/FuckAntiAddiction/BiligameAddictionNotLimited)
+
+### 抓包改包
+
+1. [Darknights](https://github.com/Darknights-dev/Darknights-server)
+1. [明日方舟修改器](https://github.com/GhostStar/Arknights-Armada)
+1. [明日方舟中间人攻击框架](https://github.com/LXG-Shadow/Arknights-Dolos)
+1. [Rhine-DFramwork](https://github.com/Rhine-Department-0xf/Rhine-DFramwork)
