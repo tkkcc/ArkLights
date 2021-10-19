@@ -699,7 +699,10 @@ auto = function(p, fallback, timeout, total_timeout)
             if fallback then
               log("tap fallback[x]")
               tap(fallback[x])
-              disappear("返回确认", .5)
+              if disappear("返回确认", .5) and not appear("进驻总览", 1) then
+                -- 解决灯泡激活状态的死循环
+                tap("基建右上角")
+              end
             else
               tap("右确认")
             end

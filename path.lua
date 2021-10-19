@@ -126,11 +126,25 @@ path.基建收获 = function()
   -- jump without zoom
   path.跳转("基建", nil, true)
   local x
-  x = appear({"基建灯泡蓝", "基建灯泡蓝2"}, 3)
-  -- 没看到灯泡或线索提示
-  if not x then
-    leaving_jump = true
-    return
+  local max_retry=5
+  for i = 1, max_retry do
+    x = appear({
+      "基建灯泡蓝", "基建灯泡蓝2", "基建收获线索提示",
+    }, 2)
+    -- 没看到灯泡或线索提示
+    if not x then
+      leaving_jump = true
+      return
+    end
+    if x == "基建收获线索提示" then
+      disappear(x, 5)
+      if i >= max_retry then
+        log('unknown 140')
+        return
+      end
+    else
+      break
+    end
   end
 
   log(130)
@@ -1226,6 +1240,14 @@ path.信用购买 = function()
     if not findOne("信用交易所列表" .. i) then
       log(845, i)
       return
+    end
+
+    -- 获取遗漏物品
+    for j = 1, i do
+      if findOne("信用交易所列表" .. j) then
+        i = j
+        break
+      end
     end
 
     if not wait(function()

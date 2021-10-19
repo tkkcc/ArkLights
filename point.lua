@@ -17,6 +17,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  基建收获线索提示 = "1469,196,#FFFFFF|1467,199,#FFFFFF|1458,208,#FFFFFF|1447,199,#FFFFFF",
   剿灭说明 = "273,161,#FFFFFF|304,140,#313131|302,183,#313131|270,156,#313131|278,165,#313131",
   账号管理 = "1406,1035,#585858",
   线索传递有好友 = "1793,182,#FFFFFF",
@@ -707,7 +708,9 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 开发过程中测试3种分辨率 720x1280、1920x1080、2400x1080。
 --]]
 
+
 center = {
+  基建收获线索提示 = "right_top",
   剿灭说明 = 'center_center',
   账号管理 = "right_bottom",
   退出登录 = "center_center",
