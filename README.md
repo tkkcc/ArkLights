@@ -77,7 +77,7 @@ adb connect z9:5555 # adb连接到目标设备
    <tr>
    <td><a href="https://www.aistool.com/">月明辅助</a></td>
       <td>&#10006;</td>
-      <td>&#10006;</td>
+      <td>&#10004;</td>
       <td>&#10006;</td>
       <td>1280x720</td>
       <td>官服B服日服</td>
