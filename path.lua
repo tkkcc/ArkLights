@@ -1070,7 +1070,7 @@ path.线索传递 = function()
   -- log(827)
   if not findTap("线索传递") then return end
   -- log(828)
-  if not appear("线索传递数字列表8", 5) then return end
+  if not appear("线索传递数字列表8", 10) then return end
   if not appear("线索传递有好友", .5) then
     no_friend = true
     wait(function()
@@ -1967,7 +1967,7 @@ path.公招刷新 = function()
           log(1052)
           -- disappear("公开招募", 1)
         end
-      end, 5) then return end
+      end, 10) then return end
       -- 聘用
       if not wait(function()
         if findOne("公开招募") and findOne("主页") then return true end
