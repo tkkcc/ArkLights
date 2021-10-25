@@ -151,7 +151,6 @@ adb connect z9:5555 # adb连接到目标设备
 
 ### 非板载（需PC算力）
 
-
 <table>
    <tr>
       <td nowrap ><b>名称&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;<b></td>
@@ -248,6 +247,35 @@ adb connect z9:5555 # adb连接到目标设备
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>开发中</td>
+   </tr>
+</table>
+
+### 云端
+
+<table>
+   <tr>
+      <td nowrap ><b>名称&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;<b></td>
+      <td nowrap ><b>开源<b></td>
+      <td nowrap ><b>免费<b></td>
+      <td nowrap ><b>免root<b></td>
+      <td nowrap ><b>分辨率<b></td>
+      <td nowrap ><b>服务器&#12288;<b></td>
+      <td nowrap ><b>多账号<b></td>
+      <td nowrap ><b>指定作战<b></td>
+      <td nowrap ><b>基建换班<b></td>
+      <td nowrap colspan=2><b>备注&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;<b></td>
+   </tr>
+   <tr>
+   <td><a href="https://ak.nai-ve.com">可露希尔工作室</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
    </tr>
 </table>
 
