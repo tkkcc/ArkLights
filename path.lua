@@ -1049,6 +1049,7 @@ path.线索布置 = function()
     disappear("正在提交反馈至神经", 5)
   end
   if appear("解锁线索", .5) then
+    clue_unlocked = true
 
     wait(function() tap("解锁线索") end, .5)
 
@@ -1142,7 +1143,7 @@ path.线索传递 = function()
     log(state, point['sample'])
     tap("线索传递右白")
     disappear(state, .5)
-  end, 5) then return end
+  end, 30) then return end
 end
 
 path.任务收集 = function()

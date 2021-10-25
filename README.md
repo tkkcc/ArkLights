@@ -86,6 +86,18 @@ adb connect z9:5555 # adb连接到目标设备
       <td>&#10004;</td>
       <td>完成度极高，飞天助手实现</td>
    </tr>
+   <tr>
+   <td><a href="https://www.bilibili.com/video/BV1ML411x7gz">星火方舟β</a></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>1280x720</td>
+      <td>官服B服</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>完成度高</td>
+   </tr>
 
    <tr>
    <td><a href="https://github.com/mslxl/arkayo">arkayo</a></td>
@@ -117,7 +129,7 @@ adb connect z9:5555 # adb连接到目标设备
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td></td>
-      <td>国台日美</td>
+      <td>官服B服</td>
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>&#10006;</td>
@@ -174,7 +186,7 @@ adb connect z9:5555 # adb连接到目标设备
       <td></td>
       <td>&#10006;</td>
       <td>&#10006;</td>
-      <td>&#10006;</td>
+      <td>&#10004;</td>
       <td>C++/C#实现</td>
    </tr>
    <tr>
