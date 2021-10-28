@@ -56,6 +56,7 @@ path.base = {
     local unfinished
     if not wait(function()
       if findOne("开始行动") and findOne("代理指挥开") then
+        log(59)
         return true
       end
       if findOne("接管作战") then
@@ -123,14 +124,14 @@ path.邮件收取 = function()
 end
 
 path.基建收获 = function()
-  -- jump without zoom
-  path.跳转("基建", nil, true)
+  -- jump with zoom too
+  path.跳转("基建")
   local x
-  local max_retry=5
+  local max_retry = 5
   for i = 1, max_retry do
     x = appear({
       "基建灯泡蓝", "基建灯泡蓝2", "基建收获线索提示",
-    }, 2)
+    }, 3)
     -- 没看到灯泡或线索提示
     if not x then
       leaving_jump = true
@@ -1092,15 +1093,17 @@ path.线索传递 = function()
     end
     log(654)
   end
+
   if not wait(function()
-    if not findOne("线索列表1") then return true end
+    if not findOne("线索列表1") or findOne("线索按下列表1") then
+      return true
+    end
     tap("线索列表1")
-  end, 2) then return end
+  end, 5) then stop(1098) end
 
   local f = function(random)
     local idx
     if random then
-      tap("线索传递左白")
       idx = 1 -- 有人只有一个好友
     else
       local ps = findAll("线索传递橙框")
@@ -1143,7 +1146,7 @@ path.线索传递 = function()
     log(state, point['sample'])
     tap("线索传递右白")
     disappear(state, .5)
-  end, 30) then return end
+  end, 30) then stop(1146) end
 end
 
 path.任务收集 = function()

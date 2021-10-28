@@ -17,6 +17,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  行动结束 = "481,898,#FFFFFF|576,898,#FFFFFF|528,951,#FFFFFF|417,901,#FFFFFF|417,933,#FFFFFF|442,979,#FFFFFF|663,694,#FFFFFF|663,853,#FFFFFF|663,1033,#FFFFFF",
   基建收获线索提示 = "1469,196,#FFFFFF|1467,199,#FFFFFF|1458,208,#FFFFFF|1447,199,#FFFFFF",
   剿灭说明 = "273,161,#FFFFFF|304,140,#313131|302,183,#313131|270,156,#313131|278,165,#313131",
   账号管理 = "1406,1035,#585858",
@@ -245,6 +246,7 @@ point = {
     "1216,908,#0075A9",
   },
   线索列表 = {"595,267,#424242"},
+  线索按下列表 = {"627,244,#DB6442"},
   线索传递数字重复 = "565,568,#434343",
   线索传递返回 = "1888,73,#FFFFFF",
   线索传递数字列表 = {
@@ -708,8 +710,8 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 开发过程中测试3种分辨率 720x1280、1920x1080、2400x1080。
 --]]
 
-
 center = {
+  行动结束 = "left_bottom",
   基建收获线索提示 = "right_top",
   剿灭说明 = 'center_center',
   账号管理 = "right_bottom",
@@ -862,6 +864,7 @@ center = {
   线索传递左白 = "right_center",
   今日登录列表 = "center_center",
   线索列表 = "left_center",
+  线索按下列表 = "left_center",
   线索传递数字重复 = "left_center",
   线索传递返回 = "right_center",
   线索传递数字列表 = "left_center",

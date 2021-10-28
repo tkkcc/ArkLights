@@ -209,7 +209,7 @@ adb connect z9:5555 # adb连接到目标设备
       <td></td>
       <td>&#10006;</td>
       <td>&#10004;</td>
-      <td>&#10006;</td>
+      <td>&#10004;</td>
       <td>python实现</td>
    </tr>
    <tr>
@@ -266,7 +266,7 @@ adb connect z9:5555 # adb连接到目标设备
       <td nowrap colspan=2><b>备注&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;<b></td>
    </tr>
    <tr>
-   <td><a href="https://ak.nai-ve.com">可露希尔工作室</a></td>
+   <td><a href="https://ak.nai-ve.com">可露希尔工作室</a> <a href="https://github.com/closure-studio">源码</a></td>
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>

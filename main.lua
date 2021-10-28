@@ -51,12 +51,14 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and "官服" or "B服"
 
 if predebug then
-  -- log(appear {"返回","返回2"})
+  log(findOne("行动结束"))
+  log(findOne("线索传递"))
+  log(findOne("线索列表1"))
   -- log(appear {"主页"})
   -- log(findOne("剿灭说明"))
   -- log(findOne("LS-0"))
   -- log(findOne("作战列表AP-0"))
-  log("end")
+  -- log("end")
   safeexit()
 end
 
@@ -69,7 +71,7 @@ local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
 local ui = {
-  title = "明日方舟速通 2021.10.25 21:00",
+  title = "明日方舟速通 2021.10.28 22:47",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
@@ -120,8 +122,7 @@ local ui = {
           type = "button",
           value = "亮屏解锁",
           click = {thread = outside, name = "show_gesture_capture_ui"},
-        }, 
-        {
+        }, {
           type = "button",
           value = "多账号",
           click = {thread = outside, name = "show_multi_account_ui"},
@@ -280,9 +281,7 @@ if test_fight then
   safeexit()
 end
 
-if test_some then
-  safeexit()
-end
+if test_some then safeexit() end
 
 -- 多账号模式 load by builtin ui, tricky
 ui = make_multi_account_setting_ui()

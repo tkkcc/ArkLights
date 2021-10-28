@@ -658,7 +658,7 @@ auto = function(p, fallback, timeout, total_timeout)
       local x = table.findv({
         "返回确认", "返回确认2", "活动公告返回", "签到返回",
         "返回", "返回2", "返回3", "返回4", "活动签到返回",
-        "抽签返回", "单选确认框", "剿灭说明",
+        "抽签返回", "单选确认框", "剿灭说明", "行动结束",
       }, findOne)
       if x then
         log(x)
@@ -721,6 +721,8 @@ auto = function(p, fallback, timeout, total_timeout)
           tap("右确认")
         elseif x == "剿灭说明" then
           tap("剿灭说明")
+        elseif x == "行动结束" then
+          tap("开始行动")
         else
           tap(x)
           -- TODO
