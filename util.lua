@@ -722,7 +722,12 @@ auto = function(p, fallback, timeout, total_timeout)
         elseif x == "剿灭说明" then
           tap("剿灭说明")
         elseif x == "行动结束" then
-          tap("开始行动")
+          wait(function()
+            if findOne("开始行动") and findOne("代理指挥开") then
+              return true
+            end
+            tap("行动结束")
+          end, 5)
         else
           tap(x)
           -- TODO

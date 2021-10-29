@@ -51,6 +51,11 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and "官服" or "B服"
 
 if predebug then
+  while true do
+    log(findOne("报酬合成玉已满"))
+  end
+  -- "{0,0,0,0,"423,545,#202020|458,582,#212120",95}"
+
   log(findOne("行动结束"))
   log(findOne("线索传递"))
   log(findOne("线索列表1"))
@@ -71,7 +76,7 @@ local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
 local ui = {
-  title = "明日方舟速通 2021.10.28 22:47",
+  title = "明日方舟速通 2021.10.29 23:46",
   name = 'main',
   cache = not no_config_cache,
   width = -1,

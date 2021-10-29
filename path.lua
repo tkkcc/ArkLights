@@ -1387,6 +1387,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
       appear("代理指挥开", .5)
     end, 5) then return end
   end
+
   if is_jmfight_enough(x) then return end
 
   -- quick tap .5s
@@ -1727,12 +1728,16 @@ is_jmfight_enough = function(x, outside)
 
   -- all fights should check first, because x may not be in jmfight
   if findOne("报酬合成玉已满") then
+    log("find报酬合成玉已满")
     jmfight_enough = true
     return true
   end
 
   -- use state, jmfight only
-  if not table.includes(table.values(jianpin2name), x) then return false end
+  if not table.includes(table.values(jianpin2name), x) then
+    log(1738)
+    return false
+  end
   if jmfight_enough then return true end
 
   if not outside and findOne("报酬合成玉已满") or outside and
@@ -1780,12 +1785,15 @@ path.剿灭 = function(x)
   if is_jmfight_enough(x) then return end
   if not appear("开始行动", 5) then return end
   if is_jmfight_enough(x) then return end
-  if x ~= "当期委托" then
-    -- 非当期委托需要切换
+  -- if x ~= "当期委托" then
+  -- -- 非当期委托需要切换
+  if x ~= "unknown" then
+    -- 都需要切换
     if not wait(function()
       if findOne("切换") then return true end
       tap("主页右侧")
     end, 5) then return end
+    if is_jmfight_enough(x) then return end
     if not wait(function()
       if findOne("当前委托侧边栏") then return true end
       tap("切换")
@@ -1798,6 +1806,7 @@ path.剿灭 = function(x)
 
     log(1287)
   end
+  if is_jmfight_enough(x) then return end
   log(1289)
   -- ssleep(1)
   -- log(1290)
