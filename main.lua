@@ -76,7 +76,7 @@ local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
 local ui = {
-  title = "明日方舟速通 2021.10.29 23:46",
+  title = "明日方舟速通 2021.11.01 11:02",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
@@ -214,8 +214,8 @@ update_state_from_ui = function()
   end
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
-  all_open_time_start = parse_time("202108261600")
-  all_open_time_end = parse_time("202109090400")
+  all_open_time_start = parse_time("202111221600")
+  all_open_time_end = parse_time("202112060400")
   update_open_time()
   startup_time = parse_time()
   facility2operator = {}

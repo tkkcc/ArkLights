@@ -516,10 +516,10 @@ path.宿舍换班 = function()
     if not wait(function()
       if findAny({
         "隐藏", "进驻信息", "进驻信息选中",
-        "正在提交反馈至神经",
+        -- "正在提交反馈至神经",
       }) then return true end
       tap("确认蓝")
-    end, 5) then return end
+    end, 10) then return end
   end
   if not no_dorm then for i = 1, 4 do f(i) end end
 end
