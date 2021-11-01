@@ -385,6 +385,9 @@ update_state = function()
 end
 
 path.副手换人 = function()
+  toast("副手换人还没修，等5秒提示消失")
+  ssleep(5)
+  if 1 then return end
   path.跳转("基建")
 
   if not wait(function()
@@ -1427,7 +1430,10 @@ path.开始游戏 = function(x, disable_ptrs_check)
       if not findOne(state) then return true end
       tap("开始行动红按钮")
     end, 10) then return end
-    if not appear({"接管作战", "单选确认框"}, 10) then return end
+    if not appear({"接管作战", "单选确认框"}, 20) then
+      log(1430)
+      return
+    end
     if findOne("单选确认框") then return end
     return path.base.接管作战()
   elseif stone_times < max_stone_times and state == "源石恢复理智取消" or

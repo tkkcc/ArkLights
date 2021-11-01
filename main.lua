@@ -50,20 +50,19 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and "官服" or "B服"
 
-if predebug then
-  while true do
-    log(findOne("报酬合成玉已满"))
-  end
-  -- "{0,0,0,0,"423,545,#202020|458,582,#212120",95}"
 
-  log(findOne("行动结束"))
-  log(findOne("线索传递"))
-  log(findOne("线索列表1"))
-  -- log(appear {"主页"})
-  -- log(findOne("剿灭说明"))
-  -- log(findOne("LS-0"))
-  -- log(findOne("作战列表AP-0"))
-  -- log("end")
+if predebug then
+  -- tap("基建右上角")
+  -- i=1
+  --       see = appear({
+  --       "聘用候选人列表" .. i, "公开招募列表" .. i,
+  --       "立即招募列表" .. i,
+  --     })
+  --     log(see)
+  log(findOne("公开招募"))
+  log(findOne("公开招募箭头"))
+  -- log(findOne("开始唤醒"))
+  -- log(findOne("账号登录"))
   safeexit()
 end
 
@@ -76,7 +75,7 @@ local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
 local ui = {
-  title = "明日方舟速通 2021.11.01 11:02",
+  title = "明日方舟速通 2021.11.02  1:46",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
@@ -240,7 +239,7 @@ end
 
 if test_fight then
   fight = {
-    "1-7", "4-1",
+    "1-7", "1-7","CE-5","LS-5",
 
     -- "9-2", "9-3", "9-4", "9-5", "9-6", "9-7", "9-9", "9-10", "9-11", "9-12",
     -- "9-13", "S9-1", "9-14", "9-15", "9-16", "9-17", "9-18", "9-19",

@@ -659,6 +659,7 @@ auto = function(p, fallback, timeout, total_timeout)
         "返回确认", "返回确认2", "活动公告返回", "签到返回",
         "返回", "返回2", "返回3", "返回4", "活动签到返回",
         "抽签返回", "单选确认框", "剿灭说明", "行动结束",
+        "感谢庆典返回", "限时开放许可",
       }, findOne)
       if x then
         log(x)
@@ -690,8 +691,8 @@ auto = function(p, fallback, timeout, total_timeout)
           if not wait(function()
             if findOne("面板") then return true end
             tap(x)
-            appear("面板", .5)
           end, 10) then return end
+          disappear("面板", 1)
         elseif x == "返回确认" then
           leaving_jump = false
           if not wait(function()
@@ -720,7 +721,10 @@ auto = function(p, fallback, timeout, total_timeout)
         elseif x == "单选确认框" then
           tap("右确认")
         elseif x == "剿灭说明" then
-          tap("剿灭说明")
+          if not wait(function()
+            if findOne("主页") then return true end
+            tap("基建右上角")
+          end, 5) then return end
         elseif x == "行动结束" then
           wait(function()
             if findOne("开始行动") and findOne("代理指挥开") then
@@ -728,6 +732,22 @@ auto = function(p, fallback, timeout, total_timeout)
             end
             tap("行动结束")
           end, 5)
+        elseif x == "限时开放许可" then
+          wait(function() tap("开始作业") end, 1)
+          wait(function()
+            if findOne("面板") then return true end
+            tap("基建右上角")
+          end, 10)
+          disappear("面板", 1)
+
+        elseif x == "感谢庆典返回" then
+          wait(function() tap("感谢典点击领取") end, 1)
+
+          wait(function()
+            if findOne("面板") then return true end
+            tap("基建右上角")
+          end, 4)
+          disappear("面板", 1)
         else
           tap(x)
           -- TODO
