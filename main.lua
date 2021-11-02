@@ -8,6 +8,7 @@
 -- unsafe_tap = true
 zero_wait_click = true
 check_after_tap = true
+-- auto_clean_fight=true
 -- enable_dorm_check = true
 -- fake_transfer= true
 -- verbose_fca = true
@@ -50,7 +51,6 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and "官服" or "B服"
 
-
 if predebug then
   -- tap("基建右上角")
   -- i=1
@@ -75,7 +75,7 @@ local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
 local ui = {
-  title = "明日方舟速通 2021.11.02  1:46",
+  title = "明日方舟速通 2021.11.02 22:18",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
@@ -203,6 +203,21 @@ update_state_from_ui = function()
   })
   fight = string.split(fight, ' ')
   fight = map(string.upper, fight)
+
+  -- expand LS-5x999
+  local expanded_fight = {}
+  for _, v in pairs(fight) do
+    local cur_fight, times = v:match('(.+)[xX*](%d+)')
+    if not cur_fight then
+      table.insert(expanded_fight, v)
+    else
+      for _ = 1, times do table.insert(expanded_fight, cur_fight) end
+    end
+  end
+  fight = expanded_fight
+  log("expanded_fight",expanded_fight)
+
+  -- LMSQ => 龙门市区
   for k, v in pairs(fight) do
     if table.includes(table.keys(jianpin2name), v) then
       fight[k] = jianpin2name[v]
@@ -239,7 +254,7 @@ end
 
 if test_fight then
   fight = {
-    "1-7", "1-7","CE-5","LS-5",
+    "1-7", "1-7", "CE-5", "LS-5",
 
     -- "9-2", "9-3", "9-4", "9-5", "9-6", "9-7", "9-9", "9-10", "9-11", "9-12",
     -- "9-13", "S9-1", "9-14", "9-15", "9-16", "9-17", "9-18", "9-19",

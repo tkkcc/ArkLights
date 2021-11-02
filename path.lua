@@ -1296,7 +1296,7 @@ get_fight_type = function(x)
   local f = startsWithX(x)
   if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     return "物资芯片"
-  elseif table.any(table.keys(jmfight2area), f) then
+  elseif table.any(table.values(jianpin2name), f) then
     return "剿灭"
   else
     return "主线"
@@ -1322,13 +1322,13 @@ same_page_fight = function(pre, cur)
 end
 
 path.轮次作战 = function()
-  if #fight == 0 then return true end
   -- path.跳转("首页")
   pre_fight = nil
   no_success_one_loop = 0
   while not zero_san do
+    if #fight == 0 then return true end
     fight_tick = fight_tick % #fight + 1
-    if fight_tick == 1 then
+    if fight_tick == #fight then
       no_success_one_loop = no_success_one_loop + 1
       if no_success_one_loop > 5 then break end
     end
@@ -1671,6 +1671,15 @@ path.物资芯片 = function(x)
   if not table.includes(open_time, cur_time) then
     -- log(open_time, cur_time)
     log(x, "未开启")
+    -- if auto_clean_fight then
+    log("before fight clean", fight, fight_tick)
+    local unavailable_fight = type == "pr" and x:sub(1, 4) or x:sub(1, 2)
+    log("unavailable_fight", unavailable_fight)
+    fight, fight_tick = clean_table(fight, fight_tick, function(v)
+      return v:startsWith(unavailable_fight)
+    end)
+    log("after fight clean", fight, fight_tick)
+    -- end
     return
   end
   -- get index in 芯片搜索
@@ -1728,6 +1737,18 @@ path.物资芯片 = function(x)
   end
 end
 
+clean_jmfight = function()
+  -- if auto_clean_fight then
+  log("before fight clean", fight, fight_tick)
+  -- local unavailable_fight = type == "pr" and x:sub(1, 4) or x:sub(1, 2)
+  -- log("unavailable_fight", unavailable_fight)
+  fight, fight_tick = clean_table(fight, fight_tick, function(v)
+    return get_fight_type(v) == '剿灭'
+  end)
+  log("after fight clean", fight, fight_tick)
+  -- end
+end
+
 is_jmfight_enough = function(x, outside)
   log("is_jmfight_enough", x)
   if ignore_jmfight_enough_check then return false end
@@ -1736,6 +1757,7 @@ is_jmfight_enough = function(x, outside)
   if findOne("报酬合成玉已满") then
     log("find报酬合成玉已满")
     jmfight_enough = true
+    clean_jmfight()
     return true
   end
 
@@ -1744,16 +1766,30 @@ is_jmfight_enough = function(x, outside)
     log(1738)
     return false
   end
-  if jmfight_enough then return true end
+  if jmfight_enough then
+    clean_jmfight()
+    return true
+  end
 
   if not outside and findOne("报酬合成玉已满") or outside and
     findOne("报酬合成玉已满2") then
     log("find报酬合成玉已满")
     jmfight_enough = true
+    clean_jmfight()
     return true
   end
   log("not find报酬合成玉已满")
   return false
+
+  -- if auto_clean_fight then
+  --   log("before fight clean", fight, fight_tick)
+  --   log("unavailable_fight",unavailable_fight)
+  --   local unavailable_fight = type == "pr" and x:sub(1, 4) or x:sub(1, 2)
+  --   fight, fight_tick = clean_table(fight, fight_tick, function(v)
+  --     return v:startsWith(unavailable_fight)
+  --   end)
+  --   log("after fight clean", fight, fight_tick)
+  -- end
 end
 
 path.剿灭 = function(x)

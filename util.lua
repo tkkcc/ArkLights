@@ -1426,9 +1426,9 @@ make_account_setting_ui = function(prefix)
       views = {
         {type = 'text', value = '作战：'}, {
           type = 'edit',
-          value = [[当期委托 dwqt 龙门市区 LMSQ
-9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
- 上一次 syc]],
+          value = [[当期委托x2 DQWTx2 龙门市区 LMSQ
+AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
+上一次 syc]],
           id = prefix .. 'fight_ui',
         },
       },
@@ -1636,4 +1636,13 @@ safeexit = function()
   -- 节点精灵bug，exit后还会执行一会儿
   exit()
   ssleep(3600)
+end
+-- remove unneed elements while preserving cursor
+clean_table = function(t, idx, bad)
+  local ans = {}
+  for k, v in pairs(t) do
+    if not bad(v) then table.insert(ans, v) end
+    if idx == k then idx = #ans end
+  end
+  return ans, idx
 end
