@@ -18,7 +18,6 @@
     adb shell monkey -p com.aojoy.aplug -c android.intent.category.LAUNCHER 1
     sleep 1
 
-
     # === to find the service name
     # adb shell dumpsys activity services aojoy
     # com.aojoy.aplug/com.aojoy.server.CmdAccessibilityService
@@ -54,11 +53,16 @@
   save() {
     for x in *.lua; do
       echo ==\> upload "$x"
-      while ! diff <(load "$x") "$x"; do
-        curl -sS 'http://localhost:9090/api/file/save' \
-          --data-urlencode code="$(cat "$x")" \
-          --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
-      done
+      # while ! diff <(load "$x") "$x" 2>&1 >/dev/null; do
+
+        curl 'http://localhost:9090/api/file/upload?path=/storage/emulated/0/freespace/scripts/test' \
+          -H 'Content-Type: multipart/form-data' \
+          -F "$x=@$x"
+
+        # curl -sS 'http://localhost:9090/api/file/save' \
+        #   --data-urlencode code="$(cat "$x")" \
+        #   --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
+      # done
     done
   }
   find() {
@@ -111,6 +115,13 @@
   scrcpy() {
     scrcpy "$@"
   }
+  png2rgb() {
+    convert "$1" txt:- | tail -n +2 | sed -nr 's/.*(#.{6}).*/\1/p'
+  }
+  png2alpha() {
+    convert "$1" txt:- | tail -n +2 | sed -nr 's/.*,([^,]+)\)$/\1/p'
+  }
+
   "$@"
   wait
 }

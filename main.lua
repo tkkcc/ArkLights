@@ -52,17 +52,63 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and "官服" or "B服"
 
 if predebug then
-  -- tap("基建右上角")
-  -- i=1
-  --       see = appear({
-  --       "聘用候选人列表" .. i, "公开招募列表" .. i,
-  --       "立即招募列表" .. i,
-  --     })
-  --     log(see)
-  log(findOne("公开招募"))
-  log(findOne("公开招募箭头"))
-  -- log(findOne("开始唤醒"))
-  -- log(findOne("账号登录"))
+  log(time())
+  require("skill")
+  log(time())
+  log(#skill)
+  local border_height = math.round(
+                          (379 - 1080 // 2) * minscale + screen.height / 2)
+  local skill_height1 = math.round(
+                          (397 - 1080 // 2) * minscale + screen.height / 2)
+  local skill_height2 = math.round(
+                          (817 - 1080 // 2) * minscale + screen.height / 2)
+  local color = {
+    math.round(600 * minscale), border_height, screen.width, border_height + 5,
+    "663,253,#88888A|663,255,#88888A|665,255,#88888A|661,253,#FFFFFF|661,255,#FFFFFF|659,255,#FFFFFF",
+    95,
+  }
+  log(color)
+  local borders = findColors(color)
+  if not borders then return end
+  -- keepScreen(false)
+  -- keepScreen(true)
+  for _, border in pairs(borders) do
+    log('border',border)
+    local skill_top_left = {
+      {border.x + math.round(5 * minscale), skill_height1},
+      {border.y + math.round(47 * minscale), skill_height1},
+    }
+    local best_score = 0
+    local best_skill = 1
+    local valid_score_threshold = 0
+    for k, v in pairs(skill) do
+      log(81, k)
+      local rgb = v[4]
+      local alpha = v[5]
+      local score = 0
+      local predict_score = 0
+      for i = 1, 36 * 36 do
+        -- log(82, i)
+        -- log(83, rgb[i])
+        -- log(84, alpha[i])
+        score = score +
+                  (compareColor(skill_top_left[1][1] + i // 36 + 1,
+                                skill_top_left[1][2] + i % 36, rgb[i],
+                                95 * alpha[i] // 255) and 1 or 0)
+        predict_score = score + 36 * 36 - i
+        if predict_score < best_score or predict_score < valid_score_threshold then
+          break
+        end
+      end
+      if score > best_score and score > valid_score_threshold then
+        best_score = score
+        brest_skill = k
+      end
+      log(v[3], score, skill[best_skill][3])
+    end
+    log(skill[best_skill][3], best_score)
+    safeexit()
+  end
   safeexit()
 end
 
@@ -75,7 +121,7 @@ local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
 local ui = {
-  title = "明日方舟速通 2021.11.02 22:18",
+  title = "明日方舟速通 2021.11.06  1:03",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
@@ -215,7 +261,7 @@ update_state_from_ui = function()
     end
   end
   fight = expanded_fight
-  log("expanded_fight",expanded_fight)
+  log("expanded_fight", expanded_fight)
 
   -- LMSQ => 龙门市区
   for k, v in pairs(fight) do

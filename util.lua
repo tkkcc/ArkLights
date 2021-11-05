@@ -1427,7 +1427,7 @@ make_account_setting_ui = function(prefix)
         {type = 'text', value = '作战：'}, {
           type = 'edit',
           value = [[当期委托x2 DQWTx2 龙门市区 LMSQ
-AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
+PR-B-1*100 AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
 上一次 syc]],
           id = prefix .. 'fight_ui',
         },
@@ -1633,6 +1633,7 @@ function notifyqq(image, info, to)
 end
 
 safeexit = function()
+  log(1636)
   -- 节点精灵bug，exit后还会执行一会儿
   exit()
   ssleep(3600)
@@ -1646,3 +1647,45 @@ clean_table = function(t, idx, bad)
   end
   return ans, idx
 end
+
+-----------  how to generate skill.lua
+-----------  first open https://prts.wiki/w/%E5%90%8E%E5%8B%A4%E6%8A%80%E8%83%BD%E4%B8%80%E8%A7%88, open console
+-----------  then paste the following code, copy result and paste into skill.lua
+-- let dex2hex = (x)=>{
+--     return parseInt(x,10).toString(16).padStart(2,'0')
+-- }
+-- let rgb2hex = (r,g,b)=>{
+--     return '#'+ dex2hex(r)+dex2hex(g)+dex2hex(b)
+-- }
+
+-- let canvas = document.createElement("canvas")
+-- canvas.width=36
+-- canvas.height=36
+-- let context = canvas.getContext("2d")
+-- let app=document.querySelector('#mw-content-text').querySelectorAll('tr')
+-- let ans='skill={'
+-- for(let tr of app){
+--   if(tr.children.length===4 && tr.children){
+--     let name=tr.children[1].innerText
+--     let description=tr.children[2].innerText
+--     let operator=[...tr.children[3].querySelectorAll('a')].map(x=>x.title)
+
+--     let img=tr.children[0].querySelector('img')
+--     if (!img) continue
+--     context.drawImage(img, 0, 0)
+--     let data = context.getImageData(0, 0, canvas.width, canvas.height).data
+--     let rgbs =[]
+--     let alphas =[]
+--     for(let i=0;i<canvas.width*canvas.height;++i){
+--         let rgb = rgb2hex(data[i*4],data[i*4+1],data[i*4+2])
+--         let alpha= data[i*4+3]
+--         rgbs.push(rgb)
+--         alphas.push(alpha)
+--     }
+--     ans +=`{[[${name.trim()}]],[[${description.trim()}]],{${operator.map(x=>"\""+x.trim()+"\"").join(',')}},{${rgbs.map(x=>"\""+x+"\"").join(',')}},{${alphas.map(x=>x).join(',')}} },\n`
+-- //     ans.push(    [name,description,operator,rgbs,alphas]    )
+-- //     break
+--   }
+-- }
+-- ans+='}'
+-- console.log(ans)
