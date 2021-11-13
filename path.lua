@@ -1754,7 +1754,7 @@ is_jmfight_enough = function(x, outside)
   if ignore_jmfight_enough_check then return false end
 
   -- all fights should check first, because x may not be in jmfight
-  if findOne("报酬合成玉已满") then
+  if findOne("报酬合成玉已满") and findOne("返还规则") then
     log("find报酬合成玉已满")
     jmfight_enough = true
     clean_jmfight()

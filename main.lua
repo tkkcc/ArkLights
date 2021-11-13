@@ -121,7 +121,7 @@ local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
 local ui = {
-  title = "明日方舟速通 2021.11.06  1:03",
+  title = "明日方舟速通 2021.11.08 23:40",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
