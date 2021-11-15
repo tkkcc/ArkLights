@@ -158,15 +158,3 @@ for i = 1, 20 do
   end
 end
 
-function notifyqq(x)
-  -- image, info, to
-  log(image)
-  local req = {
-    url = "http://82.156.198.12:49875",
-    -- param = {image = image, info = info, to = to},
-    param = JsonDecode(x),
-    timeout = 30,
-  }
-  httpPost(req)
-  queue_pop()
-end

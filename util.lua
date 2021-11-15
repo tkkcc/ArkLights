@@ -4,6 +4,8 @@ time = systemTime
 exit = exitScript
 JsonDecode = jsonLib.decode
 JsonEncode = jsonLib.encode
+home = function() keyPress(3) end
+back = function() keyPress(4) end
 getScreen = function()
   local width, height = getDisplaySize()
   return {width = width, height = height}
@@ -1314,18 +1316,25 @@ tapAll = function(ks)
   sleep(duration)
 end
 
--- TODO
--- save("queue", '[]')
-queue_push = function(e)
-  local queue = JsonDecode(get("queue", '[]'))
-  log(1281, queue)
-  table.insert(queue, e)
-  save("queue", JsonEncode(queue))
+-- event queue
+Lock = {}
+function Lock:new(o)
+  o = o or {queue = {}, length = 0, id = 0}
+  setmetatable(o, self)
+  self.__index = self
+  return o
 end
-queue_pop = function()
-  save("queue", JsonEncode(table.slice(JsonDecode(get("queue", '[]')), 2)))
+function Lock:remove(id)
+  self.queue[id] = nil
+  self.length = self.length - 1
 end
-queue_length = function() return #JsonDecode(get('queue', '[]')) end
+function Lock:add()
+  self.id = self.id + 1
+  self.queue[self.id] = 1
+  self.length = self.length + 1
+  return self.id
+end
+lock = Lock:new()
 
 captureqqimagedeliver = function(info, to)
   toast("正在通知QQ：" .. info)
@@ -1335,19 +1344,9 @@ captureqqimagedeliver = function(info, to)
 
   -- 快速退回主界面
   home()
-  queue_push(1)
   log(img, info, to)
 
-  -- 多线程有问题这个
-  callThreadFun(0, 'notifyqq', JsonEncode(
-                  {
-      image = base64(img),
-      info = tostring(info),
-      to = tostring(to),
-    }))
-  -- callThreadFun(0, 'notifyqq', base64(img), tostring(info), tostring(to))
-
-  -- notifyqq(base64(img),tostring(info),tostring(to))
+  notifyqq(base64(img), tostring(info), tostring(to))
 end
 
 poweroff = function() if root_mode then exec('reboot -p') end end
@@ -1696,3 +1695,27 @@ end
 -- }
 -- ans+='}'
 -- console.log(ans)
+hotUpdate = function()
+  if disable_hotupdate then return end
+  local api =
+    'https://gitee.com/api/v5/repos/bilabila/arknights/branches/master'
+  local url = 'https://gitee.com/bilabila/arknights/raw/master/script.lr'
+  local package = getPackageName()
+  local curPath = '/data/data/' .. package .. '/file/script.lr'
+  local newPath = getWorkPath() .. '/newscript.lr'
+  local id = lock:add()
+  asynHttpGet(function(res)
+    local newMd5 = string.trim(JsonDecode(res).commit.commit.message)
+    log(newMd5, curMd5)
+
+    local curMd5 = fileMD5(curPath)
+    if newMd5 == curMd5 then return lock:remove(id) end
+    downloadFile(url, newPath)
+    if not (fileExist(newPath) and fileMD5(newPath) == newMd5) then
+      stop("新lr文件不存在或md5不正确" .. " " .. newPath .. " " ..
+             newMd5)
+    end
+    installLrPkg(newPath)
+    return restartScript()
+  end, api)
+end

@@ -1,3 +1,8 @@
+unLockScreen()
+exec("input keyevent 223")
+exec("input keyevent 224")
+exit()
+
 -- predebug = true
 -- fake_recruit = true
 -- during_crisis_contract =true
@@ -25,24 +30,26 @@ check_after_tap = true
 -- no_background_after_run = true
 -- longest_tag = true
 -- very_slow_state_check = true
-
 default_findcolor_confidence = 95
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
+disable_hotupdate = true
 
 require('util')
 require("point")
 require("path")
 require("tag")
 
+setStopCallBack(function() console.show() end)
+hotUpdate()
 showControlBar(true)
 setControlBarPosNew(0, 1)
 clearLog()
+console.clearLog()
 console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
                round(screen.width, 0.9), round(screen.height, 0.9))
-console.setTitle("先滑动到底部，再截屏@群主")
+console.setTitle("如有问题，滚动到问题点，截屏@群主")
 console.dismiss()
-setStopCallBack(function() console.show() end)
 
 -- auto switch 官服 and B服
 local appid_need_user_select = false
@@ -121,23 +128,56 @@ if predebug then
   safeexit()
 end
 
+local r = getRunEnvType() -- 获取当前运行环境类型
+if r == 0 then
+  log("当前运行环境是root模式")
+elseif r == 1 then
+  log("当前运行环境是激活模式")
+elseif r == 2 then
+  log("当前是无障碍模式")
+end
+
 -- 有root自动开无障碍
 if pcall(exec) then root_mode = true end
+log("root mode",root_mode)
 if root_mode then
+  log(exec("ls /"))
+  log(exec('input keyevent 223'))
+  log("screenoff")
+  ssleep(1)
+
+
   local package = getPackageName()
+
+  screenoff()
+  screenon()
   exec("settings put secure enabled_accessibility_services " .. package ..
          "/com.nx.assist.AssistService:com.nx.nxproj.assist/com.nx.assist.AssistService")
   exec("appops set " .. package .. " PROJECT_MEDIA allow")
   exec("appops set " .. package .. " SYSTEM_ALERT_WINDOW allow")
 end
 
+if not isAccessibilityServiceRun() then
+  log("未开启无障碍")
+  -- openPermissionSetting()
+end
+if not isSnapshotServiceRun() then
+  log("录屏权限未开启")
+  -- openPermissionSetting()
+end
+
+log(135)
 -- trigger screen recording permission request using one second
--- findColor({0, 0, 1, 1, "0,0,#000000"})
--- log(137)
+log(findColor({0, 0, 1, 1, "0,0,#000000"}))
+log(getPixelColor(0, 0))
+home()
+log(136)
+ssleep(3)
+safeexit()
+log(137)
 -- local miui = R():text("立即开始|start now"):type("Button")
 
 log(137)
-
 
 findColor({0, 0, 1, 1, "0,0,#000000"})
 -- if nodeLib.findOne({text = "start now"}, false) then
@@ -438,10 +478,7 @@ if end_screenoff then screenoff() end
 if end_poweroff then poweroff() end
 
 -- 等待所有QQ通知结束
-local start = time()
-while queue_length() > 0 and (time() - start) < 30 * 1000 do
-  -- log(338)
-end
+wait(function() return lock.length == 0 end, 30)
 
 -- local notification
 vibrate(100)
