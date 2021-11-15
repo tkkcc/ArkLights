@@ -55,17 +55,17 @@
       echo ==\> upload "$x"
       # while ! diff <(load "$x") "$x" 2>&1 >/dev/null; do
 
-        curl 'http://localhost:9090/api/file/upload?path=/storage/emulated/0/freespace/scripts/test' \
-          -H 'Content-Type: multipart/form-data' \
-          -F "$x=@$x"
+      curl 'http://localhost:9090/api/file/upload?path=/storage/emulated/0/freespace/scripts/test' \
+        -H 'Content-Type: multipart/form-data' \
+        -F "$x=@$x"
 
-        # curl -sS 'http://localhost:9090/api/file/save' \
-        #   --data-urlencode code="$(cat "$x")" \
-        #   --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
+      # curl -sS 'http://localhost:9090/api/file/save' \
+      #   --data-urlencode code="$(cat "$x")" \
+      #   --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
       # done
     done
   }
-  find() {
+  findr() {
     # 测试不同分辨率下脚本结果
     local option=(
       1080x2400
@@ -79,7 +79,7 @@
     fi
     for ((i = 0; i < ${#option[@]}; ++i)); do
       adb shell wm size ${option[$i]}
-      restartcolor "$@"
+      # restartcolor "$@"
       # if [[ $i -eq 0 ]]; then
       #   save "$@"
       # fi
@@ -96,10 +96,33 @@
       --data-urlencode code= \
       --data-urlencode path=/storage/emulated/0/freespace/scripts/test/placeholder.lua >/dev/null
   }
+
+  transfer_encode() {
+    set -e
+    local dst_dir=/F:/software/懒人精灵3.6.0/script/main
+    dst="$dst_dir"/脚本
+    while IFS= read -r -d '' f; do
+      iconv -f UTF-8 -t GB18030 "$f" -o "$dst/$f"
+    done < <(find . -type f -name '*.lua' -printf '%P\0')
+    dst="$dst_dir"/界面
+    while IFS= read -r -d '' f; do
+      iconv -f UTF-8 -t GB18030 "$f" -o "$dst/$f"
+    done < <(find . -type f -name '*.ui' -printf '%P\0')
+  }
   saverun() {
-    stop "$@"
-    save "$@"
-    run "$@"
+    transfer_encode
+
+    i3-msg 'focus left'
+    xte 'keydown F6'
+    xte 'keyup F6'
+    sleep .1
+    xte 'keydown F5'
+    xte 'keyup F5'
+    i3-msg 'focus left'
+
+    # stop "$@"
+    # save "$@"
+    # run "$@"
   }
   listen() {
     websocat -n ws://localhost:9095

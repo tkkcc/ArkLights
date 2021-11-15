@@ -7,10 +7,13 @@ screen = getScreen()
 if screen.width < screen.height then
   screen.width, screen.height = screen.height, screen.width
 end
-log(time() .. " 分辨率：" .. screen.width .. "x" .. screen.height)
+log("分辨率：" .. screen.width .. "x" .. screen.height)
 if screen.width / screen.height < 16 / 9 or screen.height < 720 then
   stop("不支持分辨率" .. screen.width .. 'x' .. screen.height)
 end
+dpi = getDisplayDpi()
+if dpi < 320 then stop("不支持DPI" .. dpi) end
+
 hscale = screen.height / 1080
 wscale = screen.width / 1920
 minscale = min(hscale, wscale)

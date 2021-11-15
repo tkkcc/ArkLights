@@ -1,7 +1,18 @@
 print('util')
+-- transfer 节点精灵 to 懒人精灵
+time = systemTime
+exit = exitScript
+JsonDecode = jsonLib.decode
+JsonEncode = jsonLib.encode
+getScreen = function()
+  local width, height = getDisplaySize()
+  return {width = width, height = height}
+end
+
 max = math.max
 min = math.min
 math.round = function(x) return math.floor(x + 0.5) end
+round = math.round
 clip = function(x, minimum, maximum) return min(max(x, minimum), maximum) end
 
 -- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
@@ -270,15 +281,10 @@ log = function(...)
   local l = {map(tostring, running, ' ', table.unpack(map(table2string, arg)))}
   l = map(removeFuncHash, l)
   l = map(table2string, l)
-  local a = time()
+  local a = os.date('%Y.%m.%d %H:%M:%S')
   for _, v in pairs(l) do a = a .. ' ' .. v end
-  -- if #log_history > 2000 then table.clear(log_history) end
-  -- log_history[#log_history + 1] = a
-  -- l = loop_times(log_history)
-  -- l = 0
-  -- if l > 1 then a = a .. " x" .. l end
-  -- if l > 100 then stop("246") end
   print(a)
+  console.println(1, a)
 end
 
 open = function(retry) runApp(appid) end
@@ -288,11 +294,11 @@ stop = function(msg)
   msg = "stop " .. msg .. "\n请截图反馈开发者！"
   log(msg)
   toast(msg)
-  logConfig({
-    width = math.round(screen.height * .8),
-    height = math.round(screen.height * .8),
-    mode = 2,
-  })
+  -- logConfig({
+  --   width = math.round(screen.height * .8),
+  --   height = math.round(screen.height * .8),
+  --   mode = 2,
+  -- })
   safeexit()
 end
 
@@ -472,7 +478,7 @@ swipe = function(x)
 end
 
 -- 安卓8以下的滑动用双指
-android_verison_code = getAppinfo("android").versionCode
+android_verison_code = tonumber(getSdkVersion())
 if android_verison_code < 24 then stop("安卓版本7以下不可用") end
 if android_verison_code < 26 then
   is_device_swipe_too_fast = true
@@ -1308,7 +1314,8 @@ tapAll = function(ks)
   sleep(duration)
 end
 
-save("queue", '[]')
+-- TODO
+-- save("queue", '[]')
 queue_push = function(e)
   local queue = JsonDecode(get("queue", '[]'))
   log(1281, queue)

@@ -30,11 +30,19 @@ default_findcolor_confidence = 95
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
 
-outside = runThread("outside")
 require('util')
 require("point")
 require("path")
 require("tag")
+
+showControlBar(true)
+setControlBarPosNew(0, 1)
+clearLog()
+console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
+               round(screen.width, 0.9), round(screen.height, 0.9))
+console.setTitle("先滑动到底部，再截屏@群主")
+console.dismiss()
+setStopCallBack(function() console.show() end)
 
 -- auto switch 官服 and B服
 local appid_need_user_select = false
@@ -44,8 +52,9 @@ appid = oppid
 
 if prefer_bapp then appid = bppid end
 if prefer_bapp_on_android7 and android_verison_code < 30 then appid = bppid end
-local app_info = getAppinfo(appid)
-local bpp_info = getAppinfo(bppid)
+local all_apps = getInstalledApps()
+local app_info = table.findv(all_apps, function(x) return x.pkg == appid end)
+local bpp_info = table.findv(all_apps, function(x) return x.pkg == bppid end)
 if not app_info and not bpp_info then stop("未安装明日方舟官服或B服") end
 if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
@@ -73,7 +82,7 @@ if predebug then
   -- keepScreen(false)
   -- keepScreen(true)
   for _, border in pairs(borders) do
-    log('border',border)
+    log('border', border)
     local skill_top_left = {
       {border.x + math.round(5 * minscale), skill_height1},
       {border.y + math.round(47 * minscale), skill_height1},
@@ -112,12 +121,30 @@ if predebug then
   safeexit()
 end
 
--- 提前获取root权限
+-- 有root自动开无障碍
 if pcall(exec) then root_mode = true end
+if root_mode then
+  local package = getPackageName()
+  exec("settings put secure enabled_accessibility_services " .. package ..
+         "/com.nx.assist.AssistService:com.nx.nxproj.assist/com.nx.assist.AssistService")
+  exec("appops set " .. package .. " PROJECT_MEDIA allow")
+  exec("appops set " .. package .. " SYSTEM_ALERT_WINDOW allow")
+end
 
 -- trigger screen recording permission request using one second
+-- findColor({0, 0, 1, 1, "0,0,#000000"})
+-- log(137)
+-- local miui = R():text("立即开始|start now"):type("Button")
+
+log(137)
+
+
 findColor({0, 0, 1, 1, "0,0,#000000"})
-local miui = R():text("立即开始|start now"):type("Button")
+-- if nodeLib.findOne({text = "start now"}, false) then
+
+log(138)
+exit()
+
 click(miui)
 
 local ui = {

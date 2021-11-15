@@ -17,7 +17,7 @@
 
 ## 安装
 
-下载[明日方舟速通](https://wwa.lanzoui.com/b010qimmf)（密码0000）或在[节点精灵](http://card.nspirit.cn/getApk)中搜索5963。
+下载[明日方舟速通](https://wwa.lanzoui.com/b010qimmf)（密码0000）
 
 ## 开发
 
