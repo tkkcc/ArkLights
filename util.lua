@@ -4,8 +4,16 @@ time = systemTime
 exit = exitScript
 JsonDecode = jsonLib.decode
 JsonEncode = jsonLib.encode
+findNode = function(selector) return nodeLib.findOne(selector, true) end
+clickNode = nodeLib.click
+clickPoint = tap
+getDir = getWorkPath
+base64 = getFileBase64
+putClipboard = writePasteboard
+
 home = function() keyPress(3) end
 back = function() keyPress(4) end
+power = function() keyPress(26) end
 getScreen = function()
   local width, height = getDisplaySize()
   return {width = width, height = height}
@@ -293,15 +301,10 @@ open = function(retry) runApp(appid) end
 
 stop = function(msg)
   msg = msg or ''
-  msg = "stop " .. msg .. "\n请截图反馈开发者！"
+  msg = "stop " .. msg
   log(msg)
   toast(msg)
-  -- logConfig({
-  --   width = math.round(screen.height * .8),
-  --   height = math.round(screen.height * .8),
-  --   mode = 2,
-  -- })
-  safeexit()
+  exit()
 end
 
 findColorAbsolute = function(color, confidence)
@@ -335,8 +338,9 @@ findOne = function(x, confidence)
   confidence = confidence or default_findcolor_confidence
   -- print(confidence)
   if type(x) == 'string' and not x:find(coord_delimeter) then x = point[x] end
-  if type(x) == "table" then return x end
   if type(x) == "function" then return x() end
+  if type(x) == "table" and #x == 0 then return findNode(x) end
+  if type(x) == "table" and #x > 0 then return x end
   if type(x) == "string" then
     local pos
     if rfl[x0] then
@@ -389,14 +393,14 @@ tap = function(x, retry, allow_outside_game)
   end
   log("tap", x0, x)
   if type(x) ~= "table" then return end
-  -- log(373)
-  if zero_wait_click then
-    gesture({{{x = x[1], y = x[2]}}}, 1)
-    sleep(2)
-    -- log(374)
+  if #x > 0 then
+    clickPoint(x[1], x[2])
   else
-    click(x[1], x[2])
+    clickNode(x)
   end
+
+  -- TODO 这个sleep的作用是两次gesture间隔太短被判定为长按
+  -- sleep(2)
 
   if not unsafe_tap and not allow_outside_game and check_after_tap then
     wait_game_up()
@@ -858,7 +862,7 @@ appearTap = function(target, timeout, interval)
   if type(target) == 'string' or #target == 0 then target = {target} end
   target = appear(target, timeout, interval)
   if target then
-    -- log("apperTap: ", target)
+    log("apperTap: ", target)
     findTap(target)
     return true
   end
@@ -986,10 +990,11 @@ appear = function(target, timeout, interval, disappear)
   if not (type(target) == 'table' and #target > 0) then target = {target} end
   return wait(function()
     for _, v in pairs(target) do
+      log(type(v), #v, v, findNode(v))
       if disappear then
         if type(v) == "function" and not v() then
           return v
-        elseif type(v) == "table" and #v == 0 and not find(v) then
+        elseif type(v) == "table" and #v == 0 and not findNode(v) then
           return v
         elseif type(v) == "string" and #v > 0 and not findOne(v) then
           return v
@@ -997,7 +1002,7 @@ appear = function(target, timeout, interval, disappear)
       else
         if type(v) == "function" and v() then
           return v
-        elseif type(v) == "table" and #v == 0 and find(v) then
+        elseif type(v) == "table" and #v == 0 and findNode(v) then
           return v
         elseif type(v) == "string" and #v > 0 and findOne(v) then
           return v
@@ -1012,6 +1017,7 @@ disappear = function(target, timeout, interval)
 end
 
 wait_game_up = function(retry)
+  if disable_game_up_check then return end
   retry = retry or 0
   if retry > 10 then stop("不能启动游戏") end
   local game = R():name(appid):path("/FrameLayout/View")
@@ -1034,14 +1040,12 @@ wait_game_up = function(retry)
   local keyguard_input = R():id('com.android.systemui:id/keyguard_host_view')
 
   local screen = getScreen()
-  if screen.width > screen.height and find(game) then return end
-  if change_account_mode and find(bilibili_login) then return end
+  if screen.width > screen.height and findNode(game) then return end
+  if change_account_mode and findNode(bilibili_login) then return end
 
   if appid == oppid then
     open()
-    log(999)
     screenon()
-    log(1000)
     appear({game, keyguard_indication, keyguard_input}, 5)
     menuConfig({x = 0, y = screen.height})
   else
@@ -1060,22 +1064,22 @@ wait_game_up = function(retry)
       }, 5)
       menuConfig({x = 0, y = screen.height})
     elseif change_account_mode then
-      if find(bilibili_login) then
+      if findNode(bilibili_login) then
         return
-      elseif find(bilibili_change2) then
+      elseif findNode(bilibili_change2) then
         click(bilibili_change2)
         disappear(bilibili_change2)
-      elseif find(bilibili_change) then
+      elseif findNode(bilibili_change) then
         click(bilibili_change)
         appear(bilibili_account_login)
-      elseif find(bilibili_account_login) then
+      elseif findNode(bilibili_account_login) then
         click(bilibili_account_login)
         appear(bilibili_login)
       end
-    elseif find(bilibili_account_login) then
+    elseif findNode(bilibili_account_login) then
       click(bilibili_account_login)
       appear(bilibili_login)
-    elseif find(bilibili_login) then
+    elseif findNode(bilibili_login) then
       local username_inputbox = R():id(
                                   "com.hypergryph.arknights.bilibili:id/et_gsc_account");
       local password_inputbox = R():id(
@@ -1085,21 +1089,21 @@ wait_game_up = function(retry)
       input(password_inputbox, password)
       click(bilibili_login)
       appear(game, 5)
-    elseif find(bilibili_oneclicklogin) then
+    elseif findNode(bilibili_oneclicklogin) then
       click(bilibili_oneclicklogin)
       appear(bilibili_ok, 5)
-    elseif find(bilibili_ok) then
+    elseif findNode(bilibili_ok) then
       click(bilibili_ok)
       appear(game, 5)
-    elseif find(bilibili_wrapper) then
+    elseif findNode(bilibili_wrapper) then
       retry = retry - 1
     end
   end
 
   -- 亮屏解锁
-  if find(keyguard_indication) then
+  if findNode(keyguard_indication) then
     if not wait(function()
-      local node = find(keyguard_indication)
+      local node = findNode(keyguard_indication)
       if not node then return true end
       local center = (node.rect.top + node.rect.bottom) // 2
       -- local height = max(screen.width, screen.height)
@@ -1108,9 +1112,9 @@ wait_game_up = function(retry)
       gesture({{{x = width // 2, y = center}, {x = width // 2, y = 1}}}, 1000)
       sleep(1500)
     end, 5) then stop("解锁失败1004") end
-  elseif find(keyguard_input) then
-    local unlock_gesture = JsonDecode(get('unlock_gesture', '{}'))
-    local unlock_mode = JsonDecode(get('unlock_mode', '"手势"'))
+  elseif findNode(keyguard_input) then
+    local unlock_gesture = JsonDecode(loadConfig('unlock_gesture', '{}'))
+    local unlock_mode = JsonDecode(loadConfig('unlock_mode', '"手势"'))
     unlock(unlock_gesture, unlock_mode == '手势')
     if not disappear(keyguard_input) then stop("解锁失败1005") end
   end
@@ -1328,6 +1332,7 @@ function Lock:remove(id)
   self.queue[id] = nil
   self.length = self.length - 1
 end
+function Lock:exist(id) return self.queue[id] end
 function Lock:add()
   self.id = self.id + 1
   self.queue[self.id] = 1
@@ -1337,28 +1342,35 @@ end
 lock = Lock:new()
 
 captureqqimagedeliver = function(info, to)
-  toast("正在通知QQ：" .. info)
-  io.open(getDir() .. '/.nomedia', 'w')
-  local img = getDir() .. "/tmp.jpg"
-  capture(img, 30)
-
-  -- 快速退回主界面
-  home()
-  log(img, info, to)
-
+  io.open(getWorkPath() .. '/.nomedia', 'w')
+  local img = getWorkPath() .. "/tmp.png"
+  snapShot(img)
   notifyqq(base64(img), tostring(info), tostring(to))
 end
 
-poweroff = function() if root_mode then exec('reboot -p') end end
+poweroff = function() if root_mode then exec("su -c 'reboot -p'") end end
 closeapp = function(package)
   if root_mode then
-    exec("am force-stop " .. package)
+    exec("su -c 'am force-stop " .. package .. "'")
   else
-    -- TODO 无障碍关app
+    local intent = {
+      action = "android.settings.APPLICATION_DETAILS_SETTINGS",
+      uri = "package:" .. package,
+    }
+    runIntent(intent)
+    appearTap({{text = "*停止*"}, {text = "*结束*"}, {text = "*STOP*"}}, 3)
+    appearTap({{text = "*确*"}, {text = "*OK*"}}, 3)
   end
 end
-screenoff = function() if root_mode then exec('input keyevent 223') end end
-screenon = function() if root_mode then exec('input keyevent 224') end end
+screenoff =
+  function() if root_mode then exec('su -c "input keyevent 223"') end end
+screenon = function()
+  if root_mode then
+    exec('su -c "input keyevent 224"')
+  else
+    stop("无障碍亮屏未实现")
+  end
+end
 
 unlock = function(route, swip_mode)
   log('unlock', route, swip_mode)
@@ -1423,7 +1435,6 @@ now_job = {
 }
 
 make_account_setting_ui = function(prefix)
-  print(1327)
   prefix = prefix or ''
   local ui = {
     {
@@ -1504,7 +1515,7 @@ PR-B-1*100 AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
 end
 
 make_multi_account_setting_ui = function()
-  -- local inherit_setting_selection = 
+  -- local inherit_setting_selection =
   local ui = {
     name = 'main',
     title = "多账号",
@@ -1565,7 +1576,7 @@ make_multi_account_setting_ui = function()
     })
 
     -- 详细设置
-    if get("multi_account_new_setting" .. i, 0) == 0 then
+    if loadConfig("multi_account_new_setting" .. i, 0) == 0 then
       table.insert(ui.views, {
         type = 'div',
         ore = 1,
@@ -1627,23 +1638,20 @@ transfer_global_variable = function(prefix, save_prefix)
   end
 end
 
-function notifyqq(image, info, to)
-  log(image)
-  local req = {
-    url = "http://82.156.198.12:49875",
-    param = {image = image, info = info, to = to},
-    timeout = 30,
-  }
-  httpPost(req)
-  queue_pop()
+function notifyqq(image, info, to, sync)
+  image = image or ''
+  info = info or ''
+  to = to or ''
+  local id = lock:add()
+  local param = "image=" .. encodeUrl(image) .. "&info=" .. encodeUrl(info) ..
+                  "&to=" .. to
+  asynHttpPost(function(res, code)
+    log(res, code)
+    lock:remove(id)
+  end, "http://82.156.198.12:49875", param)
+  if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
-safeexit = function()
-  log(1636)
-  -- 节点精灵bug，exit后还会执行一会儿
-  exit()
-  ssleep(3600)
-end
 -- remove unneed elements while preserving cursor
 clean_table = function(t, idx, bad)
   local ans = {}
@@ -1705,9 +1713,12 @@ hotUpdate = function()
   local newPath = getWorkPath() .. '/newscript.lr'
   local id = lock:add()
   asynHttpGet(function(res)
-    local newMd5 = string.trim(JsonDecode(res).commit.commit.message)
+    local commit = JsonDecode(res).commit.commit
+    local newMd5 = string.trim(commit.message)
+    local date = string.trim(commit.committer.date.sub(1, #"2021-11-16T20:05"))
+    date = string.map(date, {T = " "})
+    saveConfig("releaseDate", date)
     log(newMd5, curMd5)
-
     local curMd5 = fileMD5(curPath)
     if newMd5 == curMd5 then return lock:remove(id) end
     downloadFile(url, newPath)
@@ -1719,3 +1730,216 @@ hotUpdate = function()
     return restartScript()
   end, api)
 end
+
+styleButton = function(layout)
+  ui.setBackground(layout, "#fff1f3f4")
+  ui.setTextColor(layout, "#ff000000")
+end
+
+addButton = function(layout, id, text, func,w,h)
+  ui.addButton(layout, id, text,w or -2,h or -2)
+  ui.setOnClick(id, func)
+  styleButton(id)
+end
+
+make_main_ui = function(layout)
+  layout = layout or "main"
+  ui.newLayout(layout, -1, -1)
+  ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate"))
+
+  ui.newRow(layout, "jump_qq_row")
+  ui.addTextView(layout, "jump_qq_note", "结束后通知QQ：")
+  ui.addEditText(layout, "QQ", "")
+  addButton(layout, "jump_qq_btn", "需加机器人好友", "jump_qq()")
+
+  ui.newRow(layout, "end_process_row")
+  ui.addTextView(layout, "end_process_note", "结束后")
+  ui.addCheckBox(layout, "end_closeapp", "关闭游戏")
+  ui.addCheckBox(layout, "end_screenoff", "熄屏")
+  ui.addCheckBox(layout, "end_poweroff", "关机")
+
+  ui.newRow(layout, "note_row")
+  ui.addTextView(layout, "note_text",
+                 [[注意：异形屏适配设为0，开基建退出提示。关游戏模式，关深色/夜间模式，关隐藏刘海。音量键停止脚本。还有问题加群反馈。]])
+
+  ui.newRow(layout, "screeon_row")
+  addButton(layout, "multi_account", "多账号", "show_multi_account_ui()")
+  addButton(layout, "screeon", "亮屏解锁", "show_gesture_capture_ui()")
+  addButton(layout, "crontab", "定时执行", "show_crontab_ui()")
+
+  ui.newRow(layout, "demo_row")
+  addButton(layout, "github", "源码", "jump_github()")
+  addButton(layout, "qqgroup", "反馈群", "jump_qqgroup()")
+  addButton(layout, "demo", "视频演示", "jump_bilibili()")
+
+  ui.newRow(layout, "bottom_row")
+  ui.addButton(layout,"start","启动",-1)
+  ui.setOnClick("start","start()")
+
+  local config = getWorkPath() .. 'config.txt'
+  if fileExist(config) then ui.loadProfile(config) end
+
+  -- 后处理
+  if not root_mode then
+    ui.setEnable("end_screenoff", false)
+    ui.setEnable("end_poweroff", false)
+  end
+
+  return layout
+end
+
+jump_qqgroup = function()
+  local qq = "1009619697"
+  local key = "KlYYiyXj2VRJg1qNqRo3tExo959SrKhT"
+  local intent = {
+    action = "android.intent.action.VIEW",
+    uri = "mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26jump_from%3Dwebapi%26k%3D" ..
+      key,
+  }
+  runIntent(intent)
+  putClipboard(qq)
+  toast("群号已复制：" .. qq)
+  peaceExit()
+end
+jump_qq = function()
+  local qq = "605597237"
+  local intent = {
+    action = "android.intent.action.VIEW",
+    uri = "mqqwpa://im/chat?chat_type=wpa&uin=" .. qq,
+  }
+  runIntent(intent)
+  putClipboard(qq)
+  toast("QQ号已复制：" .. qq)
+  peaceExit()
+end
+
+jump_bilibili = function()
+  local bv = "BV1DL411t7n2"
+  local intent = {
+    action = "android.intent.action.VIEW",
+    uri = "https://bilibili.com/video/" .. bv,
+  }
+  runIntent(intent)
+  peaceExit()
+end
+
+jump_github = function()
+  local github = "tkkcc/arknights"
+  local intent = {
+    action = "android.intent.action.VIEW",
+    uri = "https://github.com/" .. github,
+  }
+  runIntent(intent)
+  peaceExit()
+end
+
+function show_gesture_capture_ui()
+  home()
+  local ui = {
+    name = 'main',
+    title = "停止录制",
+    views = {
+      {
+        type = 'div',
+        views = {
+          {
+            type = 'text',
+            value = [[有锁屏手势或密码的手机，在熄屏状态下运行脚本时，]] ..
+              [[脚本首先需要亮屏解锁（需root授权），关键点与解锁方式在本界面设置。另外xposed edge pro也可实现亮屏解锁。]],
+          },
+        },
+      }, {
+        type = 'div',
+        views = {
+          {type = "text", value = "1. 先阅读以下说明，再点击"}, {
+            type = 'button',
+            value = '开始录制',
+            click = {thread = 0, name = "capture_gesture"},
+          },
+        },
+      }, {
+        type = 'div',
+        views = {
+          {
+            type = "text",
+            value = "2. 点击 手势路径关键点 或 密码数字及确认键",
+          },
+        },
+      }, {
+        type = 'div',
+        views = {{type = "text", value = "3. 点击标题“停止录制”"}},
+      }, {
+        type = 'div',
+        views = {
+          {type = "text", value = "4. 选择解锁方式"},
+          {
+            type = 'radio',
+            value = '*手势|密码',
+            id = 'unlock_mode',
+            ore = 1,
+          },
+        },
+      }, {
+        type = 'div',
+        views = {
+          {
+            type = "text",
+            value = [[5. 点击“保存”回到脚本主界面，然后测试。
+
+快速测试：脚本主界面按“启动”，然后手动熄屏，5秒内应观察到亮屏解锁现象。
+
+完整测试：设置定时1分钟后运行脚本，然后手动熄屏，1分钟后可能观察到亮屏不解锁现象，再等1分钟后应观察到亮屏解锁现象。
+]],
+          },
+        },
+      },
+    },
+    submit = {type = "text", value = "保存"},
+    cancle = {type = "text", value = "退出"},
+  }
+  updateUI(ui)
+end
+
+function capture_gesture()
+  local title = R():text("停止录制")
+  if not appear(title) then stop("85") end
+  local bottom = findNode(title).rect.bottom
+
+  local finger = {}
+  for _ = 1, 20 do
+    local p = catchClick()
+    if not p then break end
+    if p.y < bottom then break end
+    table.insert(finger, {p.x, p.y})
+  end
+  saveConfig('unlock_gesture', JsonEncode(finger))
+end
+
+function show_multi_account_ui()
+  home()
+  updateUI(make_multi_account_setting_ui())
+end
+
+for i = 1, 20 do
+  _G["multi_account_new_setting" .. i] = function()
+    local newstate = 1 - loadConfig("multi_account_new_setting" .. i, 0)
+    if newstate == 0 then log(i, 194) end
+    saveConfig("multi_account_new_setting" .. i, newstate)
+    return show_multi_account_ui()
+  end
+end
+
+saveConfig = setStringConfig
+
+loadConfig = function(k, v)
+  v = v or ''
+  local y = getStringConfig(k)
+  if not y or #y == 0 then y = v end
+  return y
+end
+peaceExit = function()
+  need_show_console = false
+  exit()
+end
+
+start = function() end

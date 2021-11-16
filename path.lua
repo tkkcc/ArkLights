@@ -1130,7 +1130,7 @@ path.线索传递 = function()
 
     if idx then
       log("线索传递", idx, point.传递列表[idx])
-      if fake_transfer then safeexit() end
+      if fake_transfer then exit() end
       tap(point.传递列表[idx])
       wait(function()
         if findOne("线索传递") then return true end
@@ -2407,7 +2407,7 @@ path.退出账号 = function()
   local bilibili_login = R():id(
                            "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login");
   auto(update(path.base, {
-    [function() return find(bilibili_login) end] = true,
+    [function() return findNode(bilibili_login) end] = true,
     面板 = function()
       tap("面板设置")
       if not appear({"返回3", "返回4"}) then return end

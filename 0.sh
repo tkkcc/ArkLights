@@ -37,33 +37,18 @@
     curl 'http://localhost:9090/script/del?name=test' -X 'POST'
   }
   release() {
-    sed -i -r 's/(明日方舟速通).+"/\1 '"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
-    remove "$@"
-    save "$@"
-    curl http://localhost:9090/script/export?name=test >arknights.nsp
-    xdg-open http://card.nspirit.cn/admin/apply/list/5963/edit
+    # sed -i -r 's/(明日方舟速通).+"/\1 '"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
+    cd release
+    cp /F:/software/懒人精灵3.6.0/out/main.lr script.lr
+    git add -u
+    git commit --amend -m "$(md5sum script.lr | cut -d' ' -f1)"
+    git push --force-with-lease
   }
   stop() {
-    echo ==\> stop
-    curl -sS http://localhost:9090/script/stop --data-raw 'name=stop'
-  }
-  load() {
-    curl -sS 'http://localhost:9090/api/file?path=/storage/emulated/0/freespace/scripts/test/'"$1"
-  }
-  save() {
-    for x in *.lua; do
-      echo ==\> upload "$x"
-      # while ! diff <(load "$x") "$x" 2>&1 >/dev/null; do
-
-      curl 'http://localhost:9090/api/file/upload?path=/storage/emulated/0/freespace/scripts/test' \
-        -H 'Content-Type: multipart/form-data' \
-        -F "$x=@$x"
-
-      # curl -sS 'http://localhost:9090/api/file/save' \
-      #   --data-urlencode code="$(cat "$x")" \
-      #   --data-urlencode path=/storage/emulated/0/freespace/scripts/test/"$x" >/dev/null
-      # done
-    done
+    i3-msg 'focus left'
+    xte 'keydown F6'
+    xte 'keyup F6'
+    i3-msg 'focus left'
   }
   findr() {
     # 测试不同分辨率下脚本结果
@@ -87,18 +72,16 @@
     done
   }
   run() {
-    stop "$@"
-    listen "$@" &
-    echo ==\> run
-    curl -sS http://localhost:9090/script/run \
-      -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
-      --data-urlencode name=test \
-      --data-urlencode code= \
-      --data-urlencode path=/storage/emulated/0/freespace/scripts/test/placeholder.lua >/dev/null
+    i3-msg 'focus left'
+    xte 'keydown F6'
+    xte 'keyup F6'
+    sleep .1
+    xte 'keydown F5'
+    xte 'keyup F5'
+    i3-msg 'focus left'
   }
 
-  transfer_encode() {
-    set -e
+  save() {
     local dst_dir=/F:/software/懒人精灵3.6.0/script/main
     dst="$dst_dir"/脚本
     while IFS= read -r -d '' f; do
@@ -110,22 +93,8 @@
     done < <(find . -type f -name '*.ui' -printf '%P\0')
   }
   saverun() {
-    transfer_encode
-
-    i3-msg 'focus left'
-    xte 'keydown F6'
-    xte 'keyup F6'
-    sleep .1
-    xte 'keydown F5'
-    xte 'keyup F5'
-    i3-msg 'focus left'
-
-    # stop "$@"
-    # save "$@"
-    # run "$@"
-  }
-  listen() {
-    websocat -n ws://localhost:9095
+    save
+    run
   }
   timer() {
     local start=$(date -u +"%s.%N")

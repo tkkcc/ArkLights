@@ -1,8 +1,3 @@
-unLockScreen()
-exec("input keyevent 223")
-exec("input keyevent 224")
-exit()
-
 -- predebug = true
 -- fake_recruit = true
 -- during_crisis_contract =true
@@ -34,13 +29,24 @@ default_findcolor_confidence = 95
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
 disable_hotupdate = true
+disable_root_mode = true
+disable_game_up_check = true
+need_show_console = true
 
 require('util')
 require("point")
 require("path")
 require("tag")
 
-setStopCallBack(function() console.show() end)
+setStopCallBack(function()
+  if need_show_console then
+    local screen = getScreen()
+    console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
+                   round(screen.width, 0.9), round(screen.height, 0.9))
+    console.show()
+  end
+end)
+
 hotUpdate()
 showControlBar(true)
 setControlBarPosNew(0, 1)
@@ -48,8 +54,33 @@ clearLog()
 console.clearLog()
 console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
                round(screen.width, 0.9), round(screen.height, 0.9))
-console.setTitle("如有问题，滚动到问题点，截屏@群主")
+console.setTitle("如有问题，滚动到问题点，截屏反馈开发者")
 console.dismiss()
+
+-- 有root自动开无障碍
+if not disable_root_mode and pcall(exec, "su") then root_mode = true end
+if root_mode then
+  local package = getPackageName()
+  log("package", package)
+  -- TODO 以下三行在重启软件后是否有效
+  exec(
+    "su -c 'settings put secure enabled_accessibility_services " .. package ..
+      "/com.nx.assist.AssistService:com.nx.nxproj.assist/com.nx.assist.AssistService'")
+
+  exec("su -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
+  exec("su -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
+end
+
+if not isAccessibilityServiceRun() then
+  log("未开启无障碍")
+  toast("请开启无障碍权限")
+  openPermissionSetting()
+end
+if not isSnapshotServiceRun() then
+  log("录屏权限未开启")
+  toast("请开启无障碍权限")
+  openPermissionSetting()
+end
 
 -- auto switch 官服 and B服
 local appid_need_user_select = false
@@ -68,7 +99,17 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and "官服" or "B服"
 
 if predebug then
-  log(time())
+
+  jump_github()
+  peaceExit()
+
+  vibrate(100)
+  playAudio('/system/media/audio/ui/Effect_Tick.ogg')
+  ssleep(1)
+  peaceExit()
+  log(type(getStringConfig("ddddd")))
+  log(#getStringConfig("ddddd"))
+  exit()
   require("skill")
   log(time())
   log(#skill)
@@ -123,145 +164,21 @@ if predebug then
       log(v[3], score, skill[best_skill][3])
     end
     log(skill[best_skill][3], best_score)
-    safeexit()
+    exit()
   end
-  safeexit()
+  exit()
 end
 
-local r = getRunEnvType() -- 获取当前运行环境类型
-if r == 0 then
-  log("当前运行环境是root模式")
-elseif r == 1 then
-  log("当前运行环境是激活模式")
-elseif r == 2 then
-  log("当前是无障碍模式")
-end
-
--- 有root自动开无障碍
-if pcall(exec) then root_mode = true end
-log("root mode",root_mode)
-if root_mode then
-  log(exec("ls /"))
-  log(exec('input keyevent 223'))
-  log("screenoff")
-  ssleep(1)
-
-
-  local package = getPackageName()
-
-  screenoff()
-  screenon()
-  exec("settings put secure enabled_accessibility_services " .. package ..
-         "/com.nx.assist.AssistService:com.nx.nxproj.assist/com.nx.assist.AssistService")
-  exec("appops set " .. package .. " PROJECT_MEDIA allow")
-  exec("appops set " .. package .. " SYSTEM_ALERT_WINDOW allow")
-end
-
-if not isAccessibilityServiceRun() then
-  log("未开启无障碍")
-  -- openPermissionSetting()
-end
-if not isSnapshotServiceRun() then
-  log("录屏权限未开启")
-  -- openPermissionSetting()
-end
-
-log(135)
--- trigger screen recording permission request using one second
-log(findColor({0, 0, 1, 1, "0,0,#000000"}))
-log(getPixelColor(0, 0))
-home()
-log(136)
-ssleep(3)
-safeexit()
-log(137)
+-- 无障碍图色权限获取？
+getPixelColor(0, 0)
 -- local miui = R():text("立即开始|start now"):type("Button")
-
-log(137)
-
-findColor({0, 0, 1, 1, "0,0,#000000"})
+-- findColor({0, 0, 1, 1, "0,0,#000000"})
 -- if nodeLib.findOne({text = "start now"}, false) then
+-- click(miui)
 
-log(138)
-exit()
-
-click(miui)
-
-local ui = {
-  title = "明日方舟速通 2021.11.08 23:40",
-  name = 'main',
-  cache = not no_config_cache,
-  width = -1,
-  height = -1,
-  time = ok_time or 60,
-  views = {
-    {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '结束后通知QQ：'},
-        {type = 'edit', value = [[]], id = 'QQ'}, {
-          type = "button",
-          value = "需加机器人好友",
-          title = '',
-          click = {thread = outside, name = "goto_qq"},
-        },
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '结束后(需root)'}, {
-          type = 'check',
-          value = '*关闭游戏|熄屏|关机',
-          id = 'end_closeapp|end_screenoff|end_poweroff',
-          ore = 1,
-        },
-      },
-    }, {
-      type = 'div',
-      views = {
-        {
-          type = "text",
-          value = [[注意：异形屏适配设为0，开基建退出提示，关miui游戏模式深色模式，关隐藏刘海，还有问题加群反馈。]],
-        },
-      },
-    }, {
-      type = 'div',
-      title = '',
-      views = {
-        -- {
-        --   type = "button",
-        --   value = "教程",
-        --   click = {thread = outside, name = "show_tutorial_ui"},
-        -- },
-        {
-          type = "button",
-          value = "亮屏解锁",
-          click = {thread = outside, name = "show_gesture_capture_ui"},
-        }, {
-          type = "button",
-          value = "多账号",
-          click = {thread = outside, name = "show_multi_account_ui"},
-        }, {
-          type = "button",
-          value = "演示",
-          click = {thread = outside, name = "goto_bilibili"},
-        }, {
-          type = "button",
-          value = "反馈群",
-          click = {thread = outside, name = "goto_qqgroup"},
-        }, {
-          type = "button",
-          value = "源码",
-          click = {thread = outside, name = "goto_github"},
-        },
-      },
-    },
-  },
-  submit = {type = "text", value = "启动"},
-  cancle = {type = "text", value = "退出"},
-}
+ui.show(make_main_ui(),false)
+ssleep(100000)
+peaceExit()
 
 for i, x in pairs(make_account_setting_ui()) do table.insert(ui.views, i, x) end
 
@@ -280,17 +197,15 @@ end
 while true do
   home()
   local ret = show(ui)
-  if not ret then safeexit() end
+  if not ret then exit() end
   if not unlock_mode and not server1 then break end
   if unlock_mode then
-    save('unlock_mode', JsonEncode(unlock_mode))
+    saveConfig('unlock_mode', JsonEncode(unlock_mode))
     unlock_mode = nil
   end
   if server1 then server1 = nil end
   log(168, ret)
 end
-
-callThreadFun(outside, "preload")
 
 update_state_from_ui = function()
   prefer_skill = prefer_skill == "技能"
@@ -410,10 +325,10 @@ if test_fight then
   log(fight)
   repeat_fight_mode = false
   run("轮次作战")
-  safeexit()
+  exit()
 end
 
-if test_some then safeexit() end
+if test_some then exit() end
 
 -- 多账号模式 load by builtin ui, tricky
 ui = make_multi_account_setting_ui()
@@ -431,7 +346,7 @@ local apply_multi_account_setting
 apply_multi_account_setting = function(i, visited)
   visited = visited or {}
   table.insert(visited, i)
-  if get("multi_account_new_setting" .. i, 0) == 0 then
+  if loadConfig("multi_account_new_setting" .. i, "0") == "0" then
     local inherit = _G["multi_account_inherit_setting" .. i]
     local j = tonumber(string.sub(inherit, #"账号" + 1))
     if inherit == "默认" or table.includes(visited, j) then
@@ -484,4 +399,4 @@ wait(function() return lock.length == 0 end, 30)
 vibrate(100)
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)
-log(344)
+peaceExit()
