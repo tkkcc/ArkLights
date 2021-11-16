@@ -1,4 +1,4 @@
--- predebug = true
+predebug = true
 -- fake_recruit = true
 -- during_crisis_contract =true
 -- disable_communication_check=true
@@ -99,7 +99,6 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and "官服" or "B服"
 
 if predebug then
-
   jump_github()
   peaceExit()
 
@@ -176,9 +175,8 @@ getPixelColor(0, 0)
 -- if nodeLib.findOne({text = "start now"}, false) then
 -- click(miui)
 
-ui.show(make_main_ui(),false)
-ssleep(100000)
-peaceExit()
+ui.show(make_main_ui(), false)
+ssleep(600)
 
 for i, x in pairs(make_account_setting_ui()) do table.insert(ui.views, i, x) end
 

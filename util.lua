@@ -1423,95 +1423,61 @@ parse_from_ui = function(prefix, reference)
 end
 
 all_job = {
-  "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "指定换班", "基建换班", "线索搜集", "制造加速",
-  "副手换人", "信用购买", "公招刷新", "任务收集",
+  "邮件收取", "访问好友", "基建收获", "指定换班",
+  "基建换班", "线索搜集", "制造加速", "副手换人",
+  "信用购买", "公招刷新", "轮次作战", "任务收集",
 }
 
 now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
   "指定换班", "基建换班", "线索搜集", "制造加速",
-  "副手换人", "信用购买", "公招刷新", "任务收集",
+  "副手换人", "信用购买", "公招刷新", "轮次作战",
+  "任务收集",
 }
 
-make_account_setting_ui = function(prefix)
+make_account_setting_ui = function(prefix, layout)
+  layout = layout or "main"
   prefix = prefix or ''
-  local ui = {
-    {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '作战：'}, {
-          type = 'edit',
-          value = [[当期委托x2 DQWTx2 龙门市区 LMSQ
-PR-B-1*100 AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
-上一次 syc]],
-          id = prefix .. 'fight_ui',
-        },
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '最多吃'},
-        {type = 'edit', value = '9999', id = prefix .. 'max_drug_times'},
-        {type = 'text', value = '次药和'},
-        {type = 'edit', value = '0', id = prefix .. 'max_stone_times'},
-        {type = 'text', value = '次石头'},
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '指定换班(待设计)：'},
-        {type = 'edit', value = [[]], id = prefix .. 'dorm'},
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '换班优先'}, {
-          type = 'radio',
-          value = '工作状态|*技能',
-          id = prefix .. 'prefer_skill',
-          ore = 1,
-        },
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '基建换班'}, {
-          type = 'check',
-          value = '*宿舍|*制造|*总览',
-          id = table.join(map(function(i) return prefix .. 'shift' .. i end,
-                              range(1, 3)), "|"),
-          ore = 1,
-        },
-      },
-    }, {
-      type = 'div',
-      ore = 1,
-      views = {
-        {type = 'text', value = '自动招募'}, {
-          type = 'check',
-          value = '*小车|*4星|5星|6星',
-          id = table.join(map(function(i)
-            return prefix .. 'auto_recruit' .. i
-          end, {1, 4, 5, 6}), '|'),
-          ore = 1,
-        },
-      },
-    }, {
-      type = "check",
-      ore = 1,
-      value = parse_value_to_ui(all_job, now_job),
-      id = parse_id_to_ui(prefix .. "now_job_ui", #all_job),
-    },
-  }
-  -- log(1388)
-  -- log(ui)
-  return ui
+  ui.newRow(layout, prefix .. "fight_row", -2, -2)
+  ui.addTextView(layout, prefix .. "fight_note", "作战")
+  ui.addEditText(layout, prefix .. "fight_ui",
+                 [[当期委托x2 DQWTx2 龙门市区 LMSQ AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次 syc]])
+
+  ui.newRow(layout, prefix .. "max_drug_row", -2, -2)
+  ui.addTextView(layout, prefix .. "max_drug_note", "最多吃")
+  ui.addEditText(layout, prefix .. 'max_drug_times', "9999")
+  ui.addTextView(layout, prefix .. "max_drug_note", "次药和")
+  ui.addEditText(layout, prefix .. 'max_stone_times', "0")
+  ui.addTextView(layout, prefix .. "max_drug_note", "次石头")
+
+  ui.newRow(layout, prefix .. "prefer_skill_row", -2, -2)
+  ui.addTextView(layout, prefix .. "prefer_skill_note", "换班优先")
+  ui.addRadioGroup(layout, prefix .. "prefer_skill", {"工作状态", "技能"},
+                   1, -2, -2, true)
+
+  ui.newRow(layout, prefix .. "shift_row", -2, -2)
+  ui.addTextView(layout, prefix .. "shift_note", "基建换班")
+  ui.addCheckBox(layout, prefix .. "shift1", "宿舍", true)
+  ui.addCheckBox(layout, prefix .. "shift2", "制造", true)
+  ui.addCheckBox(layout, prefix .. "shift3", "总览", true)
+
+  ui.newRow(layout, prefix .. "auto_recruit_row", -2, -2)
+  ui.addTextView(layout, prefix .. "auto_recruit_note", "自动招募")
+  ui.addCheckBox(layout, prefix .. "auto_recruit1", "小车", true)
+  ui.addCheckBox(layout, prefix .. "auto_recruit4", "4星", true)
+  ui.addCheckBox(layout, prefix .. "auto_recruit5", "5星", false)
+  ui.addCheckBox(layout, prefix .. "auto_recruit6", "6星", false)
+
+  -- local max_checkbox_one_row = getScreen().width //200
+  local max_checkbox_one_row = 3
+  for k, v in pairs(all_job) do
+    if k % max_checkbox_one_row == 1 then
+      newRow(layout, prefix .. "now_job_row" .. k)
+    end
+    ui.addCheckBox(layout, prefix .. "now_job_ui" .. k, v,
+                   table.includes(now_job, v))
+  end
+  return layout
 end
 
 make_multi_account_setting_ui = function()
@@ -1736,45 +1702,61 @@ styleButton = function(layout)
   ui.setTextColor(layout, "#ff000000")
 end
 
-addButton = function(layout, id, text, func,w,h)
-  ui.addButton(layout, id, text,w or -2,h or -2)
+addButton = function(layout, id, text, func, w, h)
+  ui.addButton(layout, id, text, w or -2, h or -2)
   ui.setOnClick(id, func)
-  styleButton(id)
+  -- styleButton(id)
+end
+newRow = function(layout, id, w, h)
+  ui.newRow(layout, id, w or -2, h or -2)
+  ui.setGravity(id, 17)
 end
 
 make_main_ui = function(layout)
   layout = layout or "main"
-  ui.newLayout(layout, -1, -1)
+  ui.newLayout(layout, 720 - 50, -1)
   ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate"))
 
-  ui.newRow(layout, "jump_qq_row")
-  ui.addTextView(layout, "jump_qq_note", "结束后通知QQ：")
+  make_account_setting_ui()
+
+  ui.newRow(layout, "jump_qq_row", -2, -2)
+  ui.addTextView(layout, "jump_qq_note", "结束后通知QQ")
   ui.addEditText(layout, "QQ", "")
   addButton(layout, "jump_qq_btn", "需加机器人好友", "jump_qq()")
 
-  ui.newRow(layout, "end_process_row")
+  ui.newRow(layout, "end_process_row", -2, -2)
   ui.addTextView(layout, "end_process_note", "结束后")
   ui.addCheckBox(layout, "end_closeapp", "关闭游戏")
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
   ui.addCheckBox(layout, "end_poweroff", "关机")
 
-  ui.newRow(layout, "note_row")
+  ui.newRow(layout, "note_row", -2, -2)
   ui.addTextView(layout, "note_text",
                  [[注意：异形屏适配设为0，开基建退出提示。关游戏模式，关深色/夜间模式，关隐藏刘海。音量键停止脚本。还有问题加群反馈。]])
 
-  ui.newRow(layout, "screeon_row")
-  addButton(layout, "multi_account", "多账号", "show_multi_account_ui()")
-  addButton(layout, "screeon", "亮屏解锁", "show_gesture_capture_ui()")
-  addButton(layout, "crontab", "定时执行", "show_crontab_ui()")
+  log(getScreen().width)
+  -- local max_checkbox_one_row = getScreen().width // 200
+  local max_checkbox_one_row = 3
+  local buttons = {
+    {"multi_account", "多账号", "show_multi_account_ui()"},
+    {"screeon", "亮屏解锁", "show_gesture_capture_ui()"},
+    {"crontab", "定时执行", "show_crontab_ui()"},
+    {"github", "源码", "jump_github()"},
+    {"qqgroup", "反馈群", "jump_qqgroup()"},
+    {"demo", "视频演示", "jump_bilibili()"},
+  }
+  for k, v in pairs(buttons) do
+    if k % max_checkbox_one_row == 1 then newRow(layout, "screenon_row" .. k) end
+    addButton(layout, v[1], v[2], v[3])
+  end
 
-  ui.newRow(layout, "demo_row")
-  addButton(layout, "github", "源码", "jump_github()")
-  addButton(layout, "qqgroup", "反馈群", "jump_qqgroup()")
-  addButton(layout, "demo", "视频演示", "jump_bilibili()")
+  newRow(layout, "bottom_row")
+  ui.addButton(layout, "stop", "退出")
+  ui.setBackground("stop", "#ff1976d2")
+  ui.addButton(layout, "start", "启动", 370)
+  ui.setBackground("start", "#ff0d47a1")
 
-  ui.newRow(layout, "bottom_row")
-  ui.addButton(layout,"start","启动",-1)
-  ui.setOnClick("start","start()")
+  ui.setOnClick("start", "start()")
 
   local config = getWorkPath() .. 'config.txt'
   if fileExist(config) then ui.loadProfile(config) end
