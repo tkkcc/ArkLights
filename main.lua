@@ -1,4 +1,4 @@
-predebug = true
+-- predebug = true
 -- fake_recruit = true
 -- during_crisis_contract =true
 -- disable_communication_check=true
@@ -29,9 +29,14 @@ default_findcolor_confidence = 95
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
 disable_hotupdate = true
-disable_root_mode = true
+-- disable_root_mode = true
 disable_game_up_check = true
 need_show_console = true
+ui_page_width = 670
+ui_submit_width = 560
+ui_small_submit_width = 370
+ui_submit_color="#ff0d47a1"
+ui_cancel_color="#ff1976d2"
 
 require('util')
 require("point")
@@ -50,7 +55,6 @@ end)
 hotUpdate()
 showControlBar(true)
 setControlBarPosNew(0, 1)
-clearLog()
 console.clearLog()
 console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
                round(screen.width, 0.9), round(screen.height, 0.9))
@@ -59,6 +63,7 @@ console.dismiss()
 
 -- 有root自动开无障碍
 if not disable_root_mode and pcall(exec, "su") then root_mode = true end
+log("root_mode",root_mode)
 if root_mode then
   local package = getPackageName()
   log("package", package)
@@ -83,7 +88,7 @@ if not isSnapshotServiceRun() then
 end
 
 -- auto switch 官服 and B服
-local appid_need_user_select = false
+appid_need_user_select = false
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 appid = oppid
@@ -99,7 +104,10 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and "官服" or "B服"
 
 if predebug then
-  jump_github()
+  gesture_capture()
+  -- catchClick()
+
+  -- jump_github()
   peaceExit()
 
   vibrate(100)
@@ -175,21 +183,22 @@ getPixelColor(0, 0)
 -- if nodeLib.findOne({text = "start now"}, false) then
 -- click(miui)
 
-ui.show(make_main_ui(), false)
-ssleep(600)
-
-for i, x in pairs(make_account_setting_ui()) do table.insert(ui.views, i, x) end
-
--- add server selection to ui
-if appid_need_user_select then
-  table.insert(ui.views, 1, {
-    type = 'div',
-    views = {
-      {type = 'text', value = '服务器'},
-      {type = "radio", value = "*官服|B服", ore = 1, id = "server"},
-    },
-  })
+if loadConfig("hideUIOnce", "false") ~= "false" then
+  setConfig("hideUIOnce", "false")
+else
+  local lockid = make_main_ui()
+  make_multi_account_ui()
+  make_crontab_ui()
+  make_gesture_capture_ui()
+  ui.show("main", false)
+  wait(function() return not lock:exist(lockid) end, 600)
+  ui.dismiss("main")
+  ui.dismiss("multi_account")
+  ui.dismiss("gesture_capture")
 end
+
+start()
+peaceExit()
 
 -- ui loop
 while true do

@@ -10,7 +10,16 @@ clickPoint = tap
 getDir = getWorkPath
 base64 = getFileBase64
 putClipboard = writePasteboard
-
+catchClick = function()
+  if not root_mode then stop(15) end
+  local result = exec("su -c 'getevent -l -c 4 -q'")
+  local xy = {}
+  for v in result:gmatch("POSITION..%s+([^%s]+)") do
+    table.insert(xy, tonumber(v, 16))
+  end
+  if #xy < 2 then return end
+  return {x = xy[1], y = xy[2]}
+end
 home = function() keyPress(3) end
 back = function() keyPress(4) end
 power = function() keyPress(26) end
@@ -18,6 +27,20 @@ getScreen = function()
   local width, height = getDisplaySize()
   return {width = width, height = height}
 end
+saveConfig = setStringConfig
+loadConfig = function(k, v)
+  v = v or ''
+  local y = getStringConfig(k)
+  if not y or #y == 0 then y = v end
+  return y
+end
+
+peaceExit = function()
+  need_show_console = false
+  exit()
+end
+
+start = function() end
 
 max = math.max
 min = math.min
@@ -66,7 +89,11 @@ end
 startsWithX = function(x) return
   function(prefix) return x:startsWith(prefix) end end
 
-string.lpad = function(str, len, char)
+string.padStart = function(str, len, char)
+  if char == nil then char = " " end
+  return string.rep(char, len - #str) .. str
+end
+string.padEnd = function(str, len, char)
   if char == nil then char = " " end
   return str .. string.rep(char, len - #str)
 end
@@ -140,7 +167,10 @@ table.includes = function(t, e)
   return table.any(t, function(x) return x == e end)
 end
 
-table.extend = function(t, e) for k, v in pairs(e) do table.insert(t, v) end end
+table.extend = function(t, e)
+  for k, v in pairs(e) do table.insert(t, v) end
+  return t
+end
 
 --  in = {
 --    "A" = {1,4,5,7},
@@ -1435,33 +1465,33 @@ now_job = {
   "任务收集",
 }
 
-make_account_setting_ui = function(prefix, layout)
+make_account_ui = function(prefix, layout)
   layout = layout or "main"
   prefix = prefix or ''
-  ui.newRow(layout, prefix .. "fight_row", -2, -2)
+  newRow(layout, prefix .. "fight_row")
   ui.addTextView(layout, prefix .. "fight_note", "作战")
   ui.addEditText(layout, prefix .. "fight_ui",
-                 [[当期委托x2 DQWTx2 龙门市区 LMSQ AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次 syc]])
+                 [[当期委托x2 DQWTx2 龙门市区x0 LMSQx0 AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次 syc]])
 
-  ui.newRow(layout, prefix .. "max_drug_row", -2, -2)
+  newRow(layout, prefix .. "max_drug_row")
   ui.addTextView(layout, prefix .. "max_drug_note", "最多吃")
   ui.addEditText(layout, prefix .. 'max_drug_times', "9999")
   ui.addTextView(layout, prefix .. "max_drug_note", "次药和")
   ui.addEditText(layout, prefix .. 'max_stone_times', "0")
   ui.addTextView(layout, prefix .. "max_drug_note", "次石头")
 
-  ui.newRow(layout, prefix .. "prefer_skill_row", -2, -2)
+  newRow(layout, prefix .. "prefer_skill_row")
   ui.addTextView(layout, prefix .. "prefer_skill_note", "换班优先")
   ui.addRadioGroup(layout, prefix .. "prefer_skill", {"工作状态", "技能"},
                    1, -2, -2, true)
 
-  ui.newRow(layout, prefix .. "shift_row", -2, -2)
+  newRow(layout, prefix .. "shift_row")
   ui.addTextView(layout, prefix .. "shift_note", "基建换班")
   ui.addCheckBox(layout, prefix .. "shift1", "宿舍", true)
   ui.addCheckBox(layout, prefix .. "shift2", "制造", true)
   ui.addCheckBox(layout, prefix .. "shift3", "总览", true)
 
-  ui.newRow(layout, prefix .. "auto_recruit_row", -2, -2)
+  newRow(layout, prefix .. "auto_recruit_row")
   ui.addTextView(layout, prefix .. "auto_recruit_note", "自动招募")
   ui.addCheckBox(layout, prefix .. "auto_recruit1", "小车", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit4", "4星", true)
@@ -1472,7 +1502,7 @@ make_account_setting_ui = function(prefix, layout)
   local max_checkbox_one_row = 3
   for k, v in pairs(all_job) do
     if k % max_checkbox_one_row == 1 then
-      newRow(layout, prefix .. "now_job_row" .. k)
+      newRow(layout, prefix .. "now_job_row" .. k, "center")
     end
     ui.addCheckBox(layout, prefix .. "now_job_ui" .. k, v,
                    table.includes(now_job, v))
@@ -1480,115 +1510,109 @@ make_account_setting_ui = function(prefix, layout)
   return layout
 end
 
-make_multi_account_setting_ui = function()
-  -- local inherit_setting_selection =
-  local ui = {
-    name = 'main',
-    title = "多账号",
-    submit = {type = "text", value = "保存"},
-    cancle = {type = "text", value = "退出"},
-    views = {
-      {
-        type = 'text',
-        value = '填入账密才有效。双服无账密模式至多执行前两个账号且不会重登，账密可不填。',
-      }, {
-        type = 'div',
-        views = {
-          {
-            type = 'check',
-            ore = 1,
-            value = '*多账号总开关|双服无账密|切换账号时关闭其他账号游戏',
-            id = 'multi_account|dual_server|multi_account_end_closeapp',
-          },
-        },
-      }, {
-        type = 'div',
-        views = {
-          {
-            ore = 1,
-            type = 'check',
-            value = table.join(map(function(i) return '*账号' .. i end,
-                                   range(1, 20)), '|'),
-            id = table.join(map(function(i)
-              return 'multi_account' .. i
-            end, range(1, 20)), '|'),
-          },
-        },
-      },
-    },
-  }
+make_multi_account_ui = function(layout, prefix)
+  layout = layout or "multi_account"
+  prefix = prefix or "multi_account"
+  local config = getWorkPath() .. '/config_' .. layout .. '.json'
+  ui.newLayout(layout, ui_page_width, -1)
+  ui.setTitleText(layout, "多账号")
+  newRow(layout, layout .. "note_row")
+  ui.addTextView(layout, "multi_account_note",
+                 [[填入账密才有效。双服无账密模式至多执行前两个账号且不会重登，账密可不填。]])
+  newRow(layout, "multi_account_row1")
+  ui.addCheckBox(layout, "multi_account", "多账号模式总开关", true)
+  ui.addCheckBox(layout, "dual_server", "双服无账密")
+  newRow(layout, "multi_account_row2")
+  ui.addCheckBox(layout, "multi_account_end_closeapp",
+                 "切换账号时关闭其他账号游戏", true)
+
+  newRow(layout, "multi_account_enable_row")
+  local max_checkbox_one_row = 4
+  for i = 1, 20 do
+    if i % max_checkbox_one_row == 1 then
+      newRow(layout, "multi_account_enable_row" .. i, "center")
+    end
+    -- from https://jkorpela.fi/chars/spaces.html
+    ui.addCheckBox(layout, "multi_account" .. i,
+    -- "账号" .. tostring(i):padEnd(2, '  '), true)
+                   "账号" .. tostring(i):padStart(2, '0'), true)
+  end
 
   for i = 1, 20 do
-    -- 基本设置
-    table.insert(ui.views, {
-      type = 'edit',
-      title = '账号' .. i,
-      id = 'username' .. i,
-      value = '',
-    })
-    table.insert(ui.views, {
-      type = 'edit',
-      title = '密码' .. i,
-      id = 'password' .. i,
-      value = '',
-      mode = 'password',
-    })
-    table.insert(ui.views, {
-      type = 'div',
-      views = {
-        {type = 'text', value = '服务器' .. i},
-        {type = 'radio', value = '*官服|B服', id = 'server' .. i, ore = 1},
-      },
-    })
-
+    local padi = tostring(i):padStart(2, '0')
+    newRow(layout, "multi_username_row" .. i)
+    ui.addTextView(layout, "username_note" .. i, "账号" .. padi)
+    ui.addEditText(layout, "username" .. i, "", -1)
+    newRow(layout, "multi_password_row" .. i)
+    ui.addTextView(layout, "password_note" .. i, "密码" .. padi)
+    ui.addEditText(layout, "password" .. i, "", -1)
+    newRow(layout, "multi_server_row" .. i)
+    ui.addTextView(layout, "server_note" .. i, "服务器" .. padi)
+    ui.addRadioGroup(layout, "server" .. i, {"官服", "B服"}, 0, -2, -2, true)
     -- 详细设置
-    if loadConfig("multi_account_new_setting" .. i, 0) == 0 then
-      table.insert(ui.views, {
-        type = 'div',
-        ore = 1,
-        views = {
-          {type = "text", value = "账号" .. i .. "使用"}, {
-            type = "spinner",
-            -- value = "默认" .. (i > 1 and "|" or '') ..
-            --   table.join(
-            --     map(function(j) return "账号" .. j end, range(1, i - 1)), '|'),
-            value = "默认|" ..
-              table.join(map(function(j) return "账号" .. j end, table.filter(
-                               range(1, 20), function(k)
-                  return k ~= i
-                end)), '|'),
-            id = "multi_account_inherit_setting" .. i,
-          }, {type = "text", value = "设置"}, {
-            type = "button",
-            value = "切换为独立设置",
-            title = '',
-            click = {thread = 0, name = "multi_account_new_setting" .. i},
-          },
-        },
-      })
+    -- if loadConfig("multi_account_new_setting" .. i, "false") == "false" then
+    newRow(layout, "multi_account_inherit_row" .. i)
+    ui.addTextView(layout, "multi_account_inherit_note" .. i,
+                   "账号" .. padi .. "使用")
+    -- ui.addTextView(layout, "multi_account_inherit_text" .. i,
+    --                "独立")
+    ui.addSpinner(layout, "multi_account_inherit_spinner" .. i, {}, 0)
+    ui.addTextView(layout, "multi_account_inherit_note2" .. i, "设置")
+    addButton(layout, "multi_account_inherit_toggle" .. i,
+              "切换为独立设置",
+              "multi_account_inherit_toggle(" .. i .. ")")
+    setNewRowGid("multi_account_user_row" .. i)
+    make_account_ui("multi_account_user" .. i, layout)
+    setNewRowGid()
+  end
+
+  local all_inherit_choice = map(function(j) return "账号" .. j end,
+                                 table.filter(range(1, 20),
+                                              function(k) return k ~= i end))
+  all_inherit_choice = table.extend({"默认"}, all_inherit_choice)
+  -- ui函数必须global
+  multi_account_inherit_toggle = function(i)
+    log(1490, i)
+    local btn = "multi_account_inherit_toggle" .. i
+    log(btn)
+    -- log(1491, ui.getText(btn))
+    -- log(1492)
+    if ui.getText(btn) == "切换为独立设置" then
+      ui.setText(btn, "切换为继承设置")
     else
-      table.insert(ui.views, {
-        type = 'div',
-        ore = 1,
-        views = {
-          {type = "text", value = "账号" .. i .. "使用独立"},
-          {type = "text", value = "设置"}, {
-            type = "button",
-            value = "切换为默认设置",
-            title = '',
-            click = {thread = 0, name = "multi_account_new_setting" .. i},
-          },
-        },
-      })
+      ui.setText(btn, "切换为独立设置")
+    end
+    multi_account_inherit_render(i)
+  end
 
-      for _, x in pairs(make_account_setting_ui("multi_account_user" .. i)) do
-        -- log(x)
-        table.insert(ui.views, x)
+  -- ui函数必须global
+  multi_account_inherit_render = function(start, stop)
+    local layout = "multi_account"
+    start = start or 1
+    stop = stop or start
+    for i = start, stop do
+      local btn = "multi_account_inherit_toggle" .. i
+      local gid = "multi_account_user_row" .. i
+      if ui.getText(btn) == "切换为独立设置" then
+        ui.setRowVisibleByGid(layout, gid, 8)
+        ui.setSpinner("multi_account_inherit_spinner" .. i, all_inherit_choice,
+                      0)
+      else
+        ui.setRowVisibleByGid(layout, gid, 0)
+        ui.setSpinner("multi_account_inherit_spinner" .. i, {"  独立  "}, 0)
       end
-
     end
   end
-  return ui
+
+  newRow(layout, layout .. "save_row", "center")
+  ui.addButton(layout, layout .. "start", "返回", ui_submit_width)
+  ui.setBackground(layout .. "start", ui_submit_color)
+  ui.setOnClick(layout .. "start", "ui.saveProfile([[" .. config ..
+                  "]]);ui.dismiss('multi_account')")
+  log("ui.saveProfile([[" .. config .. "]]);ui.dismiss('multi_account')")
+  ui.loadProfile(config)
+  multi_account_inherit_render(1, 20)
+  return layout
 end
 
 transfer_global_variable = function(prefix, save_prefix)
@@ -1669,7 +1693,7 @@ end
 -- }
 -- ans+='}'
 -- console.log(ans)
-hotUpdate = function()
+hotUpdate = function(sync)
   if disable_hotupdate then return end
   local api =
     'https://gitee.com/api/v5/repos/bilabila/arknights/branches/master'
@@ -1695,6 +1719,7 @@ hotUpdate = function()
     installLrPkg(newPath)
     return restartScript()
   end, api)
+  if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
 styleButton = function(layout)
@@ -1707,59 +1732,74 @@ addButton = function(layout, id, text, func, w, h)
   ui.setOnClick(id, func)
   -- styleButton(id)
 end
-newRow = function(layout, id, w, h)
-  ui.newRow(layout, id, w or -2, h or -2)
-  ui.setGravity(id, 17)
+
+setNewRowGid = function(gid) default_row_gid = gid end
+newRow = function(layout, id, align, w, h)
+  -- log(173,default_row_gid)
+  ui.newRow(layout, id, w or -2, h or -2, default_row_gid)
+  align = align or 'left'
+  if align == 'center' then ui.setGravity(id, 17) end
 end
 
 make_main_ui = function(layout)
   layout = layout or "main"
-  ui.newLayout(layout, 720 - 50, -1)
+  local config = getWorkPath() .. '/config_' .. layout .. '.json'
+  ui.newLayout(layout, ui_page_width, -1)
   ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate"))
 
-  make_account_setting_ui()
+  if appid_need_user_select then
+    newRow(layout, "server_row")
+    ui.addTextView(layout, "server_note", "服务器")
+    ui.addRadioGroup(layout, "server", {"官服", "B服"}, 0, -2, -2, true)
+  end
 
-  ui.newRow(layout, "jump_qq_row", -2, -2)
+  make_account_ui('', layout)
+
+  newRow(layout, "jump_qq_row")
   ui.addTextView(layout, "jump_qq_note", "结束后通知QQ")
   ui.addEditText(layout, "QQ", "")
   addButton(layout, "jump_qq_btn", "需加机器人好友", "jump_qq()")
 
-  ui.newRow(layout, "end_process_row", -2, -2)
+  newRow(layout, "end_process_row")
   ui.addTextView(layout, "end_process_note", "结束后")
   ui.addCheckBox(layout, "end_closeapp", "关闭游戏")
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
   ui.addCheckBox(layout, "end_poweroff", "关机")
 
-  ui.newRow(layout, "note_row", -2, -2)
+  newRow(layout, "note_row")
   ui.addTextView(layout, "note_text",
                  [[注意：异形屏适配设为0，开基建退出提示。关游戏模式，关深色/夜间模式，关隐藏刘海。音量键停止脚本。还有问题加群反馈。]])
 
-  log(getScreen().width)
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
   local buttons = {
-    {"multi_account", "多账号", "show_multi_account_ui()"},
-    {"screeon", "亮屏解锁", "show_gesture_capture_ui()"},
-    {"crontab", "定时执行", "show_crontab_ui()"},
+    {"multi_account", "多账号", "ui.show('multi_account',false)"},
+    {"screeon", "亮屏解锁", "home();ui.show('gesture_capture',false)"},
+    {"crontab", "定时执行", "ui.show('crontab',false)"},
     {"github", "源码", "jump_github()"},
     {"qqgroup", "反馈群", "jump_qqgroup()"},
     {"demo", "视频演示", "jump_bilibili()"},
   }
   for k, v in pairs(buttons) do
-    if k % max_checkbox_one_row == 1 then newRow(layout, "screenon_row" .. k) end
+    if k % max_checkbox_one_row == 1 then
+      newRow(layout, "screenon_row" .. k, "center")
+    end
     addButton(layout, v[1], v[2], v[3])
   end
 
-  newRow(layout, "bottom_row")
+  newRow(layout, "bottom_row", "center")
   ui.addButton(layout, "stop", "退出")
-  ui.setBackground("stop", "#ff1976d2")
-  ui.addButton(layout, "start", "启动", 370)
-  ui.setBackground("start", "#ff0d47a1")
+  ui.setBackground("stop", ui_cancel_color)
+  ui.setOnClick("stop", "ui.saveProfile('" .. config .. "');log('"..config.."');peaceExit()")
 
-  ui.setOnClick("start", "start()")
+  ui.addButton(layout, "start", "启动", ui_small_submit_width)
+  ui.setBackground("start", ui_submit_color)
+  local lockid = lock:add()
+  ui.setOnClick("start", "ui.saveProfile([[" .. config .. "]]);lock:remove(" ..
+                  lockid .. ")")
+  log(config)
 
-  local config = getWorkPath() .. 'config.txt'
-  if fileExist(config) then ui.loadProfile(config) end
+  ui.loadProfile(config)
 
   -- 后处理
   if not root_mode then
@@ -1767,7 +1807,7 @@ make_main_ui = function(layout)
     ui.setEnable("end_poweroff", false)
   end
 
-  return layout
+  return lockid
 end
 
 jump_qqgroup = function()
@@ -1815,113 +1855,81 @@ jump_github = function()
   peaceExit()
 end
 
-function show_gesture_capture_ui()
-  home()
-  local ui = {
-    name = 'main',
-    title = "停止录制",
-    views = {
-      {
-        type = 'div',
-        views = {
-          {
-            type = 'text',
-            value = [[有锁屏手势或密码的手机，在熄屏状态下运行脚本时，]] ..
-              [[脚本首先需要亮屏解锁（需root授权），关键点与解锁方式在本界面设置。另外xposed edge pro也可实现亮屏解锁。]],
-          },
-        },
-      }, {
-        type = 'div',
-        views = {
-          {type = "text", value = "1. 先阅读以下说明，再点击"}, {
-            type = 'button',
-            value = '开始录制',
-            click = {thread = 0, name = "capture_gesture"},
-          },
-        },
-      }, {
-        type = 'div',
-        views = {
-          {
-            type = "text",
-            value = "2. 点击 手势路径关键点 或 密码数字及确认键",
-          },
-        },
-      }, {
-        type = 'div',
-        views = {{type = "text", value = "3. 点击标题“停止录制”"}},
-      }, {
-        type = 'div',
-        views = {
-          {type = "text", value = "4. 选择解锁方式"},
-          {
-            type = 'radio',
-            value = '*手势|密码',
-            id = 'unlock_mode',
-            ore = 1,
-          },
-        },
-      }, {
-        type = 'div',
-        views = {
-          {
-            type = "text",
-            value = [[5. 点击“保存”回到脚本主界面，然后测试。
+make_gesture_capture_ui = function(layout)
+  layout = layout or "gesture_capture"
+  local config = getWorkPath() .. '/config_' .. layout .. '.json'
+  ui.newLayout(layout, ui_page_width, -1)
+  ui.setTitleText(layout, "亮屏解锁")
+  newRow(layout, layout .. "_row")
+  ui.addTextView(layout, layout .. "_note",
+                 [[录入解锁手势或密码，以便熄屏下自动解锁]])
 
-快速测试：脚本主界面按“启动”，然后手动熄屏，5秒内应观察到亮屏解锁现象。
+  newRow(layout, layout .. "_row1")
+  ui.addTextView(layout, layout .. "_note1",
+                 "1. 点击 开始录制，将观察到 熄屏+亮屏+上滑 现象")
+  newRow(layout, layout .. "_row2")
+  ui.addTextView(layout, layout .. "_note2",
+                 "2. 手势或密码界面 出现后，手动解锁")
+  newRow(layout, layout .. "_row3")
+  ui.addTextView(layout, layout .. "_note3",
+                 "3. 亮屏解锁界面 出现后，点击任意文字区域")
+  newRow(layout, layout .. "_row4")
+  ui.addTextView(layout, layout .. "_note4", "4. 选择解锁方式")
+  ui.addRadioGroup(layout, "unlock_mode", {"手势", "密码"}, 0, -2, -2, true)
+  newRow(layout, layout .. "_row5")
+  ui.addTextView(layout, layout .. "_note5",
+                 [[5. 点击 返回 回到脚本主界面，然后测试。
 
-完整测试：设置定时1分钟后运行脚本，然后手动熄屏，1分钟后可能观察到亮屏不解锁现象，再等1分钟后应观察到亮屏解锁现象。
-]],
-          },
-        },
-      },
-    },
-    submit = {type = "text", value = "保存"},
-    cancle = {type = "text", value = "退出"},
-  }
-  updateUI(ui)
+快速测试：脚本主界面点击 启动，然后手动熄屏，5秒内应观察到亮屏解锁现象。
+
+完整测试：定时1分钟后运行脚本，然后手动熄屏，1分钟内应观察到亮屏解锁现象。]])
+
+  newRow(layout, layout .. "save_row", "center")
+
+  ui.addButton(layout, layout .. "stop", "返回")
+  ui.setBackground(layout .. "stop", ui_cancel_color)
+  ui.setOnClick(layout .. "stop", "ui.saveProfile([[" .. config ..
+                  "]]);ui.dismiss('gesture_capture')")
+  ui.addButton(layout, layout .. "start", "开始录制", ui_small_submit_width)
+  ui.setBackground(layout .. "start", ui_submit_color)
+  ui.setOnClick(layout .. "start", "gesture_capture()")
+
+  ui.loadProfile(config)
 end
 
-function capture_gesture()
-  local title = R():text("停止录制")
-  if not appear(title) then stop("85") end
-  local bottom = findNode(title).rect.bottom
+gesture_capture = function()
+  screenoff()
+  disappear({text = "亮屏解锁"})
+  screenon()
 
   local finger = {}
-  for _ = 1, 20 do
+  wait(function()
     local p = catchClick()
-    if not p then break end
-    if p.y < bottom then break end
-    table.insert(finger, {p.x, p.y})
-  end
+    if findOne({text = "亮屏解锁"}) then return true end
+    if p then table.insert(finger, {p.x, p.y}) end
+  end, 30)
   saveConfig('unlock_gesture', JsonEncode(finger))
 end
 
-function show_multi_account_ui()
-  home()
-  updateUI(make_multi_account_setting_ui())
-end
-
-for i = 1, 20 do
-  _G["multi_account_new_setting" .. i] = function()
-    local newstate = 1 - loadConfig("multi_account_new_setting" .. i, 0)
-    if newstate == 0 then log(i, 194) end
-    saveConfig("multi_account_new_setting" .. i, newstate)
-    return show_multi_account_ui()
+make_crontab_ui = function(layout)
+  layout = layout or "crontab"
+  local config = getWorkPath() .. '/config_' .. layout .. '.json'
+  ui.newLayout(layout, ui_page_width, -1)
+  ui.setTitleText(layout, "定时执行")
+  newRow(layout, layout .. "_option_row")
+  ui.addCheckBox(layout, layout .. "_option", "定时执行总开关", true)
+  local max_checkbox_one_row = 4
+  local default_hour = {8, 16, 24}
+  for i = 1, 24 do
+    if i % max_checkbox_one_row == 1 then
+      newRow(layout, layout .. "_row" .. i, "center")
+    end
+    ui.addCheckBox(layout, layout .. i, tostring(i):padStart(2, '0') .. "点",
+                   table.includes(default_hour, i))
   end
+  newRow(layout, layout .. "_stop_row", "center")
+  ui.addButton(layout, layout .. "stop", "返回", ui_submit_width)
+  ui.setBackground(layout .. "stop", ui_submit_color)
+  ui.setOnClick(layout .. "stop", "ui.saveProfile([[" .. config ..
+                  "]]);ui.dismiss('" .. layout .. "')")
 end
-
-saveConfig = setStringConfig
-
-loadConfig = function(k, v)
-  v = v or ''
-  local y = getStringConfig(k)
-  if not y or #y == 0 then y = v end
-  return y
-end
-peaceExit = function()
-  need_show_console = false
-  exit()
-end
-
-start = function() end
