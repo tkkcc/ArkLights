@@ -5,7 +5,7 @@ exit = exitScript
 JsonDecode = jsonLib.decode
 JsonEncode = jsonLib.encode
 findNode = function(selector) return nodeLib.findOne(selector, true) end
-clickNode = nodeLib.click
+clickNode = function(x) nodeLib.click(x, true) end
 clickPoint = tap
 getDir = getWorkPath
 base64 = getFileBase64
@@ -25,6 +25,7 @@ back = function() keyPress(4) end
 power = function() keyPress(26) end
 getScreen = function()
   local width, height = getDisplaySize()
+  if getDisplayRotate() % 2 == 1 then width, height = height, width end
   return {width = width, height = height}
 end
 saveConfig = setStringConfig
@@ -39,8 +40,6 @@ peaceExit = function()
   need_show_console = false
   exit()
 end
-
-start = function() end
 
 max = math.max
 min = math.min
@@ -327,7 +326,7 @@ log = function(...)
   console.println(1, a)
 end
 
-open = function(retry) runApp(appid) end
+open = function() runApp(appid) end
 
 stop = function(msg)
   msg = msg or ''
@@ -358,10 +357,9 @@ findOne_last_time = 0
 findOne = function(x, confidence)
   if type(x) == "function" then return x() end
 
-  -- check foreground
   if (time() - findOne_last_time > 5000) then
-    wait_game_up()
     findOne_last_time = time()
+    wait_game_up()
   end
 
   local x0 = x
@@ -830,12 +828,12 @@ run = function(...)
     if type(arg[1]) == "function" then return arg[1]() end
     if type(arg[1]) == "table" then arg = arg[1] end
   end
-  menuConfig({x = 0, y = screen.height})
-  logConfig({
-    width = math.round(screen.height * .8),
-    height = math.round(screen.height * .8),
-    mode = 3,
-  })
+  -- menuConfig({x = 0, y = screen.height})
+  -- logConfig({
+  --   width = math.round(screen.height * .8),
+  --   height = math.round(screen.height * .8),
+  --   mode = 3,
+  -- })
   qqmessage = {' '}
   init_state()
 
@@ -844,7 +842,7 @@ run = function(...)
 
   wait_game_up()
   for _, v in ipairs(arg) do
-    menuConfig({x = 0, y = screen.height})
+    -- menuConfig({x = 0, y = screen.height})
     running = v
     if type(v) == 'function' then
       log(773)
@@ -892,7 +890,7 @@ appearTap = function(target, timeout, interval)
   if type(target) == 'string' or #target == 0 then target = {target} end
   target = appear(target, timeout, interval)
   if target then
-    log("apperTap: ", target)
+    -- log("apperTap: ", target)
     findTap(target)
     return true
   end
@@ -1020,7 +1018,7 @@ appear = function(target, timeout, interval, disappear)
   if not (type(target) == 'table' and #target > 0) then target = {target} end
   return wait(function()
     for _, v in pairs(target) do
-      log(type(v), #v, v, findNode(v))
+      -- log(type(v), #v, v, findNode(v))
       if disappear then
         if type(v) == "function" and not v() then
           return v
@@ -1047,37 +1045,48 @@ disappear = function(target, timeout, interval)
 end
 
 wait_game_up = function(retry)
+  log(1048)
   if disable_game_up_check then return end
   retry = retry or 0
   if retry > 10 then stop("不能启动游戏") end
-  local game = R():name(appid):path("/FrameLayout/View")
-  local bilibili_wrapper = R():name("com.hypergryph.arknights.bilibili"):path(
-                             "/FrameLayout/TextView")
-  local bilibili_login = R():id(
-                           "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login");
-  local bilibili_oneclicklogin = R():id(
-                                   "com.hypergryph.arknights.bilibili:id/tv_gsc_record_login")
-  local bilibili_ok = R():id("tv.danmaku.bili:id/ok")
+  local game = {
+    class = "android.view.View",
+    package = "com.hypergryph.arknights",
+  }
+  local bilibili_wrapper = {
+    class = "android.view.View",
+    package = "com.hypergryph.arknights",
+  }
+  local bilibili_login = {
+    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login",
+  }
+  local bilibili_oneclicklogin = {
+    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_record_login",
+  }
+  local bilibili_ok = {id = "tv.danmaku.bili:id/ok"}
 
-  local bilibili_account_login = R():id(
-                                   "com.hypergryph.arknights.bilibili:id/iv_gsc_account_login")
-  local bilibili_change = R():id(
-                            "com.hypergryph.arknights.bilibili:id/tv_gsc_record_login_change")
-  local bilibili_change2 = R():id(
-                             "com.hypergryph.arknights.bilibili:id/tv_gsc_wel_change")
-  local keyguard_indication = R():id(
-                                'com.android.systemui:id/keyguard_indication_area')
-  local keyguard_input = R():id('com.android.systemui:id/keyguard_host_view')
+  local bilibili_account_login = {
+    id = "com.hypergryph.arknights.bilibili:id/iv_gsc_account_login",
+  }
+  local bilibili_change = {
+    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_record_login_change",
+  }
+  local bilibili_change2 = {
+    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_wel_change",
+  }
+  local keyguard_indication = {
+    id = 'com.android.systemui:id/keyguard_indication_area',
+  }
+  local keyguard_input = {id = 'com.android.systemui:id/keyguard_host_view'}
 
-  local screen = getScreen()
-  if screen.width > screen.height and findNode(game) then return end
-  if change_account_mode and findNode(bilibili_login) then return end
+  if findOne(game) then return end
+  if change_account_mode and findOne(bilibili_login) then return end
 
   if appid == oppid then
     open()
     screenon()
     appear({game, keyguard_indication, keyguard_input}, 5)
-    menuConfig({x = 0, y = screen.height})
+    -- menuConfig({x = 0, y = screen.height})
   else
     log(961)
     if not appear({
@@ -1092,45 +1101,53 @@ wait_game_up = function(retry)
         bilibili_account_login, bilibili_change, bilibili_change2,
         keyguard_indication, keyguard_input,
       }, 5)
-      menuConfig({x = 0, y = screen.height})
+      -- menuConfig({x = 0, y = screen.height})
     elseif change_account_mode then
       if findNode(bilibili_login) then
         return
       elseif findNode(bilibili_change2) then
-        click(bilibili_change2)
+        tap(bilibili_change2)
         disappear(bilibili_change2)
       elseif findNode(bilibili_change) then
-        click(bilibili_change)
+        tap(bilibili_change)
         appear(bilibili_account_login)
       elseif findNode(bilibili_account_login) then
-        click(bilibili_account_login)
+        tap(bilibili_account_login)
         appear(bilibili_login)
       end
     elseif findNode(bilibili_account_login) then
-      click(bilibili_account_login)
+      tap(bilibili_account_login)
       appear(bilibili_login)
     elseif findNode(bilibili_login) then
-      local username_inputbox = R():id(
-                                  "com.hypergryph.arknights.bilibili:id/et_gsc_account");
-      local password_inputbox = R():id(
-                                  "com.hypergryph.arknights.bilibili:id/et_gsc_account_pwd");
-      -- appear({username_inputbox})
+      local username_inputbox = {
+        id = "com.hypergryph.arknights.bilibili:id/et_gsc_account",
+      }
+      local password_inputbox = {
+        id = "com.hypergryph.arknights.bilibili:id/et_gsc_account_pwd",
+      }
       input(username_inputbox, username)
       input(password_inputbox, password)
-      click(bilibili_login)
+      tap(bilibili_login)
       appear(game, 5)
     elseif findNode(bilibili_oneclicklogin) then
-      click(bilibili_oneclicklogin)
+      tap(bilibili_oneclicklogin)
       appear(bilibili_ok, 5)
     elseif findNode(bilibili_ok) then
-      click(bilibili_ok)
+      tap(bilibili_ok)
       appear(game, 5)
     elseif findNode(bilibili_wrapper) then
       retry = retry - 1
     end
   end
 
-  -- 亮屏解锁
+  check_screen_lock()
+
+  log("wait_game_up next", retry)
+  return wait_game_up(retry + 1)
+end
+
+-- 检查解锁界面
+check_screen_lock = function()
   if findNode(keyguard_indication) then
     if not wait(function()
       local node = findNode(keyguard_indication)
@@ -1148,9 +1165,6 @@ wait_game_up = function(retry)
     unlock(unlock_gesture, unlock_mode == '手势')
     if not disappear(keyguard_input) then stop("解锁失败1005") end
   end
-
-  log("wait_game_up next", retry)
-  return wait_game_up(retry + 1)
 end
 
 coming_hour = function(a, b, starttime)
@@ -1380,6 +1394,8 @@ end
 
 poweroff = function() if root_mode then exec("su -c 'reboot -p'") end end
 closeapp = function(package)
+  log("closeapp", package)
+  if not getAppInfo(package) then return end
   if root_mode then
     exec("su -c 'am force-stop " .. package .. "'")
   else
@@ -1388,8 +1404,25 @@ closeapp = function(package)
       uri = "package:" .. package,
     }
     runIntent(intent)
-    appearTap({{text = "*停止*"}, {text = "*结束*"}, {text = "*STOP*"}}, 3)
-    appearTap({{text = "*确*"}, {text = "*OK*"}}, 3)
+    log(intent)
+    local stop_node
+    stop_node = appear({
+      {text = "*停止*"}, {text = "*结束*"}, {text = "*STOP*"},
+    }, 10)
+    if not stop_node then return end
+    stop_node = findNode(stop_node)
+    if not stop_node or not stop_node.enabled then return back() end
+    tap(stop_node)
+
+    ok_node = nil
+    ok_node = appear({{text = "*确*"}, {text = "*OK*"}}, 5)
+    if not ok_node then return end
+    ok_node = findNode(ok_node)
+    if not ok_node or not ok_node.enabled then return back() end
+    tap(ok_node)
+    disappear(ok_node)
+    back()
+    disappear(stop_node)
   end
 end
 screenoff =
@@ -1398,7 +1431,7 @@ screenon = function()
   if root_mode then
     exec('su -c "input keyevent 224"')
   else
-    stop("无障碍亮屏未实现")
+    -- stop("无障碍亮屏未实现")
   end
 end
 
@@ -1465,34 +1498,34 @@ now_job = {
   "任务收集",
 }
 
-make_account_ui = function(prefix, layout)
+make_account_ui = function(layout, prefix)
   layout = layout or "main"
   prefix = prefix or ''
-  newRow(layout, prefix .. "fight_row")
-  ui.addTextView(layout, prefix .. "fight_note", "作战")
+  newRow(layout)
+  ui.addTextView(layout, nil, "作战")
   ui.addEditText(layout, prefix .. "fight_ui",
                  [[当期委托x2 DQWTx2 龙门市区x0 LMSQx0 AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次 syc]])
 
-  newRow(layout, prefix .. "max_drug_row")
-  ui.addTextView(layout, prefix .. "max_drug_note", "最多吃")
+  newRow(layout)
+  ui.addTextView(layout, nil, "最多吃")
   ui.addEditText(layout, prefix .. 'max_drug_times', "9999")
-  ui.addTextView(layout, prefix .. "max_drug_note", "次药和")
+  ui.addTextView(layout, nil, "次药和")
   ui.addEditText(layout, prefix .. 'max_stone_times', "0")
-  ui.addTextView(layout, prefix .. "max_drug_note", "次石头")
+  ui.addTextView(layout, nil, "次石头")
 
-  newRow(layout, prefix .. "prefer_skill_row")
-  ui.addTextView(layout, prefix .. "prefer_skill_note", "换班优先")
+  newRow(layout)
+  ui.addTextView(layout, nil, "换班优先")
   ui.addRadioGroup(layout, prefix .. "prefer_skill", {"工作状态", "技能"},
                    1, -2, -2, true)
 
-  newRow(layout, prefix .. "shift_row")
-  ui.addTextView(layout, prefix .. "shift_note", "基建换班")
+  newRow(layout)
+  ui.addTextView(layout, nil, "基建换班")
   ui.addCheckBox(layout, prefix .. "shift1", "宿舍", true)
   ui.addCheckBox(layout, prefix .. "shift2", "制造", true)
   ui.addCheckBox(layout, prefix .. "shift3", "总览", true)
 
-  newRow(layout, prefix .. "auto_recruit_row")
-  ui.addTextView(layout, prefix .. "auto_recruit_note", "自动招募")
+  newRow(layout)
+  ui.addTextView(layout, nil, "自动招募")
   ui.addCheckBox(layout, prefix .. "auto_recruit1", "小车", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit4", "4星", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit5", "5星", false)
@@ -1507,26 +1540,25 @@ make_account_ui = function(prefix, layout)
     ui.addCheckBox(layout, prefix .. "now_job_ui" .. k, v,
                    table.includes(now_job, v))
   end
-  return layout
 end
 
-make_multi_account_ui = function(layout, prefix)
-  layout = layout or "multi_account"
-  prefix = prefix or "multi_account"
+show_multi_account_ui = function()
+  local layout = "multi_account"
+  -- prefix = prefix or "multi_account"
   local config = getWorkPath() .. '/config_' .. layout .. '.json'
   ui.newLayout(layout, ui_page_width, -1)
   ui.setTitleText(layout, "多账号")
-  newRow(layout, layout .. "note_row")
-  ui.addTextView(layout, "multi_account_note",
+  newRow(layout)
+  ui.addTextView(layout, nil,
                  [[填入账密才有效。双服无账密模式至多执行前两个账号且不会重登，账密可不填。]])
-  newRow(layout, "multi_account_row1")
-  ui.addCheckBox(layout, "multi_account", "多账号模式总开关", true)
+  newRow(layout)
+  ui.addCheckBox(layout, "multi_account", "多账号总开关", true)
   ui.addCheckBox(layout, "dual_server", "双服无账密")
-  newRow(layout, "multi_account_row2")
+  newRow(layout)
   ui.addCheckBox(layout, "multi_account_end_closeapp",
                  "切换账号时关闭其他账号游戏", true)
 
-  newRow(layout, "multi_account_enable_row")
+  newRow(layout)
   local max_checkbox_one_row = 4
   for i = 1, 20 do
     if i % max_checkbox_one_row == 1 then
@@ -1540,41 +1572,36 @@ make_multi_account_ui = function(layout, prefix)
 
   for i = 1, 20 do
     local padi = tostring(i):padStart(2, '0')
-    newRow(layout, "multi_username_row" .. i)
-    ui.addTextView(layout, "username_note" .. i, "账号" .. padi)
+    newRow(layout)
+    ui.addTextView(layout, nil, "账号" .. padi)
     ui.addEditText(layout, "username" .. i, "", -1)
-    newRow(layout, "multi_password_row" .. i)
-    ui.addTextView(layout, "password_note" .. i, "密码" .. padi)
+    newRow(layout)
+    ui.addTextView(layout, nil, "密码" .. padi)
     ui.addEditText(layout, "password" .. i, "", -1)
-    newRow(layout, "multi_server_row" .. i)
-    ui.addTextView(layout, "server_note" .. i, "服务器" .. padi)
+    newRow(layout)
+    ui.addTextView(layout, nil, "服务器" .. padi)
     ui.addRadioGroup(layout, "server" .. i, {"官服", "B服"}, 0, -2, -2, true)
-    -- 详细设置
-    -- if loadConfig("multi_account_new_setting" .. i, "false") == "false" then
-    newRow(layout, "multi_account_inherit_row" .. i)
-    ui.addTextView(layout, "multi_account_inherit_note" .. i,
-                   "账号" .. padi .. "使用")
-    -- ui.addTextView(layout, "multi_account_inherit_text" .. i,
-    --                "独立")
+    newRow(layout)
+    ui.addTextView(layout, nil, "账号" .. padi .. "使用")
     ui.addSpinner(layout, "multi_account_inherit_spinner" .. i, {}, 0)
-    ui.addTextView(layout, "multi_account_inherit_note2" .. i, "设置")
+    ui.addTextView(layout, nil, "设置")
     addButton(layout, "multi_account_inherit_toggle" .. i,
               "切换为独立设置",
               "multi_account_inherit_toggle(" .. i .. ")")
     setNewRowGid("multi_account_user_row" .. i)
-    make_account_ui("multi_account_user" .. i, layout)
+    make_account_ui(layout, "multi_account_user" .. i)
     setNewRowGid()
   end
 
-  local all_inherit_choice = map(function(j) return "账号" .. j end,
-                                 table.filter(range(1, 20),
-                                              function(k) return k ~= i end))
+  local all_inherit_choice = map(function(j)
+    return "账号" .. tostring(j):padStart(2, '0')
+  end, table.filter(range(1, 20), function(k) return k ~= i end))
   all_inherit_choice = table.extend({"默认"}, all_inherit_choice)
   -- ui函数必须global
   multi_account_inherit_toggle = function(i)
-    log(1490, i)
+    -- log(1490, i)
     local btn = "multi_account_inherit_toggle" .. i
-    log(btn)
+    -- log(btn)
     -- log(1491, ui.getText(btn))
     -- log(1492)
     if ui.getText(btn) == "切换为独立设置" then
@@ -1604,15 +1631,13 @@ make_multi_account_ui = function(layout, prefix)
     end
   end
 
-  newRow(layout, layout .. "save_row", "center")
-  ui.addButton(layout, layout .. "start", "返回", ui_submit_width)
-  ui.setBackground(layout .. "start", ui_submit_color)
-  ui.setOnClick(layout .. "start", "ui.saveProfile([[" .. config ..
-                  "]]);ui.dismiss('multi_account')")
-  log("ui.saveProfile([[" .. config .. "]]);ui.dismiss('multi_account')")
+  newRow(layout, layout .. "_save_row", "center")
+  ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
+  ui.setBackground(layout .. "_start", ui_submit_color)
+  ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
   ui.loadProfile(config)
   multi_account_inherit_render(1, 20)
-  return layout
+  ui.show(layout, false)
 end
 
 transfer_global_variable = function(prefix, save_prefix)
@@ -1736,78 +1761,99 @@ end
 setNewRowGid = function(gid) default_row_gid = gid end
 newRow = function(layout, id, align, w, h)
   -- log(173,default_row_gid)
-  ui.newRow(layout, id, w or -2, h or -2, default_row_gid)
+  ui.newRow(layout, id or ' ', w or -2, h or -2, default_row_gid)
   align = align or 'left'
-  if align == 'center' then ui.setGravity(id, 17) end
+  if id and align == 'center' then ui.setGravity(id, 17) end
 end
 
-make_main_ui = function(layout)
-  layout = layout or "main"
-  local config = getWorkPath() .. '/config_' .. layout .. '.json'
+make_jump_ui_command = function(cur, next, extra)
+  local cmd = {
+    'log(ui.getData())',
+    "ui.saveProfile('" .. getWorkPath() .. "/config_" .. cur .. ".json')",
+    next and "show_" .. next .. "_ui()" or '', "ui.dismiss('" .. cur .. "');",
+    extra or '',
+  }
+  return table.join(cmd, ';')
+end
+
+show_main_ui = function()
+  local layout = "main"
   ui.newLayout(layout, ui_page_width, -1)
   ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate"))
 
   if appid_need_user_select then
-    newRow(layout, "server_row")
-    ui.addTextView(layout, "server_note", "服务器")
+    newRow(layout)
+    ui.addTextView(layout, nil, "服务器")
     ui.addRadioGroup(layout, "server", {"官服", "B服"}, 0, -2, -2, true)
   end
 
-  make_account_ui('', layout)
+  make_account_ui(layout)
 
-  newRow(layout, "jump_qq_row")
-  ui.addTextView(layout, "jump_qq_note", "结束后通知QQ")
+  newRow(layout)
+  ui.addTextView(layout, nil, "结束后通知QQ")
   ui.addEditText(layout, "QQ", "")
-  addButton(layout, "jump_qq_btn", "需加机器人好友", "jump_qq()")
+  addButton(layout, layout .. "jump_qq_btn", "需加机器人好友",
+            "jump_qq()")
 
-  newRow(layout, "end_process_row")
-  ui.addTextView(layout, "end_process_note", "结束后")
+  newRow(layout)
+  ui.addTextView(layout, nil, "结束后")
   ui.addCheckBox(layout, "end_closeapp", "关闭游戏")
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
   ui.addCheckBox(layout, "end_poweroff", "关机")
 
-  newRow(layout, "note_row")
-  ui.addTextView(layout, "note_text",
+  newRow(layout)
+  ui.addTextView(layout, nil,
                  [[注意：异形屏适配设为0，开基建退出提示。关游戏模式，关深色/夜间模式，关隐藏刘海。音量键停止脚本。还有问题加群反馈。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
   local buttons = {
-    {"multi_account", "多账号", "ui.show('multi_account',false)"},
-    {"screeon", "亮屏解锁", "home();ui.show('gesture_capture',false)"},
-    {"crontab", "定时执行", "ui.show('crontab',false)"},
-    {"github", "源码", "jump_github()"},
-    {"qqgroup", "反馈群", "jump_qqgroup()"},
-    {"demo", "视频演示", "jump_bilibili()"},
+    {
+      layout .. "multi_account", "多账号",
+      make_jump_ui_command(layout, 'multi_account'),
+    }, {
+      layout .. "screenon", "亮屏解锁",
+      make_jump_ui_command(layout, 'gesture_capture'),
+    },
+    {
+      layout .. "crontab", "定时执行",
+      make_jump_ui_command(layout, 'crontab'),
+    }, {
+      layout .. "github", "源码",
+      make_jump_ui_command(layout, nil, "jump_github()"),
+    }, {
+      layout .. "qqgroup", "反馈群",
+      make_jump_ui_command(layout, nil, "jump_qqgroup()"),
+    }, {
+      layout .. "demo", "视频演示",
+      make_jump_ui_command(layout, nil, "jump_bilibili()"),
+    },
   }
   for k, v in pairs(buttons) do
     if k % max_checkbox_one_row == 1 then
-      newRow(layout, "screenon_row" .. k, "center")
+      newRow(layout, layout .. "screenon_row" .. k, "center")
     end
     addButton(layout, v[1], v[2], v[3])
   end
 
-  newRow(layout, "bottom_row", "center")
-  ui.addButton(layout, "stop", "退出")
-  ui.setBackground("stop", ui_cancel_color)
-  ui.setOnClick("stop", "ui.saveProfile('" .. config .. "');log('"..config.."');peaceExit()")
+  newRow(layout, layout .. "bottom_row", "center")
+  addButton(layout, layout .. "_stop", "退出",
+            make_jump_ui_command(layout, nil, "peaceExit()"))
+  ui.setBackground(layout .. "_stop", ui_cancel_color)
+  log(make_jump_ui_command(layout, nil, "peaceExit()"))
 
-  ui.addButton(layout, "start", "启动", ui_small_submit_width)
-  ui.setBackground("start", ui_submit_color)
-  local lockid = lock:add()
-  ui.setOnClick("start", "ui.saveProfile([[" .. config .. "]]);lock:remove(" ..
-                  lockid .. ")")
-  log(config)
+  addButton(layout, layout .. "_start", "启动",
+            make_jump_ui_command(layout, nil, "lock:remove(main_ui_lock)"),
+            ui_small_submit_width)
+  ui.setBackground(layout .. "_start", ui_submit_color)
 
-  ui.loadProfile(config)
-
+  ui.loadProfile(getWorkPath() .. '/config_' .. layout .. '.json')
   -- 后处理
   if not root_mode then
     ui.setEnable("end_screenoff", false)
     ui.setEnable("end_poweroff", false)
   end
-
-  return lockid
+  ui.show(layout, false)
 end
 
 jump_qqgroup = function()
@@ -1855,68 +1901,75 @@ jump_github = function()
   peaceExit()
 end
 
-make_gesture_capture_ui = function(layout)
-  layout = layout or "gesture_capture"
-  local config = getWorkPath() .. '/config_' .. layout .. '.json'
+show_gesture_capture_ui = function()
+  local layout = "gesture_capture"
   ui.newLayout(layout, ui_page_width, -1)
-  ui.setTitleText(layout, "亮屏解锁")
-  newRow(layout, layout .. "_row")
-  ui.addTextView(layout, layout .. "_note",
+  ui.setTitleText(layout, (root_mode and '亮屏解锁' or
+                    " 当前无root权限，无法使用"))
+  newRow(layout)
+  ui.addTextView(layout, nil,
                  [[录入解锁手势或密码，以便熄屏下自动解锁]])
 
-  newRow(layout, layout .. "_row1")
-  ui.addTextView(layout, layout .. "_note1",
+  newRow(layout)
+  ui.addTextView(layout, nil,
                  "1. 点击 开始录制，将观察到 熄屏+亮屏+上滑 现象")
-  newRow(layout, layout .. "_row2")
-  ui.addTextView(layout, layout .. "_note2",
+  newRow(layout)
+  ui.addTextView(layout, nil,
                  "2. 手势或密码界面 出现后，手动解锁")
-  newRow(layout, layout .. "_row3")
-  ui.addTextView(layout, layout .. "_note3",
+  newRow(layout)
+  ui.addTextView(layout, nil,
                  "3. 亮屏解锁界面 出现后，点击任意文字区域")
-  newRow(layout, layout .. "_row4")
-  ui.addTextView(layout, layout .. "_note4", "4. 选择解锁方式")
+  newRow(layout)
+  ui.addTextView(layout, nil, "4. 选择解锁方式")
   ui.addRadioGroup(layout, "unlock_mode", {"手势", "密码"}, 0, -2, -2, true)
-  newRow(layout, layout .. "_row5")
-  ui.addTextView(layout, layout .. "_note5",
-                 [[5. 点击 返回 回到脚本主界面，然后测试。
+  newRow(layout)
+  ui.addTextView(layout, nil,
+                 [[5. 快速测试：启动脚本后，手动熄屏，5秒内应观察到亮屏解锁现象。]])
+  newRow(layout)
+  ui.addTextView(layout, nil, "当前手势：")
+  ui.addTextView(layout, "unlock_gesture", "{}")
 
-快速测试：脚本主界面点击 启动，然后手动熄屏，5秒内应观察到亮屏解锁现象。
+  newRow(layout, layout .. "_save_row", "center")
 
-完整测试：定时1分钟后运行脚本，然后手动熄屏，1分钟内应观察到亮屏解锁现象。]])
+  ui.addButton(layout, layout .. "_stop", "返回")
+  ui.setBackground(layout .. "_stop", ui_cancel_color)
+  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+  ui.addButton(layout, layout .. "_start", "开始录制", ui_small_submit_width)
+  ui.setBackground(layout .. "_start", ui_submit_color)
+  ui.setOnClick(layout .. "_start", "gesture_capture()")
 
-  newRow(layout, layout .. "save_row", "center")
-
-  ui.addButton(layout, layout .. "stop", "返回")
-  ui.setBackground(layout .. "stop", ui_cancel_color)
-  ui.setOnClick(layout .. "stop", "ui.saveProfile([[" .. config ..
-                  "]]);ui.dismiss('gesture_capture')")
-  ui.addButton(layout, layout .. "start", "开始录制", ui_small_submit_width)
-  ui.setBackground(layout .. "start", ui_submit_color)
-  ui.setOnClick(layout .. "start", "gesture_capture()")
-
+  local config = getWorkPath() .. '/config_' .. layout .. '.json'
   ui.loadProfile(config)
+  ui.show(layout, false)
 end
 
 gesture_capture = function()
+  local finger = JsonDecode(ui.getText("unlock_gesture"))
   screenoff()
   disappear({text = "亮屏解锁"})
   screenon()
 
-  local finger = {}
+  local keyguard_indication = {
+    id = 'com.android.systemui:id/keyguard_indication_area',
+  }
+  local keyguard_input = {id = 'com.android.systemui:id/keyguard_host_view'}
+  if not appear({{text = "亮屏解锁"}, keyguard_indication, keyguard_input},
+                5) then stop("未找到解锁界面") end
   wait(function()
     local p = catchClick()
     if findOne({text = "亮屏解锁"}) then return true end
-    if p then table.insert(finger, {p.x, p.y}) end
+    if p then
+      table.insert(finger, {p.x, p.y})
+      ui.setText("unlock_gesture")
+    end
   end, 30)
-  saveConfig('unlock_gesture', JsonEncode(finger))
 end
 
-make_crontab_ui = function(layout)
-  layout = layout or "crontab"
-  local config = getWorkPath() .. '/config_' .. layout .. '.json'
+show_crontab_ui = function()
+  local layout = "crontab"
   ui.newLayout(layout, ui_page_width, -1)
   ui.setTitleText(layout, "定时执行")
-  newRow(layout, layout .. "_option_row")
+  newRow(layout)
   ui.addCheckBox(layout, layout .. "_option", "定时执行总开关", true)
   local max_checkbox_one_row = 4
   local default_hour = {8, 16, 24}
@@ -1928,8 +1981,46 @@ make_crontab_ui = function(layout)
                    table.includes(default_hour, i))
   end
   newRow(layout, layout .. "_stop_row", "center")
-  ui.addButton(layout, layout .. "stop", "返回", ui_submit_width)
-  ui.setBackground(layout .. "stop", ui_submit_color)
-  ui.setOnClick(layout .. "stop", "ui.saveProfile([[" .. config ..
-                  "]]);ui.dismiss('" .. layout .. "')")
+  ui.addButton(layout, layout .. "_stop", "返回", ui_submit_width)
+  ui.setBackground(layout .. "_stop", ui_submit_color)
+  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+
+  ui.loadProfile(getWorkPath() .. '/config_' .. layout .. '.json')
+  ui.show(layout, false)
 end
+
+assignGlobalVariable = function(t)
+  for k, v in pairs(t) do
+    -- if string.find(k,"spinner" ) then
+    -- log(k, v,type(v))
+    -- end
+    if _G[k] then log("_G[k] exist", k, v) end
+    _G[k] = v
+  end
+end
+
+loadUIConfig = function()
+  for _, config in
+    pairs({"main", "crontab", "multi_account", "gesture_capture"}) do
+    config = getWorkPath() .. '/config_' .. config .. '.json'
+    -- log(config)
+    if fileExist(config) then
+      io.input(config)
+      assignGlobalVariable(JsonDecode(io.read() or '{}'))
+    end
+  end
+end
+
+getAppInfo = function(package)
+  local all_apps = getInstalledApps()
+  return table.findv(all_apps, function(x) return x.pkg == package end)
+end
+
+-- randomString(length)
+--   length=length or 8
+-- 	local res = ""
+-- 	for i = 1, length do
+-- 		res = res .. string.char(math.random(97, 122))
+-- 	end
+-- 	return res
+-- end

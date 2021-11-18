@@ -1,4 +1,4 @@
--- predebug = true
+predebug = true
 -- fake_recruit = true
 -- during_crisis_contract =true
 -- disable_communication_check=true
@@ -22,7 +22,7 @@ check_after_tap = true
 -- prefer_bapp = true
 -- prefer_bapp_on_android7 = true
 -- debug0721 = true
--- no_background_after_run = true
+no_background_after_run = true
 -- longest_tag = true
 -- very_slow_state_check = true
 default_findcolor_confidence = 95
@@ -30,13 +30,13 @@ default_findcolor_confidence = 95
 -- default_max_stone_times = 0
 disable_hotupdate = true
 -- disable_root_mode = true
-disable_game_up_check = true
+-- disable_game_up_check = true
 need_show_console = true
 ui_page_width = 670
 ui_submit_width = 560
 ui_small_submit_width = 370
-ui_submit_color="#ff0d47a1"
-ui_cancel_color="#ff1976d2"
+ui_submit_color = "#ff0d47a1"
+ui_cancel_color = "#ff1976d2"
 
 require('util')
 require("point")
@@ -63,7 +63,7 @@ console.dismiss()
 
 -- 有root自动开无障碍
 if not disable_root_mode and pcall(exec, "su") then root_mode = true end
-log("root_mode",root_mode)
+log("root_mode", root_mode)
 if root_mode then
   local package = getPackageName()
   log("package", package)
@@ -95,20 +95,31 @@ appid = oppid
 
 if prefer_bapp then appid = bppid end
 if prefer_bapp_on_android7 and android_verison_code < 30 then appid = bppid end
-local all_apps = getInstalledApps()
-local app_info = table.findv(all_apps, function(x) return x.pkg == appid end)
-local bpp_info = table.findv(all_apps, function(x) return x.pkg == bppid end)
+local app_info = getAppInfo(appid)
+local bpp_info = getAppInfo(bppid)
 if not app_info and not bpp_info then stop("未安装明日方舟官服或B服") end
 if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
-server = appid == oppid and "官服" or "B服"
+server = appid == oppid and 0 or 1
 
 if predebug then
-  gesture_capture()
+  local game = {
+    class = "android.view.View",
+    package = "com.hypergryph.arknights",
+  }
+  log(findOne(game))
+
+  -- start黄框 =
+  --   "958|985|FFD802,995|1021|FFD802,958|1057|FFD802,924|1021|FFD802,958|1011|FFD802"
+
+  log(113, cmpColorEx("1092|688|000000,1158|694|000000",0.9))
+
+  exit()
+  -- gesture_capture()
   -- catchClick()
 
   -- jump_github()
-  peaceExit()
+  -- peaceExit()
 
   vibrate(100)
   playAudio('/system/media/audio/ui/Effect_Tick.ogg')
@@ -176,7 +187,7 @@ if predebug then
   exit()
 end
 
--- 无障碍图色权限获取？
+-- TODO 无障碍图色权限获取？
 getPixelColor(0, 0)
 -- local miui = R():text("立即开始|start now"):type("Button")
 -- findColor({0, 0, 1, 1, "0,0,#000000"})
@@ -184,43 +195,23 @@ getPixelColor(0, 0)
 -- click(miui)
 
 if loadConfig("hideUIOnce", "false") ~= "false" then
-  setConfig("hideUIOnce", "false")
+  saveConfig("hideUIOnce", "false")
 else
-  local lockid = make_main_ui()
-  make_multi_account_ui()
-  make_crontab_ui()
-  make_gesture_capture_ui()
-  ui.show("main", false)
-  wait(function() return not lock:exist(lockid) end, 600)
-  ui.dismiss("main")
-  ui.dismiss("multi_account")
-  ui.dismiss("gesture_capture")
+  main_ui_lock = lock:add()
+  show_main_ui()
+  wait(function() return not lock:exist(main_ui_lock) end, 600)
 end
 
-start()
-peaceExit()
-
--- ui loop
-while true do
-  home()
-  local ret = show(ui)
-  if not ret then exit() end
-  if not unlock_mode and not server1 then break end
-  if unlock_mode then
-    saveConfig('unlock_mode', JsonEncode(unlock_mode))
-    unlock_mode = nil
-  end
-  if server1 then server1 = nil end
-  log(168, ret)
-end
+-- start
+loadUIConfig()
 
 update_state_from_ui = function()
-  prefer_skill = prefer_skill == "技能"
+  prefer_skill = prefer_skill == 1
   drug_times = 0
   max_drug_times = tonumber(max_drug_times)
   stone_times = 0
   max_stone_times = tonumber(max_stone_times)
-  appid = server == "官服" and oppid or bppid
+  appid = server == 0 and oppid or bppid
   job = parse_from_ui("now_job_ui", all_job)
 
   fight = string.map(fight_ui, {
@@ -269,6 +260,7 @@ update_state_from_ui = function()
   startup_time = parse_time()
   facility2operator = {}
   facility2nexthour = {}
+
   for _, v in pairs(string.split(dorm, '\n')) do
     v = string.split(v)
     if #v > 3 then
@@ -335,28 +327,18 @@ if test_fight then
   exit()
 end
 
-if test_some then exit() end
-
--- 多账号模式 load by builtin ui, tricky
-ui = make_multi_account_setting_ui()
-ui.cache = true
-ui.time = 1
-ui.width = 1
-ui.height = 1
-show(ui)
-
 local no_valid_account = true
-
 transfer_global_variable("multi_account_user1", "multi_account_user0")
 
 local apply_multi_account_setting
 apply_multi_account_setting = function(i, visited)
   visited = visited or {}
   table.insert(visited, i)
-  if loadConfig("multi_account_new_setting" .. i, "0") == "0" then
-    local inherit = _G["multi_account_inherit_setting" .. i]
-    local j = tonumber(string.sub(inherit, #"账号" + 1))
-    if inherit == "默认" or table.includes(visited, j) then
+  -- if loadConfig("multi_account_new_setting" .. i, "0") == "0" then
+  if _G["multi_account_inherit_toggle" .. i] == "切换为继承设置" then
+    local inherit = _G["multi_account_inherit_spinner" .. i]
+    local j = math.floor(inherit)
+    if inherit == 0 or table.includes(visited, j) then
       transfer_global_variable("multi_account_user0")
     else
       apply_multi_account_setting(j, visited)
@@ -391,11 +373,12 @@ if no_valid_account then
 end
 
 -- 全部结束后
-if not no_background_after_run then home() end
+log("end_closeapp", end_closeapp)
 if end_closeapp then
   closeapp(oppid)
   closeapp(bppid)
 end
+if not no_background_after_run then home() end
 if end_screenoff then screenoff() end
 if end_poweroff then poweroff() end
 
@@ -406,4 +389,20 @@ wait(function() return lock.length == 0 end, 30)
 vibrate(100)
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)
-peaceExit()
+
+-- 定时执行逻辑：如果到点但脚本还在run则跳过，run中重启可能出现异常
+if crontab then
+  local next_hour
+  for i = tonumber(os.data("%H")) + 1, 24 do
+    if _G['crontab' .. i] then
+      next_hour = i
+      break
+    end
+  end
+  toast("下次执行时间：" .. next_hour .. "点")
+  ssleep(max(0, update(os.time(), {hour = next_hour}) - os.time()))
+  setConfig("hideUIOnce", "true")
+  restartScript()
+else
+  peaceExit()
+end

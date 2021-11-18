@@ -20,7 +20,7 @@ path.base = {
       end, 5) then return end
       if not appear(inputbox) or not appear(ok) then stop("登录失败") end
       input(inputbox, username)
-      click(ok)
+      tap(ok)
       if not appear("手机验证码登录") then stop("登录失败") end
     end
     if #password > 0 then
@@ -32,7 +32,7 @@ path.base = {
       end, 5) then return end
       if not appear(inputbox) or not appear(ok) then stop("登录失败") end
       input(inputbox, password)
-      click(ok)
+      tap(ok)
       if not appear("手机验证码登录") then stop("登录失败") end
     end
     if not wait(function()
@@ -2404,8 +2404,8 @@ end
 
 path.退出账号 = function()
   change_account_mode = true
-  local bilibili_login = R():id(
-                           "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login");
+  local bilibili_login = {id=
+                           "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login"}
   auto(update(path.base, {
     [function() return findNode(bilibili_login) end] = true,
     面板 = function()
