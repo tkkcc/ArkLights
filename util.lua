@@ -1,5 +1,9 @@
 print('util')
 -- transfer 节点精灵 to 懒人精灵
+getColor = function(x, y)
+  local bgr = getPixelColor(x, y):upper()
+  return bgr:sub(7, 8) .. bgr:sub(5, 6) .. bgr:sub(3, 4)
+end
 time = systemTime
 exit = exitScript
 JsonDecode = jsonLib.decode
@@ -7,6 +11,15 @@ JsonEncode = jsonLib.encode
 findNode = function(selector) return nodeLib.findOne(selector, true) end
 clickNode = function(x) nodeLib.click(x, true) end
 clickPoint = tap
+clickPoint = function(x, y)
+  local gesture = Gesture:new()
+  local path = Path:new()
+  path:setStartTime(0)
+  path:setDurTime(1)
+  path:addPoint(x, y)
+  gesture:addPath(path)
+  gesture:dispatch()
+end
 getDir = getWorkPath
 base64 = getFileBase64
 putClipboard = writePasteboard
@@ -304,6 +317,7 @@ removeFuncHash =
 
 table2string = function(t)
   if type(t) == 'table' then
+    if not pretty_print_table then return 'table' end
     return JsonEncode(t)
     --    if #t == 0 then
     --    else
@@ -317,13 +331,15 @@ end
 log = function(...)
   if disable_log then return end
   local arg = {...}
-  local l = {map(tostring, running, ' ', table.unpack(map(table2string, arg)))}
-  l = map(removeFuncHash, l)
-  l = map(table2string, l)
+
+  -- local l = {map(tostring, running, ' ', table.unpack(map(table2string, arg)))}
+  -- l = map(removeFuncHash, l)
+  -- l = map(table2string, l)
+
   local a = os.date('%Y.%m.%d %H:%M:%S')
-  for _, v in pairs(l) do a = a .. ' ' .. v end
-  print(a)
-  console.println(1, a)
+  -- for _, v in pairs(l) do a = a .. ' ' .. v end
+  print(a, running, table.unpack(arg))
+  console.println(1, a, running, table.unpack(arg))
 end
 
 open = function() runApp(appid) end
@@ -371,15 +387,18 @@ findOne = function(x, confidence)
   if type(x) == "table" and #x > 0 then return x end
   if type(x) == "string" then
     local pos
+    log(x0, rfl[x0], x, confidence)
     if rfl[x0] then
-      pos = findColorAbsolute(x, confidence)
+      if cmpColorEx(x, confidence) == 1 then pos = first_point[x0] end
     else
+      stop(x0 .. 377)
       local color = shallowCopy(rfg[x0])
       table.extend(color, {x, confidence})
       log(color)
       pos = findColor(color, confidence)
     end
-    if pos then return {pos.x, pos.y} end
+    return pos
+    -- if pos then return {pos.x, pos.y} end
   end
 end
 
@@ -427,14 +446,15 @@ tap = function(x, retry, allow_outside_game)
     clickNode(x)
   end
 
-  -- TODO 这个sleep的作用是两次gesture间隔太短被判定为长按
-  -- sleep(2)
-
+  -- local start_time = time()
   if not unsafe_tap and not allow_outside_game and check_after_tap then
     wait_game_up()
   end
 
-  -- log(399)
+  -- 这个sleep的作用是两次gesture间隔太短被判定为长按，游戏界面会无反应
+  -- 所以click后需要等一会儿
+  -- sleep(max(milesecond_after_click + start_time - time(), 0))
+
   if retry then return end
 
   -- 返回"面板"后易触发数据更新,导致操作失效
@@ -446,88 +466,24 @@ tap = function(x, retry, allow_outside_game)
       log(352)
     end, 10)
   end
-  -- log(375)
 end
 
--- quick multiple swip, for fights
--- input distance => {x,y,x',y',time} / list of them
-swipq = function(dis, disable_end_sleep, duration)
-  log("swipq", dis)
-  wait_game_up()
-  duration = duration or 400
-  if type(dis) == "string" then dis = distance[dis] end
-  if not dis then return end
-  if type(dis) ~= "table" then dis = {dis} end
-  log("367", dis)
-  for idx, x in ipairs(dis) do
-    if type(x) == 'number' then
-      local left_boundary = math.round(100 * minscale)
-      local right_boundary = math.round((1620 - 1920) * minscale + screen.width)
-      local height = screen.height // 2
-      if x == 0 then -- special wait sign
-        ssleep(.4)
-      elseif x == 1 then -- special quit sign
-        return
-      elseif x > 0 then -- magick distance map from xxzhushou to nspirit
-        log(left_boundary, height, min(right_boundary, left_boundary + x * 2),
-            right_boundary, duration)
-        slid(left_boundary, height, min(right_boundary, left_boundary + x * 2),
-             right_boundary, duration)
-      elseif x < 0 then
-        log(right_boundary, height, max(left_boundary, right_boundary + x * 2),
-            height, duration)
-        slid(right_boundary, height, max(left_boundary, right_boundary + x * 2),
-             height, duration)
-      end
-    elseif type(x) == 'table' then
-      log(x)
-      slid(table.unpack(x))
-    else
-      stop(413)
-    end
-    if not (disable_end_sleep and idx == #dis) then ssleep(.4) end
-  end
+-- simple swip for 资源收集
+swipq = function(direction)
+  local finger = {
+    point = {
+      {screen.width // 2, screen.height // 2},
+      {direction == 'right' and (screen.width - 1) or 0, screen.height // 2},
+    },
+    duration = 500,
+  }
+  gesture(finger)
+  sleep(finger.duration + 50)
 end
 
--- swip to end
-swipe = function(x)
-  log("swipe", x)
-  -- wait_game_up()
-  local duration = 150
-  -- if is_device_need_slow_swipe then duration = duration * 2 end
-
-  local x1 = screen.width - math.round(300 * minscale) * 2
-  local d = x == "right" and x1 or -x1
-  if d == x1 then x1 = math.round(300 * minscale) end
-  local y1 = math.round(128 * minscale)
-  local x2 = math.round(x1 + d)
-  slid(x1, y1, x2, y1, duration)
-  sleep(50)
-  slid(x1, y1, x2, y1, duration)
-  sleep(50)
-  slid(x1, y1, x2, y1, duration)
-  sleep(50)
-  slid(x1, y1, x2, y1, duration)
-  sleep(50)
-end
-
--- 安卓8以下的滑动用双指
-android_verison_code = tonumber(getSdkVersion())
-if android_verison_code < 24 then stop("安卓版本7以下不可用") end
-if android_verison_code < 26 then
-  is_device_swipe_too_fast = true
-else
-  is_device_swipe_too_fast = false
-end
-
--- 华为手机需要慢速滑动
-is_device_need_slow_swipe = true
-
--- universal multiple swip, for fights
--- input distance => {x,y,x',y',time} / list of them
+-- quick swip for fight
 swipu = function(dis)
   log('swipu', dis)
-  -- wait_game_up()
   -- preprocess distance
   if type(dis) == "string" then dis = distance[dis] end
   if type(dis) ~= "table" then dis = {dis} end
@@ -536,67 +492,101 @@ swipu = function(dis)
   -- flatten to one depth
   -- local max_once_dis = 1080
   local max_once_dis = screen.width - math.round(300 * minscale)
-  local disf = {}
   for _, d in pairs(dis) do
     local sign = d > 0 and 1 or -1
-    d = math.abs(d)
-    while d > 0 do
-      if d > max_once_dis then
-        table.insert(disf, sign * max_once_dis)
+    if math.abs(d) == swip_right_max then
+      swipe(sign > 0 and "right" or "left")
+    else
+      -- 只实现了右移
+      if sign > 0 then stop(141) end
+
+      local finger = {
+        {
+          point = {{0, math.round(150 * minscale)}, {0, screen.height - 1}},
+          start = 0,
+          duration = 0,
+        },
+      }
+      local start = 0
+      local duration = 150
+      local interval = 50
+      local end_delay = 50
+      d = math.abs(d)
+      while d > 0 do
+        if d > max_once_dis then
+          table.insert(finger, {
+            point = {{max_once_dis, math.round(150 * minscale)}},
+            start = start,
+            duration = duration,
+          })
+        else
+          table.insert(finger, {
+            point = {{d, math.round(150 * minscale)}},
+            start = start,
+            duration = duration,
+          })
+        end
         d = d - max_once_dis
-      else
-        table.insert(disf, sign * d)
-        d = 0
+        start = start + duration + interval
+        log(finger[#finger])
       end
+      local last_finger = finger[#finger]
+      finger[1].duration = last_finger.start + last_finger.duration + end_delay
+      gesture(finger)
+      sleep(finger[1].duration + 50)
     end
-  end
-
-  -- do swip
-  for _, d in pairs(disf) do
-    local duration = 200
-    local delay = 50
-    if is_device_need_slow_swipe then
-      duration = duration * 2
-      delay = delay * 2
-    end
-    local x1 = screen.width - math.round(300 * minscale)
-    if d > 0 then x1 = math.round(300 * minscale) end
-    local y1 = math.round(128 * minscale)
-    local x2 = math.round(x1 + d)
-    local y2 = screen.height - math.round(150 * minscale)
-    local finger = {
-      {
-        {x = x1, y = y1}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
-        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
-        {x = x2, y = y2}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1},
-      },
-    }
-
-    -- TODO:什么情况下用双指滑
-    if is_device_swipe_too_fast then table.insert(finger, 1, finger[1]) end
-    log(482, finger)
-
-    gesture(finger, duration)
-    sleep(duration + delay)
   end
 end
 
--- single swip for chapter navigation
-swipc = function(dis)
-  if not dis then return end
+-- swip to end for fight
+swipe = function(x)
+  log("swipe", x)
+  if x == 'right' then
+    gesture({{point = {{0, 500}, {1000000, 500}}, start = 0, duration = 150}})
+    sleep(150 + 50)
+  elseif x == 'left' then
+    gesture({
+      {
+        point = {{0, math.round(150 * minscale)}, {0, screen.height - 1}},
+        start = 0,
+        duration = 100,
+      }, {
+        point = {{screen.width - math.round(300 * minscale), 150}},
+        start = 60,
+        duration = 50,
+      },
+    })
+    sleep(100 + 50)
+  end
+end
+
+-- 安卓8以下的滑动用双指
+android_verison_code = tonumber(getSdkVersion())
+if android_verison_code < 24 then stop("安卓版本7以下不可用") end
+-- if android_verison_code < 26 then
+--   is_device_swipe_too_fast = true
+-- else
+--   is_device_swipe_too_fast = false
+-- end
+
+-- 华为手机需要慢速滑动
+-- is_device_need_slow_swipe = true
+
+-- simple swip for chapter navigation
+swipc = function()
   local x1, y1, x2, y2
   x1, y1 = math.round((500 - 1920 / 2) * minscale + screen.width / 2),
            screen.height // 2
   x2, y2 = math.round((1500 - 1920 / 2) * minscale + screen.width / 2),
            math.round(100 * minscale)
-  local finger = {{{x = x1, y = y1}, {x = x2, y = y1}, {x = x2, y = y2}}}
-  duration = 500
-  gesture(finger, duration)
-  sleep(duration)
+  local finger = {point = {{x1, y1}, {x2, y1}, {x2, y2}}, duration = 500}
+  gesture(finger)
+  sleep(finger.duration + 50)
 end
 
 -- pagedown for operator
 swipo = function(left)
+  stop(589)
   local x1, y1, x2, y2, duration
   x1, y1 = screen.width - math.round(300 * minscale), screen.height // 2
   x2, y2 = max(x1 - math.round(1565 * minscale), 0), screen.height - 1
@@ -606,7 +596,8 @@ swipo = function(left)
     duration = 500
   end
   local finger = {
-    {{x = x1, y = y1}, {x = x2, y = y1}, {x = x2, y = y2}, {x = x2, y = y1}},
+    point = {{x1, y1}, {x2, y1}, {x2, y2}, {x2, y1}},
+    duration = duration,
   }
   table.insert(finger, 1, finger[1])
   log(finger)
@@ -614,6 +605,7 @@ swipo = function(left)
   sleep(duration)
 end
 
+-- swip for fight
 swip = function(dis)
   if type(dis) == "string" then dis = distance[dis] end
   if type(dis) ~= "table" then dis = {dis} end
@@ -642,19 +634,25 @@ zoom = function(retry)
     log("缩放结束")
     return true
   end
+  local duration = 150
   local finger = {
     {
-      {
-        x = math.round((1720 - 1920) * minscale + screen.width),
-        y = math.round(56 * minscale),
-      }, {x = screen.width // 2 - 100, y = math.round(56 * minscale)},
+      point = {
+        {
+          math.round((1720 - 1920) * minscale + screen.width),
+          math.round(56 * minscale),
+        }, {screen.width // 2 - 100, math.round(56 * minscale)},
+      },
+      duration = duration,
     }, {
-      {x = 600, y = math.round(56 * minscale)},
-      {x = screen.width // 2 + 100, y = math.round(56 * minscale)},
+      point = {
+        {600, math.round(56 * minscale)},
+        {x = screen.width // 2 + 100, y = math.round(56 * minscale)},
+      },
+      duration = duration,
     },
   }
-  local duration = 150
-  gesture(finger, duration)
+  gesture(finger)
 
   -- otherwise next zoom will be recognized as tapping, cause flicking
   appear("缩放结束", 0.4)
@@ -1045,7 +1043,6 @@ disappear = function(target, timeout, interval)
 end
 
 wait_game_up = function(retry)
-  log(1048)
   if disable_game_up_check then return end
   retry = retry or 0
   if retry > 10 then stop("不能启动游戏") end
@@ -1387,7 +1384,7 @@ lock = Lock:new()
 
 captureqqimagedeliver = function(info, to)
   io.open(getWorkPath() .. '/.nomedia', 'w')
-  local img = getWorkPath() .. "/tmp.png"
+  local img = getWorkPath() .. "/tmp.jpg"
   snapShot(img)
   notifyqq(base64(img), tostring(info), tostring(to))
 end
@@ -1395,7 +1392,7 @@ end
 poweroff = function() if root_mode then exec("su -c 'reboot -p'") end end
 closeapp = function(package)
   log("closeapp", package)
-  if not getAppInfo(package) then return end
+  if not isAppInstalled(package) then return end
   if root_mode then
     exec("su -c 'am force-stop " .. package .. "'")
   else
@@ -1550,7 +1547,7 @@ show_multi_account_ui = function()
   ui.setTitleText(layout, "多账号")
   newRow(layout)
   ui.addTextView(layout, nil,
-                 [[填入账密才有效。双服无账密模式至多执行前两个账号且不会重登，账密可不填。]])
+                 [[填入账密才有效。双服无账密模式至多执行前两个账号且不会重登，可不填账密。]])
   newRow(layout)
   ui.addCheckBox(layout, "multi_account", "多账号总开关", true)
   ui.addCheckBox(layout, "dual_server", "双服无账密")
@@ -1558,7 +1555,7 @@ show_multi_account_ui = function()
   ui.addCheckBox(layout, "multi_account_end_closeapp",
                  "切换账号时关闭其他账号游戏", true)
 
-  newRow(layout)
+  newRow(layout,"center")
   local max_checkbox_one_row = 4
   for i = 1, 20 do
     if i % max_checkbox_one_row == 1 then
@@ -1575,11 +1572,11 @@ show_multi_account_ui = function()
     newRow(layout)
     ui.addTextView(layout, nil, "账号" .. padi)
     ui.addEditText(layout, "username" .. i, "", -1)
-    newRow(layout)
-    ui.addTextView(layout, nil, "密码" .. padi)
+    -- newRow(layout)
+    ui.addTextView(layout, nil, "密码")
     ui.addEditText(layout, "password" .. i, "", -1)
     newRow(layout)
-    ui.addTextView(layout, nil, "服务器" .. padi)
+    ui.addTextView(layout, nil, "账号" .. padi.."服务器")
     ui.addRadioGroup(layout, "server" .. i, {"官服", "B服"}, 0, -2, -2, true)
     newRow(layout)
     ui.addTextView(layout, nil, "账号" .. padi .. "使用")
@@ -1653,13 +1650,14 @@ transfer_global_variable = function(prefix, save_prefix)
   end
 end
 
-function notifyqq(image, info, to, sync)
+notifyqq = function(image, info, to, sync)
   image = image or ''
   info = info or ''
   to = to or ''
   local id = lock:add()
   local param = "image=" .. encodeUrl(image) .. "&info=" .. encodeUrl(info) ..
-                  "&to=" .. to
+                  "&to=" .. encodeUrl(to)
+  log(info, to)
   asynHttpPost(function(res, code)
     log(res, code)
     lock:remove(id)
@@ -1799,7 +1797,9 @@ show_main_ui = function()
   ui.addTextView(layout, nil, "结束后")
   ui.addCheckBox(layout, "end_closeapp", "关闭游戏")
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
-  ui.addCheckBox(layout, "end_poweroff", "关机")
+
+  -- 无法实现
+  -- ui.addCheckBox(layout, "end_poweroff", "关机")
 
   newRow(layout)
   ui.addTextView(layout, nil,
@@ -2011,16 +2011,24 @@ loadUIConfig = function()
   end
 end
 
-getAppInfo = function(package)
-  local all_apps = getInstalledApps()
-  return table.findv(all_apps, function(x) return x.pkg == package end)
-end
+all_apps = getInstalledApk()
+isAppInstalled = function(package) return table.includes(all_apps, package) end
 
--- randomString(length)
---   length=length or 8
--- 	local res = ""
--- 	for i = 1, length do
--- 		res = res .. string.char(math.random(97, 122))
--- 	end
--- 	return res
--- end
+randomString = function(length)
+  length = length or 8
+  local res = ""
+  for i = 1, length do res = res .. string.char(math.random(97, 122)) end
+  return res
+end
+gesture = function(fingers)
+  if #fingers == 0 then fingers = {fingers} end
+  local gesture = Gesture:new() -- 创建一个手势滑动对象
+  for _, finger in pairs(fingers) do
+    local path = Path:new()
+    for _, point in pairs(finger.point) do path:addPoint(point[1], point[2]) end
+    path:setDurTime(finger.duration or 1000)
+    path:setStartTime(finger.start or 0)
+    gesture:addPath(path)
+  end
+  gesture:dispatch()
+end

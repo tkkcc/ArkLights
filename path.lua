@@ -116,7 +116,12 @@ path.base = {
 path.邮件收取 = function()
   path.跳转("邮件")
   local state = sample("邮件提示")
-  log(state)
+  -- log(119,state)
+  -- log(point['sample'])
+  -- log(first_point['sample'])
+  -- log(rfl['sample'])
+  -- log(123,findOne("sample"))
+  -- exit()
   if not wait(function()
     if not findOne(state) then return true end
     tap("收取所有邮件")
@@ -438,15 +443,13 @@ end
 sample = function(v)
   local ans = ''
   for _, p in pairs(point[v .. "采样列表"]) do
-    -- log(297, p)
     p = point[p]
-    -- log(298, p)
-    ans = ans .. p[1] .. ',' .. p[2] .. ',' .. getColor(table.unpack(p)).hex ..
-            '|'
+    ans = ans .. p[1] .. coord_delimeter .. p[2] .. coord_delimeter ..
+            getColor(p[1], p[2]) .. point_delimeter
   end
-  point.sample = ans:sub(1, #ans - 1)
+  point.sample = ans:sub(1, #ans - #point_delimeter)
   rfl.sample = point2region(point.sample)
-  -- log("采样", point.sample)
+  first_point.sample = {rfl.sample[1], rfl.sample[2]}
   return "sample"
 end
 
@@ -652,12 +655,9 @@ path.总览换班 = function()
     local delay = 0
     local y1 = screen.height - math.round(200 * minscale)
     local x1 = math.round((1680 - 1920) * minscale) + screen.width
-    local x2 = math.round((680 - 1920) * minscale) + screen.width
     local y2 = math.round(150 * minscale)
-    log(x1, y1, x2, y2)
-    local paths = {{{x = x1, y = y1}, {x = x1, y = y2}}}
-    log(paths)
-    gesture(paths, duration)
+    local paths = {point = {{x1, y1}, {x1, y2}}, duration = duration}
+    gesture(paths)
     sleep(duration + delay)
     tap("入驻干员右侧")
     sleep(200)
@@ -1513,16 +1513,6 @@ path.主线 = function(x)
     tap("面板作战")
     if not appear("主页") then return end
 
-    -- if not wait(function()
-    --   if findOne("主题曲", 90) and not findOne("资源收集", 90) and
-    --     not findOne("每周部署", 90) then return true end
-    --   tap("主题曲")
-    -- end) then return end
-
-    -- log(findOne("主题曲", 90))
-    -- log(findOne("资源收集", 90))
-    -- log(findOne("每周部署", 90))
-
     if not appear("主页") then return end
     if not wait(function()
       if findOne("怒号光明") then return true end
@@ -1545,8 +1535,8 @@ path.主线 = function(x)
     if not appear("怒号光明") then return end
 
     log("1046", chapter)
-    swipc(distance['' .. chapter])
-    -- wait(function() tap("作战主线章节列表" .. chapter) end, 1)
+    if distance['' .. chapter] then swipc() end
+
     if not wait(function()
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. chapter)
@@ -1720,10 +1710,10 @@ path.物资芯片 = function(x)
     log("资源收集", index, point["资源收集列表" .. index])
     local p = point["资源收集列表" .. index][1]
     if p < 0 then
-      swipq("资源收集列表1")
+      swipq(distance["资源收集列表1"])
       tap("资源收集最左列表" .. index)
     elseif p > screen.width - 1 then
-      swipq("资源收集列表9")
+      swipq(distance["资源收集列表9"])
       tap("资源收集最右列表" .. index)
     else
       tap("资源收集列表" .. index)
@@ -2404,8 +2394,9 @@ end
 
 path.退出账号 = function()
   change_account_mode = true
-  local bilibili_login = {id=
-                           "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login"}
+  local bilibili_login = {
+    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login",
+  }
   auto(update(path.base, {
     [function() return findNode(bilibili_login) end] = true,
     面板 = function()

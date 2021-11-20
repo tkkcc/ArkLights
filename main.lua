@@ -1,4 +1,4 @@
-predebug = true
+-- predebug = true
 -- fake_recruit = true
 -- during_crisis_contract =true
 -- disable_communication_check=true
@@ -32,22 +32,28 @@ disable_hotupdate = true
 -- disable_root_mode = true
 -- disable_game_up_check = true
 need_show_console = true
-ui_page_width = 670
-ui_submit_width = 560
-ui_small_submit_width = 370
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
+milesecond_after_click = 0
 
 require('util')
 require("point")
 require("path")
 require("tag")
 
+log(screen)
+ui_page_width = math.round(screen.height * 0.89)
+log(ui_page_width)
+ui_submit_width = math.round(ui_page_width * 0.53)
+ui_small_submit_width = math.round(ui_page_width * 0.53)
+
 setStopCallBack(function()
   if need_show_console then
     local screen = getScreen()
-    console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
-                   round(screen.width, 0.9), round(screen.height, 0.9))
+    -- console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
+    --                round(screen.width, 0.9), round(screen.height, 0.9))
+    -- console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
+    --                round(screen.width, 0.09), round(screen.height, 0.09))
     console.show()
   end
 end)
@@ -57,7 +63,7 @@ showControlBar(true)
 setControlBarPosNew(0, 1)
 console.clearLog()
 console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
-               round(screen.width, 0.9), round(screen.height, 0.9))
+               round(screen.width * 0.09), round(screen.height * 0.09))
 console.setTitle("如有问题，滚动到问题点，截屏反馈开发者")
 console.dismiss()
 
@@ -76,6 +82,7 @@ if root_mode then
   exec("su -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
 end
 
+log(82)
 if not isAccessibilityServiceRun() then
   log("未开启无障碍")
   toast("请开启无障碍权限")
@@ -95,39 +102,75 @@ appid = oppid
 
 if prefer_bapp then appid = bppid end
 if prefer_bapp_on_android7 and android_verison_code < 30 then appid = bppid end
-local app_info = getAppInfo(appid)
-local bpp_info = getAppInfo(bppid)
+local app_info = isAppInstalled(appid)
+local bpp_info = isAppInstalled(bppid)
 if not app_info and not bpp_info then stop("未安装明日方舟官服或B服") end
 if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and 0 or 1
 
 if predebug then
-  local game = {
-    class = "android.view.View",
-    package = "com.hypergryph.arknights",
-  }
-  log(findOne(game))
 
-  -- start黄框 =
-  --   "958|985|FFD802,995|1021|FFD802,958|1057|FFD802,924|1021|FFD802,958|1011|FFD802"
-
-  log(113, cmpColorEx("1092|688|000000,1158|694|000000",0.9))
-
+  -- swipe("left")
+  swipq(distance["资源收集列表1"])
+  swipq(distance["资源收集列表9"])
+  -- local finger = {
+  --   point = {{screen.width // 2, screen.height // 2}, {0, screen.height // 2}},
+  --   duration = 500,
+  -- }
+  -- finger = {
+  --   point = {
+  --     {screen.width // 2, screen.height // 2},
+  --     {screen.width - 1, screen.height // 2},
+  --   },
+  --   duration = 500,
+  -- }
+  -- gesture(finger)
+  -- chapter = 0
+  -- swipc(distance['' .. chapter])
+  -- tap("作战主线章节列表" .. chapter)
+  -- x = "9-7"
+  -- x = "9-19"
+  -- x = "9-17"
+  -- x = "9-2"
+  -- x = "6-16"
+  -- x = "4-10"
+  -- x = "S3-7"
+  -- x="2-10"
+  -- swipu(x)
+  -- tap("作战列表"..x)
+  -- ssleep(1)
   exit()
-  -- gesture_capture()
-  -- catchClick()
 
-  -- jump_github()
-  -- peaceExit()
+  -- swipe("right")
+  while true do
+    gesture({{point = {{0, 500}, {1000000, 500}}, start = 0, duration = 150}})
+    sleep(200)
 
-  vibrate(100)
-  playAudio('/system/media/audio/ui/Effect_Tick.ogg')
-  ssleep(1)
+    -- 9-7 -2200
+    gesture({
+      {
+        point = {{0, math.round(150 * minscale)}, {0, screen.height - 1}},
+        start = 0,
+        duration = 50 + 50,
+      }, {point = {{1000, 150}}, start = 0, duration = 50},
+      -- {
+      --   point = {{100, 150}},
+      --   start = 51,
+      --   duration = 50,
+      -- },
+      -- {
+      --   point = {{100, 150}},
+      --   start = 102,
+      --   duration = 50,
+      -- },
+    })
+
+    sleep(1000)
+  end
+
   peaceExit()
-  log(type(getStringConfig("ddddd")))
-  log(#getStringConfig("ddddd"))
-  exit()
+
   require("skill")
   log(time())
   log(#skill)
@@ -241,7 +284,7 @@ update_state_from_ui = function()
     end
   end
   fight = expanded_fight
-  log("expanded_fight", expanded_fight)
+  -- log("expanded_fight", expanded_fight)
 
   -- LMSQ => 龙门市区
   for k, v in pairs(fight) do
