@@ -2103,10 +2103,14 @@ path.公招刷新 = function()
           return table.all(rule[1], function(r) return tags[r] end)
         end)
         log(1093, tag4)
+        local force_skip=false
+        if #table.keys(tags)<5 then
+          force_skip=true
+        end
         -- toast(JsonEncode(tags))
 
-        if #tag4 == 0 then
-          if findTap("公开招募标签刷新蓝") then
+        if #tag4 == 0 or force_skip then
+          if not force_skip and findTap("公开招募标签刷新蓝") then
             if not disappear("公开招募时间减") then return end
             if not wait(function()
               if findOne("公开招募时间减") then return true end
