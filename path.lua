@@ -1411,7 +1411,8 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
     if findOne("开始行动") then
       tap("开始行动蓝")
-      disappear("开始行动", 1)
+      -- 1秒有些设备有问题？
+      disappear("开始行动", 2)
     end
   end, 30) then return end
 

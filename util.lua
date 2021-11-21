@@ -1427,7 +1427,7 @@ make_account_setting_ui = function(prefix)
         {type = 'text', value = '作战：'}, {
           type = 'edit',
           value = [[当期委托x2 DQWTx2 龙门市区 LMSQ
-PR-B-1*100 AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
+AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5
 上一次 syc]],
           id = prefix .. 'fight_ui',
         },
