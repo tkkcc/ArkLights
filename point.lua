@@ -19,6 +19,12 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  gesture_capture_ui = {text = "亮屏解锁"},
+  keyguard_indication = {
+    id = 'com.android.systemui:id/keyguard_indication_area',
+  },
+  keyguard_input = {id = 'com.android.systemui:id/keyguard_host_view'},
+
   返还规则 = "1447|934|FFFFFF",
   -- 作战进度 = "1042|934|000000",
   开始作业 = "1601|838|942921",
@@ -91,8 +97,7 @@ point = {
   信赖采样列表 = {{1438, 64}},
   心情采样列表 = {{1559, 69}},
   宿舍列表 = {
-    "1047|454|FFFFFF", "1168|574|FFFFFF", "1047|694|FFFFFF",
-    "1168|814|FFFFFF",
+    "1047|454|FFFFFF", "1168|574|FFFFFF", "1047|694|FFFFFF", "1168|814|FFFFFF",
   },
   入驻干员底部 = "1830|769|747474,1879|922|717171",
   入驻干员顶部 = "1879|125|595959",
@@ -108,21 +113,17 @@ point = {
   公开招募取消 = "1480|972|FFFFFF,1586|948|313131,1338|1000|313131",
 
   公开招募列表 = {
-    "487|435|FFFFFF", "1434|435|FFFFFF", "487|852|FFFFFF",
-    "1434|842|FFFFFF",
+    "487|435|FFFFFF", "1434|435|FFFFFF", "487|852|FFFFFF", "1434|842|FFFFFF",
   },
   公开招募点击列表 = {
-    "487|435|FFFFFF", "1434|435|FFFFFF", "487|852|FFFFFF",
-    "1434|800|FFFFFF",
+    "487|435|FFFFFF", "1434|435|FFFFFF", "487|852|FFFFFF", "1434|800|FFFFFF",
   },
 
   聘用候选人列表 = {
-    "576|564|FFFFFF", "1524|564|FFFFFF", "576|981|FFFFFF",
-    "1524|981|FFFFFF",
+    "576|564|FFFFFF", "1524|564|FFFFFF", "576|981|FFFFFF", "1524|981|FFFFFF",
   },
   立即招募列表 = {
-    "917|526|313131", "1864|526|313131", "917|943|313131",
-    "1865|943|313131",
+    "917|526|313131", "1864|526|313131", "917|943|313131", "1865|943|313131",
   },
   开包skip = {1838, 52},
   公开招募标签框列表 = {
@@ -229,18 +230,16 @@ point = {
     "570|665|FFFFFF", "880|578|FFFFFF", "229|612|FFFFFF",
   },
   线索布置数字右列表 = {
-    "1417|128|FFFFFF", "1499|131|FFFFFF", "1575|130|FFFFFF",
-    "1651|131|FFFFFF", "1730|131|FFFFFF", "1806|130|FFFFFF",
-    "1883|131|FFFFFF",
+    "1417|128|FFFFFF", "1499|131|FFFFFF", "1575|130|FFFFFF", "1651|131|FFFFFF",
+    "1730|131|FFFFFF", "1806|130|FFFFFF", "1883|131|FFFFFF",
   },
   线索布置左列表 = {
     "240|216|FF6801", "543|322|FF6801", "844|186|FF6801", "1173|255|FF6801",
     "663|648|FF6801", "972|567|FF6801", "319|599|FF6801",
   },
   线索布置列表 = {
-    "665|216|FF6801", "968|322|FF6801", "1269|186|FF6801",
-    "1598|255|FF6801", "1088|648|FF6801", "1397|567|FF6801",
-    "744|599|FF6801",
+    "665|216|FF6801", "968|322|FF6801", "1269|186|FF6801", "1598|255|FF6801",
+    "1088|648|FF6801", "1397|567|FF6801", "744|599|FF6801",
   },
   线索布置5 = {960, 648},
   全部 = "1285|43|FFFFFF",
@@ -250,8 +249,7 @@ point = {
   线索传递左白 = {1682, 1019},
   线索传递橙框 = "1516|365|D5B198,1534|368|D5B198,1549|391|D5B198,1552|420|D5B198,1519|418|D5B198",
   今日登录列表 = {
-    "1222|245|0075A9", "1216|470|0075A9", "1222|686|0075A9",
-    "1216|908|0075A9",
+    "1222|245|0075A9", "1216|470|0075A9", "1222|686|0075A9", "1216|908|0075A9",
   },
   线索列表 = {"595|267|424242"},
   线索按下列表 = {"627|244|DB6442"},
@@ -1325,11 +1323,13 @@ convert_coords = function(point)
       --   safeexit()
       -- end
       local dst = ''
-      for x, y, c in v:gmatch("(%d+)"..coord_delimeter.."(%d+)"..coord_delimeter.."(......)") do
+      for x, y, c in v:gmatch("(%d+)" .. coord_delimeter .. "(%d+)" ..
+                                coord_delimeter .. "(......)") do
         x, y = map(tonumber, x, y)
         x = math.round((x - origin_center[1]) * ws + new_center[1])
         y = math.round((y - origin_center[2]) * hs + new_center[2])
-        dst = dst .. x .. coord_delimeter .. y .. coord_delimeter .. c .. point_delimeter
+        dst = dst .. x .. coord_delimeter .. y .. coord_delimeter .. c ..
+                point_delimeter
       end
       dst = dst:sub(0, #dst - 1)
       point[k] = dst
@@ -1380,13 +1380,13 @@ rfg = {
 }
 
 rfl = {}
-first_point={}
+first_point = {}
 update_rfl = function()
   -- region for findColor locally
   for k, v in pairs(point) do
     if type(v) == "string" and v:find(coord_delimeter) and not rfg[k] then
       rfl[k] = point2region(v)
-      first_point[k] = {rfl[k][1],rfl[k][2]}
+      first_point[k] = {rfl[k][1], rfl[k][2]}
     end
   end
 end

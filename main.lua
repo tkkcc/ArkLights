@@ -1,4 +1,4 @@
--- predebug = true
+predebug = true
 -- fake_recruit = true
 -- during_crisis_contract =true
 -- disable_communication_check=true
@@ -44,7 +44,7 @@ require("tag")
 log(screen)
 ui_page_width = math.round(screen.height * 0.89)
 log(ui_page_width)
-ui_submit_width = math.round(ui_page_width * 0.53)
+ui_submit_width = math.round(ui_page_width * 0.8)
 ui_small_submit_width = math.round(ui_page_width * 0.53)
 
 setStopCallBack(function()
@@ -110,10 +110,29 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and 0 or 1
 
 if predebug then
+  x =
+    "[[534,1188],[519,1142],[504,1049],[1663,966],[497,918],[525,887],[562,868],[629,867],[747,868],[874,885]]"
+  x = JsonDecode(x)
+  log(x)
+  log(x[1])
+  gesture({point = x, duration = 3000})
 
-  -- swipe("left")
-  swipq(distance["资源收集列表1"])
-  swipq(distance["资源收集列表9"])
+  -- checkScreenLock()
+  -- show_gesture_capture_ui()
+  -- ssleep(1)
+  -- gesture_capture()
+  sleep(100000)
+  -- JsonDecode("[]")
+  -- gesture_capture()
+  -- log(catchClick())
+  -- log(findOne("keyguard_indication"))
+  -- screenLockSwipUp()
+  -- log(catchTouchPoint(1))
+  -- stop(114)
+
+  -- -- swipe("left")
+  -- swipq(distance["资源收集列表1"])
+  -- swipq(distance["资源收集列表9"])
   -- local finger = {
   --   point = {{screen.width // 2, screen.height // 2}, {0, screen.height // 2}},
   --   duration = 500,
@@ -257,20 +276,7 @@ update_state_from_ui = function()
   appid = server == 0 and oppid or bppid
   job = parse_from_ui("now_job_ui", all_job)
 
-  fight = string.map(fight_ui, {
-    [";"] = " ",
-    ['"'] = " ",
-    ["'"] = " ",
-    ["；"] = " ",
-    [","] = " ",
-    ["_"] = "-",
-    ["、"] = " ",
-    ["，"] = " ",
-    ["|"] = " ",
-    ["\n"] = " ",
-    ["\t"] = " ",
-  })
-  fight = string.split(fight, ' ')
+  fight = string.filterSplit(fight_ui)
   fight = map(string.upper, fight)
 
   -- expand LS-5x999
@@ -433,17 +439,24 @@ vibrate(100)
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
 ssleep(1)
 
--- 定时执行逻辑：如果到点但脚本还在run则跳过，run中重启可能出现异常
-if crontab then
-  local next_hour
-  for i = tonumber(os.data("%H")) + 1, 24 do
-    if _G['crontab' .. i] then
-      next_hour = i
-      break
-    end
+-- 定时执行逻辑：如果到点但脚本还在run则跳过，因为run中重启可能出现异常
+if crontab_enable then
+  local config = string.filterSplit(crontab_text, {"：", ":"})
+  local candidate = {}
+  for _, v in pairs(config) do
+    local hour_second = v:split(':')
+    local hour = math.round(tonumber(hour_second[1] or 0) or 0)
+    local min = math.round(tonumber(hour_second[2] or 0) or 0)
+    table.insert(candidate,
+                 os.time(update(os.date("*t"), {hour = hour, min = min})))
+    table.insert(candidate,
+                 os.time(update(os.date("*t"), {hour = hour + 24, min = min})))
   end
-  toast("下次执行时间：" .. next_hour .. "点")
-  ssleep(max(0, update(os.time(), {hour = next_hour}) - os.time()))
+  table.sort(candidate)
+  log(candidate)
+  local next_time = table.findv(candidate, function(x) return x > os.time() end)
+  toast("下次执行时间：" .. os.date("%H:%m", next_time))
+  ssleep(max(0, next_time - os.time()))
   setConfig("hideUIOnce", "true")
   restartScript()
 else
