@@ -25,7 +25,7 @@ check_after_tap = true
 no_background_after_run = true
 -- longest_tag = true
 -- very_slow_state_check = true
-default_findcolor_confidence = 95
+default_findcolor_confidence = 95 / 100
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
 disable_hotupdate = true
@@ -110,11 +110,27 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and 0 or 1
 
 if predebug then
-  x =
-    "[[534,1188],[519,1142],[504,1049],[1663,966],[497,918],[525,887],[562,868],[629,867],[747,868],[874,885]]"
-  x = JsonDecode(x)
-  log(x)
-  log(x[1])
+
+  -- log(getColor(94,597))
+  -- log(cmpColor(94,597,"FFCC00",0.90))
+  -- tap({0,100})
+  -- tap({2209,57})
+  -- zoom()
+  gesture({
+    {point = {{800, 123},{800,123+500 }}, start = 0, duration = 500},
+    {point = {{1600, 123},{1500, 123},}, start = 100, duration = 100},
+    {point = {{800, 123}}, start = 200, duration = 300},
+  })
+  -- log(1, findOne("是否确认离开基建"))
+  -- log(first_point["是否确认离开基建"])
+  ssleep(100)
+  exit()
+  -- log(catchClick())
+  -- exit()
+  -- x ="[[567,1121],[565,1007],[542,934],[527,895],[536,876],[594,865],[657,855],[722,853],[762,860]]"
+  -- x = JsonDecode(x)
+  -- log(x)
+  -- log(x[1])
   gesture({point = x, duration = 3000})
 
   -- checkScreenLock()
@@ -457,7 +473,7 @@ if crontab_enable then
   local next_time = table.findv(candidate, function(x) return x > os.time() end)
   toast("下次执行时间：" .. os.date("%H:%m", next_time))
   ssleep(max(0, next_time - os.time()))
-  setConfig("hideUIOnce", "true")
+  saveConfig("hideUIOnce", "true")
   restartScript()
 else
   peaceExit()

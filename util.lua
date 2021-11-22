@@ -10,7 +10,7 @@ JsonDecode = jsonLib.decode
 JsonEncode = jsonLib.encode
 findNode = function(selector) return nodeLib.findOne(selector, true) end
 clickNode = function(x) nodeLib.click(x, true) end
-clickPoint = tap
+
 clickPoint = function(x, y)
   local gesture = Gesture:new()
   local path = Path:new()
@@ -24,15 +24,28 @@ getDir = getWorkPath
 base64 = getFileBase64
 putClipboard = writePasteboard
 
+deviceClickEventMaxX = nil
+deviceClickEventMaxY = nil
 catchClick = function()
   if not root_mode then stop(15) end
   local result = exec("su -c 'getevent -l -c 4 -q'")
-  local xy = {}
-  for v in result:gmatch("POSITION..%s+([^%s]+)") do
-    table.insert(xy, tonumber(v, 16))
+  local x, y
+  x = result:match('POSITION_X%s+([^%s]+)')
+  y = result:match('POSITION_Y%s+([^%s]+)')
+  -- log(33, x, y)
+  if x and y then
+    if not deviceClickEventX then
+      local event = result:match('(/dev/[^:]+):.+POSITION_X')
+      result = exec("su -c 'getevent -il " .. event .. "'")
+      deviceClickEventMaxX = result:match("POSITION_X[^\n]+max%s*(%d+)")
+      deviceClickEventMaxY = result:match("POSITION_Y[^\n]+max%s*(%d+)")
+    end
+    local screen = getScreen()
+    return {
+      x = math.round(tonumber(x, 16) * screen.width / deviceClickEventMaxX),
+      y = math.round(tonumber(y, 16) * screen.height / deviceClickEventMaxY),
+    }
   end
-  if #xy < 2 then return end
-  return {x = xy[1], y = xy[2]}
 end
 home = function() keyPress(3) end
 back = function() keyPress(4) end
@@ -408,7 +421,7 @@ findOne = function(x, confidence, disable_game_up_check)
   if type(x) == "table" and #x > 0 then return x end
   if type(x) == "string" then
     local pos
-    log(x0, rfl[x0], x, confidence)
+    -- log(x0, rfl[x0], x, confidence)
     if rfl[x0] then
       if cmpColorEx(x, confidence) == 1 then pos = first_point[x0] end
     else
@@ -655,29 +668,22 @@ zoom = function(retry)
     log("缩放结束")
     return true
   end
-  local duration = 150
+
+  -- 2x2 pixel zoom
+  local duration = 50
   local finger = {
-    {
+    {point = {{0, math.round(123 * minscale)}}, duration = duration}, {
       point = {
-        {
-          math.round((1720 - 1920) * minscale + screen.width),
-          math.round(56 * minscale),
-        }, {screen.width // 2 - 100, math.round(56 * minscale)},
-      },
-      duration = duration,
-    }, {
-      point = {
-        {600, math.round(56 * minscale)},
-        {x = screen.width // 2 + 100, y = math.round(56 * minscale)},
+        {1, math.round(123 * minscale) + 1}, {0, math.round(123 * minscale)},
       },
       duration = duration,
     },
   }
   gesture(finger)
+  log(702)
 
   -- otherwise next zoom will be recognized as tapping, cause flicking
   appear("缩放结束", 0.4)
-
   return zoom(retry + 1)
 end
 
@@ -1173,17 +1179,14 @@ end
 screenLockGesture = function()
   local check_state = disable_game_up_check
   disable_game_up_check = true
-  log(unlock_gesture)
   local point = JsonDecode(unlock_gesture or "[]") or {}
-  log(point)
   if findOne("keyguard_input") then
-    -- log(unlock_mode, point)
     if unlock_mode == 0 then
       gesture({point = point, duration = 3000})
       sleep(3000 + 50)
     else
       for _, p in pairs(point) do
-        tap(p, true, true)
+        tap(p)
         ssleep(.5)
       end
     end
@@ -1399,10 +1402,11 @@ tapAll = function(ks)
   if speedrun then duration = 100 end
   local finger = {}
   for _, k in pairs(ks) do
-    table.insert(finger, {{x = point[k][1], y = point[k][2]}})
+    table.insert(finger,
+                 {point = {{point[k][1], point[k][2]}}, duration = duration})
   end
   -- log(finger)
-  gesture(finger, duration)
+  gesture(finger)
   sleep(duration)
 end
 
@@ -2017,26 +2021,11 @@ gesture_capture = function()
   if state == title then return end
   log(200)
 
-  -- 获取换算关系
-  local screen = getScreen()
-  gesture({
-    point = {{screen.width // 2, screen.height // 2}},
-    duration = 1,
-    start = 100,
-  })
-  log(201)
-  local p = catchClick()
-  log(202)
-  if not p then stop("手势录制2011") end
-  log(2005, p, screen)
-  local scalex = screen.width // 2 / p.x
-  local scaley = screen.height // 2 / p.y
-
   if not wait(function()
     local p = catchClick()
     if findOne("gesture_capture_ui") then return true end
     if p then
-      table.insert(finger, {math.round(p.x * scalex), math.round(p.y * scaley)})
+      table.insert(finger, {p.x, p.y})
       ui.setText("unlock_gesture", JsonEncode(finger))
     end
   end, 30) then stop("手势录制超时") end
@@ -2108,4 +2097,10 @@ gesture = function(fingers)
     gesture:addPath(path)
   end
   gesture:dispatch()
+end
+compareColor = function(x,y,color,sim)
+  -- color = color:sub(6,7)..color:sub(4,5)..color:sub(2,3)
+  -- log(x,y,color,sim)
+  -- exit()
+  return cmpColor(x,y,color:sub(2),sim)==1
 end

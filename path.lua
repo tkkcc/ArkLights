@@ -815,12 +815,16 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
-  log(shift1, shift2, shift3)
-  log(751)
-  if shift1 then path.宿舍换班() end
-  if shift2 then path.制造换班() end
-  if shift3 then path.总览换班() end
-  log(752)
+  -- path.宿舍换班()
+  path.制造换班()
+  path.总览换班()
+  -- shift1=shift2=shift3=1
+  -- log(shift1, shift2, shift3)
+  -- log(751)
+  -- if shift1 then path.宿舍换班() end
+  -- if shift2 then path.制造换班() end
+  -- if shift3 then path.总览换班() end
+  -- log(752)
 end
 
 path.制造加速 = function()
