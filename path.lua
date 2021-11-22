@@ -2066,7 +2066,7 @@ path.公招刷新 = function()
             log(1461, p)
             ocr_text, _ = ocr_fast(table.unpack(p))
             log(1463, ocr_text)
-            if not ocr_text then break end
+            ocr_text= ocr_text or ''
             ocr_text = string.map(ocr_text, {
               ["'"] = "",
               [" "] = "",
@@ -2087,10 +2087,10 @@ path.公招刷新 = function()
               ["4"] = "",
             })
 
-            -- should be at least dual chinese characters
-            if #ocr_text < 6 then break end
 
-            if table.includes(tag, ocr_text) then
+            log(2091,orc_text)
+            -- should be at least dual chinese characters
+            if #ocr_text >= 6 and table.includes(tag, ocr_text) then
               tags[ocr_text] = {p[1], p[2]}
               empty_tags = false
               break

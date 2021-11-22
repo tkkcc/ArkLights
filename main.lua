@@ -55,7 +55,7 @@ server = appid == oppid and "官服" or "B服"
 if predebug then
   -- log(findOne("源石恢复理智取消"))
   -- log(findOne("开始行动"))
-  -- log(findOne("缩放结束2"))
+  log(findOne("缩放结束2"))
   exit()
   require("skill")
   log(time())
@@ -125,7 +125,7 @@ local miui = R():text("立即开始|start now"):type("Button")
 click(miui)
 
 local ui = {
-  title = "明日方舟速通 2021.11.21 16:39",
+  title = "明日方舟速通 2021.11.22 17:11",
   name = 'main',
   cache = not no_config_cache,
   width = -1,
