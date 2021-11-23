@@ -618,24 +618,36 @@ swipc = function()
   sleep(finger.duration + 50)
 end
 
--- pagedown for operator
+-- swip for operator
 swipo = function(left)
-  stop(589)
-  local x1, y1, x2, y2, duration
-  x1, y1 = screen.width - math.round(300 * minscale), screen.height // 2
-  x2, y2 = max(x1 - math.round(1565 * minscale), 0), screen.height - 1
-  duration = 1000
+  local duration
+  local finger
   if left then
-    x2 = 10000
-    duration = 500
+    local x1 = scale(600)
+    local x2 = 10000000
+    local y1 = scale(533)
+    log(x1,y1)
+    duration = 1000
+    finger = {{point = {{x1, y1}, {x2, y1}}, duration = duration}}
+  else
+    local x = scale(600)
+    local y = scale(533)
+    local y2 = scale(900)
+    local x2 = scale(1720)
+    local x3 = scale(1720 - 100)
+    local slids = 20
+    local slidd = 40
+    local taps = slids + slidd + 20
+    local tapd = 200
+    local downd = taps + 20
+    duration = downd
+    finger = {
+      {point = {{x, y}, {x, y2}}, start = 0, duration = downd},
+      {point = {{x2, y}, {x3, y}}, start = slids, duration = slidd},
+      {point = {{x2, y}}, start = taps, duration = tapd},
+    }
   end
-  local finger = {
-    point = {{x1, y1}, {x2, y1}, {x2, y2}, {x2, y1}},
-    duration = duration,
-  }
-  table.insert(finger, 1, finger[1])
-  log(finger)
-  gesture(finger, duration)
+  gesture(finger)
   sleep(duration)
 end
 
@@ -2098,9 +2110,17 @@ gesture = function(fingers)
   end
   gesture:dispatch()
 end
-compareColor = function(x,y,color,sim)
+compareColor = function(x, y, color, sim)
   -- color = color:sub(6,7)..color:sub(4,5)..color:sub(2,3)
   -- log(x,y,color,sim)
   -- exit()
-  return cmpColor(x,y,color:sub(2),sim)==1
+  return cmpColor(x, y, color:sub(2), sim) == 1
+end
+
+scale = function(x, mode)
+  if not mode or mode == 'min' then
+    return math.round(x * minscale)
+  elseif mode == 'max' then
+    return math.round(x * maxscale)
+  end
 end

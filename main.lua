@@ -30,7 +30,7 @@ default_findcolor_confidence = 95 / 100
 -- default_max_stone_times = 0
 disable_hotupdate = true
 -- disable_root_mode = true
--- disable_game_up_check = true
+disable_game_up_check = true
 need_show_console = true
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
@@ -82,16 +82,21 @@ if root_mode then
   exec("su -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
 end
 
-log(82)
 if not isAccessibilityServiceRun() then
-  log("未开启无障碍")
+  log("请开启无障碍权限")
   toast("请开启无障碍权限")
   openPermissionSetting()
+  if not wait(function() return isAccessibilityServiceRun() end, 600) then
+    stop("开启无障碍权限超时")
+  end
 end
 if not isSnapshotServiceRun() then
-  log("录屏权限未开启")
-  toast("请开启无障碍权限")
+  log("请开启录屏权限")
+  toast("请开启录屏权限")
   openPermissionSetting()
+  if not wait(function() return isSnapshotServiceRun() end, 600) then
+    stop("开启录屏权限超时")
+  end
 end
 
 -- auto switch 官服 and B服
@@ -109,102 +114,18 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and 0 or 1
 
-if predebug then
 
-  -- log(getColor(94,597))
-  -- log(cmpColor(94,597,"FFCC00",0.90))
-  -- tap({0,100})
-  -- tap({2209,57})
-  -- zoom()
-  gesture({
-    {point = {{800, 123},{800,123+500 }}, start = 0, duration = 500},
-    {point = {{1600, 123},{1500, 123},}, start = 100, duration = 100},
-    {point = {{800, 123}}, start = 200, duration = 300},
-  })
-  -- log(1, findOne("是否确认离开基建"))
-  -- log(first_point["是否确认离开基建"])
+if predebug then
+  -- tap({700,500})
+  -- swipo(true)
+  -- ssleep(1)
+  log(121)
+  for _ = 1, 1 do
+    swipo()
+    ssleep(1)
+  end
   ssleep(100)
   exit()
-  -- log(catchClick())
-  -- exit()
-  -- x ="[[567,1121],[565,1007],[542,934],[527,895],[536,876],[594,865],[657,855],[722,853],[762,860]]"
-  -- x = JsonDecode(x)
-  -- log(x)
-  -- log(x[1])
-  gesture({point = x, duration = 3000})
-
-  -- checkScreenLock()
-  -- show_gesture_capture_ui()
-  -- ssleep(1)
-  -- gesture_capture()
-  sleep(100000)
-  -- JsonDecode("[]")
-  -- gesture_capture()
-  -- log(catchClick())
-  -- log(findOne("keyguard_indication"))
-  -- screenLockSwipUp()
-  -- log(catchTouchPoint(1))
-  -- stop(114)
-
-  -- -- swipe("left")
-  -- swipq(distance["资源收集列表1"])
-  -- swipq(distance["资源收集列表9"])
-  -- local finger = {
-  --   point = {{screen.width // 2, screen.height // 2}, {0, screen.height // 2}},
-  --   duration = 500,
-  -- }
-  -- finger = {
-  --   point = {
-  --     {screen.width // 2, screen.height // 2},
-  --     {screen.width - 1, screen.height // 2},
-  --   },
-  --   duration = 500,
-  -- }
-  -- gesture(finger)
-  -- chapter = 0
-  -- swipc(distance['' .. chapter])
-  -- tap("作战主线章节列表" .. chapter)
-  -- x = "9-7"
-  -- x = "9-19"
-  -- x = "9-17"
-  -- x = "9-2"
-  -- x = "6-16"
-  -- x = "4-10"
-  -- x = "S3-7"
-  -- x="2-10"
-  -- swipu(x)
-  -- tap("作战列表"..x)
-  -- ssleep(1)
-  exit()
-
-  -- swipe("right")
-  while true do
-    gesture({{point = {{0, 500}, {1000000, 500}}, start = 0, duration = 150}})
-    sleep(200)
-
-    -- 9-7 -2200
-    gesture({
-      {
-        point = {{0, math.round(150 * minscale)}, {0, screen.height - 1}},
-        start = 0,
-        duration = 50 + 50,
-      }, {point = {{1000, 150}}, start = 0, duration = 50},
-      -- {
-      --   point = {{100, 150}},
-      --   start = 51,
-      --   duration = 50,
-      -- },
-      -- {
-      --   point = {{100, 150}},
-      --   start = 102,
-      --   duration = 50,
-      -- },
-    })
-
-    sleep(1000)
-  end
-
-  peaceExit()
 
   require("skill")
   log(time())
