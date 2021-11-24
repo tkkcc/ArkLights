@@ -797,6 +797,7 @@ center = {
   缩放结束 = "center_center_maxscale",
   缩放结束1 = "center_center_maxscale",
   缩放结束2 = "center_center_maxscale",
+  缩放结束3 = "center_center_maxscale",
 
   心情采样列表 = "right_top",
   信赖采样列表 = "right_top",
