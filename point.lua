@@ -18,7 +18,23 @@ wscale = screen.width / 1920
 minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
+oppid = "com.hypergryph.arknights"
+bppid = "com.hypergryph.arknights.bilibili"
+
 point = {
+  ogame = {class = "android.view.View", package = oppid},
+  bgame = {class = "android.view.View", package = bppid},
+  bilibili_login = {
+    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login",
+  },
+  inputbox = {
+    class = "android.widget.EditText",
+    package = "com.hypergryph.arknights",
+  },
+  okbutton = {
+    class = "android.widget.Button",
+    package = "com.hypergryph.arknights",
+  },
   gesture_capture_ui = {text = "亮屏解锁"},
   keyguard_indication = {
     id = 'com.android.systemui:id/keyguard_indication_area',
@@ -91,9 +107,15 @@ point = {
   线索搜集提示 = "1467|200|FFFFFF",
   基建右上角 = "1917|36|333333",
   好友 = {99, 613},
-  缩放结束1 = "929|275|545454,929|276|F1F0F1,932|275|F1F0F1",
-  缩放结束2 = "929|324|545454,929|323|F1F0F1,932|324|F1F0F1",
-  缩放结束 = function() return findAny({"缩放结束1", "缩放结束2"}) end,
+  -- 缩放结束1 = "929|275|545454,929|276|F1F0F1,932|275|F1F0F1",
+  -- 缩放结束2 = "929|324|545454,929|323|F1F0F1,932|324|F1F0F1",
+  -- 缩放结束 = function() return findAny({"缩放结束1", "缩放结束2"}) end,
+  缩放结束1 = "929,275,#545454|929,276,#F1F0F1|932,275,#F1F0F1",
+  缩放结束2 = "929,324,#545454|929,323,#F1F0F1|932,324,#F1F0F1",
+  缩放结束3 = "925,327,#F1F0F1|930,328,#545454|932,328,#F1F0F1",
+  缩放结束 = function()
+    return findAny({"缩放结束1", "缩放结束2", "缩放结束3"})
+  end,
   信赖采样列表 = {{1438, 64}},
   心情采样列表 = {{1559, 69}},
   宿舍列表 = {
@@ -102,6 +124,7 @@ point = {
   入驻干员底部 = "1830|769|747474,1879|922|717171",
   入驻干员顶部 = "1879|125|595959",
   入驻干员 = "1615|229|898989,1605|229|313131,1615|219|313131,1753|367|898989,1751|374|313131,1761|365|313131,1682|367|898989,1668|367|898989,1682|376|313131,1699|374|313131,1626|241|898989,1641|257|898989,1656|273|898989,1710|277|898989,1728|250|898989,1745|233|898989,1742|340|898989,1709|354|898989,1640|351|898989,1634|304|898989",
+  -- 入驻干员 = "1718|546|898989,1748|486|313131,1712|432|898989,1610|516|898989,1616|582|313131",
   入驻干员范围 = {900, 124, 1800, 1080},
   宿舍范围 = {629, 102, 918, 1069},
   本次线索交流活动 = "46|139|CE6200,543|186|CE6200",
@@ -130,6 +153,7 @@ point = {
     {566, 544, 774, 606}, {817, 544, 1025, 606}, {1068, 544, 1276, 606},
     {566, 653, 774, 715}, {817, 653, 1025, 715}, {1068, 653, 1276, 715},
   },
+  公开招募标签框范围 = {566, 540, 1274, 720},
   公开招募 = "1356|106|313131,1357|144|313131",
   -- 公开招募箭头 = "1873|535|FFFFFF",
   -- 公开招募箭头 = "1918|535|FFFFFF",
@@ -819,6 +843,7 @@ center = {
   立即招募列表 = "center_center",
   开包skip = "right_top",
   公开招募标签框列表 = "center_center",
+  公开招募标签框范围 = "center_center",
   公开招募 = "right_top",
   公开招募箭头 = "center_center",
   公开招募标签刷新蓝 = "center_center",
@@ -1252,6 +1277,24 @@ flatten = function()
 end
 flatten()
 
+point2first = function(v)
+  return v:match('(%d+)' .. coord_delimeter .. '(%d+)' .. coord_delimeter ..
+                   '(......)')
+end
+point2relative = function(v)
+  local fx, fy, fc = point2first(v)
+  local dst = ''
+  for x, y, c in v:gmatch("(%d+)" .. coord_delimeter .. "(%d+)" ..
+                            coord_delimeter .. "(......)") do
+    x, y = map(tonumber, x, y)
+    x = math.round(x - fx)
+    y = math.round(y - fy)
+    dst = dst .. x .. coord_delimeter .. y .. coord_delimeter .. c ..
+            point_delimeter
+  end
+  return dst:sub(1, #dst - 1)
+end
+
 point2center = function(src)
   local origin_center = {0, 0}
   local new_center = {0, 0}
@@ -1381,12 +1424,21 @@ rfg = {
 
 rfl = {}
 first_point = {}
+first_color = {}
 update_rfl = function()
   -- region for findColor locally
   for k, v in pairs(point) do
     if type(v) == "string" and v:find(coord_delimeter) and not rfg[k] then
       rfl[k] = point2region(v)
       first_point[k] = {rfl[k][1], rfl[k][2]}
+    elseif type(v) == "string" and v:find(coord_delimeter) and rfg[k] then
+      -- log(1410,v)
+      v = point2relative(v)
+      first_color[k] = v:match("%d+" .. coord_delimeter .. "%d+" ..
+                                 coord_delimeter .. "(......)")
+      point[k] = v:match("[^" .. point_delimeter .. "+]" .. point_delimeter ..
+                           "(.+)"):map({[","] = '|'})
+      -- log(1411,point[k],first_color[k])
     end
   end
 end

@@ -350,12 +350,9 @@ removeFuncHash =
 
 table2string = function(t)
   if type(t) == 'table' then
-    if not pretty_print_table then return 'table' end
-    return JsonEncode(t)
-    --    if #t == 0 then
-    --    else
-    --      return table.join(map(tostring, t))
-    --    end
+    t = shallowCopy(t)
+    for k, v in pairs(t) do if type(v) == "function" then t[k] = 'func' end end
+    t = JsonEncode(t)
   end
   return t
 end
@@ -365,14 +362,16 @@ log = function(...)
   if disable_log then return end
   local arg = {...}
 
-  -- local l = {map(tostring, running, ' ', table.unpack(map(table2string, arg)))}
+  local l = table.join({
+    map(tostring, running, ' ', table.unpack(map(table2string, arg))),
+  }, ' ')
   -- l = map(removeFuncHash, l)
   -- l = map(table2string, l)
 
   -- local a = os.date('%Y.%m.%d %H:%M:%S')
   local a = time()
   -- for _, v in pairs(l) do a = a .. ' ' .. v end
-  print(a, running, table.unpack(arg))
+  print(a, running, l)
   console.println(1, a, running, table.unpack(arg))
 end
 
@@ -425,24 +424,21 @@ findOne = function(x, confidence, disable_game_up_check)
     if rfl[x0] then
       if cmpColorEx(x, confidence) == 1 then pos = first_point[x0] end
     else
-      stop(x0 .. 377)
-      local color = shallowCopy(rfg[x0])
-      table.extend(color, {x, confidence})
-      log(color)
-      pos = findColor(color, confidence)
+      local px, py
+      px, py = findMultiColor(rfg[x0][1], rfg[x0][2], rfg[x0][3], rfg[x0][4],
+                              first_color[x0], x, 0, confidence)
+      if px ~= -1 then pos = {px, py} end
     end
     return pos
-    -- if pos then return {pos.x, pos.y} end
   end
 end
 
 findAny = function(x) return appear(x, 0, 0) end
 
-findAll = function(x, confidence)
+findOnes = function(x, confidence)
   confidence = confidence or default_findcolor_confidence
-  local color = shallowCopy(rfl[x] or {0, 0, screen.width, screen.height})
-  table.extend(color, {point[x], confidence})
-  return findColors(color)
+  return findMultiColorAll(rfg[x][1], rfg[x][2], rfg[x][3], rfg[x][4],
+                           first_color[x], point[x], 0, confidence) or {}
 end
 
 first_time_tap_nil = time()
@@ -525,7 +521,7 @@ swipu = function(dis)
 
   -- flatten to one depth
   -- local max_once_dis = 1080
-  local max_once_dis = screen.width - math.round(300 * minscale)
+  local max_once_dis = screen.width - scale(300)
   for _, d in pairs(dis) do
     local sign = d > 0 and 1 or -1
     if math.abs(d) == swip_right_max then
@@ -536,7 +532,7 @@ swipu = function(dis)
 
       local finger = {
         {
-          point = {{0, math.round(150 * minscale)}, {0, screen.height - 1}},
+          point = {{0, scale(150)}, {0, screen.height - 1}},
           start = 0,
           duration = 0,
         },
@@ -549,13 +545,13 @@ swipu = function(dis)
       while d > 0 do
         if d > max_once_dis then
           table.insert(finger, {
-            point = {{max_once_dis, math.round(150 * minscale)}},
+            point = {{max_once_dis, scale(150)}},
             start = start,
             duration = duration,
           })
         else
           table.insert(finger, {
-            point = {{d, math.round(150 * minscale)}},
+            point = {{d, scale(150)}},
             start = start,
             duration = duration,
           })
@@ -581,14 +577,11 @@ swipe = function(x)
   elseif x == 'left' then
     gesture({
       {
-        point = {{0, math.round(150 * minscale)}, {0, screen.height - 1}},
+        point = {{0, scale(150)}, {0, screen.height - 1}},
         start = 0,
         duration = 100,
-      }, {
-        point = {{screen.width - math.round(300 * minscale), 150}},
-        start = 60,
-        duration = 50,
       },
+      {point = {{screen.width - scale(300), 150}}, start = 60, duration = 50},
     })
     sleep(100 + 50)
   end
@@ -612,7 +605,7 @@ swipc = function()
   x1, y1 = math.round((500 - 1920 / 2) * minscale + screen.width / 2),
            screen.height // 2
   x2, y2 = math.round((1500 - 1920 / 2) * minscale + screen.width / 2),
-           math.round(100 * minscale)
+           scale(100)
   local finger = {point = {{x1, y1}, {x2, y1}, {x2, y2}}, duration = 500}
   gesture(finger)
   sleep(finger.duration + 50)
@@ -626,27 +619,27 @@ swipo = function(left)
     local x1 = scale(600)
     local x2 = 10000000
     local y1 = scale(533)
-    log(x1,y1)
-    duration = 1000
+    duration = 400
     finger = {{point = {{x1, y1}, {x2, y1}}, duration = duration}}
   else
     local x = scale(600)
     local y = scale(533)
     local y2 = scale(900)
-    local x2 = scale(1720)
-    local x3 = scale(1720 - 100)
-    local slids = 20
-    local slidd = 40
-    local taps = slids + slidd + 20
+    local x2 = scale(1681)
+    local y3 = scale(900)
+    local slids = 50
+    local slidd = 200
+    local taps = slids + slidd + 100
     local tapd = 200
-    local downd = taps + 20
+    local downd = taps + 50
     duration = downd
     finger = {
       {point = {{x, y}, {x, y2}}, start = 0, duration = downd},
-      {point = {{x2, y}, {x3, y}}, start = slids, duration = slidd},
-      {point = {{x2, y}}, start = taps, duration = tapd},
+      {point = {{x2, y}, {x2, y3}}, start = slids, duration = slidd},
+      {point = {{x2, y}, {x2, y3}}, start = taps, duration = tapd},
     }
   end
+  log(JsonEncode(finger))
   gesture(finger)
   sleep(duration)
 end
@@ -684,12 +677,8 @@ zoom = function(retry)
   -- 2x2 pixel zoom
   local duration = 50
   local finger = {
-    {point = {{0, math.round(123 * minscale)}}, duration = duration}, {
-      point = {
-        {1, math.round(123 * minscale) + 1}, {0, math.round(123 * minscale)},
-      },
-      duration = duration,
-    },
+    {point = {{0, scale(123)}}, duration = duration},
+    {point = {{1, scale(123) + 1}, {0, scale(123)}}, duration = duration},
   }
   gesture(finger)
   log(702)
@@ -746,19 +735,16 @@ auto = function(p, fallback, timeout, total_timeout)
         }, x) then
           -- solve 活动签到
           if x == "活动签到返回" and not speedrun then
-            for u = math.round(300 * minscale), screen.width -
-              math.round(300 * minscale), 200 do
+            for u = scale(300), screen.width - scale(300), 200 do
               tap({u, screen.height // 2})
             end
-            for v = math.round(300 * minscale), screen.height -
-              math.round(300 * minscale), 200 do
+            for v = scale(300), screen.height - scale(300), 200 do
               tap({screen.width // 2, v})
             end
           end
           -- solve 抽签
           if x == "抽签返回" and not speedrun then
-            for u = math.round(300 * minscale), screen.width -
-              math.round(300 * minscale), 200 do
+            for u = scale(300), screen.width - scale(300), 200 do
               tap({u, screen.height // 2})
             end
             tap("确定抽取")
@@ -951,7 +937,7 @@ end
 -- x2,y2 => destination
 -- d => direction
 deploy2 = function(idx, total, x2, y2, d)
-  local max_op_width = math.round(178 * minscale) --  in loose mode, each operator's width
+  local max_op_width = scale(178) --  in loose mode, each operator's width
   local x1
   if total * max_op_width > screen.width then
     -- tight
@@ -1087,7 +1073,7 @@ wait_game_up = function(retry)
   if retry > 10 then stop("不能启动游戏") end
   local game = {
     class = "android.view.View",
-    package = "com.hypergryph.arknights",
+    package = appid,
   }
   local bilibili_wrapper = {
     class = "android.view.View",
@@ -1110,9 +1096,14 @@ wait_game_up = function(retry)
   local bilibili_change2 = {
     id = "com.hypergryph.arknights.bilibili:id/tv_gsc_wel_change",
   }
+  local bilibili_other = {
+    id="com.hypergryph.arknights.bilibili:id/tv_gsc_other",
+  }
 
+  -- log(1103)
   if findOne(game) then return end
   if change_account_mode and findOne(bilibili_login) then return end
+  -- log(1104)
 
   if appid == oppid then
     open()
@@ -1120,10 +1111,10 @@ wait_game_up = function(retry)
     appear({game, "keyguard_indication", "keyguard_input"}, 5)
     -- menuConfig({x = 0, y = screen.height})
   else
-    log(961)
+    -- log(961)
     if not appear({
       game, bilibili_wrapper, bilibili_oneclicklogin, bilibili_ok,
-      bilibili_account_login, bilibili_change, bilibili_change2,
+      bilibili_account_login, bilibili_change, bilibili_change2, bilibili_other
     }, 1) then
       log(965)
       open()
@@ -1167,6 +1158,9 @@ wait_game_up = function(retry)
     elseif findNode(bilibili_ok) then
       tap(bilibili_ok)
       appear(game, 5)
+    elseif findNode(bilibili_other) then
+      tap(bilibili_other)
+      appear(bilibili_account_login)
     elseif findNode(bilibili_wrapper) then
       retry = retry - 1
     end
@@ -1261,10 +1255,7 @@ findtap_operator = function(operator)
     ssleep(1)
     -- 616,107
     local res = ocrp({
-      rect = {
-        math.round(616 * minscale), math.round(107 * minscale),
-        screen.width - 1, screen.height - 1,
-      },
+      rect = {scale(616), scale(107), screen.width - 1, screen.height - 1},
     })
     res = res or {}
 
@@ -1316,23 +1307,17 @@ findtap_operator_fast = function(operator)
     -- {0,0,0,0,"1059,457,#D2D1D1|1033,455,#FFFFFF|1464,443,#D1CACE|1491,446,#D6D5D5",95}
 
     -- local r = region[1]
-    -- ocr_fast(math.round(minscale * r[1]), math.round(minscale * r[2]),
-    --          math.round(minscale * r[3]), math.round(minscale * r[4]))
+    -- ocr_fast(scale(r[1]), scale(r[2]),
+    --          scale(r[3]), scale(r[4]))
     for _, r in pairs(region) do
       local text, info
-      text, info = ocr_fast(math.round(minscale * r[1]),
-                            math.round(minscale * r[2]),
-                            math.round(minscale * r[3]),
-                            math.round(minscale * r[4]))
+      text, info = ocr_fast(scale(r[1]), scale(r[2]), scale(r[3]), scale(r[4]))
       if text then
         log(text, info, r)
         for _, w in pairs(info.words) do
           if operator_notfound[w.word] then
             log('found', w.word)
-            tap({
-              math.round(r[1] * minscale) + w.rect.left,
-              math.round(r[2] * minscale) + w.rect.top,
-            })
+            tap({scale(r[1]) + w.rect.left, scale(r[2]) + w.rect.top})
             operator_notfound[w.word] = nil
             found = found - 1
             if found == 0 then return end
@@ -1518,6 +1503,7 @@ end
 parse_from_ui = function(prefix, reference)
   local ans = {}
   for i = 1, #reference do
+    -- log("prefix..i", prefix .. i, _G[prefix .. i])
     if _G[prefix .. i] then table.insert(ans, reference[i]) end
   end
   return ans
@@ -1532,8 +1518,7 @@ all_job = {
 now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
   "指定换班", "基建换班", "线索搜集", "制造加速",
-  "副手换人", "信用购买", "公招刷新", "轮次作战",
-  "任务收集",
+  "副手换人", "信用购买", "公招刷新", "任务收集",
 }
 
 make_account_ui = function(layout, prefix)
@@ -1555,9 +1540,11 @@ make_account_ui = function(layout, prefix)
   ui.addTextView(layout, nil, "基建换班")
   ui.addRadioGroup(layout, prefix .. "prefer_speed", {"最速", "最高收益"},
                    1, -2, -2, true)
-  newRow(layout)
-  ui.addTextView(layout, nil, "信用不买")
-  ui.addEditText(layout, prefix .. 'goods_blacklist', "碳 碳素")
+
+  -- newRow(layout)
+  -- ui.addTextView(layout, nil, "信用不买")
+  -- ui.addEditText(layout, prefix .. 'goods_blacklist', "碳 碳素")
+
   -- newRow(layout)
   -- ui.addTextView(layout, nil, "换班优先")
   -- ui.addRadioGroup(layout, prefix .. "prefer_skill", {"工作状态", "技能"},
@@ -1592,6 +1579,7 @@ show_multi_account_ui = function()
   local layout = "multi_account"
   -- prefix = prefix or "multi_account"
   local config = getWorkPath() .. '/config_' .. layout .. '.json'
+
   ui.newLayout(layout, ui_page_width, -2)
   ui.setOnChange()
   log(1)
@@ -1913,6 +1901,7 @@ show_main_ui = function()
   ui.setBackground(layout .. "_start", ui_submit_color)
 
   ui.loadProfile(getWorkPath() .. '/config_' .. layout .. '.json')
+  log(getWorkPath() .. '/config_' .. layout .. '.json')
   -- 后处理
   if not root_mode then
     ui.setEnable("end_screenoff", false)
@@ -2123,4 +2112,10 @@ scale = function(x, mode)
   elseif mode == 'max' then
     return math.round(x * maxscale)
   end
+end
+input = function(node, text)
+  if type(node) == 'string' then node = point[node] end
+  node = findOne(node)
+  if not node then return end
+  nodeLib.setText(node, text)
 end

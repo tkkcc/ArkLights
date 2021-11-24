@@ -7,10 +7,6 @@ path.base = {
   账号登录 = "账号登录",
   开始唤醒 = "开始唤醒",
   手机验证码登录 = function()
-    local inputbox = R():type("EditText"):name(appid):path(
-                       "/FrameLayout/EditText")
-    local ok = R():type("Button"):name("com.hypergryph.arknights"):path(
-                 "/FrameLayout/Button")
     if #username > 0 then
       if not wait(function()
         if not findOne("手机验证码登录") then return true end
@@ -18,9 +14,11 @@ path.base = {
         tap("账号")
         disappear("手机验证码登录", .5)
       end, 5) then return end
-      if not appear(inputbox) or not appear(ok) then stop("登录失败") end
-      input(inputbox, username)
-      tap(ok)
+      if not appear("inputbox") or not appear("okbutton") then
+        stop("登录失败")
+      end
+      input("inputbox", username)
+      tap("okbutton")
       if not appear("手机验证码登录") then stop("登录失败") end
     end
     if #password > 0 then
@@ -30,17 +28,21 @@ path.base = {
         tap("密码")
         disappear("手机验证码登录", .5)
       end, 5) then return end
-      if not appear(inputbox) or not appear(ok) then stop("登录失败") end
-      input(inputbox, password)
-      tap(ok)
+      if not appear("inputbox") or not appear('okbutton') then
+        stop("登录失败")
+      end
+      input("inputbox", password)
+      tap('okbutton')
       if not appear("手机验证码登录") then stop("登录失败") end
     end
+
     if not wait(function()
       if findAny({"用户名或密码错误", "密码不能为空"}) then
         stop("登录失败")
       end
       tap("登录")
     end, 5) then return end
+
   end,
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then
@@ -815,8 +817,8 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
-  -- path.宿舍换班()
-  path.制造换班()
+  path.宿舍换班()
+  -- path.制造换班()
   path.总览换班()
   -- shift1=shift2=shift3=1
   -- log(shift1, shift2, shift3)
@@ -976,7 +978,7 @@ end
 
 -- tap with offset -50,50
 tapCard = function(k)
-  local x, y = point[k]:match("(%d+),(%d+)")
+  local x, y = point[k]:match("(%d+)" .. coord_delimeter .. "(%d+)")
   tap({tonumber(x) - 50, tonumber(y) + 50})
 end
 
@@ -1113,21 +1115,18 @@ path.线索传递 = function()
     if random then
       idx = 1 -- 有人只有一个好友
     else
-      local ps = findAll("线索传递橙框")
-      if ps then
-        for _, p in pairs(ps) do
-          log(857, p)
-          local i = 1
-          for j = 1, 4 do
-            if p.y < point["传递列表" .. j][2] then
-              i = j
-              break
-            end
-          end
-          if findOne("今日登录列表" .. i) then
-            idx = i
+      for _, p in pairs(findOnes("线索传递橙框")) do
+        log(857, p)
+        local i = 1
+        for j = 1, 4 do
+          if p.y < point["传递列表" .. j][2] then
+            i = j
             break
           end
+        end
+        if findOne("今日登录列表" .. i) then
+          idx = i
+          break
         end
       end
     end
@@ -1415,7 +1414,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
     if findOne("开始行动") then
       tap("开始行动蓝")
-      disappear("开始行动", 1)
+      disappear("开始行动", 2)
     end
   end, 30) then return end
 
@@ -2047,60 +2046,34 @@ path.公招刷新 = function()
       end, 5) then return end
 
       g = function()
-        local empty_tags = true
-        local tags = {}
-        local ocr_text
-        -- local max_star = 4
-
-        -- retry ocr if contains invalid tags
-        for j = 1, 6 do
-          for _ = 1, 5 do
-            local p = point["公开招募标签框列表" .. j]
-            log(1461, p)
-            ocr_text, _ = ocr_fast(table.unpack(p))
-            log(1463, ocr_text)
-            if not ocr_text then break end
-            ocr_text = string.map(ocr_text, {
-              ["'"] = "",
-              [" "] = "",
-              ["."] = "",
-              ["。"] = "",
-              ["`"] = "",
-              ["-"] = "",
-              ["_"] = "",
-              ["′"] = "",
-              [","] = "",
-              ["，"] = "",
-              ["("] = "",
-              [")"] = "",
-              ["{"] = "",
-              ["}"] = "",
-              ["v"] = "",
-              ["^"] = "",
-              ["4"] = "",
-            })
-
-            -- should be at least dual chinese characters
-            if #ocr_text < 6 then break end
-
-            if table.includes(tag, ocr_text) then
-              tags[ocr_text] = {p[1], p[2]}
-              empty_tags = false
-              break
+        local tags, r
+        for _ = 1, 5 do
+          r = point["公开招募标签框范围"]
+          r = ocrEx(r[1], r[2], r[3], r[4]) or {}
+          tags = {}
+          for _, p in pairs(r) do
+            if table.includes(tag, p.text) then
+              tags[p.text] = {(p.l + p.r) // 2, (p.t + p.b) // 2}
             end
-            log("invalid tag", ocr_text)
           end
+          if #table.keys(tags) >= 5 then break end
+          log(tags)
+          stop(2059)
         end
-        if empty_tags then return end
+
+        local skip = false
+        if #table.keys(tags) < 5 then skip = true end
+
         log(1092, tags)
+        -- exit()
         local tag4 = table.filter(tag5, function(rule)
           return table.all(rule[1], function(r) return tags[r] end)
         end)
         log(1093, tag4)
         -- toast(JsonEncode(tags))
 
-        if #tag4 == 0 then
-          if findTap("公开招募标签刷新蓝") then
+        if #tag4 == 0 or skip then
+          if not skip and findTap("公开招募标签刷新蓝") then
             if not disappear("公开招募时间减") then return end
             if not wait(function()
               if findOne("公开招募时间减") then return true end
@@ -2397,12 +2370,11 @@ path["克洛丝单人1-12"] = function()
 end
 
 path.退出账号 = function()
+  log(2373)
   change_account_mode = true
-  local bilibili_login = {
-    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login",
-  }
+  log(appear("bilibili_login"))
   auto(update(path.base, {
-    [function() return findNode(bilibili_login) end] = true,
+    [function() return findOne("bilibili_login") end] = true,
     面板 = function()
       tap("面板设置")
       if not appear({"返回3", "返回4"}) then return end
@@ -2415,4 +2387,5 @@ path.退出账号 = function()
     手机验证码登录 = true,
   }), nil, nil, 1800)
   change_account_mode = false
+  log(2374)
 end

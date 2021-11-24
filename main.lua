@@ -1,4 +1,4 @@
-predebug = true
+-- predebug = true
 -- fake_recruit = true
 -- during_crisis_contract =true
 -- disable_communication_check=true
@@ -29,8 +29,8 @@ default_findcolor_confidence = 95 / 100
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
 disable_hotupdate = true
--- disable_root_mode = true
-disable_game_up_check = true
+disable_root_mode = true
+-- disable_game_up_check = true
 need_show_console = true
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
@@ -101,8 +101,6 @@ end
 
 -- auto switch 官服 and B服
 appid_need_user_select = false
-oppid = "com.hypergryph.arknights"
-bppid = "com.hypergryph.arknights.bilibili"
 appid = oppid
 
 if prefer_bapp then appid = bppid end
@@ -114,17 +112,14 @@ if bpp_info and not app_info then appid = bppid end
 if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and 0 or 1
 
-
 if predebug then
-  -- tap({700,500})
-  -- swipo(true)
+  -- log(findOne("bgame"))
   -- ssleep(1)
-  log(121)
-  for _ = 1, 1 do
-    swipo()
-    ssleep(1)
-  end
-  ssleep(100)
+  -- sleep(2000 * 1000)
+  -- log(JsonEncode(ocrEx(0,0,0,0)))
+  -- log(findOnes("线索传递橙框")[1])
+  -- log(point["入驻干员"])
+  -- log(findOne("入驻干员"))
   exit()
 
   require("skill")
@@ -205,11 +200,13 @@ end
 loadUIConfig()
 
 update_state_from_ui = function()
-  prefer_skill = prefer_skill == 1
+  prefer_skill = true
   drug_times = 0
   max_drug_times = tonumber(max_drug_times)
   stone_times = 0
   max_stone_times = tonumber(max_stone_times)
+  log("max_drug_times", max_drug_times)
+  log("max_stone_times", max_stone_times)
   appid = server == 0 and oppid or bppid
   job = parse_from_ui("now_job_ui", all_job)
 
@@ -321,7 +318,7 @@ apply_multi_account_setting = function(i, visited)
   visited = visited or {}
   table.insert(visited, i)
   -- if loadConfig("multi_account_new_setting" .. i, "0") == "0" then
-  if _G["multi_account_inherit_toggle" .. i] == "切换为继承设置" then
+  if _G["multi_account_inherit_toggle" .. i] == "切换为独立设置" then
     local inherit = _G["multi_account_inherit_spinner" .. i]
     local j = math.floor(inherit)
     if inherit == 0 or table.includes(visited, j) then
@@ -355,6 +352,7 @@ end
 if no_valid_account then
   transfer_global_variable("multi_account_user0")
   update_state_from_ui()
+  log(job)
   run(job)
 end
 
@@ -374,12 +372,12 @@ wait(function() return lock.length == 0 end, 30)
 -- local notification
 vibrate(100)
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
-ssleep(1)
 
 -- 定时执行逻辑：如果到点但脚本还在run则跳过，因为run中重启可能出现异常
 if crontab_enable then
   local config = string.filterSplit(crontab_text, {"：", ":"})
   local candidate = {}
+  log("config", config)
   for _, v in pairs(config) do
     local hour_second = v:split(':')
     local hour = math.round(tonumber(hour_second[1] or 0) or 0)
@@ -390,12 +388,16 @@ if crontab_enable then
                  os.time(update(os.date("*t"), {hour = hour + 24, min = min})))
   end
   table.sort(candidate)
-  log(candidate)
   local next_time = table.findv(candidate, function(x) return x > os.time() end)
-  toast("下次执行时间：" .. os.date("%H:%m", next_time))
-  ssleep(max(0, next_time - os.time()))
+  toast("下次执行时间：" .. os.date("%H:%M", next_time))
+  log("下次执行时间：" .. os.date("%H:%M", next_time))
+  while true do
+    if os.time() >= next_time then break end
+    ssleep(clamp(next_time - os.time(), 0, 1000))
+  end
   saveConfig("hideUIOnce", "true")
   restartScript()
 else
+  ssleep(.5)
   peaceExit()
 end
