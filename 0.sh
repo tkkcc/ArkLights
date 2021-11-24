@@ -40,9 +40,10 @@
     # sed -i -r 's/(明日方舟速通).+"/\1 '"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
     cd release
     cp /F:/software/懒人精灵3.6.0/out/main.lr script.lr
+    # cp /F:/software/懒人精灵3.6.0/tmp/明日方舟速通.apk .
     git add -u
     git commit --amend -m "$(md5sum script.lr | cut -d' ' -f1)"
-    git push --force-with-lease
+    git push --force
   }
   stop() {
     i3-msg 'focus left'

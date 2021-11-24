@@ -22,11 +22,44 @@ oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
-  ogame = {class = "android.view.View", package = oppid},
-  bgame = {class = "android.view.View", package = bppid},
+  bilibili_username_inputbox = {
+    id = "com.hypergryph.arknights.bilibili:id/et_gsc_account",
+  },
+  bilibili_password_inputbox = {
+    id = "com.hypergryph.arknights.bilibili:id/et_gsc_account_pwd",
+  },
+  bilibili_framelayout_only = function()
+    -- log(32,appid,bppid,findOne())
+    -- log(32,appid,bppid,findOne("game"),findOne("bgame"))
+    return appid == bppid and findOne("game") and not findOne("bgame")
+  end,
+  bilibili_framelayout = {
+    class = "android.widget.FrameLayout",
+    package = "com.hypergryph.arknights.bilibili",
+  },
+  game = function()
+    return findOne(appid == oppid and "ogame" or "bilibili_framelayout")
+  end,
+  ogame = {class = "android.view.View", package = oppid, desc = 'Game view'},
+  bgame = {class = "android.view.View", package = bppid, desc = 'Game view'},
   bilibili_login = {
     id = "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login",
   },
+  bilibili_oneclicklogin = {
+    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_record_login",
+  },
+  bilibili_ok = {id = "tv.danmaku.bili:id/ok"},
+  bilibili_account_login = {
+    id = "com.hypergryph.arknights.bilibili:id/iv_gsc_account_login",
+  },
+  bilibili_change = {
+    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_record_login_change",
+  },
+  bilibili_change2 = {
+    id = "com.hypergryph.arknights.bilibili:id/tv_gsc_wel_change",
+  },
+  bilibili_other = {id = "com.hypergryph.arknights.bilibili:id/tv_gsc_other"},
+
   inputbox = {
     class = "android.widget.EditText",
     package = "com.hypergryph.arknights",
@@ -107,12 +140,9 @@ point = {
   线索搜集提示 = "1467|200|FFFFFF",
   基建右上角 = "1917|36|333333",
   好友 = {99, 613},
-  -- 缩放结束1 = "929|275|545454,929|276|F1F0F1,932|275|F1F0F1",
-  -- 缩放结束2 = "929|324|545454,929|323|F1F0F1,932|324|F1F0F1",
-  -- 缩放结束 = function() return findAny({"缩放结束1", "缩放结束2"}) end,
-  缩放结束1 = "929,275,#545454|929,276,#F1F0F1|932,275,#F1F0F1",
-  缩放结束2 = "929,324,#545454|929,323,#F1F0F1|932,324,#F1F0F1",
-  缩放结束3 = "925,327,#F1F0F1|930,328,#545454|932,328,#F1F0F1",
+  缩放结束1 = "929|275|545454,929|276|F1F0F1,932|275|F1F0F1",
+  缩放结束2 = "929|324|545454,929|323|F1F0F1,932|324|F1F0F1",
+  缩放结束3 = "925|327|F1F0F1,930|328|545454,932|328|F1F0F1",
   缩放结束 = function()
     return findAny({"缩放结束1", "缩放结束2", "缩放结束3"})
   end,
@@ -819,6 +849,7 @@ center = {
   缩放结束 = "center_center_maxscale",
   缩放结束1 = "center_center_maxscale",
   缩放结束2 = "center_center_maxscale",
+  缩放结束3 = "center_center_maxscale",
 
   心情采样列表 = "right_top",
   信赖采样列表 = "right_top",

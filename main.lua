@@ -1,4 +1,8 @@
 -- predebug = true
+-- disable_hotupdate = true
+-- disable_root_mode = true
+
+-- no_background_after_run = true
 -- fake_recruit = true
 -- during_crisis_contract =true
 -- disable_communication_check=true
@@ -22,18 +26,13 @@ check_after_tap = true
 -- prefer_bapp = true
 -- prefer_bapp_on_android7 = true
 -- debug0721 = true
-no_background_after_run = true
 -- longest_tag = true
 -- very_slow_state_check = true
 default_findcolor_confidence = 95 / 100
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
-disable_hotupdate = true
-disable_root_mode = true
 -- disable_game_up_check = true
 need_show_console = true
-ui_submit_color = "#ff0d47a1"
-ui_cancel_color = "#ff1976d2"
 milesecond_after_click = 0
 
 require('util')
@@ -41,24 +40,29 @@ require("point")
 require("path")
 require("tag")
 
-log(screen)
-ui_page_width = math.round(screen.height * 0.89)
-log(ui_page_width)
-ui_submit_width = math.round(ui_page_width * 0.8)
-ui_small_submit_width = math.round(ui_page_width * 0.53)
+ui_submit_color = "#ff0d47a1"
+ui_cancel_color = "#ff1976d2"
+-- ui_page_width = math.round(screen.height*0.89)
+-- ui_submit_width = math.round(ui_page_width * 0.8)
+-- ui_small_submit_width = math.round(ui_page_width * 0.51)
+ui_page_width = -2
+ui_submit_width = -2
+ui_small_submit_width = -2
 
 setStopCallBack(function()
+  local screen = getScreen()
+  console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
+                 round(screen.width * 0.9), round(screen.height * 0.9))
+  console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
+                 round(screen.width * 0.09), round(screen.height * 0.09))
   if need_show_console then
-    local screen = getScreen()
-    -- console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
-    --                round(screen.width, 0.9), round(screen.height, 0.9))
-    -- console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
-    --                round(screen.width, 0.09), round(screen.height, 0.09))
     console.show()
+  else
+    console.dismiss()
   end
 end)
 
-hotUpdate()
+hotUpdate(true)
 showControlBar(true)
 setControlBarPosNew(0, 1)
 console.clearLog()
@@ -89,6 +93,7 @@ if not isAccessibilityServiceRun() then
   if not wait(function() return isAccessibilityServiceRun() end, 600) then
     stop("开启无障碍权限超时")
   end
+  home()
 end
 if not isSnapshotServiceRun() then
   log("请开启录屏权限")
@@ -97,6 +102,7 @@ if not isSnapshotServiceRun() then
   if not wait(function() return isSnapshotServiceRun() end, 600) then
     stop("开启录屏权限超时")
   end
+  home()
 end
 
 -- auto switch 官服 and B服
@@ -113,7 +119,17 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and 0 or 1
 
 if predebug then
-  -- log(findOne("bgame"))
+  log(findOne("bilibili_framelayout_only"))
+
+  log(findOne("bilibili_framelayout"))
+  log(findOne("game"))
+  log(findOne("bgame"))
+  log(findOne("ogame"))
+  -- log(1,findOne("game"))
+  -- for i = 1, 1000 do findOne("game") end
+  -- log(2,findOne("主页"))
+  -- for i = 1, 1000 do findOne("主页") end
+  -- log(3)
   -- ssleep(1)
   -- sleep(2000 * 1000)
   -- log(JsonEncode(ocrEx(0,0,0,0)))
@@ -193,7 +209,7 @@ if loadConfig("hideUIOnce", "false") ~= "false" then
 else
   main_ui_lock = lock:add()
   show_main_ui()
-  wait(function() return not lock:exist(main_ui_lock) end, 600)
+  wait(function() return not lock:exist(main_ui_lock) end, 300)
 end
 
 -- start
@@ -362,7 +378,7 @@ if end_closeapp then
   closeapp(oppid)
   closeapp(bppid)
 end
-if not no_background_after_run then home() end
+if not no_background_after_run and end_home then home() end
 if end_screenoff then screenoff() end
 if end_poweroff then poweroff() end
 

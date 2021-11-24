@@ -1,4 +1,12 @@
 path = {}
+
+-- base 只在跳转时使用，如果在任务中间需要登录失效，则当前任务超时后，下一任务的跳转会重新登录。
+-- base 应覆盖尽可能多的corner case。
+-- wait_game_up 每5秒执行一次，保证游戏在前台，别点到其他应用。
+-- wait_game_up 有必要在游戏中自动亮屏吗：有
+-- wait_game_up 有必要在切出游戏后回到游戏吗：有
+-- wait_game_up 有必要做B服界面跳转吗：没有。做了之后，退出账号难实现
+
 path.base = {
   面板 = true,
   下载资源确认 = "下载资源确认",
@@ -7,6 +15,7 @@ path.base = {
   账号登录 = "账号登录",
   开始唤醒 = "开始唤醒",
   手机验证码登录 = function()
+    if appid ~= oppid then return end
     if #username > 0 then
       if not wait(function()
         if not findOne("手机验证码登录") then return true end
@@ -42,7 +51,6 @@ path.base = {
       end
       tap("登录")
     end, 5) then return end
-
   end,
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then
@@ -113,7 +121,50 @@ path.base = {
       end
     end
   end,
+  bilibili_framelayout_only = function()
+    auto(path.bilibili_login)
+  end,
 }
+
+path.bilibili_login = {
+  bgame = true,
+  bilibili_account_login = function()
+    tap("bilibili_account_login")
+    appear("bilibili_login")
+  end,
+  bilibili_login = function()
+    if username and #username > 0 and password and #password > 0 then
+      input("bilibili_username_inputbox", username)
+      input("bilibili_password_inputbox", password)
+    end
+    tap("bilibili_login")
+    if not disappear("bilibili_login", 30) then stop("登录失败138") end
+  end,
+  bilibili_oneclicklogin = function()
+    tap("bilibili_oneclicklogin")
+    appear("bilibili_ok", 5)
+  end,
+  bilibili_ok = function()
+    tap("bilibili_ok")
+    appear("bgame", 5)
+  end,
+  bilibili_other = function()
+    tap("bilibili_other")
+    appear("bilibili_account_login")
+  end,
+}
+path.bilibili_login_change = update(path.bilibili_login, {
+  bilibili_oneclicklogin = false,
+  bilibili_login = true,
+  bilibili_change2 = function()
+    tap("bilibili_change2")
+    appear({"bilibili_change","bilibili_account_login"})
+  end,
+  bilibili_change = function()
+    tap("bilibili_change")
+    appear("bilibili_account_login")
+  end,
+})
 
 path.邮件收取 = function()
   path.跳转("邮件")
@@ -183,6 +234,9 @@ path.基建收获 = function()
   leaving_jump = true
 end
 
+-- 跳转至由面板可到达的界面
+-- 注意 从好友 以及 到采购中心的跳转
+-- TODO 目前从好友跳转时可能出现5秒等待
 path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   local sign = {
     好友 = "个人名片",
@@ -1414,6 +1468,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
     if findOne("开始行动") then
       tap("开始行动蓝")
+      -- TODO 2秒太慢
       disappear("开始行动", 2)
     end
   end, 30) then return end
@@ -2058,7 +2113,6 @@ path.公招刷新 = function()
           end
           if #table.keys(tags) >= 5 then break end
           log(tags)
-          stop(2059)
         end
 
         local skip = false
@@ -2370,11 +2424,11 @@ path["克洛丝单人1-12"] = function()
 end
 
 path.退出账号 = function()
-  log(2373)
-  change_account_mode = true
-  log(appear("bilibili_login"))
   auto(update(path.base, {
-    [function() return findOne("bilibili_login") end] = true,
+    bilibili_framelayout_only = function()
+      if findOne("面板") or findOne("bilibili_login") then return end
+      auto(path.bilibili_login_change)
+    end,
     面板 = function()
       tap("面板设置")
       if not appear({"返回3", "返回4"}) then return end
@@ -2384,8 +2438,7 @@ path.退出账号 = function()
       end, 1)
     end,
     开始唤醒 = "账号管理",
+    bilibili_login = true,
     手机验证码登录 = true,
   }), nil, nil, 1800)
-  change_account_mode = false
-  log(2374)
 end
