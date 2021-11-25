@@ -21,17 +21,7 @@
 
 ## 开发
 
-开发参考[懒人开发文档](http://www.nspirit.cn/api)。命令行用户可以使用仓库中的`./0.sh`开发，示例：
-
-```bash
-# 先在目标设备打开节点精灵
-# 再在本地执行
-adb connect z9:5555 # adb连接到目标设备
-./0.sh init z9:5555 # 映射本地端口到目标设备
-./0.sh saverun # 上传代码并运行
-./0.sh stop # 停止
-./0.sh release # 发布
-```
+开发参考[懒人精灵IDE内文档](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)
 
 ## 对比
 

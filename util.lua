@@ -248,6 +248,14 @@ table.shuffle = function(tbl)
   end
   return tbl
 end
+-- one depth compare
+table.equal = function(a, b)
+  if type(a) ~= 'table' or type(b) ~= 'table' then return end
+  if #a ~= #b then return end
+  if #a == 0 and #table.keys(a) ~= #table.keys(b) then return end
+  for k, v in pairs(a) do if v ~= b[k] then return end end
+  return true
+end
 
 equalX = function(x) return function(y) return x == y end end
 
@@ -371,7 +379,7 @@ log = function(...)
   local a = time()
   -- for _, v in pairs(l) do a = a .. ' ' .. v end
   print(a, l)
-  console.println(1, a, table.unpack(arg))
+  console.println(1, a, l)
 end
 
 open = function() runApp(appid) end
@@ -844,12 +852,6 @@ run = function(...)
     if type(arg[1]) == "function" then return arg[1]() end
     if type(arg[1]) == "table" then arg = arg[1] end
   end
-  -- menuConfig({x = 0, y = screen.height})
-  -- logConfig({
-  --   width = math.round(screen.height * .8),
-  --   height = math.round(screen.height * .8),
-  --   mode = 3,
-  -- })
   qqmessage = {' '}
   init_state()
 
@@ -858,7 +860,7 @@ run = function(...)
 
   wait_game_up()
   for _, v in ipairs(arg) do
-    -- menuConfig({x = 0, y = screen.height})
+    setControlBarPosNew(0, 1)
     running = v
     if type(v) == 'function' then
       log(773)
@@ -1071,60 +1073,6 @@ wait_game_up = function(retry)
   checkScreenLock()
   log("wait_game_up next", retry)
   return wait_game_up(retry + 1)
-end
-
-checkBibiliLogin = function()
-  if findOne("game") then return end
-  if not appear({
-    game, bilibili_wrapper, bilibili_oneclicklogin, bilibili_ok,
-    bilibili_account_login, bilibili_change, bilibili_change2, bilibili_other,
-  }, 1) then
-    log(965)
-    open()
-    screenon()
-    appear({
-      game, bilibili_wrapper, bilibili_oneclicklogin, bilibili_ok,
-      bilibili_account_login, bilibili_change, bilibili_change2,
-      "keyguard_indication", "keyguard_input",
-    }, 5)
-    -- menuConfig({x = 0, y = screen.height})
-  elseif change_account_mode then
-    if findNode(bilibili_login) then
-      return
-    elseif findNode(bilibili_change2) then
-      tap(bilibili_change2)
-      disappear(bilibili_change2)
-    elseif findNode(bilibili_change) then
-      tap(bilibili_change)
-      appear(bilibili_account_login)
-    elseif findNode(bilibili_account_login) then
-      tap(bilibili_account_login)
-      appear(bilibili_login)
-    end
-  elseif findNode(bilibili_account_login) then
-    tap(bilibili_account_login)
-    appear(bilibili_login)
-  elseif findNode(bilibili_login) then
-    local username_inputbox = {
-      id = "com.hypergryph.arknights.bilibili:id/et_gsc_account",
-    }
-    local password_inputbox = {
-      id = "com.hypergryph.arknights.bilibili:id/et_gsc_account_pwd",
-    }
-    input(username_inputbox, username)
-    input(password_inputbox, password)
-    tap(bilibili_login)
-    appear(game, 5)
-  elseif findNode(bilibili_oneclicklogin) then
-    tap(bilibili_oneclicklogin)
-    appear(bilibili_ok, 5)
-  elseif findNode(bilibili_ok) then
-    tap(bilibili_ok)
-    appear(game, 5)
-  elseif findNode(bilibili_other) then
-    tap(bilibili_other)
-    appear(bilibili_account_login)
-  end
 end
 
 screenLockSwipUp = function()
@@ -2045,8 +1993,9 @@ input = function(selector, text)
   if type(text) ~= 'string' or #text == 0 then return end
   local node = findOne(selector)
   if not node then return true end
-  wait(function()
-    nodeLib.setText(node, text)
-    if #node.text > 0 then return true end
-  end, 2)
+  -- wait(function()
+  nodeLib.setText(node, text)
+  -- if #node.text > 0 then return true end
+  -- log(1991,node.text)
+  -- end, 20)
 end

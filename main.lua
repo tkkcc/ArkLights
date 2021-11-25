@@ -1,7 +1,6 @@
 -- predebug = true
 -- disable_hotupdate = true
 -- disable_root_mode = true
-
 -- no_background_after_run = true
 -- fake_recruit = true
 -- during_crisis_contract =true
@@ -53,8 +52,8 @@ setStopCallBack(function()
   local screen = getScreen()
   console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
                  round(screen.width * 0.9), round(screen.height * 0.9))
-  console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
-                 round(screen.width * 0.09), round(screen.height * 0.09))
+  -- console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
+  --                round(screen.width * 0.09), round(screen.height * 0.09))
   if need_show_console then
     console.show()
   else
@@ -67,7 +66,7 @@ showControlBar(true)
 setControlBarPosNew(0, 1)
 console.clearLog()
 console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
-               round(screen.width * 0.09), round(screen.height * 0.09))
+               round(screen.width * 0.9), round(screen.height * 0.9))
 console.setTitle("如有问题，滚动到问题点，截屏反馈开发者")
 console.dismiss()
 
@@ -119,12 +118,13 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and 0 or 1
 
 if predebug then
-  log(findOne("bilibili_framelayout_only"))
+  -- log(findAny({"返回", "返回2", "返回3", "返回4"}))
+  -- log(findOne("bilibili_framelayout_only"))
 
-  log(findOne("bilibili_framelayout"))
-  log(findOne("game"))
-  log(findOne("bgame"))
-  log(findOne("ogame"))
+  -- log(findOne("bilibili_framelayout"))
+  -- log(findOne("game"))
+  -- log(findOne("bgame"))
+  -- log(findOne("ogame"))
   -- log(1,findOne("game"))
   -- for i = 1, 1000 do findOne("game") end
   -- log(2,findOne("主页"))

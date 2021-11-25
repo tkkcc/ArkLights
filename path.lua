@@ -121,9 +121,7 @@ path.base = {
       end
     end
   end,
-  bilibili_framelayout_only = function()
-    auto(path.bilibili_login)
-  end,
+  bilibili_framelayout_only = function() auto(path.bilibili_login) end,
 }
 
 path.bilibili_login = {
@@ -158,7 +156,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
   bilibili_login = true,
   bilibili_change2 = function()
     tap("bilibili_change2")
-    appear({"bilibili_change","bilibili_account_login"})
+    appear({"bilibili_change", "bilibili_account_login"})
   end,
   bilibili_change = function()
     tap("bilibili_change")
@@ -318,25 +316,21 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
       log(209)
     end,
     主页 = function()
-      -- p["主页"] = nil
       if not wait(function()
         local y = findAny({"主页"})
         tap(y)
-
         -- TODO we can make this faster, gain .5s mostly
         -- jump from 宿舍 to others
         -- TODO .5 => .1 failed
         if not y or disappear(y, .5) then
           -- not y 表示 当前主页列表正在展开、收缩或停止，这时
-          -- if not y or not findOne(y) then
           if home_target == "任务" or home_target == "好友" then
             ssleep(.2)
           end
 
-          -- TODO no wait can cause stuck 5 seconds
+          -- 一直按直到出现新状态
           tap("主页列表" .. home_target)
           tap("主页列表" .. home_target)
-
           wait(function()
             if not findAny({"返回", "返回2"}) or
               findAny({"主页", "返回确认", "返回确认2"}) then
@@ -344,9 +338,9 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
             end
             tap("主页列表" .. home_target)
           end, .5)
+
           return true
         end
-
       end, 5) then return end
 
       if not bypass(sign[home_target]) then return end
@@ -357,11 +351,11 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
           p["主页"] = nil
           return true
         end
-        -- TODO check
+
         if findAny({"返回", "返回2"}) then
           if not first_time_see_home then
             first_time_see_home = time()
-          elseif (time() - first_time_see_home) > 3000 then
+          elseif (time() - first_time_see_home) > 1000 then
             p["主页"] = nil
             return true -- we see 返回 for some time, but target still not appear
           end
@@ -1814,10 +1808,7 @@ is_jmfight_enough = function(x, outside)
     log(1738)
     return false
   end
-  if jmfight_enough then
-    clean_jmfight()
-    return true
-  end
+  if jmfight_enough then return true end
 
   if not outside and findOne("报酬合成玉已满") or outside and
     findOne("报酬合成玉已满2") then
@@ -1828,16 +1819,6 @@ is_jmfight_enough = function(x, outside)
   end
   log("not find报酬合成玉已满")
   return false
-
-  -- if auto_clean_fight then
-  --   log("before fight clean", fight, fight_tick)
-  --   log("unavailable_fight",unavailable_fight)
-  --   local unavailable_fight = type == "pr" and x:sub(1, 4) or x:sub(1, 2)
-  --   fight, fight_tick = clean_table(fight, fight_tick, function(v)
-  --     return v:startsWith(unavailable_fight)
-  --   end)
-  --   log("after fight clean", fight, fight_tick)
-  -- end
 end
 
 path.剿灭 = function(x)
@@ -1868,7 +1849,7 @@ path.剿灭 = function(x)
 
   if not findOne("主页") then return end
   if not wait(function()
-    if is_jmfight_enough(x, true) then return true end
+    -- if is_jmfight_enough(x, true) then return true end
     if not findOne("主页") then return true end
     tap("当期委托")
   end, 5) then return end
@@ -2100,9 +2081,9 @@ path.公招刷新 = function()
         tap("公开招募点击列表" .. i)
       end, 5) then return end
 
-      g = function()
+      g = function(pre_tags)
         local tags, r
-        for _ = 1, 5 do
+        wait(function()
           r = point["公开招募标签框范围"]
           r = ocrEx(r[1], r[2], r[3], r[4]) or {}
           tags = {}
@@ -2111,9 +2092,12 @@ path.公招刷新 = function()
               tags[p.text] = {(p.l + p.r) // 2, (p.t + p.b) // 2}
             end
           end
-          if #table.keys(tags) >= 5 then break end
+          if #table.keys(tags) >= 5 and
+            not table.equal(table.keys(tags), table.keys(pre_tags)) then
+            return true
+          end
           log(tags)
-        end
+        end)
 
         local skip = false
         if #table.keys(tags) < 5 then skip = true end
@@ -2134,11 +2118,7 @@ path.公招刷新 = function()
               tap("公开招募右确认")
             end, 5) then return end
             if not appear("公开招募时间减") then return end
-
-            -- 画面中有飞屑，sample不可用，先用sleep了
-            -- 2 seconds for stabilization
-            ssleep(2)
-            return g()
+            return g(tags)
           else
             if not wait(function()
               if findOne("公开招募箭头") and
