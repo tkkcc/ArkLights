@@ -1,4 +1,5 @@
 print('util')
+
 -- transfer 节点精灵 to 懒人精灵
 getColor = function(x, y)
   local bgr = getPixelColor(x, y):upper()
@@ -22,6 +23,11 @@ end
 getDir = getWorkPath
 base64 = getFileBase64
 putClipboard = writePasteboard
+_toast = toast
+toast = function(x)
+  _toast(x)
+  log(x)
+end
 
 deviceClickEventMaxX = nil
 deviceClickEventMaxY = nil
@@ -248,12 +254,26 @@ table.shuffle = function(tbl)
   end
   return tbl
 end
--- one depth compare
+
+-- one depth compare, and key-value pairs all same
 table.equal = function(a, b)
   if type(a) ~= 'table' or type(b) ~= 'table' then return end
+
   if #a ~= #b then return end
   if #a == 0 and #table.keys(a) ~= #table.keys(b) then return end
+
   for k, v in pairs(a) do if v ~= b[k] then return end end
+  return true
+end
+
+-- one depth compare, and key all same
+table.equalKey = function(a, b)
+  if type(a) ~= 'table' or type(b) ~= 'table' then return end
+
+  if #a ~= #b then return end
+  if #a == 0 and #table.keys(a) ~= #table.keys(b) then return end
+
+  for k, _ in pairs(a) do if b[k] == nil then return end end
   return true
 end
 
@@ -266,10 +286,13 @@ shallowCopy = function(x)
   return y
 end
 
-update = function(b, x, inplace)
+update = function(b, x, inplace, false_as_nil)
   local y = inplace and b or shallowCopy(b)
   if x == nil then return y end
-  for k, v in pairs(x) do y[k] = v end
+  for k, v in pairs(x) do
+    if false_as_nil and v == false then v = nil end
+    y[k] = v
+  end
   return y
 end
 
@@ -387,7 +410,6 @@ open = function() runApp(appid) end
 stop = function(msg)
   msg = msg or ''
   msg = "stop " .. msg
-  log(msg)
   toast(msg)
   exit()
 end
@@ -449,32 +471,21 @@ findOnes = function(x, confidence)
                            first_color[x], point[x], 0, confidence) or {}
 end
 
--- first_time_tap_nil = time()
 -- x={2,3} "信用" func nil
-tap = function(x, retry, allow_outside_game)
+tap = function(x, noretry, allow_outside_game)
   if not unsafe_tap and not allow_outside_game and not check_after_tap then
     wait_game_up()
   end
 
   local x0 = x
+  if x == nil then return end
   if x == true then return true end
-
-  -- -- 要从这儿提出去
-  if x == nil then
-    --   first_time_tap_nil = time()
-    --   if time() - first_time_tap_nil > 5000 then -- 5 seconds
-    --     tap("返回")
-    --     first_time_tap_nil = time()
-    --   end
-    return
-  end
   if type(x) == "function" then return x() end
   if type(x) == "string" and not x:find(coord_delimeter) then
     x = point[x]
     if type(x) == "string" then
       local p = x:find(coord_delimeter)
       local q = x:find(coord_delimeter, p + 1)
-      -- log(p, q)
       x = map(tonumber, {x:sub(1, p - 1), x:sub(p + 1, q - 1)})
     end
   end
@@ -485,24 +496,25 @@ tap = function(x, retry, allow_outside_game)
   else
     clickNode(x)
   end
+  local start_time = time()
 
-  -- local start_time = time()
+  -- 后置检查
   if not unsafe_tap and not allow_outside_game and check_after_tap then
     wait_game_up()
   end
 
-  -- 这个sleep的作用是两次gesture间隔太短被判定为长按，游戏界面会无反应
+  -- 这个sleep的作用是两次gesture间隔太短被判定为长按/点击，游戏界面会无反应，
   -- 所以click后需要等一会儿
-  -- sleep(max(milesecond_after_click + start_time - time(), 0))
-  if retry then return end
+  -- 懒人无现象闪退，可能和点太快有关
+  sleep(max(milesecond_after_click + start_time - time(), 0))
 
-  -- 返回"面板"后易触发数据更新,导致操作失效
+  -- 返回"面板"后易触发数据更新，导致操作失效
+  if noretry then return end
   if type(x0) == 'string' and x0:startsWith('面板') then
     wait(function()
       if not findOne("面板") then return true end
       log("retap", x0)
       tap(x0, true, allow_outside_game)
-      -- log(352)
     end, 10)
   end
 end
@@ -717,19 +729,20 @@ auto = function(p, fallback, timeout, total_timeout)
     if total_timeout and time() - start_time > total_timeout * 1000 then
       return true
     end
+    -- local found = false
     local finish = false
     local check = function()
       for k, v in pairs(p) do
         -- log(663, k, v)
         -- print(type(k))
         if findOne(k) then
+
           -- log(664, k)
           log(k, "=>", v)
-          effective_state = k
-          if tap(v) then
-            finish = true
-            return true
-          end
+          -- effective_state = k
+          -- found = true
+          if tap(v) then finish = true end
+          return true
         end
       end
     end
@@ -1412,13 +1425,13 @@ end
 
 all_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "基建换班", "线索搜集", "制造加速", "副手换人",
+  "基建换班", "制造加速", "线索搜集", "副手换人",
   "信用购买", "公招刷新", "任务收集",
 }
 
 now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "基建换班", "线索搜集", "制造加速", "副手换人",
+  "基建换班", "制造加速", "线索搜集", "副手换人",
   "信用购买", "公招刷新", "任务收集",
 }
 
@@ -1426,39 +1439,39 @@ make_account_ui = function(layout, prefix)
   layout = layout or "main"
   prefix = prefix or ''
   newRow(layout)
-  ui.addTextView(layout, nil, "作战")
+  addTextView(layout, "作战")
   ui.addEditText(layout, prefix .. "fight_ui",
                  [[当期委托x2 DQWTx2 龙门市区x0 LMSQx0 AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次 syc]])
 
   newRow(layout)
-  ui.addTextView(layout, nil, "最多吃")
+  addTextView(layout, "最多吃")
   ui.addEditText(layout, prefix .. 'max_drug_times', "9999")
-  ui.addTextView(layout, nil, "次药和")
+  addTextView(layout, "次药和")
   ui.addEditText(layout, prefix .. 'max_stone_times', "0")
-  ui.addTextView(layout, nil, "次石头")
+  addTextView(layout, "次石头")
 
   -- newRow(layout)
-  -- ui.addTextView(layout, nil, "基建换班")
+  -- addTextView(layout, "基建换班")
   -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"最速", "最高收益"},
   --                  1, -2, -2, true)
 
   -- newRow(layout)
-  -- ui.addTextView(layout, nil, "信用不买")
+  -- addTextView(layout, "信用不买")
   -- ui.addEditText(layout, prefix .. 'goods_blacklist', "碳 碳素")
 
   -- newRow(layout)
-  -- ui.addTextView(layout, nil, "换班优先")
+  -- addTextView(layout, "换班优先")
   -- ui.addRadioGroup(layout, prefix .. "prefer_skill", {"工作状态", "技能"},
   --                  1, -2, -2, true)
 
   -- newRow(layout)
-  -- ui.addTextView(layout, nil, "基建换班")
+  -- addTextView(layout, "基建换班")
   -- ui.addCheckBox(layout, prefix .. "shift1", "宿舍", true)
   -- ui.addCheckBox(layout, prefix .. "shift2", "制造", true)
   -- ui.addCheckBox(layout, prefix .. "shift3", "总览", true)
 
   newRow(layout)
-  ui.addTextView(layout, nil, "自动招募")
+  addTextView(layout, "自动招募")
   ui.addCheckBox(layout, prefix .. "auto_recruit1", "小车", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit4", "4星", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit5", "5星", false)
@@ -1482,31 +1495,35 @@ show_multi_account_ui = function()
   ui.newLayout(layout, ui_page_width, -2)
   ui.setTitleText(layout, "多账号")
   newRow(layout)
-  ui.addTextView(layout, nil,
-                 [[填入账密才有效。双服无账密模式至多执行前两个账号且不会重登，可不填账密。]])
+  addTextView(layout,
+              [[填入账密才有效。双服无账密模式至多执行前两个账号且不会重登，可不填账密。]])
   newRow(layout)
   ui.addCheckBox(layout, "multi_account", "多账号总开关", true)
   ui.addCheckBox(layout, "dual_server", "双服无账密")
   newRow(layout)
   ui.addCheckBox(layout, "multi_account_end_closeapp",
-                 "切换账号时关闭其他账号游戏", true)
+                 "切换账号时关闭其他账号游戏", false)
+  newRow(layout, layout .. "_save_row", "center")
+  ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
+  ui.setBackground(layout .. "_start", ui_submit_color)
+  ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
 
   newRow(layout, "center")
   for i = 1, num do
     local padi = tostring(i):padStart(2, '0')
     newRow(layout)
-    ui.addTextView(layout, nil, "账号" .. padi)
+    addTextView(layout, "账号" .. padi)
     ui.addEditText(layout, "username" .. i, "", -1)
-    ui.addTextView(layout, nil, "密码")
+    addTextView(layout, "密码")
     ui.addEditText(layout, "password" .. i, "", -1)
     ui.addCheckBox(layout, "multi_account" .. i, "启用", true)
     newRow(layout)
-    ui.addTextView(layout, nil, "账号" .. padi .. "服务器")
+    addTextView(layout, "账号" .. padi .. "服务器")
     ui.addRadioGroup(layout, "server" .. i, {"官服", "B服"}, 0, -2, -2, true)
     newRow(layout)
-    ui.addTextView(layout, nil, "账号" .. padi .. "使用")
+    addTextView(layout, "账号" .. padi .. "使用")
     ui.addSpinner(layout, "multi_account_inherit_spinner" .. i, {}, 0)
-    ui.addTextView(layout, nil, "设置")
+    addTextView(layout, "设置")
     addButton(layout, "multi_account_inherit_toggle" .. i,
               "切换为独立设置",
               "multi_account_inherit_toggle(" .. i .. ")")
@@ -1550,10 +1567,6 @@ show_multi_account_ui = function()
     end
   end
 
-  newRow(layout, layout .. "_save_row", "center")
-  ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
-  ui.setBackground(layout .. "_start", ui_submit_color)
-  ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
   ui.loadProfile(getUIConfigPath(layout))
   multi_account_inherit_render(1, num)
   ui.show(layout, false)
@@ -1638,33 +1651,22 @@ end
 -- }
 -- ans+='}'
 -- console.log(ans)
-hotUpdate = function(sync)
+hotUpdate = function()
+  toast("正在检查更新...")
   if disable_hotupdate then return end
-  local api =
-    'https://gitee.com/api/v5/repos/bilabila/arknights/branches/master'
   local url = 'https://gitee.com/bilabila/arknights/raw/master/script.lr'
   local newPath = getWorkPath() .. '/newscript.lr'
-  local id = lock:add()
-  asynHttpGet(function(res)
-    local commit = JsonDecode(res).commit.commit
-    local newMd5 = string.trim(commit.message)
-    local date =
-      string.trim(commit.committer.date:sub(1, #("2021-11-16T20:05")))
-    date = string.map(date, {T = " "})
-    if loadConfig("releaseDate", '') == date then return lock:remove(id) end
-    downloadFile(url, newPath)
-    if not (fileExist(newPath) and fileMD5(newPath) == newMd5) then
-      toast("更新失败")
-      return lock:remove(id)
-      -- stop("新lr文件不存在或md5不正确" .. " " .. newPath .. " " ..
-      --        newMd5)
-    end
-    installLrPkg(newPath)
-    toast("正在更新脚本...")
-    saveConfig("releaseDate", date)
-    return restartScript()
-  end, api)
-  if sync then wait(function() return not lock:exist(id) end, 30) end
+  if downloadFile(url, newPath) == -1 then
+    toast("更新失败")
+    return
+  end
+  if fileMD5(newPath) == loadConfig("lr_md5", "") then
+    toast("已是最新版")
+    return
+  end
+  installLrPkg(newPath)
+  saveConfig("lr_md5", fileMD5(newPath))
+  return restartScript()
 end
 
 styleButton = function(layout)
@@ -1681,9 +1683,12 @@ end
 setNewRowGid = function(gid) default_row_gid = gid end
 newRow = function(layout, id, align, w, h)
   -- log(173,default_row_gid)
-  ui.newRow(layout, id or ' ', w or -2, h or -2, default_row_gid)
+  ui.newRow(layout, id or randomString(32), w or -2, h or -2, default_row_gid)
   align = align or 'left'
   -- if id and align == 'center' then ui.setGravity(id, 17) end
+end
+addTextView = function(layout, text, id)
+  ui.addTextView(layout, id or randomString(32), text)
 end
 
 make_jump_ui_command = function(cur, next, extra)
@@ -1701,29 +1706,30 @@ end
 show_main_ui = function()
   local layout = "main"
   ui.newLayout(layout, ui_page_width, -2)
-  ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate", ''))
+  -- ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate", ''))
+  ui.setTitleText(layout, "明日方舟速通 " .. release_date)
 
   if appid_need_user_select then
     newRow(layout)
-    ui.addTextView(layout, nil, "服务器")
+    addTextView(layout, "服务器")
     ui.addRadioGroup(layout, "server", {"官服", "B服"}, 0, -2, -2, true)
   end
 
   make_account_ui(layout)
 
   newRow(layout)
-  ui.addTextView(layout, nil, "完成后通知QQ")
+  addTextView(layout, "完成后通知QQ")
   ui.addEditText(layout, "QQ", "")
   addButton(layout, layout .. "jump_qq_btn", "需加机器人好友",
             "jump_qq()")
 
   newRow(layout)
-  ui.addTextView(layout, nil, "完成后")
+  addTextView(layout, "完成后")
   ui.addCheckBox(layout, "end_home", "回到主页", true)
   ui.addCheckBox(layout, "end_closeapp", "关闭游戏")
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
   newRow(layout)
-  ui.addTextView(layout, nil, "定时执行")
+  addTextView(layout, "定时执行")
   ui.addEditText(layout, "crontab_text", "8:00 16:00 24:00")
   ui.addCheckBox(layout, "crontab_enable", "启用", true)
 
@@ -1731,8 +1737,8 @@ show_main_ui = function()
   -- ui.addCheckBox(layout, "end_poweroff", "关机")
 
   newRow(layout)
-  ui.addTextView(layout, nil,
-                 [[异形屏适配设为0，开基建退出提示。关游戏模式，关深色/夜间模式，关隐藏刘海。音量加停止脚本。]])
+  addTextView(layout,
+              [[异形屏适配设为0，开基建退出提示。关游戏模式，关深色/夜间模式，关隐藏刘海。音量加停止脚本。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
@@ -1835,26 +1841,25 @@ show_gesture_capture_ui = function()
                     " 当前无root权限，无法使用"))
 
   newRow(layout)
-  ui.addTextView(layout, nil,
-                 [[录入解锁手势或密码，以便熄屏下自动解锁]])
+  addTextView(layout,
+              [[录入解锁手势或密码，以便熄屏下自动解锁]])
 
   newRow(layout)
-  ui.addTextView(layout, nil,
-                 "1. 点击 开始录制，将观察到 熄屏+亮屏+上滑 现象")
+  addTextView(layout,
+              "1. 点击 开始录制，将观察到 熄屏+亮屏+上滑 现象")
   newRow(layout)
-  ui.addTextView(layout, nil,
-                 "2. 手势或密码界面 出现后，手动解锁")
+  addTextView(layout, "2. 手势或密码界面 出现后，手动解锁")
   newRow(layout)
-  ui.addTextView(layout, nil,
-                 "3. 亮屏解锁界面 出现后，点击任意文字区域")
+  addTextView(layout,
+              "3. 亮屏解锁界面 出现后，点击任意文字区域")
   newRow(layout)
-  ui.addTextView(layout, nil, "4. 选择解锁方式")
+  addTextView(layout, "4. 选择解锁方式")
   ui.addRadioGroup(layout, "unlock_mode", {"手势", "密码"}, 0, -2, -2, true)
   newRow(layout)
-  ui.addTextView(layout, nil,
-                 [[5. 快速测试：启动脚本后，手动熄屏，5秒内应观察到亮屏解锁现象。]])
+  addTextView(layout,
+              [[5. 快速测试：启动脚本后，手动熄屏，5秒内应观察到亮屏解锁现象。]])
   newRow(layout)
-  ui.addTextView(layout, nil, "当前手势：")
+  addTextView(layout, "当前手势：")
   ui.addTextView(layout, "unlock_gesture", JsonEncode({}))
 
   newRow(layout, layout .. "_save_row", "center")
@@ -1932,9 +1937,7 @@ end
 
 assignGlobalVariable = function(t)
   for k, v in pairs(t) do
-    -- if string.find(k,"spinner" ) then
-    -- log(k, v,type(v))
-    -- end
+    if string.find(k, "dual") then log(k, v, type(v)) end
     if _G[k] then log("_G[k] exist", k, v) end
     _G[k] = v
   end
@@ -1945,8 +1948,8 @@ end
 loadUIConfig = function()
   for _, layout in pairs({"main", "multi_account", "gesture_capture"}) do
     local config = getUIConfigPath(layout)
-    -- log(config)
     if fileExist(config) then
+      log("load", config)
       io.input(config)
       assignGlobalVariable(JsonDecode(io.read() or '{}'))
     end
@@ -1998,4 +2001,68 @@ input = function(selector, text)
   -- if #node.text > 0 then return true end
   -- log(1991,node.text)
   -- end, 20)
+end
+
+enabled_accessibility_services = function()
+  if isAccessibilityServiceRun() then return true end
+  if root_mode then
+    local package = getPackageName()
+    exec(
+      "su -c 'settings put secure enabled_accessibility_services " .. package ..
+        "/com.nx.assist.AssistService:com.nx.nxproj.assist/com.nx.assist.AssistService'")
+    if isAccessibilityServiceRun() then return true end
+  end
+  log("请开启无障碍权限")
+  toast("请开启无障碍权限")
+  openPermissionSetting()
+  if not wait(function() return isAccessibilityServiceRun() end, 600) then
+    stop("开启无障碍权限超时")
+  end
+end
+
+test_fight_hook = function()
+  if not test_fight then return end
+  fight = {
+    -- "1-7", "1-7", "CE-5", "LS-5",
+
+    -- "9-2", "9-3", "9-4", "9-5", "9-6", "9-7", "9-9", "9-10", "9-11", "9-12",
+    -- "9-13", "S9-1", "9-14", "9-15", "9-16", "9-17", "9-18", "9-19",
+
+    -- "0-8", "1-7", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-15", "R8-2",
+    --
+    -- "JT8-2", "R8-2", "M8-8",
+    -- "CA-5", "CE-5", 'AP-5', 'SK-5', 'LS-5', "PR-D-2", "PR-C-2", "PR-B-2",
+    -- "PR-A-2", "龙门外环", "龙门市区",
+    -- "1-7", "1-12", "2-3", "2-4",
+    -- "2-9", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-6", "7-15", "S7-2",
+    -- "JT8-2", "R8-2", "M8-8",
+
+    "PR-A-2", "PR-B-1", "PR-B-2", "PR-C-1", "PR-C-2", "PR-D-1", "PR-D-2",
+    "CE-1", "CE-2", "CE-3", "CE-4", "CE-5", "CA-1", "CA-2", "CA-3", "CA-4",
+    "CA-5", "AP-1", "AP-2", "AP-3", "AP-4", "AP-5", "LS-1", "LS-2", "LS-3",
+    "LS-4", "LS-5", "SK-1", "SK-2", "SK-3", "SK-4", "SK-5", "0-1", "0-2", "0-3",
+    "0-8", "1-9", "2-9", "S3-7", "4-10", "5-9", "6-10", "7-14", "R8-2",
+    "积水潮窟", "切尔诺伯格", "龙门外环", "龙门市区",
+    "废弃矿区", "大骑士领郊外", "北原冰封废城", "PR-A-1", "0-4",
+    "0-5", "0-6", "0-7", "0-8", "0-9", "0-10", "0-11", "1-1", "1-3", "1-4",
+    "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12", "2-1", "2-2",
+    "2-3", "2-4", "2-5", "2-6", "2-7", "2-8", "2-9", "2-10", "S2-1", "S2-2",
+    "S2-3", "S2-4", "S2-5", "S2-6", "S2-7", "S2-8", "S2-9", "S2-10", "S2-12",
+    "3-1", "3-2", "3-3", "3-4", "3-5", "3-6", "3-7", "3-8", "S3-1", "S3-2",
+    "S3-3", "S3-4", "S3-5", "S3-6", "S3-7", "4-1", "4-2", "4-3", "4-4", "4-5",
+    "4-6", "4-7", "4-8", "4-9", "4-10", "S4-1", "S4-2", "S4-3", "S4-4", "S4-5",
+    "S4-6", "S4-7", "S4-8", "S4-9", "S4-10", "5-1", "5-2", "S5-1", "S5-2",
+    "5-3", "5-4", "5-5", "5-6", "S5-3", "S5-4", "5-7", "5-8", "5-9", "S5-5",
+    "S5-6", "S5-7", "S5-8", "S5-9", "5-10", "6-1", "6-2", "6-3", "6-4", "6-5",
+    "6-7", "6-8", "6-9", "6-10", "S6-1", "S6-2", "6-11", "6-12", "6-14", "6-15",
+    "S6-3", "S6-4", "6-16", "7-2", "7-3", "7-4", "7-5", "7-6", "7-8", "7-9",
+    "7-10", "7-11", "7-12", "7-13", "7-14", "7-15", "7-16", "S7-1", "S7-2",
+    "7-17", "7-18", "R8-1", "R8-2", "R8-3", "R8-4", "R8-5", "R8-6", "R8-7",
+    "R8-8", "R8-9", "R8-10", "R8-11", "JT8-2", "JT8-3", "M8-6", "M8-7", "M8-8",
+  }
+  fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
+  log(fight)
+  repeat_fight_mode = false
+  run("轮次作战")
+  exit()
 end

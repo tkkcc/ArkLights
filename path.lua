@@ -395,7 +395,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   -- log(219)
   wait_game_up()
   auto(p, fallback, nil, 1800)
-  -- log(220)
+  log(220, findOne("邮件"))
 
   -- post processing especially for 基建
   if x == "基建" and not disable_postprocess then zoom() end
@@ -440,8 +440,8 @@ update_state = function()
 end
 
 path.副手换人 = function()
-  toast("副手换人还没修，等5秒提示消失")
-  ssleep(5)
+  -- toast("副手换人还没修，等5秒提示消失")
+  -- ssleep(5)
   if 1 then return end
   path.跳转("基建")
 
@@ -1423,6 +1423,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
   log("开始游戏", fight_tick, x)
   if not findOne("开始行动") then return end
   if x == "1-11" then return path["1-11"] end
+
   -- TODO 活动时需要注意这个地方，活动关的代理指挥不长这样
   -- 目的是剿灭
   -- if not appear("代理指挥开", 1) then return end
@@ -1431,15 +1432,16 @@ path.开始游戏 = function(x, disable_ptrs_check)
   -- log(findOne("报酬合成玉已满"))
   -- log(findOne("开始行动"))
   -- safeexit()
-
   if not appear("代理指挥开", .5) then
-    if not wait(function()
-      if findOne("代理指挥开") and not disappear("代理指挥开", .5) then
-        return true
-      end
-      tap("代理指挥开")
-      appear("代理指挥开", .5)
-    end, 5) then return end
+    tap("代理指挥开")
+    if not appear("代理指挥开", .5) then return end
+    -- if not wait(function()
+    --   if findOne("代理指挥开") and not disappear("代理指挥开", .5) then
+    --     return true
+    --   end
+    --   tap("代理指挥开")
+    --   appear("代理指挥开", .5)
+    -- end, 5) then return end
   end
 
   if is_jmfight_enough(x) then return end
@@ -1567,7 +1569,7 @@ path.主线 = function(x)
 
     if not appear("主页") then return end
     if not wait(function()
-      if findOne("怒号光明") then return true end
+      if findOne("主题曲界面") then return true end
       tap("主题曲")
     end) then return end
 
@@ -1740,7 +1742,7 @@ path.物资芯片 = function(x)
     if not appear("主页") then return end
 
     if not wait(function()
-      if findOne("怒号光明") then return true end
+      if findOne("主题曲界面") then return true end
       tap("主题曲")
     end) then return end
 
@@ -1748,7 +1750,7 @@ path.物资芯片 = function(x)
     --   if findOne("资源收集", 90) and not findOne("主题曲", 90) and
     --     not findOne("每周部署", 90) then return true end
     wait(function()
-      if not findOne("怒号光明") then return true end
+      if not findOne("主题曲界面") then return true end
       tap("资源收集")
     end)
     -- end) then return end
@@ -1828,12 +1830,13 @@ path.剿灭 = function(x)
   if not appear("主页") then return end
 
   if not wait(function()
-    if findOne("怒号光明") then return true end
+    -- if findOne("怒号光明") then return true end
+    if findOne("主题曲界面") then return true end
     tap("主题曲")
   end) then return end
 
   wait(function()
-    if not findOne("怒号光明") then return true end
+    if not findOne("主题曲界面") then return true end
     tap("每周部署")
   end)
 
@@ -2092,12 +2095,11 @@ path.公招刷新 = function()
               tags[p.text] = {(p.l + p.r) // 2, (p.t + p.b) // 2}
             end
           end
-          if #table.keys(tags) >= 5 and
-            not table.equal(table.keys(tags), table.keys(pre_tags)) then
+          if #table.keys(tags) >= 5 and not table.equalKey(tags, pre_tags) then
             return true
           end
           log(tags)
-        end)
+        end, 5)
 
         local skip = false
         if #table.keys(tags) < 5 then skip = true end
@@ -2125,7 +2127,7 @@ path.公招刷新 = function()
                 findOne("公开招募列表" .. i) then return true end
               if findOne("公开招募时间减") then
                 tap("返回")
-                disappear("公开招募箭头", .5)
+                disappear("公开招募时间减", 1)
               end
             end, 5) then return end
           end
@@ -2405,10 +2407,11 @@ end
 
 path.退出账号 = function()
   auto(update(path.base, {
-    bilibili_framelayout_only = function()
-      if findOne("面板") or findOne("bilibili_login") then return end
-      auto(path.bilibili_login_change)
-    end,
+    bilibili_framelayout_only = false,
+    [function()
+      return findOne("bilibili_framelayout_only") and
+               not findAny({"面板", "bilibili_login"})
+    end] = function() auto(path.bilibili_login_change) end,
     面板 = function()
       tap("面板设置")
       if not appear({"返回3", "返回4"}) then return end
@@ -2420,5 +2423,5 @@ path.退出账号 = function()
     开始唤醒 = "账号管理",
     bilibili_login = true,
     手机验证码登录 = true,
-  }), nil, nil, 1800)
+  }, nil, true), nil, nil, 1800)
 end

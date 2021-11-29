@@ -22,6 +22,7 @@ oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  行动配置不可更改 = "948|1009|464645",
   bilibili_username_inputbox = {
     id = "com.hypergryph.arknights.bilibili:id/et_gsc_account",
   },
@@ -624,6 +625,7 @@ point = {
     ["9-18"] = {960, 330},
     ["9-19"] = {960, 500},
   },
+  主题曲界面 = "98|0|000000",
   主题曲 = "407|963|ECECEC",
   资源收集 = "1229|963|ECECEC",
   每周部署 = "1504|963|ECECEC",
@@ -742,6 +744,7 @@ point = {
   end,
   代理指挥关 = "1844|921|EEEEEE",
   代理指挥开 = "1601|886|FFFFFF",
+  -- 代理指挥开 = function() return findOne("代理指挥开静止", 0.5) end,
   收取所有邮件 = {1628, 989},
   邮件信封 = "320|52|313131,377|53|313131,377|91|313131,337|80|313131",
   源石理智兑换次数上限 = "1913|923|FDFDFD,1909|87|FFFFFF,1325|333|CED0D6,1343|529|898989,1325|568|FEFEFE,1345|556|FBFBFB,1378|566|F3F3F3,1347|591|898989,1554|683|898989,1339|672|898989,1524|672|898989,1593|679|898989",
@@ -1012,6 +1015,7 @@ center = {
   物资筹备列表 = "center_center",
   行动结束 = "left_bottom",
   代理指挥关 = "right_bottom",
+  代理指挥开静止 = "right_bottom",
   代理指挥开 = "right_bottom",
   开始行动蓝 = "right_bottom",
   开始行动红按钮 = "center_center",

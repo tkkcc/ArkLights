@@ -32,7 +32,8 @@ default_findcolor_confidence = 95 / 100
 -- default_max_stone_times = 0
 -- disable_game_up_check = true
 need_show_console = true
-milesecond_after_click = 0
+milesecond_after_click = 2
+release_date = "2021.11.30  0:24"
 
 require('util')
 require("point")
@@ -49,9 +50,12 @@ ui_submit_width = -2
 ui_small_submit_width = -2
 
 setStopCallBack(function()
-  local screen = getScreen()
-  console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
-                 round(screen.width * 0.9), round(screen.height * 0.9))
+  -- local screen = getScreen()
+  -- console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
+  --                round(screen.width * 0.9), round(screen.height * 0.9))
+  console.setPos(round(screen.height * 0.05), round(screen.height * 0.05),
+                 round(screen.height * 0.9), round(screen.height * 0.9))
+
   -- console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
   --                round(screen.width * 0.09), round(screen.height * 0.09))
   if need_show_console then
@@ -60,14 +64,18 @@ setStopCallBack(function()
     console.dismiss()
   end
 end)
+setUserEventCallBack(function(type) log(67, type) end)
 
 hotUpdate(true)
 showControlBar(true)
 setControlBarPosNew(0, 1)
 console.clearLog()
-console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
-               round(screen.width * 0.9), round(screen.height * 0.9))
+-- console.setPos(round(screen.width * 0.05), round(screen.height * 0.05),
+--              round(screen.width * 0.9), round(screen.height * 0.9))
+console.setPos(round(screen.height * 0.05), round(screen.height * 0.05),
+               round(screen.height * 0.9), round(screen.height * 0.9))
 console.setTitle("如有问题，滚动到问题点，截屏反馈开发者")
+console.show()
 console.dismiss()
 
 -- 有root自动开无障碍
@@ -76,24 +84,16 @@ log("root_mode", root_mode)
 if root_mode then
   local package = getPackageName()
   log("package", package)
+  print(86)
   -- TODO 以下三行在重启软件后是否有效
-  exec(
-    "su -c 'settings put secure enabled_accessibility_services " .. package ..
-      "/com.nx.assist.AssistService:com.nx.nxproj.assist/com.nx.assist.AssistService'")
-
-  exec("su -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
-  exec("su -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
+  -- exec(
+  --   "su -c 'settings put secure enabled_accessibility_services " .. package ..
+  --     "/com.nx.assist.AssistService:com.nx.nxproj.assist/com.nx.assist.AssistService'")
+  -- exec("su -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
+  -- exec("su -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
 end
 
-if not isAccessibilityServiceRun() then
-  log("请开启无障碍权限")
-  toast("请开启无障碍权限")
-  openPermissionSetting()
-  if not wait(function() return isAccessibilityServiceRun() end, 600) then
-    stop("开启无障碍权限超时")
-  end
-  home()
-end
+enabled_accessibility_services()
 if not isSnapshotServiceRun() then
   log("请开启录屏权限")
   toast("请开启录屏权限")
@@ -118,6 +118,13 @@ if bpp_info and app_info then appid_need_user_select = true end
 server = appid == oppid and 0 or 1
 
 if predebug then
+  wait(function()
+    if findOne("开始行动") and not findOne("代理指挥开") then
+      return true
+    end
+    log(135)
+  end, 500)
+  log(137, findOne("开始行动"), 138,findOne("代理指挥开"))
   -- log(findAny({"返回", "返回2", "返回3", "返回4"}))
   -- log(findOne("bilibili_framelayout_only"))
 
@@ -208,8 +215,11 @@ if loadConfig("hideUIOnce", "false") ~= "false" then
   saveConfig("hideUIOnce", "false")
 else
   main_ui_lock = lock:add()
+  print(218)
   show_main_ui()
-  wait(function() return not lock:exist(main_ui_lock) end, 300)
+  if not wait(function() return not lock:exist(main_ui_lock) end, 600) then
+    peaceExit()
+  end
 end
 
 -- start
@@ -221,8 +231,6 @@ update_state_from_ui = function()
   max_drug_times = tonumber(max_drug_times)
   stone_times = 0
   max_stone_times = tonumber(max_stone_times)
-  log("max_drug_times", max_drug_times)
-  log("max_stone_times", max_stone_times)
   appid = server == 0 and oppid or bppid
   job = parse_from_ui("now_job_ui", all_job)
 
@@ -278,54 +286,6 @@ update_state_from_ui = function()
   log(facility2operator)
 end
 
-if test_fight then
-  fight = {
-    "1-7", "1-7", "CE-5", "LS-5",
-
-    -- "9-2", "9-3", "9-4", "9-5", "9-6", "9-7", "9-9", "9-10", "9-11", "9-12",
-    -- "9-13", "S9-1", "9-14", "9-15", "9-16", "9-17", "9-18", "9-19",
-
-    -- "0-8", "1-7", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-15", "R8-2",
-    --
-    -- "JT8-2", "R8-2", "M8-8",
-    -- "CA-5", "CE-5", 'AP-5', 'SK-5', 'LS-5', "PR-D-2", "PR-C-2", "PR-B-2",
-    -- "PR-A-2", "龙门外环", "龙门市区", 
-    -- "1-7", "1-12", "2-3", "2-4",
-    -- "2-9", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-6", "7-15", "S7-2",
-    -- "JT8-2", "R8-2", "M8-8",
-
-    -- "PR-A-2", "PR-B-1", "PR-B-2", "PR-C-1", "PR-C-2", "PR-D-1", "PR-D-2",
-    -- "CE-1", "CE-2", "CE-3", "CE-4", "CE-5", "CA-1", "CA-2", "CA-3", "CA-4",
-    -- "CA-5", "AP-1", "AP-2", "AP-3", "AP-4", "AP-5", "LS-1", "LS-2", "LS-3",
-    -- "LS-4", "LS-5", "SK-1", "SK-2", "SK-3", "SK-4", "SK-5", "0-1", "0-2", "0-3",
-    -- "0-8", "1-9", "2-9", "S3-7", "4-10", "5-9", "6-10", "7-14", "R8-2",
-    --
-    -- "积水潮窟", "切尔诺伯格", "龙门外环", "龙门市区",
-    -- "废弃矿区", "大骑士领郊外", "北原冰封废城", "PR-A-1",
-    -- "0-4", "0-5", "0-6", "0-7", "0-8", "0-9", "0-10", "0-11", "1-1", "1-3",
-    -- "1-4", "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12", "2-1",
-    -- "2-2", "2-3", "2-4", "2-5", "2-6", "2-7", "2-8", "2-9", "2-10", "S2-1",
-    -- "S2-2", "S2-3", "S2-4", "S2-5", "S2-6", "S2-7", "S2-8", "S2-9", "S2-10",
-    -- "S2-12", "3-1", "3-2", "3-3", "3-4", "3-5", "3-6", "3-7", "3-8", "S3-1",
-    -- "S3-2", "S3-3", "S3-4", "S3-5", "S3-6", "S3-7", "4-1", "4-2", "4-3", "4-4",
-    -- "4-5", "4-6", "4-7", "4-8", "4-9", "4-10", "S4-1", "S4-2", "S4-3", "S4-4",
-    -- "S4-5", "S4-6", "S4-7", "S4-8", "S4-9", "S4-10", "5-1", "5-2", "S5-1",
-    -- "S5-2", "5-3", "5-4", "5-5", "5-6", "S5-3", "S5-4", "5-7", "5-8", "5-9",
-    -- "S5-5", "S5-6", "S5-7", "S5-8", "S5-9", "5-10", "6-1", "6-2", "6-3", "6-4",
-    -- "6-5", "6-7", "6-8", "6-9", "6-10", "S6-1", "S6-2", "6-11", "6-12", "6-14",
-    -- "6-15", "S6-3", "S6-4", "6-16", "7-2", "7-3", "7-4", "7-5", "7-6", "7-8",
-    -- "7-9", "7-10", "7-11", "7-12", "7-13", "7-14", "7-15", "7-16", "S7-1",
-    -- "S7-2", "7-17", "7-18", "R8-1", "R8-2", "R8-3", "R8-4", "R8-5", "R8-6",
-    -- "R8-7", "R8-8", "R8-9", "R8-10", "R8-11", "JT8-2", "JT8-3", "M8-6", "M8-7",
-    -- "M8-8",
-  }
-  fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
-  log(fight)
-  repeat_fight_mode = false
-  run("轮次作战")
-  exit()
-end
-
 local no_valid_account = true
 transfer_global_variable("multi_account_user1", "multi_account_user0")
 
@@ -347,6 +307,7 @@ apply_multi_account_setting = function(i, visited)
   end
 end
 for i = 1, dual_server and 2 or 20 do
+  log("dual_server", dual_server)
   username = _G["username" .. i]
   password = _G["password" .. i]
   if (multi_account and _G["multi_account" .. i]) and
@@ -359,7 +320,6 @@ for i = 1, dual_server and 2 or 20 do
       closeapp(appid == oppid and bppid or oppid)
     end
     if not dual_server then table.insert(job, 1, "退出账号") end
-    log(job)
     run(job)
   end
 end
@@ -368,7 +328,7 @@ end
 if no_valid_account then
   transfer_global_variable("multi_account_user0")
   update_state_from_ui()
-  log(job)
+  test_fight_hook()
   run(job)
 end
 

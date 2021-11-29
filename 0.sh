@@ -37,10 +37,10 @@
     curl 'http://localhost:9090/script/del?name=test' -X 'POST'
   }
   release() {
-    # sed -i -r 's/(明日方舟速通).+"/\1 '"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
     cd release
     cp /F:/software/懒人精灵3.6.0/out/main.lr script.lr
     # cp /F:/software/懒人精灵3.6.0/tmp/明日方舟速通.apk .
+    # sed -i -r 's/^(lr_md5 =).+$/\1 "'"$(md5sum script.lr| cut -d' ' -f1)"'"/' main.lua
     git add -u
     git commit --amend -m "$(md5sum script.lr | cut -d' ' -f1)"
     git push --force
@@ -83,6 +83,8 @@
   }
 
   save() {
+    sed -i -r 's/^(release_date =).+$/\1 "'"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
+
     local dst_dir=/F:/software/懒人精灵3.6.0/script/main
     dst="$dst_dir"/脚本
     while IFS= read -r -d '' f; do
