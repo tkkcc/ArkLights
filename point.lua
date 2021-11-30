@@ -22,6 +22,7 @@ oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  第一干员未选中 = "828|270|FFFFFF",
   行动配置不可更改 = "948|1009|464645",
   bilibili_username_inputbox = {
     id = "com.hypergryph.arknights.bilibili:id/et_gsc_account",

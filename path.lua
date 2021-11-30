@@ -504,11 +504,9 @@ sample = function(v)
 end
 
 path.宿舍换班 = function()
-  -- 宿舍换班 4间
   local f
   f = function(i)
     path.跳转("基建")
-    -- if enable_dorm_check and not findOne("宿舍列表" .. i) then return end
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
@@ -535,40 +533,12 @@ path.宿舍换班 = function()
 
     tap("清空选择")
     if not wait(function()
-      if findOne("干员未选中") and findOne("筛选横线") then
+      if findOne("干员未选中") and findOne("第一干员未选中") then
         return true
       end
       tap("清空选择")
     end, 5) then return end
-    -- ssleep(.2)
-    -- local state = sample("心情")
-    -- tap("心情")
-    -- disappear(state, 1)
-    -- state = sample("心情")
-    -- tap("心情")
-    -- disappear(state, 1)
-
-    -- for j = 6, 6 + 6 do tap("干员选择列表" .. j, nil, true) end
-
-    -- TODO: 确认蓝 need fix
-    -- ssleep(.5)
-
     tapAll(map(function(i) return "干员选择列表" .. i end, range(6, 10)))
-    -- tapAll({
-    --   "干员选择列表6", "干员选择列表7", "干员选择列表8",
-    --   "干员选择列表9", "干员选择列表10",
-    --   -- "干员选择列表11",
-    --   -- "干员选择列表12",
-    -- })
-
-    -- local duration = 1
-    -- finger = {
-    --   {{x=point.干员选择列表1[1],y=point.干员选择列表1[2]}},
-    --   {{x=point.干员选择列表2[1],y=point.干员选择列表2[2]}},
-    -- }
-    -- log(finger)
-    -- gesture(finger, duration)
-
     if not wait(function()
       if findAny({
         "隐藏", "进驻信息", "进驻信息选中",
@@ -690,10 +660,6 @@ end
 
 path.总览换班 = function()
   local f
-  -- no doing this any more
-  -- if 1 then return end
-
-  -- 进驻总览 查漏补缺
   path.跳转("基建", nil, true)
   if not wait(function()
     if findOne("撤下干员") then return true end
@@ -701,6 +667,7 @@ path.总览换班 = function()
   end, 10) then return end
 
   local swipd = function()
+    -- TODO 慢了，这里也可以定点滑动的
     local duration = 500
     local delay = 0
     local y1 = screen.height - math.round(200 * minscale)
@@ -816,25 +783,18 @@ path.总览换班 = function()
     end, 5) then return end
 
     if not wait(function()
-      if findOne("干员未选中") and findOne("筛选横线") and
-        findOne("筛选") then return true end
+      -- and findOne("筛选横线") and
+      -- findOne("筛选")
+      if findOne("干员未选中") and findOne("第一干员未选中") then
+        return true
+      end
       tap("清空选择")
     end, 5) then return end
 
     log("limit", limit)
 
-    -- local list=
-
     tapAll(
       map(function(j) return "干员选择列表" .. j end, range(1, limit)))
-    -- tapAll(table.slice({
-    --   "干员选择列表1", "干员选择列表2", "干员选择列表3",
-    --   "干员选择列表4", "干员选择列表5", "干员选择列表6",
-    --   "干员选择列表7",
-    -- }, 1, limit))
-    -- end
-    -- disappear("干员未选中", 1)
-    -- end, 5) then return true end
 
     if not wait(function()
       if findOne("撤下干员") then return true end
@@ -1432,6 +1392,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
   -- log(findOne("报酬合成玉已满"))
   -- log(findOne("开始行动"))
   -- safeexit()
+
   if not appear("代理指挥开", .5) then
     tap("代理指挥开")
     if not appear("代理指挥开", .5) then return end
@@ -1453,6 +1414,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
   end, .5)
 
   local state = nil
+  local start_time = time()
   if not wait(function()
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
@@ -1464,8 +1426,8 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
     if findOne("开始行动") then
       tap("开始行动蓝")
-      -- TODO 2秒太慢
-      disappear("开始行动", 2)
+      -- TODO 2秒太慢 => 一开始就用0秒, 5秒内增加至2秒
+      disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 5))
     end
   end, 30) then return end
 
@@ -1524,6 +1486,7 @@ path.主线 = function(x)
     return f
   end
   local go = function()
+    -- TODO 怎么省掉
     ssleep(.5)
     log(928, x)
     swip(x)
@@ -1565,8 +1528,6 @@ path.主线 = function(x)
     log(1041)
     path.跳转("首页")
     tap("面板作战")
-    if not appear("主页") then return end
-
     if not appear("主页") then return end
     if not wait(function()
       if findOne("主题曲界面") then return true end
@@ -2093,13 +2054,16 @@ path.公招刷新 = function()
           for _, p in pairs(r) do
             if table.includes(tag, p.text) then
               tags[p.text] = {(p.l + p.r) // 2, (p.t + p.b) // 2}
+            else
+              -- TODO: 出现有些tag等待超时：狙击干员
+              log(p.text)
             end
           end
           if #table.keys(tags) >= 5 and not table.equalKey(tags, pre_tags) then
             return true
           end
           log(tags)
-        end, 5)
+        end, 2)
 
         local skip = false
         if #table.keys(tags) < 5 then skip = true end
@@ -2237,7 +2201,8 @@ path.每日任务速通 = function()
     end, 5) then return end
 
     if not wait(function()
-      if findOne("干员未选中") and findOne("筛选横线") then
+      -- and findOne("筛选横线")
+      if findOne("干员未选中") and findOne("第一干员未选中") then
         return true
       end
       tap("清空选择")

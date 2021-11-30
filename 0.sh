@@ -40,7 +40,6 @@
     cd release
     cp /F:/software/懒人精灵3.6.0/out/main.lr script.lr
     # cp /F:/software/懒人精灵3.6.0/tmp/明日方舟速通.apk .
-    # sed -i -r 's/^(lr_md5 =).+$/\1 "'"$(md5sum script.lr| cut -d' ' -f1)"'"/' main.lua
     git add -u
     git commit --amend -m "$(md5sum script.lr | cut -d' ' -f1)"
     git push --force

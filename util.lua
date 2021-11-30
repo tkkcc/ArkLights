@@ -20,6 +20,8 @@ clickPoint = function(x, y)
   gesture:addPath(path)
   gesture:dispatch()
 end
+if not zero_wait_click then clickPoint = tap end
+
 getDir = getWorkPath
 base64 = getFileBase64
 putClipboard = writePasteboard
@@ -398,11 +400,12 @@ log = function(...)
   -- l = map(removeFuncHash, l)
   -- l = map(table2string, l)
 
-  -- local a = os.date('%Y.%m.%d %H:%M:%S')
-  local a = time()
+  local a = os.date('%Y.%m.%d %H:%M:%S')
+  -- local a = time()
   -- for _, v in pairs(l) do a = a .. ' ' .. v end
-  print(a, l)
-  console.println(1, a, l)
+  print(l)
+  console.println(1, l)
+  writeLog(l)
 end
 
 open = function() runApp(appid) end
@@ -411,6 +414,7 @@ stop = function(msg)
   msg = msg or ''
   msg = "stop " .. msg
   toast(msg)
+  -- openLog()
   exit()
 end
 
@@ -454,7 +458,7 @@ findOne = function(x, confidence, disable_game_up_check)
       if cmpColorEx(x, confidence) == 1 then pos = first_point[x0] end
     else
       local px, py
-      log(x0, rfg[x0], first_color[x0], x)
+      -- log(x0, rfg[x0], first_color[x0], x)
       px, py = findMultiColor(rfg[x0][1], rfg[x0][2], rfg[x0][3], rfg[x0][4],
                               first_color[x0], x, 0, confidence)
       if px ~= -1 then pos = {px, py} end
@@ -689,7 +693,11 @@ zoom = function(retry)
     log("缩放结束未找到")
     return true
   end
-  if not findOne("进驻总览") then return path.跳转("基建") end
+  log(696,findOne("进驻总览"))
+  if not findOne("进驻总览") then
+    stop(695)
+    return path.跳转("基建")
+  end
   if findOne("缩放结束") then
     log("缩放结束")
     return true
@@ -698,14 +706,32 @@ zoom = function(retry)
   -- 2x2 pixel zoom
   local duration = 50
   local finger = {
-    {point = {{0, scale(123)}}, duration = duration},
-    {point = {{1, scale(123) + 1}, {0, scale(123)}}, duration = duration},
+    -- {point = {{0, scale(123)}}, duration = duration},
+    -- {point = {{5, scale(123) + 5}, {0, scale(123)}}, duration = duration},
+    -- {point = {{0, 0}}, duration = duration},
+    -- {point = {{math.random(1,5), 0 + math.random(1,5)}, {0, 0}}, duration = duration},
+    {point = {{0, 0}, {screen.width // 2 - scale(100), 0}}, duration = duration},
+    {
+      point = {
+        {screen.width - scale(300), 0}, {screen.width // 2 - scale(100), 0},
+      },
+      duration = duration,
+    },
+    -- {
+    --   {
+    --     x = math.round((1720 - 1920) * minscale + screen.width),
+    --     y = math.round(56 * minscale),
+    --   }, {x = screen.width // 2 - 100, y = math.round(56 * minscale)},
+    -- }, {
+    --   {x = 600, y = math.round(56 * minscale)},
+    --   {x = screen.width // 2 + 100, y = math.round(56 * minscale)},
+    -- },
   }
   gesture(finger)
   log(702)
 
   -- otherwise next zoom will be recognized as tapping, cause flicking
-  appear("缩放结束", 0.4)
+  appear("缩放结束", duration + frame_milesecond)
   return zoom(retry + 1)
 end
 
@@ -1306,19 +1332,14 @@ end
 
 tapAll = function(ks)
   log("tapAll", ks)
-
-  -- 100时仍然可能不按序，试试200
-  local duration = 200 -- 1 漏 20漏 50 漏 1000可以，问题还是在前一步
-  -- TODO 用低延时实现
-  if speedrun then duration = 100 end
+  local duration = 1
   local finger = {}
   for _, k in pairs(ks) do
     table.insert(finger,
                  {point = {{point[k][1], point[k][2]}}, duration = duration})
   end
-  -- log(finger)
   gesture(finger)
-  sleep(duration)
+  sleep(duration + frame_milesecond * 2)
 end
 
 -- event queue
@@ -1661,11 +1682,12 @@ hotUpdate = function()
     return
   end
   if fileMD5(newPath) == loadConfig("lr_md5", "") then
-    toast("已是最新版")
+    toast("已经是最新版")
     return
   end
   installLrPkg(newPath)
   saveConfig("lr_md5", fileMD5(newPath))
+  -- toast("已更新至最新")
   return restartScript()
 end
 
@@ -1692,8 +1714,7 @@ addTextView = function(layout, text, id)
 end
 
 make_jump_ui_command = function(cur, next, extra)
-  log(getUIConfigPath(cur))
-
+  -- log(getUIConfigPath(cur))
   local cmd = {
     -- 'log(ui.getData())',
     "ui.saveProfile('" .. getUIConfigPath(cur) .. "')",
@@ -1783,7 +1804,7 @@ show_main_ui = function()
   ui.setBackground(layout .. "_start", ui_submit_color)
 
   ui.loadProfile(getUIConfigPath(layout))
-  log(getUIConfigPath(layout))
+  -- log(getUIConfigPath(layout))
   -- 后处理
   if not root_mode then
     ui.setEnable("end_screenoff", false)
@@ -1832,6 +1853,23 @@ jump_github = function()
     uri = "https://github.com/" .. github,
   }
   runIntent(intent)
+  peaceExit()
+end
+openLog = function()
+  local log_file = "file://" .. getSdPath() .. '/' .. getPackageName() ..
+                     '/log/log.txt'
+  log_file = '/sdcard/Download/icon.png'
+  log(log_file)
+  if fileExist(log_file) then log(1) end
+  local intent = {
+    action = "android.intent.action.VIEW",
+    uri = "content://" .. log_file,
+    -- type= 'image/*'
+  }
+  log(intent)
+  runIntent(intent)
+  log(1849)
+  ssleep(3)
   peaceExit()
 end
 show_gesture_capture_ui = function()
@@ -2003,20 +2041,71 @@ input = function(selector, text)
   -- end, 20)
 end
 
-enabled_accessibility_services = function()
-  if isAccessibilityServiceRun() then return true end
+enable_accessibility_service = function()
+  if isAccessibilityServiceRun() then return end
   if root_mode then
     local package = getPackageName()
-    exec(
-      "su -c 'settings put secure enabled_accessibility_services " .. package ..
-        "/com.nx.assist.AssistService:com.nx.nxproj.assist/com.nx.assist.AssistService'")
-    if isAccessibilityServiceRun() then return true end
+    local service = package .. "/com.nx.assist.AssistService"
+    local services = exec(
+                       "su -c 'settings get secure enabled_accessibility_services'")
+    services = table.filter(services:trim():split(':'),
+                            function(x) return x ~= 'null' end)
+    local other_services = table.join(table.filter(services, function(x)
+      return x ~= service
+    end), ':')
+    -- log(2042, services)
+    -- if table.includes(services, service) then
+    -- 即 “无障碍故障情况”, 需要先停
+    -- exec("su -c 'settings put secure enabled_accessibility_services " ..
+    --        (#other_services > 0 and other_services or '""') .. "'")
+    -- log(2037, other_services, service)
+    -- wait(function()
+    --   local current = exec(
+    --                     "su -c 'settings get secure enabled_accessibility_services'")
+    --   return not current:find(service)
+    -- end)
+    -- local current = exec(
+    --                   "su -c 'settings get secure enabled_accessibility_services'")
+    -- log(current)
+
+    -- log("su -c 'settings put secure enabled_accessibility_services " ..
+    --       other_services .. (#other_services > 0 and ':' or '') .. service ..
+    --       "'")
+    -- log("su -c 'settings put secure enabled_accessibility_services " ..
+    --       (#other_services > 0 and other_services or '""') .. "'")
+
+    -- 秘诀：先开再关再开
+    exec("su -c 'settings put secure enabled_accessibility_services " ..
+           other_services .. (#other_services > 0 and ':' or '') .. service ..
+           "'")
+    exec("su -c 'settings put secure enabled_accessibility_services " ..
+           (#other_services > 0 and other_services or '""') .. "'")
+    exec("su -c 'settings put secure enabled_accessibility_services " ..
+           other_services .. (#other_services > 0 and ':' or '') .. service ..
+           "'")
+    if wait(function() return isAccessibilityServiceRun() end) then return end
   end
-  log("请开启无障碍权限")
   toast("请开启无障碍权限")
   openPermissionSetting()
   if not wait(function() return isAccessibilityServiceRun() end, 600) then
     stop("开启无障碍权限超时")
+  end
+  toast("已开启无障碍权限")
+end
+
+enable_snapshot_service = function()
+  if isSnapshotServiceRun() then return end
+  if root_mode then
+    local package = getPackageName()
+    -- TODO need this?
+    -- exec("su -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
+    -- exec("su -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
+    if isSnapshotServiceRun() then return end
+  end
+  toast("请开启录屏权限")
+  openPermissionSetting()
+  if not wait(function() return isSnapshotServiceRun() end, 600) then
+    stop("开启录屏权限超时")
   end
 end
 
@@ -2032,11 +2121,9 @@ test_fight_hook = function()
     --
     -- "JT8-2", "R8-2", "M8-8",
     -- "CA-5", "CE-5", 'AP-5', 'SK-5', 'LS-5', "PR-D-2", "PR-C-2", "PR-B-2",
-    -- "PR-A-2", "龙门外环", "龙门市区",
-    -- "1-7", "1-12", "2-3", "2-4",
+    "PR-A-2", "龙门外环", "龙门市区", -- "1-7", "1-12", "2-3", "2-4",
     -- "2-9", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-6", "7-15", "S7-2",
     -- "JT8-2", "R8-2", "M8-8",
-
     "PR-A-2", "PR-B-1", "PR-B-2", "PR-C-1", "PR-C-2", "PR-D-1", "PR-D-2",
     "CE-1", "CE-2", "CE-3", "CE-4", "CE-5", "CA-1", "CA-2", "CA-3", "CA-4",
     "CA-5", "AP-1", "AP-2", "AP-3", "AP-4", "AP-5", "LS-1", "LS-2", "LS-3",
@@ -2065,4 +2152,244 @@ test_fight_hook = function()
   repeat_fight_mode = false
   run("轮次作战")
   exit()
+end
+
+predebug_hook = function()
+  if not predebug then return end
+  ret = findPicAllPoint(0,0,screen.width-1,screen.height-1,'/sdcard/Download/Bskill_ctrl_cost.png',0.1)
+  log(ret)
+  ret,x,y = findImage(0,0,0,0,'/sdcard/Download/Bskill_ctrl_cost.png',"000000",0.7)
+  log(ret,x,y)
+  ret,x,y = findPicEx(0,0,0,0,'/sdcard/Download/Bskill_ctrl_cost.png',0.7)
+  log(ret,x,y)
+  ret = findPicAllPoint(0,0,screen.width-1,screen.height-1,'Bskill_ctrl_cost.png',0.1)
+  log(ret)
+  ret,x,y = findImage(0,0,0,0,'Bskill_ctrl_cost.png',"000000",0.7)
+  log(ret,x,y)
+  ret,x,y = findPicEx(0,0,0,0,'Bskill_ctrl_cost.png',0.7)
+  log(ret,x,y)
+  exit()
+  log(point["第一干员未选中"])
+  log(findOne("第一干员未选中"))
+  ssleep(1)
+  exit()
+  -- openLog()
+
+  clickPoint(0, 0)
+  clickPoint(1, 1)
+  clickPoint(20, scale(123))
+  exit()
+
+  require("skill")
+  log(time())
+  log(#skill)
+  local border_height = math.round(
+                          (379 - 1080 // 2) * minscale + screen.height / 2)
+  local skill_height1 = math.round(
+                          (397 - 1080 // 2) * minscale + screen.height / 2)
+  local skill_height2 = math.round(
+                          (817 - 1080 // 2) * minscale + screen.height / 2)
+  local color = {
+    math.round(600 * minscale), border_height, screen.width, border_height + 5,
+    "663,253,#88888A|663,255,#88888A|665,255,#88888A|661,253,#FFFFFF|661,255,#FFFFFF|659,255,#FFFFFF",
+    95,
+  }
+  log(color)
+  local borders = findColors(color)
+  if not borders then return end
+  -- keepScreen(false)
+  -- keepScreen(true)
+  for _, border in pairs(borders) do
+    log('border', border)
+    local skill_top_left = {
+      {border.x + math.round(5 * minscale), skill_height1},
+      {border.y + math.round(47 * minscale), skill_height1},
+    }
+    local best_score = 0
+    local best_skill = 1
+    local valid_score_threshold = 0
+    for k, v in pairs(skill) do
+      log(81, k)
+      local rgb = v[4]
+      local alpha = v[5]
+      local score = 0
+      local predict_score = 0
+      for i = 1, 36 * 36 do
+        -- log(82, i)
+        -- log(83, rgb[i])
+        -- log(84, alpha[i])
+        score = score +
+                  (compareColor(skill_top_left[1][1] + i // 36 + 1,
+                                skill_top_left[1][2] + i % 36, rgb[i],
+                                95 * alpha[i] // 255) and 1 or 0)
+        predict_score = score + 36 * 36 - i
+        if predict_score < best_score or predict_score < valid_score_threshold then
+          break
+        end
+      end
+      if score > best_score and score > valid_score_threshold then
+        best_score = score
+        brest_skill = k
+      end
+      log(v[3], score, skill[best_skill][3])
+    end
+    log(skill[best_skill][3], best_score)
+    exit()
+  end
+  exit()
+end
+
+check_root_mode = function()
+  if not disable_root_mode and pcall(exec, "su") then root_mode = true end
+  log("root_mode", root_mode)
+end
+
+update_state_from_ui = function()
+  prefer_skill = true
+  drug_times = 0
+  max_drug_times = tonumber(max_drug_times)
+  stone_times = 0
+  max_stone_times = tonumber(max_stone_times)
+  appid = server == 0 and oppid or bppid
+  job = parse_from_ui("now_job_ui", all_job)
+
+  fight = string.filterSplit(fight_ui)
+  fight = map(string.upper, fight)
+
+  -- expand LS-5x999
+  local expanded_fight = {}
+  for _, v in pairs(fight) do
+    local cur_fight, times = v:match('(.+)[xX*](%d+)')
+    if not cur_fight then
+      table.insert(expanded_fight, v)
+    else
+      for _ = 1, times do table.insert(expanded_fight, cur_fight) end
+    end
+  end
+  fight = expanded_fight
+  -- log("expanded_fight", expanded_fight)
+
+  -- LMSQ => 龙门市区
+  for k, v in pairs(fight) do
+    if table.includes(table.keys(jianpin2name), v) then
+      fight[k] = jianpin2name[v]
+    end
+    if table.includes(table.keys(extrajianpin2name), v) then
+      fight[k] = extrajianpin2name[v]
+    end
+  end
+  fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
+
+  all_open_time_start = parse_time("202111221600")
+  all_open_time_end = parse_time("202112060400")
+  update_open_time()
+  startup_time = parse_time()
+  facility2operator = {}
+  facility2nexthour = {}
+
+  for _, v in pairs(string.split(dorm, '\n')) do
+    v = string.split(v)
+    if #v > 3 then
+      local facility = v[1]
+      if #facility == 3 then facility = facility .. 1 end
+      local hour = tonumber(v[2])
+      local operator = table.slice(v, 3)
+      local cur_hour = facility2nexthour[facility]
+      if coming_hour(cur_hour, hour, startup_time) == hour then
+        facility2operator[facility] = operator
+        facility2nexthour[facility] = hour
+      end
+    end
+  end
+  log(facility2nexthour)
+  log(facility2operator)
+end
+
+apply_multi_account_setting = function(i, visited)
+  visited = visited or {}
+  table.insert(visited, i)
+  if _G["multi_account_inherit_toggle" .. i] == "切换为独立设置" then
+    local inherit = _G["multi_account_inherit_spinner" .. i]
+    local j = math.floor(inherit)
+    if inherit == 0 or table.includes(visited, j) then
+      transfer_global_variable("multi_account_user0")
+    else
+      apply_multi_account_setting(j, visited)
+    end
+  else
+    transfer_global_variable("multi_account_user" .. i)
+  end
+end
+
+-- 定时执行逻辑：如果到点但脚本还在run则跳过，因为run中重启可能出现异常
+check_crontab = function()
+  if not crontab_enable then return end
+  local config = string.filterSplit(crontab_text, {"：", ":"})
+  local candidate = {}
+  if #config == 0 then return end
+  for _, v in pairs(config) do
+    local hour_second = v:split(':')
+    local hour = math.round(tonumber(hour_second[1] or 0) or 0)
+    local min = math.round(tonumber(hour_second[2] or 0) or 0)
+    table.insert(candidate,
+                 os.time(update(os.date("*t"), {hour = hour, min = min})))
+    table.insert(candidate,
+                 os.time(update(os.date("*t"), {hour = hour + 24, min = min})))
+  end
+  table.sort(candidate)
+  local next_time = table.findv(candidate, function(x) return x > os.time() end)
+  toast("下次执行时间：" .. os.date("%H:%M", next_time))
+  while true do
+    if os.time() >= next_time then break end
+    ssleep(clamp(next_time - os.time(), 0, 1000))
+  end
+  saveConfig("hideUIOnce", "true")
+  restartScript()
+end
+
+setEventCallback = function()
+  setStopCallBack(function()
+    if need_show_console then
+      console.show()
+    else
+      console.dismiss()
+    end
+  end)
+  -- TODO how to use
+  setUserEventCallBack(function(type) stop(type) end)
+end
+consoleInit = function()
+  console.clearLog()
+  console.setPos(round(screen.height * 0.05), round(screen.height * 0.05),
+                 round(screen.height * 0.9), round(screen.height * 0.9))
+  console.setTitle("如有问题，滚动到问题点，截屏反馈开发者")
+  console.show()
+  console.dismiss()
+end
+detectServer = function()
+  -- auto switch 官服 and B服
+  appid = oppid
+  if prefer_bapp then appid = bppid end
+  if prefer_bapp_on_android7 and android_verison_code < 30 then appid = bppid end
+  local app_info = isAppInstalled(appid)
+  local bpp_info = isAppInstalled(bppid)
+  if not app_info and not bpp_info then
+    stop("未安装明日方舟官服或B服")
+  end
+  if bpp_info and not app_info then appid = bppid end
+  if bpp_info and app_info then appid_need_user_select = true end
+  server = appid == oppid and 0 or 1
+end
+
+showUI = function()
+  -- 显示 UI
+  if loadConfig("hideUIOnce", "false") ~= "false" then
+    saveConfig("hideUIOnce", "false")
+  else
+    main_ui_lock = lock:add()
+    show_main_ui()
+    if not wait(function() return not lock:exist(main_ui_lock) end, 600) then
+      peaceExit()
+    end
+  end
 end
