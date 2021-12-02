@@ -18,36 +18,27 @@ path.base = {
     if appid ~= oppid then return end
     if #username > 0 then
       if not wait(function()
-        if not findOne("手机验证码登录") then return true end
         tap("账号左侧")
         tap("账号")
-        disappear("手机验证码登录", .5)
+        if appear('okbutton', .5) then return true end
       end, 5) then return end
-      if not appear("inputbox") or not appear("okbutton") then
-        stop("登录失败")
-      end
       input("inputbox", username)
       tap("okbutton")
-      if not appear("手机验证码登录") then stop("登录失败") end
+      disappear("okbutton")
     end
     if #password > 0 then
       if not wait(function()
-        if not findOne("手机验证码登录") then return true end
         tap("账号左侧")
         tap("密码")
-        disappear("手机验证码登录", .5)
+        if appear('okbutton', .5) then return true end
       end, 5) then return end
-      if not appear("inputbox") or not appear('okbutton') then
-        stop("登录失败")
-      end
       input("inputbox", password)
       tap('okbutton')
-      if not appear("手机验证码登录") then stop("登录失败") end
     end
 
     if not wait(function()
       if findAny({"用户名或密码错误", "密码不能为空"}) then
-        stop("登录失败")
+        stop("登录失败34")
       end
       tap("登录")
     end, 5) then return end
@@ -162,7 +153,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
     tap("bilibili_change")
     appear("bilibili_account_login")
   end,
-})
+},nil,true)
 
 path.邮件收取 = function()
   path.跳转("邮件")

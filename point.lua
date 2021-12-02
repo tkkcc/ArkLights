@@ -22,6 +22,8 @@ oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  第一干员卡片 = "627|379|88888A,626|379|FFFFFF",
+  第一干员卡片范围 = {600, 379, 1710, 379 + 1},
   第一干员未选中 = "828|270|FFFFFF",
   行动配置不可更改 = "948|1009|464645",
   bilibili_username_inputbox = {
@@ -1456,6 +1458,7 @@ end
 rfg = {
   线索传递橙框 = {0, 0, screen.width, screen.height},
   入驻干员 = point.入驻干员范围,
+  第一干员卡片 = point.第一干员卡片范围,
 }
 
 rfl = {}

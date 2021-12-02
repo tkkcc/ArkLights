@@ -414,7 +414,7 @@ stop = function(msg)
   msg = msg or ''
   msg = "stop " .. msg
   toast(msg)
-  -- openLog()
+  home() -- 游戏长时间在前台时模拟器很卡
   exit()
 end
 
@@ -693,7 +693,7 @@ zoom = function(retry)
     log("缩放结束未找到")
     return true
   end
-  log(696,findOne("进驻总览"))
+  log(696, findOne("进驻总览"))
   if not findOne("进驻总览") then
     stop(695)
     return path.跳转("基建")
@@ -706,42 +706,37 @@ zoom = function(retry)
   -- 2x2 pixel zoom
   local duration = 50
   local finger = {
+    {point = {{0, 0}}, duration = duration},
+    {point = {{1, 0 + 1}, {0, 0}}, duration = duration},
     -- {point = {{0, scale(123)}}, duration = duration},
     -- {point = {{5, scale(123) + 5}, {0, scale(123)}}, duration = duration},
     -- {point = {{0, 0}}, duration = duration},
     -- {point = {{math.random(1,5), 0 + math.random(1,5)}, {0, 0}}, duration = duration},
-    {point = {{0, 0}, {screen.width // 2 - scale(100), 0}}, duration = duration},
-    {
-      point = {
-        {screen.width - scale(300), 0}, {screen.width // 2 - scale(100), 0},
-      },
-      duration = duration,
-    },
+    -- {point = {{0, 0}, {screen.width // 2 - scale(100), 0}}, duration = duration},
     -- {
-    --   {
-    --     x = math.round((1720 - 1920) * minscale + screen.width),
-    --     y = math.round(56 * minscale),
-    --   }, {x = screen.width // 2 - 100, y = math.round(56 * minscale)},
-    -- }, {
-    --   {x = 600, y = math.round(56 * minscale)},
-    --   {x = screen.width // 2 + 100, y = math.round(56 * minscale)},
+    --   point = {
+    --     {screen.width - scale(300), 0}, {screen.width // 2 - scale(100), 0},
+    --   },
+    --   duration = duration,
     -- },
+
   }
   gesture(finger)
-  log(702)
-
-  -- otherwise next zoom will be recognized as tapping, cause flicking
-  appear("缩放结束", duration + frame_milesecond)
+  local start_time = time()
+  if appear("缩放结束", (duration + 50) / 1000) then
+    sleep(max(0, start_time + duration + 50 - time()))
+    return true
+  end
   return zoom(retry + 1)
 end
 
 still_wrapper = function(func)
   return function(...)
-    nodeLib.keepNode()
+    -- nodeLib.keepNode()
     keepCapture()
     local ret = func(...)
     releaseCapture()
-    nodeLib.releaseNode()
+    -- nodeLib.releaseNode()
     return ret
   end
 end
@@ -1339,7 +1334,7 @@ tapAll = function(ks)
                  {point = {{point[k][1], point[k][2]}}, duration = duration})
   end
   gesture(finger)
-  sleep(duration + frame_milesecond * 2)
+  sleep(duration + 50)
 end
 
 -- event queue
@@ -1462,7 +1457,7 @@ make_account_ui = function(layout, prefix)
   newRow(layout)
   addTextView(layout, "作战")
   ui.addEditText(layout, prefix .. "fight_ui",
-                 [[当期委托x2 DQWTx2 龙门市区x0 LMSQx0 AP-5*100 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次 syc]])
+                 [[当期委托x2 DQWTx2 龙门市区x0 LMSQx0 9-10*2 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次 syc]])
 
   newRow(layout)
   addTextView(layout, "最多吃")
@@ -1523,7 +1518,7 @@ show_multi_account_ui = function()
   ui.addCheckBox(layout, "dual_server", "双服无账密")
   newRow(layout)
   ui.addCheckBox(layout, "multi_account_end_closeapp",
-                 "切换账号时关闭其他账号游戏", false)
+                 "切换账号时关闭其他账号游戏", true)
   newRow(layout, layout .. "_save_row", "center")
   ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
   ui.setBackground(layout .. "_start", ui_submit_color)
@@ -1631,47 +1626,6 @@ clean_table = function(t, idx, bad)
   return ans, idx
 end
 
------------  how to generate skill.lua
------------  first open https://prts.wiki/w/%E5%90%8E%E5%8B%A4%E6%8A%80%E8%83%BD%E4%B8%80%E8%A7%88, open console
------------  then paste the following code, copy result and paste into skill.lua
--- let dex2hex = (x)=>{
---     return parseInt(x,10).toString(16).padStart(2,'0')
--- }
--- let rgb2hex = (r,g,b)=>{
---     return '#'+ dex2hex(r)+dex2hex(g)+dex2hex(b)
--- }
-
--- let canvas = document.createElement("canvas")
--- canvas.width=36
--- canvas.height=36
--- let context = canvas.getContext("2d")
--- let app=document.querySelector('#mw-content-text').querySelectorAll('tr')
--- let ans='skill={'
--- for(let tr of app){
---   if(tr.children.length===4 && tr.children){
---     let name=tr.children[1].innerText
---     let description=tr.children[2].innerText
---     let operator=[...tr.children[3].querySelectorAll('a')].map(x=>x.title)
-
---     let img=tr.children[0].querySelector('img')
---     if (!img) continue
---     context.drawImage(img, 0, 0)
---     let data = context.getImageData(0, 0, canvas.width, canvas.height).data
---     let rgbs =[]
---     let alphas =[]
---     for(let i=0;i<canvas.width*canvas.height;++i){
---         let rgb = rgb2hex(data[i*4],data[i*4+1],data[i*4+2])
---         let alpha= data[i*4+3]
---         rgbs.push(rgb)
---         alphas.push(alpha)
---     }
---     ans +=`{[[${name.trim()}]],[[${description.trim()}]],{${operator.map(x=>"\""+x.trim()+"\"").join(',')}},{${rgbs.map(x=>"\""+x+"\"").join(',')}},{${alphas.map(x=>x).join(',')}} },\n`
--- //     ans.push(    [name,description,operator,rgbs,alphas]    )
--- //     break
---   }
--- }
--- ans+='}'
--- console.log(ans)
 hotUpdate = function()
   toast("正在检查更新...")
   if disable_hotupdate then return end
@@ -1747,7 +1701,7 @@ show_main_ui = function()
   newRow(layout)
   addTextView(layout, "完成后")
   ui.addCheckBox(layout, "end_home", "回到主页", true)
-  ui.addCheckBox(layout, "end_closeapp", "关闭游戏")
+  ui.addCheckBox(layout, "end_closeapp", "关闭游戏", true)
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
   newRow(layout)
   addTextView(layout, "定时执行")
@@ -2156,18 +2110,139 @@ end
 
 predebug_hook = function()
   if not predebug then return end
-  ret = findPicAllPoint(0,0,screen.width-1,screen.height-1,'/sdcard/Download/Bskill_ctrl_cost.png',0.1)
-  log(ret)
-  ret,x,y = findImage(0,0,0,0,'/sdcard/Download/Bskill_ctrl_cost.png',"000000",0.7)
-  log(ret,x,y)
-  ret,x,y = findPicEx(0,0,0,0,'/sdcard/Download/Bskill_ctrl_cost.png',0.7)
-  log(ret,x,y)
-  ret = findPicAllPoint(0,0,screen.width-1,screen.height-1,'Bskill_ctrl_cost.png',0.1)
-  log(ret)
-  ret,x,y = findImage(0,0,0,0,'Bskill_ctrl_cost.png',"000000",0.7)
-  log(ret,x,y)
-  ret,x,y = findPicEx(0,0,0,0,'Bskill_ctrl_cost.png',0.7)
-  log(ret,x,y)
+  ssleep(1)
+  skillimg = {}
+  skillpng = {"Bskill_ws_evolve3.png"}
+  for _, v in pairs(skillpng) do
+    local x1, y1 = 423, 266
+    local w, h, color = getImage('/sdcard/png_noalpha2/' .. v)
+    local s = ''
+    local mask = {}
+    for i = 1, h do
+      for j = 1, w do
+        if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 18 ^ 2 then
+          table.insert(mask, {i, j})
+        end
+      end
+    end
+    for _, m in pairs(mask) do
+      i, j = m[1], m[2]
+      b, g, r = colorToRGB(color[(w - j - 1) * w + i])
+      r = string.format("%X", r):padStart(2, '0')
+      g = string.format("%X", g):padStart(2, '0')
+      b = string.format("%X", b):padStart(2, '0')
+      s = s .. (x1 + i - 1) .. coord_delimeter .. (y1 + j - 1) ..
+            coord_delimeter .. r .. g .. b .. point_delimeter
+      -- if i == 9 then log(j, r, g, b) end
+    end
+    -- log(s)
+    -- exit()
+    s = s:sub(1, #s - 1)
+
+    point.sample = s
+    -- rfl.sample = point2region(point.sample)
+    -- first_point.sample = {rfl.sample[1], rfl.sample[2]}
+    -- log(point.sample)
+
+    rfg.sample = {x1 - 10, y1 - 10, x1 + w + 10, y1 + h + 10}
+    k = 'sample'
+    v = s
+    v = point2relative(v)
+    first_color[k] = v:match("%d+" .. coord_delimeter .. "%d+" ..
+                               coord_delimeter .. "(......)")
+    point[k] = v:match("[^" .. point_delimeter .. "+]" .. point_delimeter ..
+                         "(.+)"):map({[","] = '|'})
+
+    log(findOne('sample', 0.8), s:sub(1, 10))
+
+    -- keepCapture()
+    -- log(22)
+    -- for i = 1, 24 * 300 do x = findOne('sample') end
+    -- log(x)
+    -- releaseCapture()
+    exit()
+  end
+
+  -- x1, y1, x2, y2 = 711, 264, 748 - 2, 300 - 1
+  -- w, h, color = getScreenPixel(x1, y1, x2, y2)
+  -- log(#color)
+  -- log(color[1])
+  -- log(colorToRGB(color[1]))
+  -- s = ''
+  -- log(h, w)
+  -- for i = 1, h do
+  --   for j = 1, w do
+  --     -- 这块是竖着存的，并且是bgr
+  --     b, g, r = colorToRGB(color[(j - 1) * w + i])
+  --     r = string.format("%X", r)
+  --     g = string.format("%X", g)
+  --     b = string.format("%X", b)
+  --     if getColor(x1 + i - 1, y1 + j - 1) ~= r .. g .. b then
+  --       log(i, j)
+  --       log(getColor(x1 + i - 1, y1 + j - 1), r .. g .. b)
+  --       -- log(x1 + i - 1, y1 + j - 1)
+  --       exit()
+  --     end
+
+  --     s = s .. (x1 + i - 1) .. coord_delimeter .. (y1 + j - 1) ..
+  --           coord_delimeter .. r .. g .. b .. point_delimeter
+  --   end
+  -- end
+  -- s = s:sub(1, #s - 1)
+  -- point.sample = s
+  -- rfl.sample = point2region(point.sample)
+  -- first_point.sample = {rfl.sample[1], rfl.sample[2]}
+
+  -- keepCapture()
+  -- log(22)
+  -- for i = 1, 24 * 300 do x = findOne('sample') end
+  -- log(x)
+  -- releaseCapture()
+
+  -- pic = '2级.png'
+  -- w, h, t = getImage('/sdcard/' .. pic)
+  -- pic = '3级.png'
+  -- log(w, h)
+  -- pic = "aaa.png"
+  -- url ='https://prts.wiki/images/3/3f/Bskill_ws_p1.png'
+  -- log(downloadFile(url,getWorkPath()..'../tmp/Bskill_ws_p1.png'))
+  -- log(downloadFile(url,getWorkPath()..'tmp.png'))
+  -- path='/data/user/0/com.nx.nxproj.assist/assistdir/110625af36f2b330ccbaef8b987812df/'..'tmp/Bskill_ws_p1.png'
+  -- log(downloadFile(url,))
+  -- scaleImage(getWorkPath()..'tmp.png','')
+  -- getImage()
+  -- pic = 'Bskill_ws_p1.png'
+  -- pic ='bbb.png'
+  -- pic = table.join(map(function() return pic end, range(1, 300)), '|')
+  -- log(2159)
+  discover()
+  exit()
+  pic = table.join(skillpng, "|")
+  ret, x, y = findPicEx(0, 0, 0, 0, pic, 0.95)
+  log(ret, x, y)
+  log(getWorkPath())
+  exit()
+  -- pic='2级.png|Bskill_ctrl_cost.png'
+  -- log(pic)
+  log(23)
+  keepCapture()
+  -- for i = 1, 24 do ret, x, y = findPicEx(709, 263, 709 + w+1, 263 + h+1, pic, 0.95) end
+  -- for i = 1, 24 do ret, x, y = findPic(709, 263, 709 + w+1, 263 + h+1, pic) end
+  for i = 1, 24 do ret, x, y = findPic(0, 0, 0, 0, pic) end
+  -- for i = 1, 24 do ret, x, y = findPic(709, 263, 709 + w+1, 263 + h+1, pic) end
+  -- for i = 1, 24 do ret, x, y = findPicEx(0,0,0,0, pic, 0.95) end
+  -- for i = 1, 24 do ret, x, y = findImage(709, 263, 709 + w, 263 + h, pic, 0.95) end
+  -- for i = 1, 24 do ret, x, y = findImage(0,0,0,0, pic, 0.95) end
+  releaseCapture()
+  log(24)
+
+  log(ret, x, y)
+  -- ret = findPicAllPoint(0,0,screen.width-1,screen.height-1,'Bskill_ctrl_cost.png',0.1)
+  -- log(ret)
+  -- ret,x,y = findImage(0,0,0,0,'Bskill_ctrl_cost.png',"000000",0.7)
+  -- log(ret,x,y)
+  -- ret,x,y = findPicEx(0,0,0,0,'Bskill_ctrl_cost.png',0.7)
+  -- log(ret,x,y)
   exit()
   log(point["第一干员未选中"])
   log(findOne("第一干员未选中"))
@@ -2283,6 +2358,16 @@ update_state_from_ui = function()
   all_open_time_start = parse_time("202111221600")
   all_open_time_end = parse_time("202112060400")
   update_open_time()
+
+  crisis_contract_start = parse_time("202111301600")
+  crisis_contract_end = parse_time("202112060400")
+  local current = parse_time()
+  if crisis_contract_start < current and current < crisis_contract_end then
+    during_crisis_contract = true
+  else
+    during_crisis_contract = false
+  end
+
   startup_time = parse_time()
   facility2operator = {}
   facility2nexthour = {}
@@ -2367,7 +2452,6 @@ consoleInit = function()
   console.dismiss()
 end
 detectServer = function()
-  -- auto switch 官服 and B服
   appid = oppid
   if prefer_bapp then appid = bppid end
   if prefer_bapp_on_android7 and android_verison_code < 30 then appid = bppid end
@@ -2382,7 +2466,6 @@ detectServer = function()
 end
 
 showUI = function()
-  -- 显示 UI
   if loadConfig("hideUIOnce", "false") ~= "false" then
     saveConfig("hideUIOnce", "false")
   else
