@@ -116,6 +116,21 @@
     convert "$1" txt:- | tail -n +2 | sed -nr 's/.*,([^,]+)\)$/\1/p'
   }
 
+  dim(){
+    # make dim version of skill icon
+    local src=${1:-png}
+    local dst=${2:-png_noalpha_dim}
+    mkdir -p "$dst"
+    mogrify -path "$dst" -alpha set -channel A -evaluate multiply 0.4 +channel -alpha remove -alpha off -background '#202020' "$src"/'*.png'
+  }
+  noalpha(){
+    # make noalpha version of skill icon
+    local src=${1:-png}
+    local dst=${2:-png_noalpha}
+    mkdir -p "$dst"
+    mogrify -path "$dst" -alpha remove -alpha off -background '#3D3D3D' "$src"/'*.png'
+  }
+
   "$@"
   wait
 }

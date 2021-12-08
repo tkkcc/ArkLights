@@ -150,6 +150,48 @@ string.padEnd = function(str, len, char)
   return str .. string.rep(char, len - #str)
 end
 
+table.flatten = function(t)
+  local ans = {}
+  for _, v in pairs(t) do
+    if type(v) == 'table' then
+      table.extend(ans, table.flatten(v))
+    else
+      table.insert(ans, v)
+    end
+  end
+  return ans
+end
+
+table.remove_duplicate = function(t)
+  local ans = {}
+  local visited = {}
+  for _, v in pairs(t) do
+    if not visited[v] then
+      table.insert(ans, v)
+      visited[v] = 1
+    end
+  end
+  return ans
+end
+
+table.appear_times = function(t, times)
+  local ans = {}
+  local visited = {}
+  for _, v in pairs(t) do visited[v] = (visited[v] or 0) + 1 end
+  for k, _ in pairs(visited) do
+    if visited[k] == times then table.insert(ans, k) end
+  end
+  return ans
+end
+table.intersect = function(a, b)
+  local ans = {}
+  if #b < #a then a, b = b, a end
+  b = table.value2key(b)
+  a = table.value2key(a)
+  for k, _ in pairs(a) do if b[k] then table.insert(ans, k) end end
+  return ans
+end
+
 table.slice = function(tbl, first, last, step)
   local sliced = {}
   for i = first or 1, last or #tbl, step or 1 do sliced[#sliced + 1] = tbl[i] end
@@ -2111,57 +2153,67 @@ end
 predebug_hook = function()
   if not predebug then return end
   ssleep(1)
-  skillimg = {}
-  skillpng = {"Bskill_ws_evolve3.png"}
-  for _, v in pairs(skillpng) do
-    local x1, y1 = 423, 266
-    local w, h, color = getImage('/sdcard/png_noalpha2/' .. v)
-    local s = ''
-    local mask = {}
-    for i = 1, h do
-      for j = 1, w do
-        if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 18 ^ 2 then
-          table.insert(mask, {i, j})
-        end
-      end
+  keepCapture()
+  -- skillimg = {}
+  -- skillpng = {"Bskill_ws_evolve3.png"}
+  local mask = {}
+  w, h = 36, 36
+  for i = 1, h do
+    for j = 1, w do
+      if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 17 ^ 2 and i % 4 == 0 and j % 4 ==
+        0 then table.insert(mask, {i, j}) end
     end
+  end
+  -- local x1, y1 = 423, 266
+  p = findOne()
+  pngdata = {}
+  for _, v in pairs(skillpng) do
+    -- local _, _, color = getImage('/sdcard/png_noalpha2/' .. v)
+    local _, _, color = getImage('/sdcard/png_noalpha_dim/' .. v)
+    -- local s = ''
+    pngdata[v] = {}
     for _, m in pairs(mask) do
       i, j = m[1], m[2]
       b, g, r = colorToRGB(color[(w - j - 1) * w + i])
       r = string.format("%X", r):padStart(2, '0')
       g = string.format("%X", g):padStart(2, '0')
       b = string.format("%X", b):padStart(2, '0')
-      s = s .. (x1 + i - 1) .. coord_delimeter .. (y1 + j - 1) ..
-            coord_delimeter .. r .. g .. b .. point_delimeter
-      -- if i == 9 then log(j, r, g, b) end
+      table.insert(pngdata[v], coord_delimeter .. r .. g .. b .. point_delimeter)
+      -- s = s .. (x1 + i - 1) .. coord_delimeter .. (y1 + j - 1) ..
+      --       coord_delimeter .. r .. g .. b .. point_delimeter
     end
-    -- log(s)
-    -- exit()
-    s = s:sub(1, #s - 1)
-
-    point.sample = s
-    -- rfl.sample = point2region(point.sample)
-    -- first_point.sample = {rfl.sample[1], rfl.sample[2]}
-    -- log(point.sample)
-
-    rfg.sample = {x1 - 10, y1 - 10, x1 + w + 10, y1 + h + 10}
-    k = 'sample'
-    v = s
-    v = point2relative(v)
-    first_color[k] = v:match("%d+" .. coord_delimeter .. "%d+" ..
-                               coord_delimeter .. "(......)")
-    point[k] = v:match("[^" .. point_delimeter .. "+]" .. point_delimeter ..
-                         "(.+)"):map({[","] = '|'})
-
-    log(findOne('sample', 0.8), s:sub(1, 10))
-
-    -- keepCapture()
-    -- log(22)
-    -- for i = 1, 24 * 300 do x = findOne('sample') end
-    -- log(x)
-    -- releaseCapture()
-    exit()
+    -- s = s:sub(1, #s - 1)
+    -- point[v]=s
+    rfl[v] = true
+    first_point[v] = true
   end
+  g = function(x1, y1)
+    -- log('g', x1, y1)
+    -- y1 =y1+1
+    for _, v in pairs(skillpng) do
+      local s = ''
+      for i, m in pairs(mask) do
+        s = s .. (x1 + m[1] - 1) .. coord_delimeter .. (y1 + m[2] - 1) ..
+              pngdata[v][i]
+      end
+
+      point[v] = s:sub(1, #s - 1)
+      -- log(point[v])
+      if findOne(v, 0.8) then
+        -- log(v)
+        return v
+      end
+
+    end
+  end
+  -- local x1, y1 = 423, 266
+  -- log(1)
+  -- for 
+  -- g(x1,y1)
+  -- log(2)
+  discover()
+
+  exit()
 
   -- x1, y1, x2, y2 = 711, 264, 748 - 2, 300 - 1
   -- w, h, color = getScreenPixel(x1, y1, x2, y2)
@@ -2476,3 +2528,4 @@ showUI = function()
     end
   end
 end
+
