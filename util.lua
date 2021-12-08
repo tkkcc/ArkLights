@@ -178,7 +178,9 @@ table.appear_times = function(t, times)
   local ans = {}
   local visited = {}
   for _, v in pairs(t) do visited[v] = (visited[v] or 0) + 1 end
-  for k, _ in pairs(visited) do
+  -- log(visited)
+  -- exit()
+  for k,  _ in pairs(visited) do
     if visited[k] == times then table.insert(ans, k) end
   end
   return ans
@@ -2153,6 +2155,7 @@ end
 predebug_hook = function()
   if not predebug then return end
   ssleep(1)
+
   keepCapture()
   -- skillimg = {}
   -- skillpng = {"Bskill_ws_evolve3.png"}
@@ -2160,113 +2163,68 @@ predebug_hook = function()
   w, h = 36, 36
   for i = 1, h do
     for j = 1, w do
-      if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 17 ^ 2 and i % 4 == 0 and j % 4 ==
-        0 then table.insert(mask, {i, j}) end
+      if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 18.5 ^ 2 then
+        table.insert(mask, {i, j})
+      end
     end
   end
-  -- local x1, y1 = 423, 266
-  p = findOne()
   pngdata = {}
+  local s = ''
   for _, v in pairs(skillpng) do
-    -- local _, _, color = getImage('/sdcard/png_noalpha2/' .. v)
     local _, _, color = getImage('/sdcard/png_noalpha_dim/' .. v)
-    -- local s = ''
     pngdata[v] = {}
     for _, m in pairs(mask) do
       i, j = m[1], m[2]
-      b, g, r = colorToRGB(color[(w - j - 1) * w + i])
-      r = string.format("%X", r):padStart(2, '0')
-      g = string.format("%X", g):padStart(2, '0')
-      b = string.format("%X", b):padStart(2, '0')
-      table.insert(pngdata[v], coord_delimeter .. r .. g .. b .. point_delimeter)
-      -- s = s .. (x1 + i - 1) .. coord_delimeter .. (y1 + j - 1) ..
-      --       coord_delimeter .. r .. g .. b .. point_delimeter
-    end
-    -- s = s:sub(1, #s - 1)
-    -- point[v]=s
-    rfl[v] = true
-    first_point[v] = true
-  end
-  g = function(x1, y1)
-    -- log('g', x1, y1)
-    -- y1 =y1+1
-    for _, v in pairs(skillpng) do
-      local s = ''
-      for i, m in pairs(mask) do
-        s = s .. (x1 + m[1] - 1) .. coord_delimeter .. (y1 + m[2] - 1) ..
-              pngdata[v][i]
+      b, g, r = colorToRGB(color[(w - i - 1) * w + j])
+      table.extend(pngdata[v], {r, g, b})
+      if nil and v == 'Bskill_man_exp2.png' then
+      -- if v == 'Bskill_ws_evolve2.png' then
+        r = string.format('%X', r):padStart(2, '0')
+        g = string.format('%X', g):padStart(2, '0')
+        b = string.format('%X', b):padStart(2, '0')
+        s = s .. i .. '|' .. j .. '|' .. r .. g .. b .. ','
       end
-
-      point[v] = s:sub(1, #s - 1)
-      -- log(point[v])
-      if findOne(v, 0.8) then
-        -- log(v)
-        return v
-      end
-
     end
   end
-  -- local x1, y1 = 423, 266
-  -- log(1)
-  -- for 
-  -- g(x1,y1)
-  -- log(2)
-  discover()
+  -- log("1s:sub(1,#s)", s:sub(1, #s))
 
-  exit()
+  gg = function(x1, y1, x2, y2)
+    s = ''
+    local w, h, color = getScreenPixel(x1, y1, x2, y2)
+    local i, j, b, g, r
+    local data = {}
+    for _, m in pairs(mask) do
+      i, j = m[1], m[2]
+      b, g, r = colorToRGB(color[(i - 1) * w + j])
+      table.extend(data, {r, g, b})
 
-  -- x1, y1, x2, y2 = 711, 264, 748 - 2, 300 - 1
-  -- w, h, color = getScreenPixel(x1, y1, x2, y2)
-  -- log(#color)
-  -- log(color[1])
-  -- log(colorToRGB(color[1]))
-  -- s = ''
-  -- log(h, w)
-  -- for i = 1, h do
-  --   for j = 1, w do
-  --     -- 这块是竖着存的，并且是bgr
-  --     b, g, r = colorToRGB(color[(j - 1) * w + i])
-  --     r = string.format("%X", r)
-  --     g = string.format("%X", g)
-  --     b = string.format("%X", b)
-  --     if getColor(x1 + i - 1, y1 + j - 1) ~= r .. g .. b then
-  --       log(i, j)
-  --       log(getColor(x1 + i - 1, y1 + j - 1), r .. g .. b)
-  --       -- log(x1 + i - 1, y1 + j - 1)
-  --       exit()
-  --     end
-
-  --     s = s .. (x1 + i - 1) .. coord_delimeter .. (y1 + j - 1) ..
-  --           coord_delimeter .. r .. g .. b .. point_delimeter
-  --   end
-  -- end
-  -- s = s:sub(1, #s - 1)
-  -- point.sample = s
-  -- rfl.sample = point2region(point.sample)
-  -- first_point.sample = {rfl.sample[1], rfl.sample[2]}
-
-  -- keepCapture()
-  -- log(22)
-  -- for i = 1, 24 * 300 do x = findOne('sample') end
-  -- log(x)
-  -- releaseCapture()
-
-  -- pic = '2级.png'
-  -- w, h, t = getImage('/sdcard/' .. pic)
-  -- pic = '3级.png'
-  -- log(w, h)
-  -- pic = "aaa.png"
-  -- url ='https://prts.wiki/images/3/3f/Bskill_ws_p1.png'
-  -- log(downloadFile(url,getWorkPath()..'../tmp/Bskill_ws_p1.png'))
-  -- log(downloadFile(url,getWorkPath()..'tmp.png'))
-  -- path='/data/user/0/com.nx.nxproj.assist/assistdir/110625af36f2b330ccbaef8b987812df/'..'tmp/Bskill_ws_p1.png'
-  -- log(downloadFile(url,))
-  -- scaleImage(getWorkPath()..'tmp.png','')
-  -- getImage()
-  -- pic = 'Bskill_ws_p1.png'
-  -- pic ='bbb.png'
-  -- pic = table.join(map(function() return pic end, range(1, 300)), '|')
-  -- log(2159)
+      if nil then
+        r = string.format('%X', r):padStart(2, '0')
+        g = string.format('%X', g):padStart(2, '0')
+        b = string.format('%X', b):padStart(2, '0')
+        s = s .. i .. '|' .. j .. '|' .. r .. g .. b .. ','
+      end
+    end
+    -- log(s)
+    -- exit()
+    local best_score = 100000
+    local best = nil
+    local score
+    local abs = math.abs
+    for k, v in pairs(pngdata) do
+      score = 0
+      for i = 1, #mask * 3 do
+        score = score + abs(data[i] - v[i])
+        if score > best_score then break end
+      end
+      if best_score > score then
+        best_score = score
+        best = k
+      end
+    end
+    log(2208, best_score, best)
+    return best
+  end
   discover()
   exit()
   pic = table.join(skillpng, "|")
@@ -2528,4 +2486,3 @@ showUI = function()
     end
   end
 end
-

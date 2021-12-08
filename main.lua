@@ -35,7 +35,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成10以下时，单核机作战导航失败率高，真机基建缩放也会有问题
 frame_milesecond =1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2021.12.07  1:43"
+release_date = "2021.12.08 23:10"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
