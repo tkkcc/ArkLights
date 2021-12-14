@@ -150,6 +150,27 @@ string.padEnd = function(str, len, char)
   return str .. string.rep(char, len - #str)
 end
 
+-- 从t中选出长度为n的所有组合，结果在ans，
+table.combination = function(t, n)
+  local ans = {}
+  local cur = {}
+  local k = 1
+  combination(t, n, ans, cur, k)
+  return ans
+end
+combination = function(t, n, ans, cur, k)
+  -- cur = cur or {}
+  -- k = k or 1
+  if n == 0 then
+    table.insert(ans, shallowCopy(cur))
+  elseif k <= #t then
+    table.insert(cur, t[k])
+    combination(t, n - 1, ans, cur, k + 1)
+    cur[#cur] = nil
+    combination(t, n, ans, cur, k + 1)
+  end
+end
+
 table.flatten = function(t)
   local ans = {}
   for _, v in pairs(t) do
@@ -641,12 +662,14 @@ end
 swipe = function(x)
   log("swipe", x)
   if x == 'right' then
-    gesture({{point = {{0, 500}, {1000000, 500}}, start = 0, duration = 150}})
+    gesture({
+      {point = {{scale(300), 500}, {1000000, 500}}, start = 0, duration = 150},
+    })
     sleep(150 + 50)
   elseif x == 'left' then
     gesture({
       {
-        point = {{0, scale(150)}, {0, screen.height - 1}},
+        point = {{scale(300), scale(150)}, {scale(300), screen.height - 1}},
         start = 0,
         duration = 100,
       },
@@ -1819,15 +1842,17 @@ show_help_ui = function()
   newRow(layout)
   addTextView(layout, [[
 源码与其他脚本：https://github.com/tkkcc/arknights。
-好用给个star。
+好用给个star，有问题请反馈。
 
 提示：
 1. 剿灭合成玉已满会跳过，关卡没开放会跳过，因此无需频繁修改作战设置。
 2. 代理作战中启动时，脚本优先重复刷当前关，可用于刷活动。活动也可用“上一次”刷。
-3. 脚本没有任何反应，可尝试关闭游戏后启动脚本。
+3. 无障碍提示选“不再提醒”，进入后点“确定”。
+4. 脚本没有任何反应，可尝试关闭游戏后启动脚本。
+
 
 更新：
-2021-12-14 修复密码输入错误与截屏权限未开导致的定时任务失败。修复多次传递线索。
+2021-12-14 修正root权限检测，支持无障碍关闭游戏。允许DPI<320，雷电模拟器平板模式测试未发现问题。修复多次传递线索。修复密码输入错误与截屏权限未开导致的定时任务失败。
 ]])
 
   newRow(layout)
@@ -2195,6 +2220,10 @@ end
 
 predebug_hook = function()
   if not predebug then return end
+  -- log(table.combination(range(1, 10), 3))
+  -- log(ans)
+  exit()
+  log(ans)
   ssleep(1)
   while true do if not appear("怒号光明", 0.5) then stop(1) end end
   exit()
@@ -2372,7 +2401,9 @@ predebug_hook = function()
 end
 
 check_root_mode = function()
-  if not disable_root_mode and pcall(exec, "su") then root_mode = true end
+  if not disable_root_mode and #exec("su -c 'echo aaa'") > 1 then
+    root_mode = true
+  end
   log("root_mode", root_mode)
 end
 

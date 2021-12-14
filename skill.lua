@@ -350,7 +350,44 @@ skillpng2operator['empty1.png'] = table.remove_duplicate(table.flatten(
 -- log("skillpng2operator",skillpng2operator["empty2.png"])
 -- exit()
 
---
---
---
---
+-- 制造站干员选择
+-- operator: 列表，每个元素包含两个技能图标与心情
+-- tradingStationNum: 贸易站数量
+-- type: 制造物类别
+-- level: 制造站等级
+-- 返回效率最高的index
+manufacturingStationOperatorBest = function(operator, tradingStationNum, type,
+                                            level)
+  -- 参考 https://prts.wiki/w/罗德岛基建/制造站
+  local maxStorage, maxOperator
+  maxOperator = level
+  if level == 1 then
+    maxStorage = 24
+  elseif level == 2 then
+    maxStorage = 36
+  else
+    maxStorage = 54
+  end
+  log("maxStorage", maxStorage)
+  log("maxOperator", maxOperator)
+
+  -- 输入index组合，计算8小时平均加成
+  local base
+  local score = function(c)
+    base = 0
+    return base
+  end
+
+  -- 遍历全部组合
+  local best
+  local best_score = -1
+  for _, c in pairs(table.combination(range(1, #operator), maxOperator)) do
+    local s = score(c)
+    if s > best_score then
+      best = c
+      best_score = s
+    end
+  end
+  return best
+end
+
