@@ -160,12 +160,6 @@ path.bilibili_login_change = update(path.bilibili_login, {
 path.邮件收取 = function()
   path.跳转("邮件")
   local state = sample("邮件提示")
-  -- log(119,state)
-  -- log(point['sample'])
-  -- log(first_point['sample'])
-  -- log(rfl['sample'])
-  -- log(123,findOne("sample"))
-  -- exit()
   if not wait(function()
     if not findOne(state) then return true end
     tap("收取所有邮件")
@@ -531,7 +525,11 @@ path.宿舍换班 = function()
       end
       tap("清空选择")
     end, 5) then return end
-    tapAll(map(function(i) return "干员选择列表" .. i end, range(6, 10)))
+    if not wait(function()
+      if not findOne("干员未选中") then return true end
+      tapAll(map(function(i) return "干员选择列表" .. i end, range(6, 10)))
+      disappear("干员未选中")
+    end, 5) then return end
     if not wait(function()
       if findAny({
         "隐藏", "进驻信息", "进驻信息选中",
@@ -732,8 +730,12 @@ path.总览换班 = function()
           end
         end, 5) then return end
 
-        tapAll(map(function(j) return "干员选择列表" .. j end,
-                   range(2 * limit, limit + 1, -1)))
+        if not wait(function()
+          if not findOne("干员未选中") then return true end
+          tapAll(map(function(j) return "干员选择列表" .. j end,
+                     range(2 * limit, limit + 1, -1)))
+          disappear("干员未选中")
+        end, 5) then return end
         if not wait(function()
           if findOne("撤下干员") then return true end
           tap("确认蓝")
@@ -786,9 +788,12 @@ path.总览换班 = function()
 
     log("limit", limit)
 
-    tapAll(
-      map(function(j) return "干员选择列表" .. j end, range(1, limit)))
-
+    if not wait(function()
+      if not findOne("干员未选中") then return true end
+      tapAll(map(function(j) return "干员选择列表" .. j end,
+                 range(1, limit)))
+      disappear("干员未选中")
+    end, 5) then return end
     if not wait(function()
       if findOne("撤下干员") then return true end
       tap("确认蓝")
@@ -897,12 +902,13 @@ path.线索搜集 = function()
     tap("制造站进度")
   end, 10) then return end
 
-  -- goto a controllable state
+  -- 进入可控状态
   if not wait(function()
     if not findOne("线索传递") then return true end
     tapCard("线索布置列表1")
   end, 5) then return end
 
+  -- 回到线索主界面，处理交流结束情况
   if not wait(function()
     if findOne("线索传递") then return true end
     tap("解锁线索上")
@@ -914,10 +920,10 @@ path.线索搜集 = function()
     end
   end, 5) then return end
 
-  log(588)
+  -- 等待前一任务的通知消失
+  appear("接收线索白", 5)
 
-  --  TODO may be overlaped by notification
-  --  so we put it after some job without notification
+  -- 接收线索
   wait(function()
     if not findOne("线索传递") then return true end
     if not findOne("接收线索有") then return true end
@@ -936,18 +942,18 @@ path.线索搜集 = function()
   end, 10)
   if not findOne("线索传递") then return end
 
-  log(501)
-
+  -- 信用奖励，已满则传递线索
   f = function(retry)
     if retry > 10 or no_friend then return true end
 
+    -- 进入信用奖励界面
     if not wait(function()
       if findOne("信用奖励返回") then return true end
       tap("信用奖励有")
     end, 5) then return end
 
-    if not appear("未达线索上限", .2) and findOne("信用奖励返回") then
-      log(733)
+    -- 已满则传递，并循环
+    if not appear("未达线索上限", .2) then
       tap("返回")
       appear("线索传递")
       clue_unlocked = false
@@ -955,10 +961,8 @@ path.线索搜集 = function()
       if not clue_unlocked then path.线索传递() end
       return f(retry + 1)
     end
-    log(734)
 
-    -- if not findOne("信用奖励返回") then return f() end
-
+    -- 未满则收取奖励
     if findOne("信用奖励领取") then
       if not wait(function()
         if findOne("线索传递") then return true end
@@ -967,14 +971,14 @@ path.线索搜集 = function()
     else
       tap("返回")
     end
+
+    -- 确保回到线索界面，退出
     if not appear("线索传递") then return end
     return true
   end
   if not f(0) then return end
   if not appear("线索传递") then return end
   path.线索布置()
-  -- if not appear("线索传递") then return end
-  -- path.访问好友()
 end
 
 -- tap with offset -50,50
@@ -1189,6 +1193,7 @@ path.任务收集 = function()
           tap("任务有列表" .. i)
         end, 5) then return end
         -- wait 0.5 for next
+        -- TODO can we remove this timeout
         appear(point["任务有列表"], .5)
       end
     end
@@ -1784,7 +1789,6 @@ path.剿灭 = function(x)
   if not appear("主页") then return end
 
   if not wait(function()
-    -- if findOne("怒号光明") then return true end
     if findOne("主题曲界面") then return true end
     tap("主题曲")
   end) then return end

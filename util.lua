@@ -1827,7 +1827,7 @@ show_help_ui = function()
 3. 脚本没有任何反应，可尝试关闭游戏后启动脚本。
 
 更新：
-2021-12-14 修复密码输入错误与截屏权限未开导致的定时任务失败。
+2021-12-14 修复密码输入错误与截屏权限未开导致的定时任务失败。修复多次传递线索。
 ]])
 
   newRow(layout)
@@ -2059,14 +2059,17 @@ input = function(selector, text)
   if type(text) ~= 'string' or #text == 0 then return end
 
   wait(function()
+    log(2)
     local node = findOne(selector)
     if not node then return true end
     nodeLib.setText(node, '')
-    node = findOne(selector)
-    if node and #node.text == 0 then return true end
+    if 1 then return true end
+    -- node = findOne(selector)
+    -- if node and #node.text == 0 then return true end
   end, 5)
 
   wait(function()
+    log(3)
     local node = findOne(selector)
     if not node then return true end
     nodeLib.setText(node, text)
@@ -2193,9 +2196,11 @@ end
 predebug_hook = function()
   if not predebug then return end
   ssleep(1)
-  input("inputbox", '11111111111')
-  log(findOne('inputbox'))
-  log(#findOne('inputbox').text)
+  while true do if not appear("怒号光明", 0.5) then stop(1) end end
+  exit()
+  input("bilibili_username_inputbox", '11111111111')
+  -- log(findOne('inputbox'))
+  -- log(#findOne('inputbox').text)
   exit()
 
   keepCapture()
