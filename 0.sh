@@ -83,7 +83,6 @@
 
   save() {
     sed -i -r 's/^(release_date =).+$/\1 "'"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
-
     local dst_dir=/F:/software/懒人精灵3.6.0/script/main
     dst="$dst_dir"/脚本
     while IFS= read -r -d '' f; do
@@ -116,14 +115,14 @@
     convert "$1" txt:- | tail -n +2 | sed -nr 's/.*,([^,]+)\)$/\1/p'
   }
 
-  dim(){
+  dim() {
     # make dim version of skill icon
     local src=${1:-png}
     local dst=${2:-png_noalpha_dim}
     mkdir -p "$dst"
     mogrify -path "$dst" -alpha set -channel A -evaluate multiply 0.4 +channel -alpha remove -alpha off -background '#202020' "$src"/'*.png'
   }
-  noalpha(){
+  noalpha() {
     # make noalpha version of skill icon
     local src=${1:-png}
     local dst=${2:-png_noalpha}

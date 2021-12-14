@@ -1472,6 +1472,7 @@ update_rfl = function()
       first_point[k] = {rfl[k][1], rfl[k][2]}
     elseif type(v) == "string" and v:find(coord_delimeter) and rfg[k] then
       -- log(1410,v)
+
       v = point2relative(v)
       first_color[k] = v:match("%d+" .. coord_delimeter .. "%d+" ..
                                  coord_delimeter .. "(......)")

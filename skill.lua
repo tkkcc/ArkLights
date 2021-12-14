@@ -335,13 +335,9 @@ skillpng2operator = JsonDecode('{"Bskill_ctrl_p_spd.png":["凯尔希2"],"Bskill_
 -- LuaFormatter on
 -- 扩充干员等级 
 for k, v in pairs(skillpng2operator) do
-  local extra={}
-  for _, o in pairs(v) do
-    if o:endsWith('1') then
-      table.insert(extra,1)
-    end
-  end
-  table.extend(v,extra)
+  local extra = {}
+  for _, o in pairs(v) do if o:endsWith('1') then table.insert(extra, 1) end end
+  table.extend(v, extra)
 end
 -- 只有1个技能干员
 skillpng2operator['empty2.png'] = table.appear_times(table.flatten(

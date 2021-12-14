@@ -1,4 +1,4 @@
-predebug = true
+-- predebug = true
 -- disable_hotupdate = true
 -- disable_root_mode = true
 -- no_background_after_run = true
@@ -31,11 +31,12 @@ default_findcolor_confidence = 95 / 100
 -- default_max_drug_times = 9999
 -- default_max_stone_times = 0
 -- disable_game_up_check = true
+skip_snapshot_service_check = true
 -- need_show_console = true
 -- 设成10以下时，单核机作战导航失败率高，真机基建缩放也会有问题
-frame_milesecond =1000 // 30
+frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2021.12.08 23:10"
+release_date = "2021.12.14 15:23"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2

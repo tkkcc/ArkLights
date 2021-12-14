@@ -36,12 +36,14 @@ path.base = {
       tap('okbutton')
     end
 
-    if not wait(function()
+    wait(function()
       if findAny({"用户名或密码错误", "密码不能为空"}) then
-        stop("登录失败34")
+        login_error_times = (login_error_times or 0) + 1
+        if login_error_times > 3 then stop("登录失败34") end
+        return true
       end
       tap("登录")
-    end, 5) then return end
+    end, 5)
   end,
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then
@@ -153,7 +155,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
     tap("bilibili_change")
     appear("bilibili_account_login")
   end,
-},nil,true)
+}, nil, true)
 
 path.邮件收取 = function()
   path.跳转("邮件")

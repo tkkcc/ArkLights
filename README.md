@@ -52,7 +52,7 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>最速，完成度高，节点精灵实现</td>
+      <td>最速，完成度高，懒人精灵实现</td>
    </tr>
    <tr>
    <td><a href="https://github.com/Lancarus/a-mobile-anjian-script-for-arknight">明日再肝</a></td>
@@ -124,7 +124,7 @@
       <td>官服B服</td>
       <td>&#10006;</td>
       <td>&#10006;</td>
-      <td>&#10006;</td>
+      <td>&#10004;</td>
       <td>autojs实现</td>
    </tr>
    <tr>

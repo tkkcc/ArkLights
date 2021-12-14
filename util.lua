@@ -180,7 +180,7 @@ table.appear_times = function(t, times)
   for _, v in pairs(t) do visited[v] = (visited[v] or 0) + 1 end
   -- log(visited)
   -- exit()
-  for k,  _ in pairs(visited) do
+  for k, _ in pairs(visited) do
     if visited[k] == times then table.insert(ans, k) end
   end
   return ans
@@ -1779,7 +1779,7 @@ show_main_ui = function()
     {
       layout .. "qqgroup", "反馈群",
       make_jump_ui_command(layout, nil, "jump_qqgroup()"),
-    },
+    }, {layout .. "help", "帮助", make_jump_ui_command(layout, "help")},
     -- {
     --   layout .. "demo", "视频演示",
     --   make_jump_ui_command(layout, nil, "jump_bilibili()"),
@@ -1792,7 +1792,7 @@ show_main_ui = function()
     addButton(layout, v[1], v[2], v[3])
   end
 
-  newRow(layout, layout .. "bottom_row", "center")
+  -- newRow(layout, layout .. "bottom_row", "center")
   addButton(layout, layout .. "_stop", "退出",
             make_jump_ui_command(layout, nil, "peaceExit()"))
   ui.setBackground(layout .. "_stop", ui_cancel_color)
@@ -1808,6 +1808,33 @@ show_main_ui = function()
     ui.setEnable("end_screenoff", false)
     ui.setEnable("end_poweroff", false)
   end
+  ui.show(layout, false)
+end
+
+show_help_ui = function()
+  local layout = "help"
+  ui.newLayout(layout, ui_page_width, -2)
+  ui.setTitleText(layout, "帮助")
+
+  newRow(layout)
+  addTextView(layout, [[
+源码与其他脚本：https://github.com/tkkcc/arknights。
+好用给个star。
+
+提示：
+1. 剿灭合成玉已满会跳过，关卡没开放会跳过，因此无需频繁修改作战设置。
+2. 代理作战中启动时，脚本优先重复刷当前关，可用于刷活动。活动也可用“上一次”刷。
+3. 脚本没有任何反应，可尝试关闭游戏后启动脚本。
+
+更新：
+2021-12-14 修复密码输入错误与截屏权限未开导致的定时任务失败。
+]])
+
+  newRow(layout)
+  ui.addButton(layout, layout .. "_stop", "返回")
+  ui.setBackground(layout .. "_stop", ui_cancel_color)
+  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+
   ui.show(layout, false)
 end
 
@@ -2030,13 +2057,23 @@ end
 
 input = function(selector, text)
   if type(text) ~= 'string' or #text == 0 then return end
-  local node = findOne(selector)
-  if not node then return true end
-  -- wait(function()
-  nodeLib.setText(node, text)
-  -- if #node.text > 0 then return true end
-  -- log(1991,node.text)
-  -- end, 20)
+
+  wait(function()
+    local node = findOne(selector)
+    if not node then return true end
+    nodeLib.setText(node, '')
+    node = findOne(selector)
+    if node and #node.text == 0 then return true end
+  end, 5)
+
+  wait(function()
+    local node = findOne(selector)
+    if not node then return true end
+    nodeLib.setText(node, text)
+    node = findOne(selector)
+    if node and #node.text > 0 then return true end
+  end, 5)
+
 end
 
 enable_accessibility_service = function()
@@ -2092,6 +2129,7 @@ enable_accessibility_service = function()
 end
 
 enable_snapshot_service = function()
+  if skip_snapshot_service_check then return end
   if isSnapshotServiceRun() then return end
   if root_mode then
     local package = getPackageName()
@@ -2155,6 +2193,10 @@ end
 predebug_hook = function()
   if not predebug then return end
   ssleep(1)
+  input("inputbox", '11111111111')
+  log(findOne('inputbox'))
+  log(#findOne('inputbox').text)
+  exit()
 
   keepCapture()
   -- skillimg = {}
@@ -2178,7 +2220,7 @@ predebug_hook = function()
       b, g, r = colorToRGB(color[(w - i - 1) * w + j])
       table.extend(pngdata[v], {r, g, b})
       if nil and v == 'Bskill_man_exp2.png' then
-      -- if v == 'Bskill_ws_evolve2.png' then
+        -- if v == 'Bskill_ws_evolve2.png' then
         r = string.format('%X', r):padStart(2, '0')
         g = string.format('%X', g):padStart(2, '0')
         b = string.format('%X', b):padStart(2, '0')
