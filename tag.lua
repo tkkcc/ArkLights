@@ -75,3 +75,4 @@ table.extend(tag5, {
   {{'资深干员'}, 5, {"资深干员"}},
   {{'高级资深干员'}, 6, {"高级资深干员"}},
 })
+tagFix = function(x) return x:map({沮 = "狙", 千 = "干"}) end

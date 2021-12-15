@@ -2104,23 +2104,21 @@ path.公招刷新 = function()
           r = ocrEx(r[1], r[2], r[3], r[4]) or {}
           tags = {}
           for _, p in pairs(r) do
+            p.text = tagFix(p.text)
             if table.includes(tag, p.text) then
               tags[p.text] = {(p.l + p.r) // 2, (p.t + p.b) // 2}
-            else
-              -- TODO: 出现有些tag等待超时：狙击干员
-              log(p.text)
             end
           end
           if #table.keys(tags) >= 5 and not table.equalKey(tags, pre_tags) then
             return true
           end
-          log(tags)
+          log(1091,tags)
         end, 2)
 
         local skip = false
         if #table.keys(tags) < 5 then skip = true end
 
-        log(1092, tags)
+        log(1092, tags, skip)
         -- exit()
         local tag4 = table.filter(tag5, function(rule)
           return table.all(rule[1], function(m) return tags[m] end)
