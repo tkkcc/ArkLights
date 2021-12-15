@@ -843,7 +843,7 @@ auto = function(p, fallback, timeout, total_timeout)
     if finish then return true end
 
     -- fallback自动机只做一次
-    if not e and fallback then auto(path.fallback,nil,nil,0) end
+    if not e and fallback then auto(path.fallback, nil, nil, 0) end
   end
 end
 
@@ -880,7 +880,7 @@ run = function(...)
       v()
       log(774)
     else
-      auto(path[v],path.fallback)
+      auto(path[v], path.fallback)
     end
   end
 
@@ -1993,27 +1993,10 @@ scale = function(x, mode)
 end
 
 input = function(selector, text)
-  if type(text) ~= 'string' or #text == 0 then return end
-
-  wait(function()
-    log(2)
-    local node = findOne(selector)
-    if not node then return true end
-    nodeLib.setText(node, '')
-    if 1 then return true end
-    -- node = findOne(selector)
-    -- if node and #node.text == 0 then return true end
-  end, 5)
-
-  wait(function()
-    log(3)
-    local node = findOne(selector)
-    if not node then return true end
-    nodeLib.setText(node, text)
-    node = findOne(selector)
-    if node and #node.text > 0 then return true end
-  end, 5)
-
+  if type(text) ~= 'string' then return end
+  local node = findOne(selector)
+  if not node then return end
+  nodeLib.setText(node, text)
 end
 
 enable_accessibility_service = function()
@@ -2134,6 +2117,7 @@ predebug_hook = function()
   if not predebug then return end
 
   ssleep(1)
+  log(findOne("返回"))
   -- log(findOne("活动公告返回"))
   -- log(findOne("返回3"))
   -- log(findOne("返回4"))

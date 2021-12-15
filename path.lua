@@ -34,6 +34,7 @@ path.base = {
       end, 5) then return end
       input("inputbox", password)
       tap('okbutton')
+      disappear("okbutton")
     end
 
     wait(function()
@@ -149,8 +150,12 @@ path.bilibili_login_change = update(path.bilibili_login, {
   bilibili_oneclicklogin = false,
   bilibili_login = true,
   bilibili_change2 = function()
-    tap("bilibili_change2")
-    appear({"bilibili_change", "bilibili_account_login"})
+    wait(function()
+      tap("bilibili_change2")
+      if appear({"bilibili_change", "bilibili_account_login"}, .5) then
+        return true
+      end
+    end, 5)
   end,
   bilibili_change = function()
     tap("bilibili_change")
@@ -167,7 +172,7 @@ path.fallback = {
       if x then return true end
       back()
     end, 10) then stop("返回键10秒超时") end
-    if x then return path.fallback[x] end
+    if x then return path.fallback[x]() end
   end,
   活动公告返回 = function() return path.fallback.签到返回() end,
   抽签返回 = function()
@@ -187,6 +192,7 @@ path.fallback = {
     return path.fallback.签到返回()
   end,
   返回确认 = function()
+    log(191)
     leaving_jump = false
     if not wait(function()
       if not findOne("返回确认") then return true end
@@ -242,11 +248,16 @@ path.fallback = {
       tap("基建右上角")
     end, 4)
     disappear("面板", 1)
+
   end,
   返回 = function()
+    local x = findAny({"返回确认", "返回确认2"})
+    log(251, x)
+    if x then return path.fallback[x]() end
+    -- back()
     tap("返回")
     -- 基建内返回太快会卡
-    ssleep(.1)
+    -- ssleep(.1)
     -- TODO: 基建内用back怎么样？
   end,
   返回3 = function()
@@ -2416,7 +2427,7 @@ path.退出账号 = function()
     bilibili_framelayout_only = false,
     [function()
       return findOne("bilibili_framelayout_only") and
-               not findAny({"面板", "bilibili_login"})
+               not findOne("bilibili_login")
     end] = function() auto(path.bilibili_login_change) end,
     面板 = function()
       tap("面板设置")
