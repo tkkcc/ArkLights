@@ -663,7 +663,11 @@ swipe = function(x)
   log("swipe", x)
   if x == 'right' then
     gesture({
-      {point = {{scale(300), scale(150)}, {1000000, scale(150)}}, start = 0, duration = 150},
+      {
+        point = {{scale(300), scale(150)}, {1000000, scale(150)}},
+        start = 0,
+        duration = 150,
+      },
     })
     sleep(150 + 50)
   elseif x == 'left' then
@@ -762,7 +766,7 @@ zoom = function(retry)
   end
   log(696, findOne("进驻总览"))
   if not findOne("进驻总览") then
-    stop(695)
+    -- stop(695)
     return path.跳转("基建")
   end
   if findOne("缩放结束") then
@@ -838,100 +842,8 @@ auto = function(p, fallback, timeout, total_timeout)
     local e = wait(check, timeout)
     if finish then return true end
 
-    -- 这块要拆出来
-    -- fallback: tap false or timeout
-    if not e and fallback ~= false then
-      local x = table.findv({
-        "返回确认", "返回确认2", "活动公告返回", "签到返回",
-        "返回", "返回2", "返回3", "返回4", "活动签到返回",
-        "抽签返回", "单选确认框", "剿灭说明", "行动结束",
-        "感谢庆典返回", "限时开放许可",
-      }, findOne)
-      if x then
-        log(x)
-        if table.includes({
-          "活动公告返回", "签到返回", "活动签到返回",
-          "抽签返回",
-        }, x) then
-          -- solve 活动签到
-          if x == "活动签到返回" and not speedrun then
-            for u = scale(300), screen.width - scale(300), 200 do
-              tap({u, screen.height // 2})
-            end
-            for v = scale(300), screen.height - scale(300), 200 do
-              tap({screen.width // 2, v})
-            end
-          end
-          -- solve 抽签
-          if x == "抽签返回" and not speedrun then
-            for u = scale(300), screen.width - scale(300), 200 do
-              tap({u, screen.height // 2})
-            end
-            tap("确定抽取")
-          end
-          -- deal with everyday popup
-          if not wait(function()
-            if findOne("面板") then return true end
-            tap(x)
-          end, 10) then return end
-          disappear("面板", 1)
-        elseif x == "返回确认" then
-          leaving_jump = false
-          if not wait(function()
-            if not findOne("返回确认") then return true end
-            if fallback then
-              log("tap fallback[x]")
-              tap(fallback[x])
-              if disappear("返回确认", .5) and not appear("进驻总览", 1) then
-                -- 解决灯泡激活状态的死循环
-                tap("基建右上角")
-              end
-            else
-              tap("右确认")
-            end
-          end, 10) then return end
-          if appear("进驻总览", 1) then leaving_jump = true end
-        elseif x == "返回确认2" then
-          tap("右确认")
-        elseif x == "单选确认框" then
-          tap("右确认")
-        elseif x == "剿灭说明" then
-          if not wait(function()
-            if findOne("主页") then return true end
-            tap("基建右上角")
-          end, 5) then return end
-        elseif x == "行动结束" then
-          wait(function()
-            if findOne("开始行动") and findOne("代理指挥开") then
-              return true
-            end
-            tap("行动结束")
-          end, 5)
-        elseif x == "限时开放许可" then
-          wait(function() tap("开始作业") end, 1)
-          wait(function()
-            if findOne("面板") then return true end
-            tap("基建右上角")
-          end, 10)
-          disappear("面板", 1)
-
-        elseif x == "感谢庆典返回" then
-          wait(function() tap("感谢典点击领取") end, 1)
-
-          wait(function()
-            if findOne("面板") then return true end
-            tap("基建右上角")
-          end, 4)
-          disappear("面板", 1)
-        else
-          tap(x)
-          ssleep(.1)
-        end
-      else
-        -- log("no fallback sign found")
-        tap()
-      end
-    end
+    -- fallback自动机只做一次
+    if not e and fallback then auto(path.fallback,nil,nil,0) end
   end
 end
 
@@ -968,7 +880,7 @@ run = function(...)
       v()
       log(774)
     else
-      auto(path[v])
+      auto(path[v],path.fallback)
     end
   end
 
@@ -1677,7 +1589,7 @@ notifyqq = function(image, info, to, sync)
                   "&to=" .. encodeUrl(to)
   log(info, to)
   asynHttpPost(function(res, code)
-    log(res, code)
+    log("notifyqq response", res, code)
     lock:remove(id)
   end, "http://82.156.198.12:49875", param)
   if sync then wait(function() return not lock:exist(id) end, 30) end
@@ -1851,7 +1763,7 @@ show_help_ui = function()
 
 
 更新：
-2021-12-15 修正右滑高度。
+2021-12-15 规避线索搜集结尾等待。规避任务收集结尾等待。规避公告/签到结尾等待。修正作战右滑高度。
 2021-12-14 修正root权限检测，支持无障碍关闭游戏。允许DPI<320，雷电模拟器平板模式测试未发现问题。修复多次传递线索。修复密码输入错误与截屏权限未开导致的定时任务失败。
 ]])
 
@@ -2220,6 +2132,12 @@ end
 
 predebug_hook = function()
   if not predebug then return end
+
+  ssleep(1)
+  -- log(findOne("活动公告返回"))
+  -- log(findOne("返回3"))
+  -- log(findOne("返回4"))
+  -- while true do if findOne("活动公告返回") then stop(2229) end end
   -- log(table.combination(range(1, 10), 3))
   -- log(ans)
   exit()

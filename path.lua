@@ -144,6 +144,7 @@ path.bilibili_login = {
     appear("bilibili_account_login")
   end,
 }
+
 path.bilibili_login_change = update(path.bilibili_login, {
   bilibili_oneclicklogin = false,
   bilibili_login = true,
@@ -156,6 +157,104 @@ path.bilibili_login_change = update(path.bilibili_login, {
     appear("bilibili_account_login")
   end,
 }, nil, true)
+
+path.fallback = {
+  签到返回 = function()
+    local x
+    if not wait(function()
+      -- 曾出现 返回确认 误判为 活动公告返回
+      x = findAny({"返回确认", "返回确认3"})
+      if x then return true end
+      back()
+    end, 10) then stop("返回键10秒超时") end
+    if x then return path.fallback[x] end
+  end,
+  活动公告返回 = function() return path.fallback.签到返回() end,
+  抽签返回 = function()
+    for u = scale(300), screen.width - scale(300), 200 do
+      tap({u, screen.height // 2})
+    end
+    tap("确定抽取")
+    return path.fallback.签到返回()
+  end,
+  活动签到返回 = function()
+    for u = scale(300), screen.width - scale(300), 200 do
+      tap({u, screen.height // 2})
+    end
+    for v = scale(300), screen.height - scale(300), 200 do
+      tap({screen.width // 2, v})
+    end
+    return path.fallback.签到返回()
+  end,
+  返回确认 = function()
+    leaving_jump = false
+    if not wait(function()
+      if not findOne("返回确认") then return true end
+      if stay_in_dorm_once then
+        back()
+        -- 必须等待
+        if disappear("返回确认", .5) and not appear("进驻总览", 1) then
+          -- 解决灯泡激活状态的死循环
+          tap("基建右上角")
+        end
+      else
+        tap("右确认")
+      end
+    end, 10) then stop("基建返回提示不消失") end
+    stay_in_dorm_once = false
+
+    if appear("进驻总览", 1) then leaving_jump = true end
+  end,
+  返回确认2 = "右确认",
+  返回确认3 = function()
+    if not wait(function()
+      if findOne("面板") then return true end
+      tap("左取消")
+    end, 5) then stop(213) end
+  end,
+  单选确认框 = "右确认",
+  剿灭说明 = function()
+    if not wait(function()
+      if findOne("主页") then return true end
+      tap("基建右上角")
+    end, 5) then stop(208) end
+  end,
+  行动结束 = function()
+    if not wait(function()
+      if findOne("开始行动") and findOne("代理指挥开") then
+        return true
+      end
+      findTap("行动结束")
+    end, 10) then stop(217) end
+  end,
+  限时开放许可 = function()
+    wait(function() tap("开始作业") end, 1)
+    wait(function()
+      if findOne("面板") then return true end
+      tap("基建右上角")
+    end, 10)
+    disappear("面板", 1)
+  end,
+  感谢庆典返回 = function()
+    wait(function() tap("感谢典点击领取") end, 1)
+    wait(function()
+      if findOne("面板") then return true end
+      tap("基建右上角")
+    end, 4)
+    disappear("面板", 1)
+  end,
+  返回 = function()
+    tap("返回")
+    -- 基建内返回太快会卡
+    ssleep(.1)
+    -- TODO: 基建内用back怎么样？
+  end,
+  返回3 = function()
+    -- 只有邮件与设置界面有白色返回
+    tap("返回3")
+    disappear("返回3", .5)
+  end,
+}
 
 path.邮件收取 = function()
   path.跳转("邮件")
@@ -221,7 +320,7 @@ end
 
 -- 跳转至由面板可到达的界面
 -- 注意 从好友 以及 到采购中心的跳转
--- TODO 目前从好友跳转时可能出现5秒等待
+-- TODO 从好友跳转失败时有5秒等待
 path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   local sign = {
     好友 = "个人名片",
@@ -234,9 +333,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     采购中心 = "可露希尔推荐",
     任务 = "任务第一个",
     终端 = "主页",
-    邮件 = function()
-      return (findOne("邮件信封") and findAny({"返回3", "返回4"}))
-    end,
+    邮件 = function() return findOne("邮件信封") and findOne("返回3") end,
   }
   local plain = {
     邮件 = "面板邮件",
@@ -250,8 +347,6 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     终端 = "面板作战",
   }
   local timeout = 20
-  -- local timeout = (x == "基建" or prev_jump == "基建") and 20 or 20
-  -- if prev_jump == "采购中心" then timeout = 20 end
 
   local target = sign[x]
   local home_target = x == "邮件" and "首页" or x
@@ -266,16 +361,6 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     return true
   end
 
-  -- TODO: manually make 返回确认 for zero_wait_click
-  -- if x == "基建" and prev_jump == "基建" then
-  --   if not wait(function()
-  --     if findAny({
-  --       "返回确认", "返回确认2", "活动公告返回", "签到返回",
-  --       "活动签到返回", "抽签返回",
-  --     }) then return true end
-  --     tap("返回")
-  --   end, 10) then return end
-  -- end
   log(218)
 
   local bypass = function(t)
@@ -298,7 +383,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
       log(208)
       appear({
         target, "活动公告返回", "签到返回", "活动签到返回",
-        "抽签返回", "单选确认框",
+        "抽签返回", "单选确认框", "返回3",
       }, timeout)
       log(209)
     end,
@@ -318,6 +403,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
           -- 一直按直到出现新状态
           tap("主页列表" .. home_target)
           tap("主页列表" .. home_target)
+
           wait(function()
             if not findAny({"返回", "返回2"}) or
               findAny({"主页", "返回确认", "返回确认2"}) then
@@ -376,17 +462,11 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     end
   end
 
-  local fallback = {返回确认 = "右确认"}
-  if x == "基建" then fallback.返回确认 = function() back() end end
-
-  -- log(219)
-  wait_game_up()
-  auto(p, fallback, nil, 1800)
-  log(220, findOne("邮件"))
+  stay_in_dorm_once = x == "基建"
+  auto(p, path.fallback)
 
   -- post processing especially for 基建
   if x == "基建" and not disable_postprocess then zoom() end
-  log(221)
 
   prev_jump = x
 
@@ -528,7 +608,7 @@ path.宿舍换班 = function()
     if not wait(function()
       if not findOne("干员未选中") then return true end
       tapAll(map(function(i) return "干员选择列表" .. i end, range(6, 10)))
-      disappear("干员未选中")
+      disappear("干员未选中", 0.5)
     end, 5) then return end
     if not wait(function()
       if findAny({
@@ -734,7 +814,7 @@ path.总览换班 = function()
           if not findOne("干员未选中") then return true end
           tapAll(map(function(j) return "干员选择列表" .. j end,
                      range(2 * limit, limit + 1, -1)))
-          disappear("干员未选中")
+          disappear("干员未选中", 0.5)
         end, 5) then return end
         if not wait(function()
           if findOne("撤下干员") then return true end
@@ -792,7 +872,7 @@ path.总览换班 = function()
       if not findOne("干员未选中") then return true end
       tapAll(map(function(j) return "干员选择列表" .. j end,
                  range(1, limit)))
-      disappear("干员未选中")
+      disappear("干员未选中", 0.5)
     end, 5) then return end
     if not wait(function()
       if findOne("撤下干员") then return true end
@@ -997,34 +1077,8 @@ path.线索布置 = function()
     tap("线索布置5")
   end, 5)
 
-  log(642)
-
-  -- 一个红点都没找到 且
-  -- TODO still need wait?
-  -- with findAny, skip happens on collect, not sure if this is
-  -- if not appear(point.线索布置左列表, .5) then
-  -- if not findAny(point.线索布置左列表) and not findOne("解锁线索左") then
-  --   wait(function()
-  --     if findOne("线索传递") then return true end
-  --     tap("解锁线索上")
-  --   end, 5)
-  --   return
-  -- end
-
   log(644)
   if true then
-
-    log(645)
-
-    -- if not wait(function()
-    --   if not findOne(p) then return true end
-    --   tapCard(p)
-    --   disappear(p)
-    -- end, 5) then return end
-    -- log(646)
-    -- if not appear("线索布置左列表" .. p:sub(#p)) then return end
-    -- log(647)
-
     for i = 1, 7 do
       if findOne("线索布置左列表" .. i) then
         p = "线索布置左列表" .. i
@@ -1033,16 +1087,10 @@ path.线索布置 = function()
           if findOne("线索布置白列表" .. i) then return true end
           tapCard(p)
         end, 2)
-
         if not wait(function()
           if not findOne(p) then return true end
-
-          -- TODO: will this better, can cause error
           tap("线索库列表1")
           tap("线索库列表1")
-          -- wait(function() tap("线索库列表1") end, .1)
-
-          -- we must wait network
           disappear(p, 5)
         end, 20) then return end
       end
@@ -1051,13 +1099,10 @@ path.线索布置 = function()
     if not wait(function()
       if findOne("线索传递") then return true end
       tap("解锁线索上")
-    end, 5) then return end
+    end, 10) then return end
   end
 
-  if findOne("正在提交反馈至神经") then
-    disappear("正在提交反馈至神经", 5)
-  end
-  if appear("解锁线索", .5) then
+  if findOne("解锁线索") then
     clue_unlocked = true
 
     wait(function() tap("解锁线索") end, .5)
@@ -1164,6 +1209,7 @@ path.任务收集 = function()
   end
 
   for i = 1, #point.任务有列表 do
+
     log(794, i)
     if findOne("任务有列表" .. i) then
       log(795, i)
@@ -1173,6 +1219,9 @@ path.任务收集 = function()
         if findOne("收集全部") then return true end
         tap("任务有列表" .. i)
       end, 10) then return end
+
+      -- 判定是否有剩余红点
+      local remain = findAny(table.slice(point.任务有列表, i + 1))
 
       -- tap collect
       if not wait(function()
@@ -1186,9 +1235,9 @@ path.任务收集 = function()
           if findOne("主页") then return true end
           tap("任务有列表" .. i)
         end, 5) then return end
-        -- wait 0.5 for next
-        -- TODO can we remove this timeout
-        appear(point["任务有列表"], .5)
+
+        -- 等待剩余红点出现
+        if remain then appear(remain) end
       end
     end
   end
@@ -1553,7 +1602,8 @@ path.主线 = function(x)
     end, 3) then return end
     if not appear(table.keys(p), 5) then return end
   end
-  auto(p, false, 10, 10)
+  -- 10秒内需要完成章节切换
+  auto(p, nil, 10, 10)
   path.开始游戏(x)
 end
 
@@ -2062,7 +2112,7 @@ path.公招刷新 = function()
         log(1092, tags)
         -- exit()
         local tag4 = table.filter(tag5, function(rule)
-          return table.all(rule[1], function(r) return tags[r] end)
+          return table.all(rule[1], function(m) return tags[m] end)
         end)
         log(1093, tag4)
         -- toast(JsonEncode(tags))
@@ -2370,7 +2420,7 @@ path.退出账号 = function()
     end] = function() auto(path.bilibili_login_change) end,
     面板 = function()
       tap("面板设置")
-      if not appear({"返回3", "返回4"}) then return end
+      if not appear("返回3") then return end
       wait(function()
         tap("退出登录" .. (appid == oppid and '' or '2'))
         tap("右确认")
@@ -2379,5 +2429,5 @@ path.退出账号 = function()
     开始唤醒 = "账号管理",
     bilibili_login = true,
     手机验证码登录 = true,
-  }, nil, true), nil, nil, 1800)
+  }, nil, true), path.fallback)
 end

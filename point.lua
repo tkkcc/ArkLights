@@ -321,7 +321,7 @@ point = {
   信用奖励有 = "1794|254|FFFFFF,1835|239|7D0022",
   接收线索有 = "1796|458|FFFFFF,1833|396|7D0022",
   接收线索白 = "1795|396|FFFFFF,1795|409|FFFFFF",
-  线索传递 = "1764|589|FFFFFF,1764|609|FFFFFF,1757|869|FFFFFF",
+  线索传递 = "1764|589|FFFFFF,1764|609|FFFFFF,1757|869|FFFFFF,1757|990|FFFFFF",
   信用奖励领取 = "1286|864|0075A8",
   未达线索上限 = "521|914|E9E9E9",
   信用奖励返回 = "960|948|E9E9E9",
@@ -748,6 +748,10 @@ point = {
   返回确认2 = function()
     return findOne("返回确认界面") and findOne("是否返回好友列表")
   end,
+  是否退出游戏 = "1105|495|313131,1083|493|313131,1038|483|313131,997|481|313131,997|498|313131,927|477|313131",
+  返回确认3 = function()
+    return findOne("返回确认界面") and findOne("是否退出游戏")
+  end,
   代理指挥关 = "1844|921|EEEEEE",
   代理指挥开 = "1601|886|FFFFFF",
   -- 代理指挥开 = function() return findOne("代理指挥开静止", 0.5) end,
@@ -1000,6 +1004,7 @@ center = {
 
   是否确认离开基建 = "center_center",
   是否返回好友列表 = "center_center",
+  是否退出游戏 = "center_center",
   活动公告返回 = "center_center",
   签到返回 = "center_center",
   -- 右确认 = "1469,"..(1469-1920+screen.width).."_center_anisotropy",
