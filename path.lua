@@ -172,7 +172,7 @@ path.fallback = {
       if x then return true end
       back()
     end, 10) then stop("返回键10秒超时") end
-    if x then return path.fallback[x]() end
+    if x then return tap(path.fallback[x]) end
   end,
   活动公告返回 = function() return path.fallback.签到返回() end,
   抽签返回 = function()
@@ -253,7 +253,7 @@ path.fallback = {
   返回 = function()
     local x = findAny({"返回确认", "返回确认2"})
     log(251, x)
-    if x then return path.fallback[x]() end
+    if x then return tap(path.fallback[x]) end
     -- back()
     tap("返回")
     -- 基建内返回太快会卡

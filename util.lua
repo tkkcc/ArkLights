@@ -1377,6 +1377,7 @@ closeapp = function(package)
     disappear(stop_node)
   end
 end
+closeapp = disable_game_up_check_wrapper(closeapp)
 screenoff =
   function() if root_mode then exec('su -c "input keyevent 223"') end end
 screenon = function()
