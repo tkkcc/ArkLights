@@ -788,7 +788,6 @@ center = {
   开始作业 = "center_center",
   限时开放许可 = "center_center",
   感谢庆典点击领取 = "center_center",
-  行动结束 = "left_bottom",
   基建收获线索提示 = "right_top",
   剿灭说明 = 'center_center',
   账号管理 = "right_bottom",
