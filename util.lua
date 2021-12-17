@@ -150,6 +150,21 @@ string.padEnd = function(str, len, char)
   return str .. string.rep(char, len - #str)
 end
 
+table.index = function(t, idx)
+  local ans = {}
+  for _, i in pairs(idx) do table.insert(ans, t[i]) end
+  return ans
+end
+table.reduce = function(t, f, a)
+  a = a or 0
+  for _, c in pairs(t) do a = f(a, c) end
+  return a
+end
+table.sum = function(t)
+  local a = 0
+  for _, c in pairs(t) do a = a + c end
+  return a
+end
 -- 从t中选出长度为n的所有组合，结果在ans，
 table.combination = function(t, n)
   local ans = {}
@@ -2117,7 +2132,10 @@ end
 predebug_hook = function()
   if not predebug then return end
 
+  testManufacturingStationOperatorBest()
+  exit()
   ssleep(1)
+
   log(findOne("返回"))
   -- log(findOne("活动公告返回"))
   -- log(findOne("返回3"))
