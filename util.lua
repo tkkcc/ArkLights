@@ -675,6 +675,12 @@ end
 
 -- swip to end for fight
 swipe = function(x)
+  -- 作战中第一次右滑容易错过
+  if first_time_swipe then
+    first_time_swipe = false
+    swipe(x)
+  end
+
   log("swipe", x)
   if x == 'right' then
     gesture({
@@ -696,6 +702,7 @@ swipe = function(x)
     })
     sleep(100 + 50)
   end
+
 end
 
 -- 安卓8以下的滑动用双指
@@ -1461,10 +1468,10 @@ make_account_ui = function(layout, prefix)
   ui.addEditText(layout, prefix .. 'max_stone_times', "0")
   addTextView(layout, "次石头")
 
-  -- newRow(layout)
-  -- addTextView(layout, "基建换班")
-  -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"最速", "最高收益"},
-  --                  1, -2, -2, true)
+  newRow(layout)
+  addTextView(layout, "换班模式")
+  ui.addRadioGroup(layout, prefix .. "prefer_speed",
+                   {"极速", "高产(别用)"}, 0, -2, -2, true)
 
   -- newRow(layout)
   -- addTextView(layout, "信用不买")
@@ -1775,10 +1782,12 @@ show_help_ui = function()
 提示：
 1. 剿灭合成玉已满会跳过，关卡没开放会跳过，因此无需频繁修改作战设置。
 2. 代理作战中启动时，脚本优先重复刷当前关，可用于刷活动。活动也可用“上一次”刷。
-3. 无障碍提示选“以后不再提醒”，进入后点“确定”。
+3. “高产”换班时，忽略其他站干员技能加成（如迷迭香、焰尾、森蚺），忽略 意识协议 效果。
+4. 无障碍提示选“以后不再提醒”，进入后点“确定”。别开“懒人输入法”。
 
 
 更新：
+2021-12-19 修复1600x900运行问题。
 2021-12-15 规避线索搜集结尾等待。规避任务收集结尾等待。规避公告/签到结尾等待。修正作战右滑高度。
 2021-12-14 修正root权限检测，支持无障碍关闭游戏。允许DPI<320，雷电模拟器平板模式测试未发现问题。修复多次传递线索。修复密码输入错误与截屏权限未开导致的定时任务失败。
 ]])
@@ -2131,10 +2140,27 @@ end
 
 predebug_hook = function()
   if not predebug then return end
-
-  testManufacturingStationOperatorBest()
-  exit()
   ssleep(1)
+  -- log(point["公开招募箭头"])
+  -- log(findOne("公开招募"))
+  -- log(findOne("公开招募箭头"))
+  -- tap({796,503})
+
+  -- log(point["今日参与交流已达上限"])
+  -- log(point["返回确认"])
+  log(point["是否确认离开基建"])
+  -- log(point["是否返回好友列表"])
+  -- log(point["是否退出游戏"])
+
+  -- log(point["今日参与交流已达上限"])
+  -- log(point["信用交易所横线"])
+  -- log(findOne("返回确认界面"))
+  log(findOne("是否确认离开基建"))
+  log(findOne("是否返回好友列表"))
+  -- log(findOne("是否退出游戏"))
+
+  -- testManufacturingStationOperatorBest()
+  exit()
 
   log(findOne("返回"))
   -- log(findOne("活动公告返回"))
@@ -2222,6 +2248,7 @@ predebug_hook = function()
     log(2208, best_score, best)
     return best
   end
+
   discover()
   exit()
   pic = table.join(skillpng, "|")

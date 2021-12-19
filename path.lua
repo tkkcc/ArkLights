@@ -501,6 +501,8 @@ init_state = function()
   communication_enough = false
   jmfight_enough = false
   zero_san = false
+  
+  first_time_swipe = true
 end
 
 -- 对于单个用户的不同任务
@@ -688,7 +690,6 @@ path.制造换班 = function()
     end, 5) then return end
 
     -- 筛选出无进驻技能排序
-
     if not wait(function()
       if findOne("筛选取消") then return true end
       tap("筛选")
@@ -915,8 +916,10 @@ end
 
 path.基建换班 = function()
   path.宿舍换班()
-  -- path.制造换班()
-  -- path.贸易换班()
+  if prefer_speed==1 then
+    path.制造换班()
+    path.贸易换班()
+  end
   path.总览换班()
 end
 
@@ -1323,8 +1326,8 @@ path.信用购买 = function()
     if not wait(function()
       if not findOne("信用交易所横线") then return true end
       tap("信用交易所列表" .. i)
-      -- 快速点击物品导致二次弹出
-      disappear("信用交易所横线", .1)
+      -- 快速点击物品导致二次弹出 或 弹不出
+      -- disappear("信用交易所横线", .1)
     end, 5) then return end
 
     if not wait(function()
@@ -1478,8 +1481,8 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
     if findOne("开始行动") then
       tap("开始行动蓝")
-      -- TODO 2秒太慢 => 一开始就用0秒, 5秒内增加至2秒
-      disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 5))
+      -- TODO 2秒太慢 => 一开始就用0秒, 2秒内增加至2秒
+      disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
     end
   end, 30) then return end
 
@@ -2112,7 +2115,7 @@ path.公招刷新 = function()
           if #table.keys(tags) >= 5 and not table.equalKey(tags, pre_tags) then
             return true
           end
-          log(1091,tags)
+          log(1091, tags)
         end, 2)
 
         local skip = false
