@@ -1610,9 +1610,9 @@ notifyqq = function(image, info, to, sync)
   local id = lock:add()
   local param = "image=" .. encodeUrl(image) .. "&info=" .. encodeUrl(info) ..
                   "&to=" .. encodeUrl(to)
-  log(info, to)
+  log('notify qq', info, to)
   asynHttpPost(function(res, code)
-    log("notifyqq response", res, code)
+    -- log("notifyqq response", res, code)
     lock:remove(id)
   end, "http://82.156.198.12:49875", param)
   if sync then wait(function() return not lock:exist(id) end, 30) end
@@ -2141,6 +2141,22 @@ end
 predebug_hook = function()
   if not predebug then return end
   ssleep(1)
+
+  -- local swipd = function()
+  --   local flipd = 150
+  --   local flips = 50
+  --   local duration = flipd + flips + 200
+  --   local x1 = screen.width - scale(720 - 500)
+  --   local x2 = x1 - scale(100)
+  --   local y1 = scale(150)
+  --   local y2 = screen.height - scale(150)
+  --   local paths = {
+  --     {point = {{x1, y1}, {0, y1}}, duration = duration},
+  --     {point = {{x1, y2}, {x2, y2}}, duration = flipd, start = flips},
+  --   }
+  --   gesture(paths)
+  --   sleep(duration+50)
+  -- end
   -- log(point["公开招募箭头"])
   -- log(findOne("公开招募"))
   -- log(findOne("公开招募箭头"))
@@ -2148,15 +2164,15 @@ predebug_hook = function()
 
   -- log(point["今日参与交流已达上限"])
   -- log(point["返回确认"])
-  log(point["是否确认离开基建"])
+  -- log(point["是否确认离开基建"])
   -- log(point["是否返回好友列表"])
   -- log(point["是否退出游戏"])
 
   -- log(point["今日参与交流已达上限"])
   -- log(point["信用交易所横线"])
   -- log(findOne("返回确认界面"))
-  log(findOne("是否确认离开基建"))
-  log(findOne("是否返回好友列表"))
+  -- log(findOne("是否确认离开基建"))
+  -- log(findOne("是否返回好友列表"))
   -- log(findOne("是否退出游戏"))
 
   -- testManufacturingStationOperatorBest()

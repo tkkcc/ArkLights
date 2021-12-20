@@ -501,7 +501,7 @@ init_state = function()
   communication_enough = false
   jmfight_enough = false
   zero_san = false
-  
+
   first_time_swipe = true
 end
 
@@ -750,15 +750,21 @@ path.总览换班 = function()
   end, 10) then return end
 
   local swipd = function()
-    -- TODO 慢了，这里也可以定点滑动的
-    local duration = 500
-    local delay = 0
-    local y1 = screen.height - math.round(200 * minscale)
-    local x1 = math.round((1680 - 1920) * minscale) + screen.width
-    local y2 = math.round(150 * minscale)
-    local paths = {point = {{x1, y1}, {x1, y2}}, duration = duration}
+    local flipd = 150
+    local flips = 50
+    local duration = flipd + flips + 50
+    local x1 = screen.width - scale(1280 - 500)
+    local x2 = x1 + scale(100)
+    local x3 = screen.width - 1
+    local y1 = scale(150)
+    local y2 = screen.height - scale(150)
+    local paths = {
+      {point = {{x1, y1}, {x3, y1}}, duration = duration},
+      {point = {{x1, y2}, {x2, y2}}, duration = flipd, start = flips},
+    }
     gesture(paths)
-    sleep(duration + delay)
+    sleep(duration + 50)
+    -- 可能还是需要按下
     tap("入驻干员右侧")
     sleep(200)
   end
@@ -766,7 +772,10 @@ path.总览换班 = function()
   local first_look = true
   local visitedy = {}
   f = function()
-    local timeout = first_look and .5 or 0
+    -- 0.1 是 从干员列表退出后 取消连续点击 保证滑动手势有效
+    -- 0.5 是 首次进入界面时 需要多点时间
+    local timeout = first_look and .5 or .1
+    -- local timeout = .1
     local p
     first_look = false
     if not appear("入驻干员", timeout) then return end
@@ -806,6 +815,7 @@ path.总览换班 = function()
       -- 两次进入同一高度，从后往前选
       -- visitedy[height] = 1
       if (visitedy[height] or 0) > 0 then
+        visitedy[height] = visitedy[height] + 1
         log(676, limit, height)
         if not wait(function()
           if findOne("筛选取消") then return true end
@@ -821,13 +831,9 @@ path.总览换班 = function()
             return true
           end
         end, 5) then return end
-
-        if not wait(function()
-          if not findOne("干员未选中") then return true end
-          tapAll(map(function(j) return "干员选择列表" .. j end,
-                     range(2 * limit, limit + 1, -1)))
-          disappear("干员未选中", 0.5)
-        end, 5) then return end
+        ssleep(0.5)
+        tapAll(map(function(j) return "干员选择列表" .. j end,
+                   range(2 * limit, limit + 1, -1)))
         if not wait(function()
           if findOne("撤下干员") then return true end
           tap("确认蓝")
@@ -886,6 +892,7 @@ path.总览换班 = function()
                  range(1, limit)))
       disappear("干员未选中", 0.5)
     end, 5) then return end
+
     if not wait(function()
       if findOne("撤下干员") then return true end
       tap("确认蓝")
@@ -897,7 +904,6 @@ path.总览换班 = function()
   local bottom
   local reach_bottom = false
   for i = 1, 15 do
-
     if i ~= 1 then
       swipd()
       -- TODO wait bottom for stable
@@ -915,8 +921,8 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
-  path.宿舍换班()
-  if prefer_speed==1 then
+  if not disable_dorm_shift then path.宿舍换班() end
+  if prefer_speed == 1 then
     path.制造换班()
     path.贸易换班()
   end
