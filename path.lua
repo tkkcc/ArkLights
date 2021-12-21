@@ -2113,9 +2113,12 @@ path.公招刷新 = function()
           r = ocrEx(r[1], r[2], r[3], r[4]) or {}
           tags = {}
           for _, p in pairs(r) do
-            p.text = tagFix(p.text)
-            if table.includes(tag, p.text) then
+            p.text = tagFix(p.text) -- 替换常见错别字
+            if table.includes(tag, p.text) then -- 处理已知tag
               tags[p.text] = {(p.l + p.r) // 2, (p.t + p.b) // 2}
+            else -- 出现未知文字，重试
+              tags = {}
+              return
             end
           end
           if #table.keys(tags) >= 5 and not table.equalKey(tags, pre_tags) then
