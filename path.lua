@@ -69,7 +69,7 @@ path.base = {
       end
       tap("开始行动")
       appear({"开始行动", "接管作战"}, 1)
-    end, 30) then return end
+    end, 60) then return end
 
     if unfinished then return path.base.接管作战() end
 
@@ -757,11 +757,12 @@ path.总览换班 = function()
     local x2 = x1 + scale(100)
     local x3 = screen.width - 1
     local y1 = scale(150)
-    local y2 = screen.height - scale(150)
+    local y2 = screen.height - scale(300)
     local paths = {
       {point = {{x1, y1}, {x3, y1}}, duration = duration},
       {point = {{x1, y2}, {x2, y2}}, duration = flipd, start = flips},
     }
+    sleep(200)
     gesture(paths)
     sleep(duration + 50)
     -- 可能还是需要按下
@@ -1507,7 +1508,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
       if not findOne(state) then return true end
       tap("开始行动红按钮")
     end, 10) then return end
-    if not appear({"接管作战", "单选确认框"}, 20) then
+    if not appear({"接管作战", "单选确认框"}, 60) then
       log(1430)
       return
     end
