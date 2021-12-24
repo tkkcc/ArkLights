@@ -52,10 +52,10 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>最速，完成度高，懒人精灵实现</td>
+      <td>最速，完成度高，懒人精灵实现，群号1009619697</td>
    </tr>
    <tr>
-   <td><a href="https://github.com/Lancarus/a-mobile-anjian-script-for-arknight">明日再肝</a></td>
+   <td><a href="https://github.com/Lancarus/Liver-Arknights-Tomorrow">明日再肝</a></td>
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10006;</td>
@@ -64,7 +64,7 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高，按键精灵实现</td>
+      <td>完成度高，按键精灵实现，支持迷迭香等跨站换班，群号909610797</td>
    </tr>
    <tr>
    <td><a href="https://www.aistool.com/">月明辅助</a></td>
@@ -76,21 +76,44 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度极高，飞天助手实现</td>
+      <td>完成度极高，飞天助手实现，群号881842570</td>
    </tr>
    <tr>
-   <td><a href="https://www.bilibili.com/video/BV1ML411x7gz">星火方舟β</a></td>
+   <td><a href="https://www.bilibili.com/video/BV1ML411x7gz">星火方舟</a></td>
       <td>&#10006;</td>
-      <td>&#10006;</td>
+      <td>&#10004;</td>
       <td>&#10006;</td>
       <td>1280x720</td>
       <td>官服B服</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高</td>
+      <td>完成度高，群号940133257</td>
    </tr>
-
+   <tr>
+   <td><a href="https://space.bilibili.com/271091178/video">明日计划</a></td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>autojs实现，群号1087079756</td>
+   </tr>
+   <tr>
+   <td><a href="https://www.bilibili.com/video/BV1kA41147HA">明日方舟托管助手</a></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>节点精灵实现</td>
+   </tr>
    <tr>
    <td><a href="https://github.com/mslxl/arkayo">arkayo</a></td>
       <td>&#10004;</td>
@@ -114,30 +137,6 @@
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>autojs实现</td>
-   </tr>
-   <tr>
-   <td><a href="https://space.bilibili.com/271091178/video">明日计划</a></td>
-      <td>&#10006;</td>
-      <td>&#10004;</td>
-      <td>&#10004;</td>
-      <td></td>
-      <td>官服B服</td>
-      <td>&#10006;</td>
-      <td>&#10006;</td>
-      <td>&#10004;</td>
-      <td>autojs实现</td>
-   </tr>
-   <tr>
-   <td><a href="https://www.bilibili.com/video/BV1kA41147HA">明日方舟托管助手</a></td>
-      <td>&#10006;</td>
-      <td>&#10006;</td>
-      <td>&#10004;</td>
-      <td></td>
-      <td></td>
-      <td>&#10006;</td>
-      <td>&#10006;</td>
-      <td>&#10004;</td>
-      <td>节点精灵实现</td>
    </tr>
 </table>
 
@@ -166,7 +165,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10006;</td>
-      <td>python实现</td>
+      <td>python实现，群号757689154</td>
    </tr>
    <tr>
    <td><a href="https://github.com/MistEO/MeoAssistance">MeoAssistance</a></td>
@@ -178,19 +177,19 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>C++/C#实现</td>
+      <td>C++/C#实现，群号672372860</td>
    </tr>
    <tr>
    <td><a href="https://github.com/Konano/arknights-mower">arknights-mower</a></td>
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>任意</td>
-      <td>官服B服</td>
+      <td></td>
+      <td></td>
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>python实现</td>
+      <td>python实现，群号239200680</td>
    </tr>
    <tr>
    <td><a href="https://github.com/MangetsuC/arkHelper">arkHelper</a></td>
@@ -202,7 +201,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>python实现</td>
+      <td>python实现，群号648836471</td>
    </tr>
    <tr>
    <td><a href="https://github.com/zsppp/Arknights-Sora">Arknights-Sora</a></td>
@@ -267,7 +266,7 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td></td>
+      <td>招人，请联系563255057</td>
    </tr>
 </table>
 
@@ -291,14 +290,16 @@
 
 ### 防沉迷
 
-1. [明日方舟防沉迷破解](https://github.com/tanenrumu/Arknights_Anti-addiction_Cheater)
 1. [明日方舟屏蔽防沉迷](https://github.com/fhyuncai/Arknights-Anti-addiction)
 1. [B站游戏防沉迷不限制](https://github.com/FuckAntiAddiction/BiligameAddictionNotLimited)
+1. [明日方舟防沉迷破解](https://github.com/tanenrumu/Arknights_Anti-addiction_Cheater)
 
 ### 抓包改包
 
+1. [LocalArknights](https://github.com/zhuzhuxd/LocalArknights)
 1. [Darknights](https://github.com/Darknights-dev/Darknights-server)
 1. [明日方舟修改器](https://github.com/GhostStar/Arknights-Armada)
 1. [明日方舟中间人攻击框架](https://github.com/LXG-Shadow/Arknights-Dolos)
 1. [Rhine-DFramwork](https://github.com/Rhine-Department-0xf/Rhine-DFramwork)
+
 
