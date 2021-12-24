@@ -894,8 +894,10 @@ run = function(...)
   update_state()
 
   wait_game_up()
+  setControlBar()
+
   for _, v in ipairs(arg) do
-    setControlBarPosNew(0, 1)
+    -- setControlBarPosNew(0.00001, 1)
     running = v
     if type(v) == 'function' then
       log(773)
@@ -1715,7 +1717,7 @@ show_main_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[异形屏适配设为0，开基建退出提示。关游戏模式，关深色/夜间模式，关隐藏刘海。音量加停止脚本。]])
+              [[异形屏适配设为0，开基建退出提示。关游戏模式，关深色/夜间模式，关隐藏刘海。关懒人输入法，音量加停止脚本。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
@@ -1783,7 +1785,7 @@ show_help_ui = function()
 1. 剿灭合成玉已满会跳过，关卡没开放会跳过，因此无需频繁修改作战设置。
 2. 代理作战中启动时，脚本优先重复刷当前关，可用于刷活动。活动也可用“上一次”刷。
 3. “高产”换班时，忽略其他站干员技能加成（如迷迭香、焰尾、森蚺），忽略 意识协议 效果。
-4. 无障碍提示选“以后不再提醒”，进入后点“确定”。别开“懒人输入法”。
+4. 无障碍提示选“以后不再提醒”，进入后点“确定”或按“音量加”。别开“懒人输入法”。
 
 
 更新：
@@ -2141,7 +2143,7 @@ end
 
 predebug_hook = function()
   if not predebug then return end
-  ssleep(1)
+  ssleep(10)
 
   -- local swipd = function()
   --   local flipd = 150
@@ -2528,4 +2530,10 @@ showUI = function()
       peaceExit()
     end
   end
+end
+
+setControlBar = function()
+  -- 用0,1时，会缩进去半个图标，圆角手机不好点
+  local screen = getScreen()
+  setControlBarPosNew(0, 1)
 end
