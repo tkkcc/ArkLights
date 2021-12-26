@@ -40,7 +40,7 @@ path.base = {
     wait(function()
       if findAny({"用户名或密码错误", "密码不能为空"}) then
         login_error_times = (login_error_times or 0) + 1
-        if login_error_times > 3 then stop("登录失败34") end
+        if login_error_times > 5 then stop("登录失败34") end
         return true
       end
       tap("登录")
@@ -166,11 +166,19 @@ path.bilibili_login_change = update(path.bilibili_login, {
 path.fallback = {
   签到返回 = function()
     local x
+    local last_time_tap_return = time()
     if not wait(function()
       -- 曾出现 返回确认 误判为 活动公告返回
       x = findAny({"返回确认", "返回确认3"})
       if x then return true end
       back()
+
+      -- 每两秒按下返回，处理限时活动中领到干员/皮肤
+      if time() - last_time_tap_return > 2000 then
+        tap("返回", true)
+        last_time_tap_return = time()
+      end
+      -- 干员/皮肤界面用返回键没用，这时按基建右上角
     end, 10) then stop("返回键10秒超时") end
     if x then return tap(path.fallback[x]) end
   end,
@@ -266,6 +274,16 @@ path.fallback = {
     disappear("返回3", .5)
   end,
 }
+
+path.限时活动 = function()
+  -- 包含主页红点与赠送寻访
+  path.跳转("首页")
+  if findOne("面板限时活动") then
+    tap("面板限时活动")
+    appear({'活动签到返回', '抽签返回'})
+  end
+  path.跳转("首页")
+end
 
 path.邮件收取 = function()
   path.跳转("邮件")
@@ -436,7 +454,8 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
           return true
         end
 
-        if findAny({"返回", "返回2"}) then
+        if findOne("返回") then
+          log(458)
           if not first_time_see_home then
             first_time_see_home = time()
           elseif (time() - first_time_see_home) > 1000 then
@@ -762,12 +781,12 @@ path.总览换班 = function()
       {point = {{x1, y1}, {x3, y1}}, duration = duration},
       {point = {{x1, y2}, {x2, y2}}, duration = flipd, start = flips},
     }
-    sleep(200)
+    -- sleep(200)
     gesture(paths)
     sleep(duration + 50)
     -- 可能还是需要按下
     tap("入驻干员右侧")
-    sleep(200)
+    -- sleep(200)
   end
 
   local first_look = true
@@ -778,8 +797,9 @@ path.总览换班 = function()
     local timeout = first_look and .5 or .1
     -- local timeout = .1
     local p
+    log(800, p)
     first_look = false
-    if not appear("入驻干员", timeout) then return end
+    if not appear("入驻干员", timeout) and findOne("撤下干员") then return end
 
     local last_time_see_plus = time()
     if not wait(function()
@@ -789,7 +809,7 @@ path.总览换班 = function()
         if p then
           tap(p)
           last_time_see_plus = time()
-        elseif time() - last_time_see_plus > 1000 then
+        elseif time() - last_time_see_plus > 5000 then
           return true
         end
       end
@@ -801,11 +821,11 @@ path.总览换班 = function()
 
     if p then
       -- 处理异格干员:出现同高度第二次缺人，不清空从后往前选人。还是要等鹰角更新。
-      log('visitedy', visitedy)
+      log('visitedy', visitedy, height, p)
       local height = tostring(p[2])
 
       -- 多次进入同一高度，直接翻页
-      if (visitedy[height] or 0) > 2 then
+      if (visitedy[height] or 0) >= 4 then
         if not wait(function()
           if findOne("撤下干员") then return true end
           tap("确认蓝")
@@ -813,10 +833,10 @@ path.总览换班 = function()
         return
       end
 
-      -- 两次进入同一高度，从后往前选
+      -- 超过两次进入同一高度，从后往前选
       -- visitedy[height] = 1
-      if (visitedy[height] or 0) > 0 then
-        visitedy[height] = visitedy[height] + 1
+      if (visitedy[height] or 0) >= 3 then
+        visitedy[height] = (visitedy[height] or 0) + 1
         log(676, limit, height)
         if not wait(function()
           if findOne("筛选取消") then return true end
@@ -843,6 +863,7 @@ path.总览换班 = function()
       end
 
       visitedy[height] = (visitedy[height] or 0) + 1
+      log(865, height, p, visitedy)
     end
 
     if not wait(function()
@@ -889,6 +910,9 @@ path.总览换班 = function()
 
     if not wait(function()
       if not findOne("干员未选中") then return true end
+
+      -- 不得不等，不然不按序
+      ssleep(0.1)
       tapAll(map(function(j) return "干员选择列表" .. j end,
                  range(1, limit)))
       disappear("干员未选中", 0.5)
@@ -1001,22 +1025,24 @@ path.线索搜集 = function()
   if not wait(function()
     if not findOne("线索传递") then return true end
     tapCard("线索布置列表1")
-  end, 5) then return end
+  end, 10) then return end
 
   -- 回到线索主界面，处理交流结束情况
   if not wait(function()
-    if findOne("线索传递") then return true end
+    -- 当参加party人多时，会出现误判"线索传递"，因此
+    if findOne("线索传递") and not findOne("本次线索交流活动") and
+      findOne("接收线索白") then return true end
     tap("解锁线索上")
     if findOne("本次线索交流活动") then
-      log("find本次线索交流活动")
+      -- log("find本次线索交流活动")
       tap("返回")
       -- 只能用返回必须等待
       disappear("本次线索交流活动", .5)
     end
-  end, 5) then return end
+  end, 10) then return end
 
   -- 等待前一任务的通知消失
-  appear("接收线索白", 5)
+  -- appear("接收线索白", 5)
 
   -- 接收线索
   wait(function()
@@ -1297,8 +1323,13 @@ path.信用购买 = function()
     f()
   end
 
-  -- 等待前一个任务的提示消失
-  disappear("信用不足", 5)
+  -- 等待前一个任务的提示完全消失
+  if findOne("信用不足") then
+    -- 1秒内不出现才ok，应对多个通知消失情况
+    if not wait(function()
+      if not appear("信用不足", 1) then return true end
+    end, 10) then return end
+  end
 
   local f
   f = function(i)
@@ -1334,7 +1365,7 @@ path.信用购买 = function()
       if not findOne("信用交易所横线") then return true end
       tap("信用交易所列表" .. i)
       -- 快速点击物品导致二次弹出 或 弹不出
-      -- disappear("信用交易所横线", .1)
+      disappear("信用交易所横线", .1)
     end, 5) then return end
 
     if not wait(function()
@@ -2125,6 +2156,7 @@ path.公招刷新 = function()
           if #table.keys(tags) >= 5 and not table.equalKey(tags, pre_tags) then
             return true
           end
+          tags = {}
           log(1091, tags)
         end, 2)
 
@@ -2146,7 +2178,7 @@ path.公招刷新 = function()
               if findOne("公开招募时间减") then return true end
               tap("公开招募右确认")
             end, 5) then return end
-            if not appear("公开招募时间减") then return end
+            -- if not appear("公开招募时间减") then return end
             return g(tags)
           else
             if not wait(function()
@@ -2162,8 +2194,13 @@ path.公招刷新 = function()
           -- 最大星数
           local max_star = 0
           local list
+
           for _, v in pairs(tag4) do
-            if max_star < v[2] then
+            -- 同星级需要优选“资深”，不选会出弹窗。
+            local better = max_star < v[2] or max_star == v[2] and
+                             v[1][1]:find("资深")
+
+            if better then
               max_star = v[2]
               list = v[1]
             end
@@ -2192,7 +2229,33 @@ path.公招刷新 = function()
             else
               tap("公开招募确认蓝")
             end
-            if not appear("公开招募箭头") then return end
+            if not appear({"公开招募箭头", "返回确认界面"}, 10) then
+              return
+            end
+
+            -- 漏判高星弹出提示
+            -- 这种情况出现并非ocr出错，而是选了另一个5星组合，而没选资深)
+            -- 已经添加优选资深，这块逻辑不会走到，另外刷新时也需要添加判断，单加这里也不够
+            -- if findOne('返回确认界面') then
+            --   -- 关闭提示
+            --   wait(function()
+            --     if not findOne('返回确认界面') then
+            --       return true
+            --     end
+            --     tap("左取消")
+            --   end, 5)
+            --   -- 标签界面 => 公招界面
+            --   if not wait(function()
+            --     if findOne("公开招募箭头") and
+            --       findOne("公开招募列表" .. i) then
+            --       return true
+            --     end
+            --     if findOne("公开招募时间减") then
+            --       tap("返回")
+            --       disappear("公开招募时间减", 1)
+            --     end
+            --   end, 5) then return end
+            -- end
           end
         end
       end

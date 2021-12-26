@@ -484,7 +484,7 @@ log = function(...)
   -- local a = time()
   -- for _, v in pairs(l) do a = a .. ' ' .. v end
   print(l)
-  console.println(1, l)
+  console.println(1, a .. ' ' .. l)
   writeLog(l)
 end
 
@@ -1330,9 +1330,12 @@ end
 
 tapAll = function(ks)
   log("tapAll", ks)
+  -- 0 还是漏第一个
+  -- 试试100 还是会漏第一个，这是界面看上去已经是完全可用状态了
   local duration = 1
   local finger = {}
-  for _, k in pairs(ks) do
+  ks = shallowCopy(ks)
+  for i, k in pairs(ks) do
     table.insert(finger,
                  {point = {{point[k][1], point[k][2]}}, duration = duration})
   end
@@ -1446,13 +1449,13 @@ end
 all_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
   "基建换班", "制造加速", "线索搜集", "副手换人",
-  "信用购买", "公招刷新", "任务收集",
+  "信用购买", "公招刷新", "任务收集", "限时活动",
 }
 
 now_job = {
   "邮件收取", "轮次作战", "访问好友", "基建收获",
   "基建换班", "制造加速", "线索搜集", "副手换人",
-  "信用购买", "公招刷新", "任务收集",
+  "信用购买", "公招刷新", "任务收集", "限时活动",
 }
 
 make_account_ui = function(layout, prefix)
@@ -1784,21 +1787,27 @@ show_help_ui = function()
 提示：
 1. 剿灭合成玉已满会跳过，关卡没开放会跳过，因此无需频繁修改作战设置。
 2. 代理作战中启动时，脚本优先重复刷当前关，可用于刷活动。活动也可用“上一次”刷。
-3. “高产”换班时，忽略其他站干员技能加成（如迷迭香、焰尾、森蚺），忽略 意识协议 效果。
-4. 无障碍提示选“以后不再提醒”，进入后点“确定”或按“音量加”。别开“懒人输入法”。
-
-
-更新：
-2021-12-21 公招出现未知标签则认为无效，保证高星标签不漏判。
-2021-12-19 修复1600x900运行问题。
-2021-12-15 规避线索搜集结尾等待。规避任务收集结尾等待。规避公告/签到结尾等待。修正作战右滑高度。
-2021-12-14 修正root权限检测，支持无障碍关闭游戏。允许DPI<320，雷电模拟器平板模式测试未发现问题。修复多次传递线索。修复密码输入错误与截屏权限未开导致的定时任务失败。
-]])
+3. “高产”换班时，忽略其他站干员技能加成（如迷迭香、焰尾、森蚺），忽略“意识协议”技能效果。
+4. 无障碍提示选“以后不再提醒”，进入后点“确定”或按“音量加”。别开“懒人输入法”。]])
 
   newRow(layout)
   ui.addButton(layout, layout .. "_stop", "返回")
   ui.setBackground(layout .. "_stop", ui_cancel_color)
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+
+  newRow(layout)
+  addTextView(layout, [[
+更新：
+2021-12-27 修复总览换班时乱序与漏换问题。
+2021-12-26 新增限时活动处理，支持干员/皮肤。
+2021-12-26 修复代理中启动时一直按设置导致1倍速问题。
+2021-12-26 新增公招稀有标签弹窗处理，优选资深避免弹窗。
+2021-12-26 修复信用购买点商品太快导致界面弹不出。
+2021-12-21 公招出现未知标签则认为无效，保证高星标签不漏判。
+2021-12-19 修复1600x900运行问题。
+2021-12-15 规避线索搜集结尾等待。规避任务收集结尾等待。规避公告/签到结尾等待。修正作战右滑高度。
+2021-12-14 修正root权限检测，支持无障碍关闭游戏。允许DPI<320，雷电模拟器平板模式测试未发现问题。修复多次传递线索。修复密码输入错误与截屏权限未开导致的定时任务失败。
+]])
 
   ui.show(layout, false)
 end
@@ -2143,6 +2152,13 @@ end
 
 predebug_hook = function()
   if not predebug then return end
+  ssleep(1)
+  log(findOne("返回确认界面"))
+  log(findOne("活动签到返回"))
+  log(findOne("线索传递"))
+  log(findOne("本次线索交流活动"))
+  log(findOne("返回"))
+  -- log(findOne(""))
   ssleep(10)
 
   -- local swipd = function()

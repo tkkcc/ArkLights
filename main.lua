@@ -1,5 +1,6 @@
 -- predebug = true
 -- disable_dorm_shift=true
+-- prefer_bapp = true
 -- disable_hotupdate = true
 -- disable_root_mode = true
 -- no_background_after_run = true
@@ -23,7 +24,6 @@ check_after_tap = true
 -- test_fight = true
 -- fake_fight = true
 -- no_config_cache = true
--- prefer_bapp = true
 -- prefer_bapp_on_android7 = true
 -- debug0721 = true
 -- longest_tag = true
@@ -38,7 +38,7 @@ skip_snapshot_service_check = true
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2021.12.24 22:55"
+release_date = "2021.12.27  1:07"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
