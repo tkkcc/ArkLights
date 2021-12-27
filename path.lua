@@ -799,7 +799,9 @@ path.总览换班 = function()
     local p
     log(800, p)
     first_look = false
-    if not appear("入驻干员", timeout) and findOne("撤下干员") then return end
+    if not appear("入驻干员", timeout) and findOne("撤下干员") then
+      return
+    end
 
     local last_time_see_plus = time()
     if not wait(function()
@@ -1511,8 +1513,15 @@ path.开始游戏 = function(x, disable_ptrs_check)
   if not wait(function()
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
-      "单选确认框", "源石恢复理智不足",
+      "单选确认框", "源石恢复理智不足", "切换",
+      "当期委托侧边栏",
     })
+    -- 剿灭后一直按开始行动导致开始行动界面消失，可能出现下面的界面
+    if state == "切换" or state == "当前委托侧边栏" then
+      path.跳转("首页")
+      return true
+    end
+
     if state == "单选确认框" then return true end
     if state == "开始行动红" then return true end
     if state and not disappear(state, .5) then return true end
