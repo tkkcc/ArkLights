@@ -786,7 +786,8 @@ path.总览换班 = function()
     sleep(duration + 50)
     -- 可能还是需要按下
     tap("入驻干员右侧")
-    -- sleep(200)
+    -- 不用的话，大分辨率还是有可能出现错过加号
+    sleep(100)
   end
 
   local first_look = true
@@ -2167,10 +2168,18 @@ path.公招刷新 = function()
           end
           tags = {}
           log(1091, tags)
-        end, 2)
+        end, 5)
 
         local skip = false
         if #table.keys(tags) < 5 then skip = true end
+
+        if debug_tag then
+          tmp = {}
+          tmp1 = {"医疗干员", "治疗", "新手", "防护", "削弱"}
+          tmp2 = table.keys(tags)
+          for j = 1, 5 do tmp[tmp1[j]] = tags[tmp2[j]] end
+          tags = tmp
+        end
 
         log(1092, tags, skip)
         -- exit()
