@@ -290,6 +290,7 @@
 
 ### 防沉迷
 
+1. [Arkf](https://github.com/jxr2006/Arkf)
 1. [明日方舟屏蔽防沉迷](https://github.com/fhyuncai/Arknights-Anti-addiction)
 1. [B站游戏防沉迷不限制](https://github.com/FuckAntiAddiction/BiligameAddictionNotLimited)
 1. [明日方舟防沉迷破解](https://github.com/tanenrumu/Arknights_Anti-addiction_Cheater)
