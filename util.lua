@@ -1798,6 +1798,7 @@ show_help_ui = function()
   newRow(layout)
   addTextView(layout, [[
 更新：
+2021-12-31 改善party结束后处理。
 2021-12-28 调高公招ocr超时。
 2021-12-28 改善总览换班漏换问题。
 2021-12-27 修复剿灭后停止问题。

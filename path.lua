@@ -1026,15 +1026,17 @@ path.线索搜集 = function()
 
   -- 进入可控状态
   if not wait(function()
-    if not findOne("线索传递") then return true end
-    tapCard("线索布置列表1")
+    -- if not findOne("线索传递") then return true end
+    if findOne("线索布置展开") or findOne("本次线索交流活动") then
+      return true
+    end
+    -- tapCard("线索布置列表1")
+    tap("线索布置5")
   end, 10) then return end
 
   -- 回到线索主界面，处理交流结束情况
   if not wait(function()
-    -- 当参加party人多时，会出现误判"线索传递"，因此
-    if findOne("线索传递") and not findOne("本次线索交流活动") and
-      findOne("接收线索白") then return true end
+    if findOne("线索传递") then return true end
     tap("解锁线索上")
     if findOne("本次线索交流活动") then
       -- log("find本次线索交流活动")
@@ -1045,7 +1047,7 @@ path.线索搜集 = function()
   end, 10) then return end
 
   -- 等待前一任务的通知消失
-  -- appear("接收线索白", 5)
+  appear("接收线索白", 5)
 
   -- 接收线索
   wait(function()

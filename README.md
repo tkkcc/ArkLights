@@ -4,7 +4,7 @@
 
 ![](./cover.jpg)
 
-[老版视频演示](https://www.bilibili.com/video/BV1DL411t7n2) 
+[视频演示](https://www.bilibili.com/video/BV1LM4y1F7kA)
 [每日任务速通最速记录35.25s](https://www.bilibili.com/video/BV1eQ4y1C7Ch)
 
 ## 特点
@@ -19,7 +19,8 @@
 
 下载[明日方舟速通](https://wwa.lanzoui.com/b010qimmf)（密码0000）
 
-目前自适应换班产率： 新版 < 明日再肝、MeoAssistance等脚本
+目前自适应换班产率： 新版 < 明日再肝、MeoAssistance等脚本  
+目前新版不支持蓝叠5、mumu6、mumu9。
 
 ## 开发
 
