@@ -169,7 +169,7 @@
       <td>python实现，群号757689154</td>
    </tr>
    <tr>
-   <td><a href="https://github.com/MistEO/MeoAssistance">MeoAssistance</a></td>
+   <td><a href="https://github.com/MistEO/MeoAssistantArknights">MeoAssistantArknights</a></td>
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
@@ -178,7 +178,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>C++/C#实现，群号672372860</td>
+      <td>C++实现，群号672372860</td>
    </tr>
    <tr>
    <td><a href="https://github.com/Konano/arknights-mower">arknights-mower</a></td>
