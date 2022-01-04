@@ -576,7 +576,7 @@ path.副手换人 = function()
     if not wait(function()
       if not findOne("干员未选中") then return true end
       tap("干员选择列表" .. i)
-      disappear("干员未选中", .5)
+      disappear("干员未选中", 2)
     end, 5) then return end
 
     if not wait(function()
@@ -637,13 +637,15 @@ path.宿舍换班 = function()
       end
       tap("清空选择")
     end, 5) then return end
+
     if not wait(function()
       if not findOne("干员未选中") then return true end
       -- 慢机仍会漏换
       ssleep(0.1)
       tapAll(map(function(i) return "干员选择列表" .. i end, range(6, 10)))
-      disappear("干员未选中", 0.5)
+      disappear("干员未选中", 2)
     end, 5) then return end
+
     if not wait(function()
       if findAny({
         "隐藏", "进驻信息", "进驻信息选中",
@@ -783,7 +785,7 @@ path.总览换班 = function()
       {point = {{x1, y1}, {x3, y1}}, duration = duration},
       {point = {{x1, y2}, {x2, y2}}, duration = flipd, start = flips},
     }
-    -- sleep(200)
+    sleep(100)
     gesture(paths)
     sleep(duration + 50)
     -- 可能还是需要按下
@@ -920,7 +922,7 @@ path.总览换班 = function()
       ssleep(0.1)
       tapAll(map(function(j) return "干员选择列表" .. j end,
                  range(1, limit)))
-      disappear("干员未选中", 0.5)
+      disappear("干员未选中", 2)
     end, 5) then return end
 
     if not wait(function()

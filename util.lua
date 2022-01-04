@@ -1721,7 +1721,7 @@ show_main_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[异形屏适配设为0，开基建退出提示。关游戏模式，关深色/夜间模式，关隐藏刘海。关懒人输入法，音量加停止脚本。]])
+              [[异形屏适配设为0，开基建退出提示。关游戏模式侧边栏，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
