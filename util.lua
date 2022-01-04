@@ -796,6 +796,7 @@ zoom = function(retry)
     return true
   end
 
+
   -- 2x2 pixel zoom
   local duration = 50
   local finger = {
@@ -1377,7 +1378,7 @@ closeapp = function(package)
   if not isAppInstalled(package) then return end
   if root_mode then
     exec("su -c 'am force-stop " .. package .. "'")
-  else
+  elseif false then
     local intent = {
       action = "android.settings.APPLICATION_DETAILS_SETTINGS",
       uri = "package:" .. package,
