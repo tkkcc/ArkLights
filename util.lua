@@ -675,10 +675,10 @@ end
 
 -- swip to end for fight
 swipe = function(x)
-  -- 作战中第一次右滑容易错过
+  -- 作战中第一次右滑容易错位，先做一次
   if first_time_swipe then
     first_time_swipe = false
-    swipe(x)
+    swip("9-2")
   end
 
   log("swipe", x)
@@ -1770,6 +1770,7 @@ show_main_ui = function()
   if not root_mode then
     ui.setEnable("end_screenoff", false)
     ui.setEnable("end_poweroff", false)
+    ui.setEnable("end_closeapp", false)
   end
   ui.show(layout, false)
 end
@@ -1798,6 +1799,10 @@ show_help_ui = function()
   newRow(layout)
   addTextView(layout, [[
 更新：
+2022-01-04 修复party结束后任务跳过。
+2022-01-04 改善第一次作战滑动错位。
+2022-01-04 修复签到活动最后一个漏选。
+2022-01-04 改善慢机上宿舍换人漏选。
 2021-12-31 改善party结束后处理。
 2021-12-28 调高公招ocr超时。
 2021-12-28 改善总览换班漏换问题。
@@ -2157,11 +2162,13 @@ end
 predebug_hook = function()
   if not predebug then return end
   ssleep(1)
-  log(findOne("返回确认界面"))
-  log(findOne("活动签到返回"))
-  log(findOne("线索传递"))
-  log(findOne("本次线索交流活动"))
-  log(findOne("返回"))
+  log(point.面板)
+  log(findOne("面板"))
+  -- log(findOne("返回确认界面"))
+  -- log(findOne("活动签到返回"))
+  -- log(findOne("线索传递"))
+  -- log(findOne("本次线索交流活动"))
+  -- log(findOne("返回"))
   -- log(findOne(""))
   ssleep(10)
 

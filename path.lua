@@ -191,10 +191,10 @@ path.fallback = {
     return path.fallback.签到返回()
   end,
   活动签到返回 = function()
-    for u = scale(300), screen.width - scale(300), 200 do
+    for u = scale(150), screen.width - scale(150), scale(100) do
       tap({u, screen.height // 2})
     end
-    for v = scale(300), screen.height - scale(300), 200 do
+    for v = scale(150), screen.height - scale(150), scale(100) do
       tap({screen.width // 2, v})
     end
     return path.fallback.签到返回()
@@ -639,6 +639,8 @@ path.宿舍换班 = function()
     end, 5) then return end
     if not wait(function()
       if not findOne("干员未选中") then return true end
+      -- 慢机仍会漏换
+      ssleep(0.1)
       tapAll(map(function(i) return "干员选择列表" .. i end, range(6, 10)))
       disappear("干员未选中", 0.5)
     end, 5) then return end
@@ -1020,19 +1022,23 @@ path.线索搜集 = function()
   end, 5) then return end
   if not appear({"进驻信息", "进驻信息选中"}) then return end
   if not wait(function()
-    if findOne("线索传递") then return true end
+    if findAny({"线索传递","本次线索交流活动"}) then return true end
     tap("制造站进度")
   end, 10) then return end
+
+  log(1028)
 
   -- 进入可控状态
   if not wait(function()
     -- if not findOne("线索传递") then return true end
-    if findOne("线索布置展开") or findOne("本次线索交流活动") then
+    if findAny({"线索布置展开","本次线索交流活动"}) then
       return true
     end
     -- tapCard("线索布置列表1")
     tap("线索布置5")
   end, 10) then return end
+
+  log(1029)
 
   -- 回到线索主界面，处理交流结束情况
   if not wait(function()
@@ -1046,8 +1052,12 @@ path.线索搜集 = function()
     end
   end, 10) then return end
 
+  log(1030)
+
   -- 等待前一任务的通知消失
   appear("接收线索白", 5)
+
+  log(1031)
 
   -- 接收线索
   wait(function()
@@ -1068,8 +1078,11 @@ path.线索搜集 = function()
   end, 10)
   if not findOne("线索传递") then return end
 
+  log(1032)
+
   -- 信用奖励，已满则传递线索
   f = function(retry)
+    log(1033)
     if retry > 10 or no_friend then return true end
 
     -- 进入信用奖励界面
@@ -1077,6 +1090,8 @@ path.线索搜集 = function()
       if findOne("信用奖励返回") then return true end
       tap("信用奖励有")
     end, 5) then return end
+
+    log(1034)
 
     -- 已满则传递，并循环
     if not appear("未达线索上限", .2) then
@@ -1087,6 +1102,8 @@ path.线索搜集 = function()
       if not clue_unlocked then path.线索传递() end
       return f(retry + 1)
     end
+
+    log(1035)
 
     -- 未满则收取奖励
     if findOne("信用奖励领取") then
