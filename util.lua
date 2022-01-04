@@ -1799,6 +1799,7 @@ show_help_ui = function()
   newRow(layout)
   addTextView(layout, [[
 更新：
+2022-01-04 修复3200x1400面板不识别。
 2022-01-04 修复party结束后任务跳过。
 2022-01-04 改善第一次作战滑动错位。
 2022-01-04 修复签到活动最后一个漏选。
@@ -2162,6 +2163,8 @@ end
 predebug_hook = function()
   if not predebug then return end
   ssleep(1)
+  tap("收取所有邮件")
+  -- tap("邮件收取")
   log(point.面板)
   log(findOne("面板"))
   -- log(findOne("返回确认界面"))

@@ -83,13 +83,13 @@
    <td><a href="https://www.bilibili.com/video/BV1ML411x7gz">星火方舟</a></td>
       <td>&#10006;</td>
       <td>&#10004;</td>
-      <td>&#10006;</td>
+      <td>&#10004;</td>
       <td>1280x720</td>
       <td>官服B服</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高，群号940133257</td>
+      <td>完成度高，autojs实现，群号940133257</td>
    </tr>
    <tr>
    <td><a href="https://space.bilibili.com/271091178/video">明日计划</a></td>
