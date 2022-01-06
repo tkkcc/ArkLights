@@ -801,7 +801,7 @@ zoom = function(retry)
   local duration = 50
   local finger = {
     {point = {{0, 0}}, duration = duration},
-    {point = {{1, 0 + 1}, {0, 0}}, duration = duration},
+    {point = {{5, 0 + 5}, {0, 0}}, duration = duration},
     -- {point = {{0, scale(123)}}, duration = duration},
     -- {point = {{5, scale(123) + 5}, {0, scale(123)}}, duration = duration},
     -- {point = {{0, 0}}, duration = duration},
@@ -816,11 +816,13 @@ zoom = function(retry)
 
   }
   gesture(finger)
-  local start_time = time()
-  if appear("缩放结束", (duration + 50) / 1000) then
-    sleep(max(0, start_time + duration + 50 - time()))
-    return true
-  end
+  sleep(duration+150)
+
+  -- local start_time = time()
+  -- if appear("缩放结束", (duration + 50) / 1000) then
+  --   sleep(max(0, start_time + duration + 50 - time()))
+  --   return true
+  -- end 
   return zoom(retry + 1)
 end
 
@@ -1793,6 +1795,7 @@ show_help_ui = function()
   newRow(layout)
   addTextView(layout, [[
 Q&A
+
 Q：怎么用？
 A：脚本主界面上方为“任务开始前的设置”，中间为“需要执行的任务”，下方为“任务完成后的设置”，底部为“更多功能”。勾选任务，然后点启动。
 
@@ -1800,13 +1803,13 @@ Q：怎么刷关卡？
 A：勾选“轮次作战”任务，修改“作战”设置，启动。作战将依次执行，跳过无效关，到末尾后再从头开始。
 
 Q：作战设置格式？
-A：每个作战用常见分隔符隔开，用*或x表示重复次数，不能打中文可以用首字母简拼，大小写混输。平时建议填剿灭+常规关，例如填“当期委托*5 CA-5*10 9-10”，表示5次新剿灭+10次CA-5+1次9-10。
+A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+常规关，例如填“当期委托*5 CA-5*1 9-10 上一次x0”，表示5次新剿灭+1次CA-5+1次9-10。
 
 Q：合成玉满了还会继续刷吗？
 A：不会，任何作战开始前（包括上一次）都会判断合成玉是否已满，已满则所有剿灭无效。
 
 Q：资源关未开放会怎么样？
-A：资源关未开放时无效，会跳过。资源关全天开放时段脚本利用热更新提前设置。
+A：资源关未开放时无效，会跳过。资源关全天开放时段会通过热更新提前设置。
 
 Q：怎么只刷1-7？
 A：勾选“轮次作战”，作战设置填“1-7”，启动
@@ -1814,7 +1817,7 @@ A：勾选“轮次作战”，作战设置填“1-7”，启动
 Q：怎么只刷上一次？
 A：勾选“轮次作战”，作战设置填“上一次”，启动
 
-Q：新剿灭没打，只打了龙门市区？
+Q：新剿灭没打，只能打龙门市区？
 A：勾选“轮次作战”，作战设置里“当期委托”改成“龙门市区”，启动
 
 Q：作战设置不能修改？
@@ -1825,6 +1828,9 @@ A：当期委托、龙门市区、上一次的首字母简拼
 
 Q：活动怎么刷？
 A：不想吃石头的勾选“轮次作战”任务，作战设置填“上一次”，然后手动刷一次活动关再启动。想一口气刷满然后搬空商店的，不修改作战设置，调大石头上限，在活动关代理指挥中启动脚本，脚本将优先重复刷当前关。本人使用后者，因为之后无需再关心。
+
+Q：基建反复进入退出？
+A：基建退出提示要开。
 
 Q：换班产率太低？
 A：“极速”换班以最快放满干员为目标，不考虑干员技能。“高产”换班考虑单站最优技能组合，忽略其他站干员技能加成（如迷迭香、焰尾、森蚺），忽略“意识协议”技能效果。“高产”换班还在开发，建议尝试其他脚本，详见github项目主页。
@@ -1870,7 +1876,7 @@ A：
 1. 手机相比模拟器更复杂，首先检查“模拟器没反应”问题答案。
 2. 脚本主界面下方有一段注意事项，请检查。
 3. 重启一次系统。
-4. 建议尝试其他脚本，或通过vmos使用。
+4. 建议通过vmos使用或尝试其他脚本。
 
 Q：游戏在小窗/后台/熄屏时支持吗？
 A：不支持，除非通过vmos使用。
@@ -1902,14 +1908,23 @@ A：先看左下角图标有无绿边，有绿边先按音量加停止脚本，�
 Q：手指点屏幕没反应？
 A：脚本运行中极难点击，先按音量加停止脚本。
 
-Q：脚本什么原理？
-A：脚本通过无障碍录屏方式获取屏幕，判断状态，执行相应的操作，即所谓的图色脚本。
-
 Q：账号被抢登会怎么样？
 A：当前任务会跳过，下个任务会重新登陆再执行。
 
+Q：脚本什么原理？
+A：脚本通过无障碍录屏方式获取屏幕，判断状态，执行相应的操作，即所谓的图色脚本。
+
+Q：短信联系人拨号权限？
+A：框架限制，不放心可以通过vmos使用或用虚拟机。框架为脚本提供发短信、拨号功能，因此会申请所需权限，即使脚本不使用这些功能。
+
+Q：报毒？
+A：框架限制，无法安装或不放心可以通过vmos使用或用虚拟机。
+
 Q：脚本需要游戏在什么界面时启动？
 A：任意，但不支持线索传递界面。
+
+Q：登陆出现滑动验证码？
+A：一个账号在短时间内多次登陆时会出现。正常8小时间隔挂机不会出现。
 ]])
 
 
@@ -2210,8 +2225,8 @@ enable_accessibility_service = function()
            "'")
     if wait(function() return isAccessibilityServiceRun() end) then return end
   end
-  toast("请开启无障碍权限")
   openPermissionSetting()
+  toast("请开启无障碍权限")
   if not wait(function() return isAccessibilityServiceRun() end, 600) then
     stop("开启无障碍权限超时")
   end
@@ -2228,8 +2243,14 @@ enable_snapshot_service = function()
     -- exec("su -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
     if isSnapshotServiceRun() then return end
   end
-  toast("请开启录屏权限")
+
+  if loadConfig("hideUIOnce", "false") ~= "false" then
+    log(2237)
+    log("定时模式启动，不敢弹录屏")
+  end
+
   openPermissionSetting()
+  toast("请开启录屏权限")
   if not wait(function() return isSnapshotServiceRun() end, 600) then
     stop("开启录屏权限超时")
   end

@@ -20,9 +20,12 @@ path.base = {
       if not wait(function()
         tap("账号左侧")
         tap("账号")
-        if appear('okbutton', .5) then return true end
+        if appear('inputbox', .5) then
+          return true
+        end
       end, 5) then return end
       input("inputbox", username)
+      ssleep(.5) -- 等待输入法弹出
       tap("okbutton")
       disappear("okbutton")
     end
@@ -30,12 +33,17 @@ path.base = {
       if not wait(function()
         tap("账号左侧")
         tap("密码")
-        if appear('okbutton', .5) then return true end
+        if appear('inputbox', .5) then
+          return true
+        end
       end, 5) then return end
       input("inputbox", password)
+      ssleep(.5) -- 等待输入法弹出
       tap('okbutton')
       disappear("okbutton")
     end
+
+    appear("手机验证码登录")
 
     wait(function()
       if findAny({"用户名或密码错误", "密码不能为空"}) then
@@ -606,13 +614,18 @@ path.宿舍换班 = function()
   local f
   f = function(i)
     path.跳转("基建")
+
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
       end
       tap("宿舍列表" .. i)
     end) then return end
-    if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
+
+    if not appear({"进驻信息", "进驻信息选中"}, 5) then
+      log("621")
+      return
+    end
     if not wait(function()
       if findOne("筛选") then return true end
       if findOne("进驻信息选中") then
@@ -1024,7 +1037,7 @@ path.线索搜集 = function()
   end, 5) then return end
   if not appear({"进驻信息", "进驻信息选中"}) then return end
   if not wait(function()
-    if findAny({"线索传递","本次线索交流活动"}) then return true end
+    if findAny({"线索传递", "本次线索交流活动"}) then return true end
     tap("制造站进度")
   end, 10) then return end
 
@@ -1033,7 +1046,7 @@ path.线索搜集 = function()
   -- 进入可控状态
   if not wait(function()
     -- if not findOne("线索传递") then return true end
-    if findAny({"线索布置展开","本次线索交流活动"}) then
+    if findAny({"线索布置展开", "本次线索交流活动"}) then
       return true
     end
     -- tapCard("线索布置列表1")
