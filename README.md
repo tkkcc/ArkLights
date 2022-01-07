@@ -166,7 +166,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10006;</td>
-      <td>python实现，群号757689154</td>
+      <td>python实现，能自动找最少材料或按材料需求刷，有战利品统计，群号757689154</td>
    </tr>
    <tr>
    <td><a href="https://github.com/MistEO/MeoAssistantArknights">MeoAssistantArknights</a></td>
