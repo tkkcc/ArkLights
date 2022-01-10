@@ -178,7 +178,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>C++实现，群号672372860</td>
+      <td>C++实现，完成度高，自适应换班。群号672372860</td>
    </tr>
    <tr>
    <td><a href="https://github.com/Konano/arknights-mower">arknights-mower</a></td>
@@ -190,7 +190,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>python实现，群号239200680</td>
+      <td>python实现，自定义换班，命令行交互，群号239200680</td>
    </tr>
    <tr>
    <td><a href="https://github.com/MangetsuC/arkHelper">arkHelper</a></td>
@@ -202,7 +202,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>python实现，群号648836471</td>
+      <td>python实现，自定义换班，群号648836471</td>
    </tr>
    <tr>
    <td><a href="https://github.com/zsppp/Arknights-Sora">Arknights-Sora</a></td>

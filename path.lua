@@ -20,9 +20,7 @@ path.base = {
       if not wait(function()
         tap("账号左侧")
         tap("账号")
-        if appear('inputbox', .5) then
-          return true
-        end
+        if appear('inputbox', .5) then return true end
       end, 5) then return end
       input("inputbox", username)
       ssleep(.5) -- 等待输入法弹出
@@ -33,9 +31,7 @@ path.base = {
       if not wait(function()
         tap("账号左侧")
         tap("密码")
-        if appear('inputbox', .5) then
-          return true
-        end
+        if appear('inputbox', .5) then return true end
       end, 5) then return end
       input("inputbox", password)
       ssleep(.5) -- 等待输入法弹出
@@ -798,7 +794,7 @@ path.总览换班 = function()
       {point = {{x1, y1}, {x3, y1}}, duration = duration},
       {point = {{x1, y2}, {x2, y2}}, duration = flipd, start = flips},
     }
-    sleep(100)
+    -- sleep(100)
     gesture(paths)
     sleep(duration + 50)
     -- 可能还是需要按下
@@ -812,12 +808,14 @@ path.总览换班 = function()
   f = function()
     -- 0.1 是 从干员列表退出后 取消连续点击 保证滑动手势有效
     -- 0.5 是 首次进入界面时 需要多点时间
-    local timeout = first_look and .5 or .1
+    -- local timeout = first_look and .5 or .1
+    local timeout = first_look and .5 or .25
     -- local timeout = .1
     local p
     log(800, p)
     first_look = false
     if not appear("入驻干员", timeout) and findOne("撤下干员") then
+      log("无入驻干员")
       return
     end
 
@@ -2544,10 +2542,6 @@ path.指定换班 = function()
   for i = 1, #point.基建列表 do f(i) end
 end
 
-path["克洛丝单人1-12"] = function()
-  -- TODO
-end
-
 path.退出账号 = function()
   auto(update(path.base, {
     bilibili_framelayout_only = false,
@@ -2567,4 +2561,58 @@ path.退出账号 = function()
     bilibili_login = true,
     手机验证码登录 = true,
   }, nil, true), path.fallback)
+end
+
+path.前瞻投资 = function()
+  path.跳转("首页")
+
+  tap("面板作战")
+  if not appear("主页") then return end
+
+  if not wait(function()
+    if findOne("主题曲界面") then return true end
+    tap("主题曲")
+  end) then return end
+
+  if not wait(function()
+    if not findOne("主题曲界面") then return true end
+    tap("集成战略")
+  end) then return end
+
+  if not wait(function()
+    if findOne("常规行动") then return true end
+    tap("进入主题")
+  end) then return end
+
+  if not wait(function()
+    if not findOne("常规行动") then return true end
+    tap("开始探索")
+  end) then return end
+
+  -- TODO: 简单模式会有静音小队
+  -- TODO: appear("战略进度条")
+  -- TODO disappear("战略进度条1")
+  tap("指挥分队")
+
+  -- TODO: 可能有支援？
+  tap("取长补短")
+
+  tap("近卫招募券")
+  tap("近卫招募第一个")
+  tap("确认蓝")
+  tap("开包skip")
+  -- TODO 另外两个干员
+  tap("进入古堡")
+
+  -- TODO ocr出礼炮小对
+  -- TODO ocr出路径
+  -- 回到礼炮小队
+  tap("礼炮小队")
+  appear("开始行动")
+  tap("开始行动蓝")
+
+end
+
+path["克洛丝单人1-12"] = function()
+  -- TODO
 end

@@ -816,7 +816,7 @@ zoom = function(retry)
 
   }
   gesture(finger)
-  sleep(duration+150)
+  sleep(duration + 150)
 
   -- local start_time = time()
   -- if appear("缩放结束", (duration + 50) / 1000) then
@@ -886,6 +886,7 @@ end
 -- run function / job / table of function and job
 run = function(...)
   local arg = {...}
+
   if #arg == 1 then
     if type(arg[1]) == "function" then return arg[1]() end
     if type(arg[1]) == "table" then arg = arg[1] end
@@ -1742,10 +1743,14 @@ show_main_ui = function()
     --   layout .. "github", "源码",
     --   make_jump_ui_command(layout, nil, "jump_github()"),
     -- },
+    -- {
+    --   layout .. "qqgroup", "反馈群",
+    --   make_jump_ui_command(layout, nil, "jump_qqgroup()"),
+    -- },
     {
-      layout .. "qqgroup", "反馈群",
-      make_jump_ui_command(layout, nil, "jump_qqgroup()"),
-    }, {layout .. "help", "帮助", make_jump_ui_command(layout, "help")},
+      layout .. "extra", "其他功能",
+      make_jump_ui_command(layout, nil, make_jump_ui_command(layout, "extra")),
+    }, {layout .. "help", "必读", make_jump_ui_command(layout, "help")},
     -- {
     --   layout .. "demo", "视频演示",
     --   make_jump_ui_command(layout, nil, "jump_bilibili()"),
@@ -1785,7 +1790,7 @@ show_help_ui = function()
   newRow(layout)
   addTextView(layout, [[
 源码与其他脚本：github.com/tkkcc/arknights
-好用给个star，有问题请反馈]])
+好用给个star，有问题请反馈，反馈群：1009619697]])
 
   newRow(layout)
   ui.addButton(layout, layout .. "_stop", "返回")
@@ -1931,11 +1936,10 @@ Q：登陆出现滑动验证码？
 A：一个账号在短时间内多次登陆时会出现。正常8小时间隔挂机不会出现。
 ]])
 
-
-
   newRow(layout)
   addTextView(layout, [[
 更新：
+2022-01-09 改善换班漏人。
 2022-01-05 修复作战导航。
 2022-01-05 完善帮助页面。
 2022-01-04 修复3200x1400面板不识别。
@@ -1957,6 +1961,34 @@ A：一个账号在短时间内多次登陆时会出现。正常8小时间隔挂
 2021-12-15 规避线索搜集结尾等待。规避任务收集结尾等待。规避公告/签到结尾等待。修正作战右滑高度。
 2021-12-14 修正root权限检测，支持无障碍关闭游戏。允许DPI<320，雷电模拟器平板模式测试未发现问题。修复多次传递线索。修复密码输入错误与截屏权限未开导致的定时任务失败。
 ]])
+
+  ui.show(layout, false)
+end
+
+show_extra_ui = function()
+  local layout = "extra"
+  ui.newLayout(layout, ui_page_width, -2)
+  ui.setTitleText(layout, "其他功能")
+
+  newRow(layout)
+  addTextView(layout, [[沿用脚本主页服务器设置]])
+
+  newRow(layout)
+  ui.addButton(layout, layout .. "_invest", "集成战略前瞻性投资（别用）")
+  ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil, "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
+
+  newRow(layout)
+  ui.addButton(layout, layout .. "_speedrun", "每日任务速通（别用）")
+  ui.setOnClick(layout .. "_speedrun", make_jump_ui_command(layout, nil, "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
+
+  newRow(layout)
+  ui.addButton(layout, layout .. "_1-12", "克洛丝单人1-12（没写）")
+  ui.setOnClick(layout .. "_1-12", make_jump_ui_command(layout, nil, "extra_mode='克洛丝单人1-12';lock:remove(main_ui_lock)"))
+
+  newRow(layout)
+  ui.addButton(layout, layout .. "_stop", "返回")
+  ui.setBackground(layout .. "_stop", ui_cancel_color)
+  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
 
   ui.show(layout, false)
 end
@@ -2681,6 +2713,7 @@ consoleInit = function()
   console.show()
   console.dismiss()
 end
+
 detectServer = function()
   appid = oppid
   if prefer_bapp then appid = bppid end
@@ -2711,4 +2744,11 @@ setControlBar = function()
   -- 用0,1时，会缩进去半个图标，圆角手机不好点
   local screen = getScreen()
   setControlBarPosNew(0, 1)
+end
+
+extra_mode_hook = function()
+  if extra_mode then
+    run(extra_mode)
+    exit()
+  end
 end

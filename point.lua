@@ -22,6 +22,16 @@ oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  近卫招募列表 = {{1009,274}},
+  近卫招募券 = "391|520|060606",
+  取长补短 = "1171|903|0E0E0E",
+  战略进度条采样列表 = {
+    {885, 92}, {959, 92}, {1036, 92}, {1110, 92}, {1187, 94},
+  },
+  指挥分队 = "259|884|FFFFFF",
+  继续探索 = "1749|865|251B07",
+  常规行动 = "1533|1076|FDAC2E",
+  进入主题 = "1606|765|110F0F",
   面板限时活动 = "251|125|FF6801",
   第一干员卡片 = "627|379|88888A,626|379|FFFFFF",
   第一干员卡片范围 = {600, 379, 1710, 379 + 1},
@@ -255,8 +265,8 @@ point = {
   },
   任务第一个 = "703|17|313131,1892|81|E1E1E1",
   面板好友 = {656, 875},
-  面板作战活动上 = {1827, 193},
-  面板作战活动下 = {1827, 354},
+  面板作战活动上 = {1747, 214},
+  面板作战活动下 = {1747, 328},
   面板作战 = {1353, 290},
   面板采购中心 = {1162, 720},
   面板公开招募 = {1400, 767},
@@ -636,6 +646,7 @@ point = {
   主题曲 = "357|963|ECECEC",
   资源收集 = "1077|963|ECECEC",
   每周部署 = "1323|963|ECECEC",
+  集成战略 = "1555|963|ECECEC",
   -- 第9章前 TODO  未打到9章的
   -- 觉醒 = {95, 198},
   -- 幻灭 = {95, 349},
@@ -791,6 +802,14 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+近卫招募列表="left_center",
+  近卫招募券 = 'center_center',
+  取长补短 = "center_center",
+  战略进度条采样列表 = "center_top",
+  指挥分队 = "left_center",
+  继续探索 = "right_center",
+  常规行动 = "right_center",
+  进入主题 = "right_center",
   开始作业 = "center_center",
   限时开放许可 = "center_center",
   感谢庆典点击领取 = "center_center",
@@ -1050,6 +1069,7 @@ center = {
   插曲 = "center_bottom_maxscalex",
   别传 = "center_bottom_maxscalex",
   每周部署 = "center_bottom_maxscalex",
+  集成战略 = "center_bottom_maxscalex",
 
   面板作战 = "right_center",
   面板作战活动上 = "right_center",

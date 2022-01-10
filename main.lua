@@ -39,7 +39,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.01.07 20:12"
+release_date = "2022.01.10 22:54"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -70,6 +70,8 @@ transfer_global_variable("multi_account_user1", "multi_account_user0")
 
 -- 多帐号模式
 for i = 1, dual_server and 2 or 20 do
+  if extra_mode then break end
+
   username = _G["username" .. i]
   password = _G["password" .. i]
   if (multi_account and _G["multi_account" .. i]) and
@@ -91,6 +93,7 @@ if no_valid_account then
   transfer_global_variable("multi_account_user0")
   update_state_from_ui()
   test_fight_hook()
+  extra_mode_hook()
   run(job)
 end
 
