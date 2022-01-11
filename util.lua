@@ -796,7 +796,6 @@ zoom = function(retry)
     return true
   end
 
-
   -- 2x2 pixel zoom
   local duration = 50
   local finger = {
@@ -1150,6 +1149,9 @@ disable_game_up_check_wrapper = function(func)
     disable_game_up_check = state
     return ret
   end
+end
+never_end_wrapper = function(func)
+  return function(...) while true do func(...) end end
 end
 
 -- 检查解锁界面
@@ -1974,16 +1976,20 @@ show_extra_ui = function()
   addTextView(layout, [[沿用脚本主页服务器设置]])
 
   newRow(layout)
-  ui.addButton(layout, layout .. "_invest", "集成战略前瞻性投资（别用）")
-  ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil, "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
+  ui.addButton(layout, layout .. "_invest",
+               "集成战略前瞻性投资（写了一半）")
+  ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
+                                                          "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
 
   newRow(layout)
   ui.addButton(layout, layout .. "_speedrun", "每日任务速通（别用）")
-  ui.setOnClick(layout .. "_speedrun", make_jump_ui_command(layout, nil, "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
+  ui.setOnClick(layout .. "_speedrun", make_jump_ui_command(layout, nil,
+                                                            "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
 
   newRow(layout)
   ui.addButton(layout, layout .. "_1-12", "克洛丝单人1-12（没写）")
-  ui.setOnClick(layout .. "_1-12", make_jump_ui_command(layout, nil, "extra_mode='克洛丝单人1-12';lock:remove(main_ui_lock)"))
+  ui.setOnClick(layout .. "_1-12", make_jump_ui_command(layout, nil,
+                                                        "extra_mode='克洛丝单人1-12';lock:remove(main_ui_lock)"))
 
   newRow(layout)
   ui.addButton(layout, layout .. "_stop", "返回")
@@ -2338,8 +2344,25 @@ test_fight_hook = function()
 end
 
 predebug_hook = function()
+
   if not predebug then return end
   ssleep(1)
+
+  tap("继续探索")
+  exit()
+  -- swipzl("left")
+  swipzl("right")
+  -- log(ocr("第一层作战1"))
+  -- log(ocr("第一层不期而遇1"))
+  -- log(ocr("第一层作战2"))
+  -- log(ocr("第一层不期而遇2"))
+  exit()
+
+  if not wait(function()
+    if not findOne("常规行动") then return true end
+    -- tap("继续探索")
+  end, 5) then stop(122) end
+  exit()
   tap("收取所有邮件")
   -- tap("邮件收取")
   log(point.面板)
@@ -2688,7 +2711,8 @@ check_crontab = function()
   toast("下次执行时间：" .. os.date("%H:%M", next_time))
   while true do
     if os.time() >= next_time then break end
-    ssleep(clamp(next_time - os.time(), 0, 1000))
+    ssleep(1)
+    -- ssleep(clamp(next_time - os.time(), 0, 1000))
   end
   saveConfig("hideUIOnce", "true")
   restartScript()
@@ -2751,4 +2775,33 @@ extra_mode_hook = function()
     run(extra_mode)
     exit()
   end
+end
+
+ocr = function(r)
+  r = point[r]
+  log("ocrinput", r)
+  r = ocrEx(r[1], r[2], r[3], r[4]) or {}
+  log("ocrresult", r)
+  return r
+
+end
+
+-- 集成战略
+swipzl = function(mode)
+  local duration = 150
+  local x1 = scale(300)
+  local x2 = screen.width - scale(300)
+  local y = scale(150)
+  local finger
+  if mode == 'right' then
+    finger = {
+      {point = {{x1, y}, {x1 + 100000, y}}, start = 0, duration = duration},
+    }
+  else
+    finger = {{point = {{x2, y}, {0, y}}, start = 0, duration = duration}}
+  end
+  ssleep(.5)
+  gesture(finger)
+  sleep(duration + 50)
+  ssleep(.5)
 end
