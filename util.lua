@@ -988,50 +988,38 @@ deploy2 = function(idx, total, x2, y2, d)
 end
 
 deploy = function(x1, x2, y2, d)
-  local y1 = screen.height - math.round(90 * maxscale)
-  local duration = 300
-  local delay = 100
+  local y1 = screen.height - scale(109)
   d = d or 2
   d = ({{0, -1}, {1, 0}, {0, 1}, {-1, 0}})[d]
   d = {d[1] * 500, d[2] * 500}
+  local dragd = 500
+  local dird = 200
+  local delay = 150
+  local x3 = x2 - scale(10)
   local finger = {
     {
-      {x = x1, y = y1}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2}, {x = x2, y = y2}, {x = x2 - 10, y = y2},
-      {x = x2, y = y2}, {x = x2 - 10, y = y2}, {x = x2, y = y2},
-      {x = x2 - 10, y = y2},
+      point = {
+        {x1, y1}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2},
+        {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2},
+        {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x2, y2},
+        {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2},
+        {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x2, y2}, {x3, y2},
+        {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2},
+        {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x2, y2}, {x3, y2}, {x2, y2},
+        {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2},
+        {x2, y2}, {x3, y2}, {x2, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2},
+        {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2},
+      },
+      duration = dragd,
+    }, {
+      point = {{x2, y2}, {clamp(x2 + d[1]), clamp(y2 + d[2])}},
+      duration = dird,
+      start = dragd + delay,
     },
   }
-  gesture(finger, duration)
+  gesture(finger)
+  sleep(dragd + delay + dird + delay)
   log("deploy", finger)
-  sleep(duration + delay)
-  finger = {{{x = x2, y = y2}, {x = clamp(x2 + d[1]), y = clamp(y2 + d[2])}}}
-  log("deploy", finger)
-  gesture(finger, 200)
-  sleep(1000)
 end
 
 -- todo: make a map ?
@@ -1973,13 +1961,22 @@ show_extra_ui = function()
   ui.setTitleText(layout, "其他功能")
 
   newRow(layout)
-  addTextView(layout, [[沿用脚本主页服务器设置]])
+  addTextView(layout, [[将沿用脚本主页服务器设置]])
 
   newRow(layout)
-  ui.addButton(layout, layout .. "_invest",
-               "集成战略前瞻性投资（写了一半）")
-  ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
-                                                          "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
+  ui.addButton(layout, layout .. "_invest" .. release_date, "前瞻投资")
+  ui.setOnClick(layout .. "_invest" .. release_date,
+                make_jump_ui_command(layout, nil,
+                                     "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
+
+  ui.addCheckBox(layout, "skip_hard", "不打驯兽", true)
+  addTextView(layout, [[选第]])
+  ui.addEditText(layout, "best_operator", [[1]])
+  addTextView(layout, [[个近卫]])
+
+  -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
+  -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
+  --                                                         "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
 
   newRow(layout)
   ui.addButton(layout, layout .. "_speedrun", "每日任务速通（别用）")
@@ -1996,6 +1993,7 @@ show_extra_ui = function()
   ui.setBackground(layout .. "_stop", ui_cancel_color)
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
 
+  ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
 end
 
@@ -2170,7 +2168,7 @@ getUIConfigPath = function(layout)
   return getWorkPath() .. '/config_' .. layout .. '.json'
 end
 loadUIConfig = function()
-  for _, layout in pairs({"main", "multi_account", "gesture_capture"}) do
+  for _, layout in pairs({"main", "multi_account", "gesture_capture", "extra"}) do
     local config = getUIConfigPath(layout)
     if fileExist(config) then
       log("load", config)
@@ -2344,18 +2342,38 @@ test_fight_hook = function()
 end
 
 predebug_hook = function()
-
   if not predebug then return end
   ssleep(1)
-
-  tap("继续探索")
+  -- log(findOne("确认招募"))
+  -- log(findOne("偏执的"))
+  -- local fight1ocr = ocr("第一层作战1")
+  -- local fight1ocr = ocr("第一层作战2")
+  -- local fight1ocr = ocr("第一层不期而遇2")
+  -- local fight1ocr = ocr("第一层不期而遇1")
+  -- log(fight1ocr)
   exit()
-  -- swipzl("left")
-  swipzl("right")
-  -- log(ocr("第一层作战1"))
-  -- log(ocr("第一层不期而遇1"))
-  -- log(ocr("第一层作战2"))
-  -- log(ocr("第一层不期而遇2"))
+  -- log(findOne("诡意行商投资"))
+  if not appear("诡意行商投资", 5) then return end
+  if not wait(function()
+    if findOne("诡意行商投币") then return true end
+    tap("诡意行商投资")
+  end) then return end
+  if not wait(function()
+    if findOne("诡意行商投资入口") then return true end
+    tap("诡意行商投币")
+  end) then return end
+  if not wait(function()
+    if not findOne("诡意行商投资入口") then return true end
+    tap("诡意行商确认投资")
+  end, 30) then return end
+  -- if not appear("诡意行商投资", 5) then return end
+  -- tap("战略确认")
+  exit()
+
+  if not wait(function()
+    if not findOne("诡意行商投资入口") then return true end
+    tap("诡意行商确认投资")
+  end, 30) then return end
   exit()
 
   if not wait(function()
@@ -2788,20 +2806,49 @@ end
 
 -- 集成战略
 swipzl = function(mode)
-  local duration = 150
+  local duration = 200
+  local delay = 150 -- 后面直接ocr或点击了，给点时间吧
   local x1 = scale(300)
   local x2 = screen.width - scale(300)
-  local y = scale(150)
+  local y = scale(300)
   local finger
   if mode == 'right' then
     finger = {
-      {point = {{x1, y}, {x1 + 100000, y}}, start = 0, duration = duration},
+      {point = {{x1, y}, {x1 + 100000, y}}, start = 0, duration = duration}, {
+        point = {{x1, y}, {x1 + 100000, y}},
+        start = duration + delay,
+        duration = duration,
+      },
     }
+    duration = duration + delay + duration
   else
-    finger = {{point = {{x2, y}, {0, y}}, start = 0, duration = duration}}
+    finger = {
+      {point = {{x2, y}, {0, y}}, start = 0, duration = duration},
+      {point = {{x2, y}, {0, y}}, start = duration + delay, duration = duration},
+    }
+    duration = duration + delay + duration
+    delay = 500
   end
-  ssleep(.5)
   gesture(finger)
-  sleep(duration + 50)
-  ssleep(.5)
+  sleep(duration + delay)
+end
+
+-- src: 从右数第几个干员
+-- dst: 目标位置，格式{A-G}{1-10} 参考https://map.ark-nights.com/map/ro1_n_1_4
+-- total: 当前有几个干员，不同干员数影响干员位置
+deploy3 = function(src, dst, direction, total)
+  total = total or 1
+  local max_op_width = scale(178) --  in loose mode, each operator's width
+  local x1
+  if total * max_op_width > screen.width then
+    -- tight
+    max_op_width = screen.width // total
+    x1 = src * max_op_width - max_op_width // 2
+  else
+    -- loose
+    x1 = screen.width - (total - src) * max_op_width - max_op_width // 2
+  end
+
+  dst = point["部署位" .. dst]
+  deploy(x1, dst[1], dst[2], direction)
 end

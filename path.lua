@@ -178,7 +178,7 @@ path.fallback = {
     if not wait(function()
       -- 曾出现 返回确认 误判为 活动公告返回
       -- 返回确认3按back太快弹不出来
-      x = appear({"返回确认", "返回确认3"}, 0.1)
+      x = appear({"返回确认", "返回确认3"}, 0.5)
       if x then return true end
       back()
 
@@ -272,7 +272,7 @@ path.fallback = {
   返回 = function()
     local x = findAny({
       "返回确认", "返回确认2", "返回确认3", "活动公告返回",
-      "签到返回", "活动签到返回", "抽签返回",
+      "签到返回", "活动签到返回", "抽签返回", "战略返回",
     })
     log(251, x)
     if x then return tap(path.fallback[x]) end
@@ -2604,18 +2604,34 @@ path.前瞻投资 = function()
     if not wait(function()
       if findOne("返回确认界面") then return true end
       tap("放弃本次探索")
-    end, 5) then return end
+    end, 2) then return end
+    -- log(2608)
 
+    -- 无法直接放弃的情况 不处理
+    -- if not wait(function()
+    --   if not findOne("常规行动") then return true end
+    --   tap("继续探索")
+    --   ssleep(.5)
+    --   log(2613)
+    -- end, 5) then return end
+    --
+    -- if not wait(function()
+    --   if findOne("常规行动") then return true end
+    --   tap("战略确认")
+    -- end, 5) then return end
+
+    -- end
     if not wait(function()
       if findOne("常规行动") then return true end
-      tap("右确认")
+      tap("右右确认")
+      tap("战略确认")
     end, 30) then return end
   end
 
   -- 开始探索
   if not wait(function()
-    -- if not findOne("常规行动") then return true end
     if findOne("战略返回") then return true end
+    tap("战略确认")
     tap("继续探索")
   end, 70) then return end
 
@@ -2623,6 +2639,14 @@ path.前瞻投资 = function()
   if not wait(function()
     if findOne("初始招募") then return true end
     tap("战略确认")
+
+    -- 因为小号只有指挥分队
+    if findOne("指挥分队") then
+      tap("指挥分队确认")
+      ssleep(.2)
+      tap("指挥分队确认")
+      ssleep(.1)
+    end
   end, 10) then return end
 
   if not wait(function()
@@ -2649,11 +2673,11 @@ path.前瞻投资 = function()
       -- 虽然不知道会不会走这儿
       tap("左取消")
       disappear("返回确认界面")
-      -- 不等会怎么样呢
-      -- ssleep(.5)
+      -- 不等会怎么样呢，有时会闪
+      ssleep(.5)
     end
-    log(28)
-    tap("近卫招募列表1")
+    log(28, best_operator)
+    tap("近卫招募列表" .. (best_operator or 1))
     tap("确认招募")
     tap("开包skip")
   end, 10) then return end
@@ -2716,11 +2740,15 @@ path.前瞻投资 = function()
 
   local fight1ocr = ocr("第一层作战1")
   log(fight1ocr)
-  if #fight1ocr == 0 then return end
+  if #fight1ocr == 0 then
+    log("不知道第一个作战是什么")
+    return
+  end
   local fight1 = fight1ocr[1]
   -- 只支持三种作战
-  if not (fight1.text == "意外" or fight1.text == "礼炮小队" or
-    fight1.text == '与虫为伴') then
+  if skip_hard and
+    not (fight1.text == "意外" or fight1.text == "礼炮小队" or fight1.text ==
+      '与虫为伴') then
     toast("驯兽小屋重试")
     return
   end
@@ -2728,8 +2756,14 @@ path.前瞻投资 = function()
   local unexpect1ocr = ocr("第一层不期而遇1")
   log(2722)
   if #unexpect1ocr == 0 then return end
+  -- 替换幕间余兴
+  for _, v in pairs(unexpect1ocr) do
+    if v.text.find("兴") then v.text = "不期而遇" end
+  end
+
   if not table.find(unexpect1ocr,
                     function(x) return x.text == "不期而遇" end) then
+    log("第二列没找到不期而遇，只找到", unexpect1ocr)
     return
   end
 
@@ -2739,14 +2773,23 @@ path.前瞻投资 = function()
 
   local fight2ocr = ocr("第一层作战2")
   local fight2
-  if #fight2ocr > 0 then fight2 = fight2ocr[1].text end
+  if #fight2ocr > 0 then fight2 = fight2ocr[1] end
 
   -- 只支持商店
-  if not (fight2 == "诡意行商") then return end
+  if not fight2 or fight2.text ~= "诡意行商" then
+    toast("没找到诡意行商")
+    return
+  end
 
   local unexpect2ocr = ocr("第一层不期而遇2")
-  if not table.find(unexpect1ocr,
+  if #unexpect2ocr == 0 then return end
+  -- 替换幕间余兴
+  for _, v in pairs(unexpect2ocr) do
+    if v.text.find("兴") then v.text = "不期而遇" end
+  end
+  if not table.find(unexpect2ocr,
                     function(x) return x.text == "不期而遇" end) then
+    toast("第二列没找到不期而遇")
     return
   end
   if #unexpect2ocr == 0 then return end
@@ -2762,6 +2805,7 @@ path.前瞻投资 = function()
     unexpect1 = unexpect1ocr[#unexpect1ocr]
     unexpect2 = unexpect2ocr[#unexpect2ocr]
   else
+    toast("找不到一条边上全是不期而遇的路")
     return
   end
 
@@ -2771,7 +2815,7 @@ path.前瞻投资 = function()
 
   if not wait(function()
     if findOne("快捷编队") then return true end
-    tap("继续探索")
+    tap("进入")
   end, 10) then return end
 
   if not wait(function()
@@ -2785,7 +2829,6 @@ path.前瞻投资 = function()
     appear("攻击范围", 1)
   end, 10) then return end
 
-
   if not wait(function()
     if not findOne("确认招募") then return true end
     tap("确认招募")
@@ -2793,17 +2836,17 @@ path.前瞻投资 = function()
 
   if not appear("快捷编队") then return end
 
-  -- 回到上一级（这里好bug，选完人，开始行动就没了，只能回退）
-  if not wait(function()
-    if not findOne("快捷编队") then return true end
-    tap("返回")
-    disappear("快捷编队", 1)
-  end, 10) then return end
-
-  if not wait(function()
-    if findOne("快捷编队") then return true end
-    tap("继续探索")
-  end, 10) then return end
+  -- -- 回到上一级（这里好bug，选完人，开始行动就没了，只能回退）
+  -- if not wait(function()
+  --   if not findOne("快捷编队") then return true end
+  --   tap("返回")
+  --   disappear("快捷编队", 1)
+  -- end, 10) then return end
+  --
+  -- if not wait(function()
+  --   if findOne("快捷编队") then return true end
+  --   tap("继续探索")
+  -- end, 10) then return end
 
   -- 开始游戏
   if not wait(function()
@@ -2819,47 +2862,152 @@ path.前瞻投资 = function()
 
   if not findOne("生命值") then return end
 
-  ssleep(1)
+  -- TODO 生命值有没有更稳的判定方法
+  -- 需要等等才能点
+  ssleep(3)
   tap("两倍速")
-  ssleep(1)
 
   if not wait(function()
     if findOne("干员费用够列表1") then return true end
-    if not findOne("生命值") then return true end
+    if not findOne("生命值") then
+      log(2827)
+      -- return true
+    end
   end, 30) then return end
+  log(2840)
 
-  if not findOne("干员费用够列表1") then return end
-
-  local dx, dy
-  -- TODO
-  if fight1.text == '礼炮小队' then
-    dx = 3
-    dy = 4
-  elseif fight1.text == '意外' then
-    dx = 3
-    dy = 4
-  elseif fight1.text == '与虫为伴' then
-    dx = 3
-    dy = 4
+  if not findOne("干员费用够列表1") then
+    log(2830)
+    return
   end
 
-  -- TODO:部署 拖拽当前第一个干员至dx,dy位置
-  deploy3(1, dx, dy)
+  -- 部署 拖拽当前第一个干员至部署位dst，方向朝左或右
+  deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
+                                         fight1.text) and 2 or 4)
 
   -- 超时作战不对劲
   if not wait(function()
+    if findOne("返回确认界面") then tap("右右确认") end
     if not findOne("生命值") then return true end
-    if findOne("返回确认界面") then tap("右确认") end
     tap("开始行动")
+    disappear("生命值", 1)
   end, 300) then return end
 
-  -- TODO: 选不要了
+  local last_swip_time = time()
   if not wait(function()
-    if findAny({"常规行动", "编队"}) then return true end
+    local p = findOne("不要了")
+    if p then
+      if not wait(function()
+        p = findOne("不要了")
+        if not p or findOne("战略帮助") then return true end
+        tap({p[1] + scale(759 - 668), scale(788)})
+        ssleep(.1)
+        tap({p[1] + scale(759 - 668), scale(788)})
+        ssleep(.1)
+        tap({p[1] + scale(759 - 668), scale(788)})
+      end, 10) then return true end
+    end
+    if findAny({"常规行动", "战略帮助"}) then return true end
+    if findOne("确认招募") then
+      if not wait(function()
+        if not findOne("确认招募") then return true end
+        tap("放弃招募")
+      end, 5) then return end
+
+      if not wait(function()
+        if findOne("编队") then return true end
+        tap("右右确认")
+      end, 5) then return end
+    end
     tap("战略确认")
+    if time() - last_swip_time > 2000 then
+      log(2904)
+      last_swip_time = time()
+      swipzl('left')
+    end
+
   end, 30) then return end
 
-  -- if not findOne("指挥等级") then return end
+  if not findOne("战略帮助") then
+    log(2873)
+    return
+  end
+
+  -- 不期而遇1
+  swipzl("right")
+  tap({unexpect1.l, unexpect1.t})
+  if not wait(function()
+    if not findOne("战略帮助") then return true end
+    tap("进入")
+  end, 5) then return end
+  wait(function()
+    if findOne("战略帮助") then return true end
+    if findOne("确认招募") then
+      if not wait(function()
+        if not findOne("确认招募") then return true end
+        tap("放弃招募")
+      end, 5) then return end
+
+      if not wait(function()
+        if findOne("编队") then return true end
+        tap("右右确认")
+      end, 5) then return end
+    end
+    tap("不期而遇第三选项")
+    tap("不期而遇第三选项")
+    tap("不期而遇第二选项")
+    tap("不期而遇第二选项")
+    log(2960, findOne("确认招募"))
+  end, 10)
+
+  -- 不期而遇2
+  swipzl("left")
+  tap({unexpect2.l, unexpect2.t})
+  if not wait(function()
+    if not findOne("战略帮助") then return true end
+    tap("进入")
+  end, 5) then return end
+  wait(function()
+    if findOne("战略帮助") then return true end
+    if findOne("确认招募") then
+      if not wait(function()
+        if not findOne("确认招募") then return true end
+        tap("放弃招募")
+      end, 5) then return end
+
+      if not wait(function()
+        if findOne("编队") then return true end
+        tap("右右确认")
+      end, 5) then return end
+    end
+    tap("不期而遇第三选项")
+    tap("不期而遇第三选项")
+    tap("不期而遇第二选项")
+    tap("不期而遇第二选项")
+    log(2960, findOne("确认招募"))
+  end, 10)
+
+  -- 商店
+  swipzl("left")
+  tap({fight2.l, fight2.t})
+  if not wait(function()
+    if not findOne("战略帮助") then return true end
+    tap("进入")
+  end, 5) then return end
+
+  if not appear("诡意行商投资", 2) then return end
+  if not wait(function()
+    if findOne("诡意行商投币") then return true end
+    tap("诡意行商投资")
+  end) then return end
+  if not wait(function()
+    if findOne("诡意行商投资入口") then return true end
+    tap("诡意行商投币")
+  end) then return end
+  if not wait(function()
+    if not findOne("诡意行商投资入口") then return true end
+    tap("诡意行商确认投资")
+  end, 30) then return end
 end
 
 path.前瞻投资 = never_end_wrapper(path.前瞻投资)
