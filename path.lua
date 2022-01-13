@@ -2659,9 +2659,7 @@ path.前瞻投资 = function()
     -- 因为小号只有指挥分队
     if findOne("指挥分队") then
       tap("指挥分队确认")
-      ssleep(.2)
       tap("指挥分队确认")
-      ssleep(.1)
     end
   end, 10) then return end
 
@@ -2804,8 +2802,8 @@ path.前瞻投资 = function()
   local fight2
   if #fight2ocr > 0 then fight2 = fight2ocr[1] end
 
-  -- 只支持商店
-  if not fight2 or not fight2.text:find("商") then
+  -- 只支持商店，不检测诡意行商
+  if not fight2 then
     toast("没找到诡意行商")
     return
   end
@@ -2910,9 +2908,13 @@ path.前瞻投资 = function()
     return
   end
 
-  -- 部署 拖拽当前第一个干员至部署位dst，方向朝左或右
-  deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
-                                         fight1.text) and 2 or 4)
+  -- 重复拖拽
+  wait(function()
+    if not appear("干员费用够列表1") then return true end
+    -- 部署 拖拽当前第一个干员至部署位dst，方向朝左或右
+    deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
+                                           fight1.text) and 2 or 4)
+  end, 10)
 
   -- 超时作战不对劲
   if not wait(function()

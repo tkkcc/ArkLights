@@ -2383,6 +2383,10 @@ end
 predebug_hook = function()
   if not predebug then return end
   ssleep(1)
+  log(findOne("指挥分队"))
+  exit()
+
+
   -- swip
   -- swipzl('left')
   -- swipzl('right')
