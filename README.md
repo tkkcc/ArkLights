@@ -20,7 +20,8 @@
 下载[明日方舟速通](https://wwa.lanzoui.com/b010qimmf)（密码0000）
 
 目前自适应换班产率： 新版 < 明日再肝、MeoAssistance等脚本  
-目前新版不支持蓝叠5、mumu6、mumu9。
+目前不支持蓝叠5、mumu6、mumu9、安卓6的红手指。
+
 
 ## 开发
 

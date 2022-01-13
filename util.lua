@@ -1541,9 +1541,10 @@ make_account_ui = function(layout, prefix)
   end
 end
 
+multi_account_num = 30
 show_multi_account_ui = function()
+  local num = multi_account_num
   toast("正在加载多账号设置...")
-  local num = 20
   local layout = "multi_account"
   ui.newLayout(layout, ui_page_width, -2)
   ui.setTitleText(layout, "多账号")

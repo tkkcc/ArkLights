@@ -200,10 +200,10 @@ path.fallback = {
     return path.fallback.签到返回()
   end,
   活动签到返回 = function()
-    for u = scale(150), screen.width - scale(150), scale(100) do
+    for u = scale(300), screen.width - scale(150), scale(100) do
       tap({u, screen.height // 2})
     end
-    for v = scale(150), screen.height - scale(150), scale(100) do
+    for v = scale(160), screen.height - scale(150), scale(100) do
       tap({screen.width // 2, v})
     end
     return path.fallback.签到返回()
@@ -2834,9 +2834,14 @@ path.前瞻投资 = function()
     unexpect2ocr[#unexpect2ocr].text == "不期而遇" then
     unexpect1 = unexpect1ocr[#unexpect1ocr]
     unexpect2 = unexpect2ocr[#unexpect2ocr]
-  else
-    toast("找不到一条边上全是不期而遇的路")
-    return
+  elseif #unexpect1ocr == 1 then
+    unexpect1 = unexpect1ocr[1]
+    unexpect2 = table.findv(unexpect2ocr,
+                            function(x) return x.text == "不期而遇" end)
+  elseif #unexpect2ocr == 1 then
+    unexpect2 = unexpect2ocr[1]
+    unexpect1 = table.findv(unexpect1ocr,
+                            function(x) return x.text == "不期而遇" end)
   end
 
   swipzl("right")
@@ -2913,7 +2918,7 @@ path.前瞻投资 = function()
 
   -- 重复拖拽
   wait(function()
-    if not appear("干员费用够列表1",5) then return true end
+    if not appear("干员费用够列表1", 5) then return true end
     -- 部署 拖拽当前第一个干员至部署位dst，方向朝左或右
     deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
                                            fight1.text) and 2 or 4)
