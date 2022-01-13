@@ -2011,7 +2011,8 @@ show_extra_ui = function()
   addTextView(layout, [[个近卫]])
 
   newRow(layout)
-  addTextView(layout, [[打不过就重开，卡了请等30秒]])
+  addTextView(layout,
+              [[打不过会重开，卡了30秒以上请反馈。临光帕拉斯可打驯兽]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2385,7 +2386,6 @@ predebug_hook = function()
   ssleep(1)
   log(findOne("指挥分队"))
   exit()
-
 
   -- swip
   -- swipzl('left')

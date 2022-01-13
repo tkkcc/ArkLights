@@ -2652,14 +2652,17 @@ path.前瞻投资 = function()
   if jumpout then return end
 
   -- 开始探索 一路按到 招募干员
+  local last_time_see_first_card = time()
   if not wait(function()
     if findOne("初始招募") then return true end
     tap("战略确认")
 
     -- 因为小号只有指挥分队
-    if findOne("指挥分队") then
+    if findOne("指挥分队") and time() - last_time_see_first_card > 1000 then
       tap("指挥分队确认")
+      ssleep(.1)
       tap("指挥分队确认")
+      last_time_see_first_card = time()
     end
   end, 10) then return end
 
@@ -2910,7 +2913,7 @@ path.前瞻投资 = function()
 
   -- 重复拖拽
   wait(function()
-    if not appear("干员费用够列表1") then return true end
+    if not appear("干员费用够列表1",5) then return true end
     -- 部署 拖拽当前第一个干员至部署位dst，方向朝左或右
     deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
                                            fight1.text) and 2 or 4)
