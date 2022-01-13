@@ -995,20 +995,56 @@ deploy = function(x1, x2, y2, d)
   local dragd = 500
   local dird = 200
   local delay = 150
-  local x3 = x2 - scale(10)
+  local x3 = x2 - scale(5)
+  local x4 = x2 + scale(5)
+  local y3 = y2 - scale(5)
+  local y4 = y2 + scale(5)
   local finger = {
     {
       point = {
-        {x1, y1}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2},
-        {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2},
-        {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x2, y2},
-        {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2},
-        {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x2, y2}, {x3, y2},
-        {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2},
-        {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x2, y2}, {x3, y2}, {x2, y2},
-        {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2},
-        {x2, y2}, {x3, y2}, {x2, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2},
-        {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2}, {x3, y2}, {x2, y2},
+        {x1, y1}, {x2, y2}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x2, y2},
+        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
+        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
+        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
+        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
+        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
+        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
+        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
+        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
+        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
+        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
+        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
+        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
+        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x2, y2},
       },
       duration = dragd,
     }, {
@@ -1887,7 +1923,7 @@ Q：在云手机上没反应？
 A：请加群反馈。
 
 Q：正常运行一段时间后突然没反应？
-A：确认左下角图标有绿边（表示脚本还在运行），按音量减停止脚本，再运行一次脚本，如果能在相似情况下出现问题，请加群反馈，如果每次出现情况不同，可能是无障碍掉了，解决方法一是保证充足内存防止系统杀掉脚本，二是通过vmos使用或更换模拟器。
+A：确认左下角图标有绿边（表示脚本还在运行），按音量加停止脚本，再运行一次脚本，如果能在相似情况下出现问题，请加群反馈，如果每次出现情况不同，可能是无障碍掉了，解决方法一是保证充足内存防止系统杀掉脚本，二是通过vmos使用或更换模拟器。
 
 Q：正常运行一段时间后突然出现“停止运行”？
 A：一般是被系统杀了。保证内存充足，调整系统设置，更换系统等。
@@ -1964,7 +2000,7 @@ show_extra_ui = function()
   addTextView(layout, [[将沿用脚本主页服务器设置]])
 
   newRow(layout)
-  ui.addButton(layout, layout .. "_invest" .. release_date, "前瞻投资")
+  ui.addButton(layout, layout .. "_invest" .. release_date, "战略前瞻投资")
   ui.setOnClick(layout .. "_invest" .. release_date,
                 make_jump_ui_command(layout, nil,
                                      "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
@@ -1973,6 +2009,9 @@ show_extra_ui = function()
   addTextView(layout, [[选第]])
   ui.addEditText(layout, "best_operator", [[1]])
   addTextView(layout, [[个近卫]])
+
+  newRow(layout)
+  addTextView(layout, [[打不过就重开，卡了请等30秒]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2344,13 +2383,22 @@ end
 predebug_hook = function()
   if not predebug then return end
   ssleep(1)
+  -- swip
+  -- swipzl('left')
+  -- swipzl('right')
+  -- exit()
+
+  fight1 = {text = '与虫为伴'}
+  fight1 = {text = '礼炮小队'}
+  deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
+                                         fight1.text) and 2 or 4)
   -- log(findOne("确认招募"))
   -- log(findOne("偏执的"))
   -- local fight1ocr = ocr("第一层作战1")
   -- local fight1ocr = ocr("第一层作战2")
-  -- local fight1ocr = ocr("第一层不期而遇2")
+  local fight1ocr = ocr("第一层不期而遇2")
   -- local fight1ocr = ocr("第一层不期而遇1")
-  -- log(fight1ocr)
+  log(fight1ocr)
   exit()
   -- log(findOne("诡意行商投资"))
   if not appear("诡意行商投资", 5) then return end
@@ -2806,11 +2854,11 @@ end
 
 -- 集成战略
 swipzl = function(mode)
-  local duration = 200
+  local duration = 300
   local delay = 150 -- 后面直接ocr或点击了，给点时间吧
   local x1 = scale(300)
-  local x2 = screen.width - scale(300)
-  local y = scale(300)
+  local x2 = scale(1555)
+  local y = scale(1080 // 2)
   local finger
   if mode == 'right' then
     finger = {
@@ -2829,6 +2877,7 @@ swipzl = function(mode)
     duration = duration + delay + duration
     delay = 500
   end
+  log(2849, finger)
   gesture(finger)
   sleep(duration + delay)
 end

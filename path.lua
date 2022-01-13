@@ -289,14 +289,17 @@ path.fallback = {
   end,
 }
 
-path.限时活动 = function()
-  -- 包含主页红点与赠送寻访
+path.限时活动 = function(retry)
+  -- 只包含主页红点
+  retry = retry or 0
+  if retry > 3 then return end
   path.跳转("首页")
   if findOne("面板限时活动") then
     tap("面板限时活动")
     appear({'活动签到返回', '抽签返回'})
   end
   path.跳转("首页")
+  if findOne("面板限时活动") then return path.限时活动(retry + 1) end
 end
 
 path.邮件收取 = function()
@@ -2574,6 +2577,7 @@ path.退出账号 = function()
 end
 
 path.前瞻投资 = function()
+  local jumpout
   if findOne("战略返回") then path.fallback.战略返回() end
 
   -- 先导航到常规行动
@@ -2623,17 +2627,29 @@ path.前瞻投资 = function()
     -- end
     if not wait(function()
       if findOne("常规行动") then return true end
+      -- 第一次数据更新处理
+      if findAny({"面板", "活动公告返回", "签到返回"}) then
+        jumpout = true
+        return true
+      end
       tap("右右确认")
       tap("战略确认")
     end, 30) then return end
   end
+  if jumpout then return end
 
   -- 开始探索
   if not wait(function()
     if findOne("战略返回") then return true end
+    -- 第二次数据更新处理
+    if findAny({"面板", "活动公告返回", "签到返回"}) then
+      jumpout = true
+      return true
+    end
     tap("战略确认")
     tap("继续探索")
   end, 70) then return end
+  if jumpout then return end
 
   -- 开始探索 一路按到 招募干员
   if not wait(function()
@@ -2652,34 +2668,6 @@ path.前瞻投资 = function()
   if not wait(function()
     if findOne("初始招募") then return true end
     tap("近卫招募券")
-  end, 10) then return end
-
-  -- 第一人
-  if not wait(function()
-    if not findOne("初始招募") and findOne("确认招募") then
-      return true
-    end
-    tap("近卫招募券")
-    tap("招募说明关闭")
-  end, 5) then return end
-
-  if not wait(function()
-    if findOne("初始招募") then
-      log(26)
-      return true
-    end
-    if findOne("返回确认界面") then
-      log(27)
-      -- 虽然不知道会不会走这儿
-      tap("左取消")
-      disappear("返回确认界面")
-      -- 不等会怎么样呢，有时会闪
-      ssleep(.5)
-    end
-    log(28, best_operator)
-    tap("近卫招募列表" .. (best_operator or 1))
-    tap("确认招募")
-    tap("开包skip")
   end, 10) then return end
 
   -- 第二人
@@ -2718,6 +2706,34 @@ path.前瞻投资 = function()
     tap("右右确认")
   end, 5) then return end
 
+  -- 第一人
+  if not wait(function()
+    if not findOne("初始招募") and findOne("确认招募") then
+      return true
+    end
+    tap("近卫招募券")
+    tap("招募说明关闭")
+  end, 5) then return end
+
+  if not wait(function()
+    if findOne("初始招募") then
+      log(26)
+      return true
+    end
+    if findOne("返回确认界面") then
+      log(27)
+      -- 虽然不知道会不会走这儿
+      tap("左取消")
+      disappear("返回确认界面")
+      -- 不等会怎么样呢，有时会闪
+      ssleep(.5)
+    end
+    log(28, best_operator)
+    tap("近卫招募列表" .. (best_operator or 1))
+    tap("确认招募")
+    tap("开包skip")
+  end, 10) then return end
+
   -- if not appear("初始招募",5) then return end
 
   log(2698)
@@ -2746,6 +2762,19 @@ path.前瞻投资 = function()
   end
   local fight1 = fight1ocr[1]
   -- 只支持三种作战
+  if fight1.text:find("意") then
+    fight1.text = "意外"
+  elseif fight1.text:find("队") then
+    fight1.text = "礼炮小队"
+  elseif fight1.text:find("虫") then
+    fight1.text = "与虫为伴"
+  elseif fight1.text:find("屋") then
+    fight1.text = "驯兽小屋"
+  else
+    toast("不知道什么作战：" .. fight1.text)
+    return
+  end
+
   if skip_hard and
     not (fight1.text == "意外" or fight1.text == "礼炮小队" or fight1.text ==
       '与虫为伴') then
@@ -2758,7 +2787,7 @@ path.前瞻投资 = function()
   if #unexpect1ocr == 0 then return end
   -- 替换幕间余兴
   for _, v in pairs(unexpect1ocr) do
-    if v.text.find("兴") then v.text = "不期而遇" end
+    if v.text:find("兴") then v.text = "不期而遇" end
   end
 
   if not table.find(unexpect1ocr,
@@ -2776,7 +2805,7 @@ path.前瞻投资 = function()
   if #fight2ocr > 0 then fight2 = fight2ocr[1] end
 
   -- 只支持商店
-  if not fight2 or fight2.text ~= "诡意行商" then
+  if not fight2 or not fight2.text:find("商") then
     toast("没找到诡意行商")
     return
   end
@@ -2785,7 +2814,7 @@ path.前瞻投资 = function()
   if #unexpect2ocr == 0 then return end
   -- 替换幕间余兴
   for _, v in pairs(unexpect2ocr) do
-    if v.text.find("兴") then v.text = "不期而遇" end
+    if v.text:find("兴") then v.text = "不期而遇" end
   end
   if not table.find(unexpect2ocr,
                     function(x) return x.text == "不期而遇" end) then
@@ -2890,7 +2919,7 @@ path.前瞻投资 = function()
     if findOne("返回确认界面") then tap("右右确认") end
     if not findOne("生命值") then return true end
     tap("开始行动")
-    disappear("生命值", 1)
+    disappear("生命值", 5)
   end, 300) then return end
 
   local last_swip_time = time()
@@ -2995,7 +3024,7 @@ path.前瞻投资 = function()
     tap("进入")
   end, 5) then return end
 
-  if not appear("诡意行商投资", 2) then return end
+  if not appear("诡意行商投资", 1) then return end
   if not wait(function()
     if findOne("诡意行商投币") then return true end
     tap("诡意行商投资")
@@ -3007,7 +3036,7 @@ path.前瞻投资 = function()
   if not wait(function()
     if not findOne("诡意行商投资入口") then return true end
     tap("诡意行商确认投资")
-  end, 30) then return end
+  end, 15) then return end
 end
 
 path.前瞻投资 = never_end_wrapper(path.前瞻投资)
