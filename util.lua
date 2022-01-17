@@ -119,6 +119,7 @@ string.filterSplit = function(str, extra_map)
     ["；"] = " ",
     [","] = " ",
     ["_"] = "-",
+    ["－"] = "-",
     ["、"] = " ",
     ["，"] = " ",
     ["|"] = " ",
@@ -491,8 +492,10 @@ end
 open = function() runApp(appid) end
 
 stop = function(msg)
+
   msg = msg or ''
   msg = "stop " .. msg
+  disable_log = false -- 强制开启日志
   toast(msg)
   home() -- 游戏长时间在前台时模拟器很卡
   exit()
@@ -891,6 +894,9 @@ run = function(...)
     if type(arg[1]) == "table" then arg = arg[1] end
   end
   qqmessage = {' '}
+  if account_idx ~= nil then
+    table.extend(qqmessage, {getDevice(), "账号" .. account_idx, username})
+  end
   init_state()
 
   -- 目前每个账号不同任务的状态共享，因此只在外层执行一次
@@ -914,8 +920,8 @@ run = function(...)
   -- 对每个账号的远程提醒，本地无需装QQ。
   if #QQ > 0 then
     path.跳转("首页")
-    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') .. table.join(qqmessage),
-                          QQ)
+    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+                            table.join(qqmessage, ' '), QQ)
   end
 end
 
@@ -1132,6 +1138,7 @@ wait_game_up = function(retry)
   if retry > 3 then stop("不能启动游戏") end
   if findOne("game") then return end
   open()
+  request_game_permission()
   screenon()
   appear({"game", "keyguard_indication", "keyguard_input"}, 5)
   checkScreenLock()
@@ -1494,7 +1501,7 @@ make_account_ui = function(layout, prefix)
   newRow(layout)
   addTextView(layout, "作战")
   ui.addEditText(layout, prefix .. "fight_ui",
-                 [[当期委托x2 DQWTx2 龙门市区x0 LMSQx0 9-10*2 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次 syc]])
+                 [[当期委托x5 活动8*8 9-10*2 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次]])
 
   newRow(layout)
   addTextView(layout, "最多吃")
@@ -1549,14 +1556,19 @@ show_multi_account_ui = function()
   ui.newLayout(layout, ui_page_width, -2)
   ui.setTitleText(layout, "多账号")
   newRow(layout)
+  addTextView(layout, [[账密为空则不重登]])
+
+  newRow(layout)
+  ui.addCheckBox(layout, layout .. '_enable', "启用账号", false)
+  ui.addEditText(layout, layout .. "_choice", "", -1)
+  ui.addCheckBox(layout, "multi_account_end_closeotherapp",
+                 "切号前关闭其他服", true)
+  newRow(layout)
+  -- addTextView(layout,[[启用账号]])
+  -- newRow(layout)
   addTextView(layout,
-              [[填入账密才有效。双服无账密模式至多执行前两个账号且不会重登，可不填账密。]])
-  newRow(layout)
-  ui.addCheckBox(layout, "multi_account", "多账号总开关", true)
-  ui.addCheckBox(layout, "dual_server", "双服无账密")
-  newRow(layout)
-  ui.addCheckBox(layout, "multi_account_end_closeapp",
-                 "切换账号时关闭其他账号游戏", true)
+              [[填“2”表示跑第2个号，填“8 4 2”表示依次跑第8第4第2个号，填“2-10”表示从第2跑到第10，填“1-99 1-99”表示跑两轮。]])
+
   newRow(layout, layout .. "_save_row", "center")
   ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
   ui.setBackground(layout .. "_start", ui_submit_color)
@@ -1570,33 +1582,36 @@ show_multi_account_ui = function()
     ui.addEditText(layout, "username" .. i, "", -1)
     addTextView(layout, "密码")
     ui.addEditText(layout, "password" .. i, "", -1)
-    ui.addCheckBox(layout, "multi_account" .. i, "启用", true)
-    newRow(layout)
-    addTextView(layout, "账号" .. padi .. "服务器")
-    ui.addRadioGroup(layout, "server" .. i, {"官服", "B服"}, 0, -2, -2, true)
+    -- ui.addCheckBox(layout, "multi_account" .. i, "启用", true)
+    -- newRow(layout)
+    -- addTextView(layout, "账号" .. padi .. "服务器")
+    ui.addRadioGroup(layout, "server" .. i, {"官", "B"}, 0, -2, -2, true)
     newRow(layout)
     addTextView(layout, "账号" .. padi .. "使用")
-    ui.addSpinner(layout, "multi_account_inherit_spinner" .. i, {}, 0)
-    addTextView(layout, "设置")
-    addButton(layout, "multi_account_inherit_toggle" .. i,
-              "切换为独立设置",
+    addButton(layout, "multi_account_inherit_toggle" .. i, "默认设置",
               "multi_account_inherit_toggle(" .. i .. ")")
+    -- addTextView(layout, "账号" .. padi .. "使用",multi_account_inherit)
+    -- ui.addSpinner(layout, "multi_account_inherit_spinner" .. i, {}, 0)
+    -- addTextView(layout, "设置")
+    -- addButton(layout, "multi_account_inherit_toggle" .. i,
+    --           "切换为独立设置",
+    --           "multi_account_inherit_toggle(" .. i .. ")")
     setNewRowGid("multi_account_user_row" .. i)
     make_account_ui(layout, "multi_account_user" .. i)
     setNewRowGid()
   end
 
-  local all_inherit_choice = map(function(j)
-    return "账号" .. tostring(j):padStart(2, '0')
-  end, table.filter(range(1, num), function(k) return k ~= i end))
-  all_inherit_choice = table.extend({"默认"}, all_inherit_choice)
+  -- local all_inherit_choice = map(function(j)
+  --   return "账号" .. tostring(j):padStart(2, '0')
+  -- end, table.filter(range(1, num), function(k) return k ~= i end))
+  -- all_inherit_choice = table.extend({"默认"}, all_inherit_choice)
   -- ui函数必须global
   multi_account_inherit_toggle = function(i)
     local btn = "multi_account_inherit_toggle" .. i
-    if ui.getText(btn) == "切换为独立设置" then
-      ui.setText(btn, "切换为继承设置")
+    if ui.getText(btn) == "默认设置" then
+      ui.setText(btn, "独立设置")
     else
-      ui.setText(btn, "切换为独立设置")
+      ui.setText(btn, "默认设置")
     end
     multi_account_inherit_render(i)
   end
@@ -1609,14 +1624,22 @@ show_multi_account_ui = function()
     for i = start, stop do
       local btn = "multi_account_inherit_toggle" .. i
       local gid = "multi_account_user_row" .. i
-      if ui.getText(btn) == "切换为独立设置" then
+
+      -- fallback老版
+      if ui.getText(btn) == "切换为继承设置" then
+        ui.setText(btn, "独立设置")
+      elseif ui.getText(btn) == "切换为独立设置" then
+        ui.setText(btn, "默认设置")
+      end
+
+      if ui.getText(btn) == "默认设置" then
         ui.setRowVisibleByGid(layout, gid, 8)
-        ui.setSpinner("multi_account_inherit_spinner" .. i, all_inherit_choice,
-                      0)
+        -- ui.setSpinner("multi_account_inherit_spinner" .. i, all_inherit_choice,
+        --               0)
       else
         ui.setRowVisibleByGid(layout, gid, 0)
         -- TODO 这里“独立”的大小和“默认”有区别
-        ui.setSpinner("multi_account_inherit_spinner" .. i, {"  独立  "}, 0)
+        -- ui.setSpinner("multi_account_inherit_spinner" .. i, {"  独立  "}, 0)
       end
     end
   end
@@ -1719,8 +1742,13 @@ end
 show_main_ui = function()
   local layout = "main"
   ui.newLayout(layout, ui_page_width, -2)
+
+  local screen = getScreen()
+  local resolution = screen.width .. 'x' .. screen.height
+
   -- ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate", ''))
-  ui.setTitleText(layout, "明日方舟速通 " .. release_date)
+  ui.setTitleText(layout,
+                  "明日方舟速通  " .. release_date .. '  ' .. resolution)
 
   if appid_need_user_select then
     newRow(layout)
@@ -1734,7 +1762,7 @@ show_main_ui = function()
   addTextView(layout, "完成后通知QQ")
   ui.addEditText(layout, "QQ", "")
   addButton(layout, layout .. "jump_qq_btn", "需加机器人好友",
-            "jump_qq()")
+            make_jump_ui_command(layout, nil, 'jump_qq()'))
 
   newRow(layout)
   addTextView(layout, "完成后")
@@ -1744,14 +1772,20 @@ show_main_ui = function()
   newRow(layout)
   addTextView(layout, "定时执行")
   ui.addEditText(layout, "crontab_text", "8:00 16:00 24:00")
-  ui.addCheckBox(layout, "crontab_enable", "启用", true)
+  -- ui.addCheckBox(layout, "crontab_enable", "启用", true)
+  -- newRow(layout)
+  -- addTextView(layout, "点击间隔(毫秒)")
+  -- ui.addEditText(layout, "click_interval", "")
+  newRow(layout)
+  ui.addCheckBox(layout, "ui_enable_log", "开启日志", false)
+  -- ui.addEditText(layout, "enable_log", "")
 
   -- 无法实现
   -- ui.addCheckBox(layout, "end_poweroff", "关机")
 
   newRow(layout)
   addTextView(layout,
-              [[异形屏适配设为0，开基建退出提示。关游戏模式侧边栏，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。看下左下角帮助。]])
+              [[异形屏适配设为0，开基建退出提示。关游戏模式，关智能分辨率，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。有问题先看左下角必读。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
@@ -1774,10 +1808,12 @@ show_main_ui = function()
     --   layout .. "qqgroup", "反馈群",
     --   make_jump_ui_command(layout, nil, "jump_qqgroup()"),
     -- },
+    {layout .. "extra", "其他功能", make_jump_ui_command(layout, "extra")},
     {
-      layout .. "extra", "其他功能",
-      make_jump_ui_command(layout, nil, make_jump_ui_command(layout, "extra")),
-    }, {layout .. "help", "必读", make_jump_ui_command(layout, "help")},
+      layout .. "help" .. release_date, "必读",
+      make_jump_ui_command(layout, "help"),
+    },
+    {layout .. "stop", "退出", make_jump_ui_command(layout, "peaceExit()")},
     -- {
     --   layout .. "demo", "视频演示",
     --   make_jump_ui_command(layout, nil, "jump_bilibili()"),
@@ -1790,14 +1826,23 @@ show_main_ui = function()
     addButton(layout, v[1], v[2], v[3])
   end
 
-  -- newRow(layout, layout .. "bottom_row", "center")
-  addButton(layout, layout .. "_stop", "退出",
-            make_jump_ui_command(layout, nil, "peaceExit()"))
-  ui.setBackground(layout .. "_stop", ui_cancel_color)
-  addButton(layout, layout .. "_start", "启动",
+  newRow(layout, layout .. "bottom_row", "center")
+  -- addButton(layout, layout .. "_stop", "退出",
+  --           make_jump_ui_command(layout, nil, "peaceExit()"))
+  -- ui.setBackground(layout .. "_stop", ui_cancel_color)
+  addButton(layout, layout .. "_start_only" .. release_date, "仅启动",
+            make_jump_ui_command(layout, nil,
+                                 "crontab_enable=false;lock:remove(main_ui_lock)"),
+            ui_small_submit_width)
+  addButton(layout, layout .. "_crontab_only" .. release_date, "仅定时",
+            make_jump_ui_command(layout, nil,
+                                 "crontab_enable_only=true;lock:remove(main_ui_lock)"),
+            ui_small_submit_width)
+  addButton(layout, layout .. "_start" .. release_date, "启动并定时",
             make_jump_ui_command(layout, nil, "lock:remove(main_ui_lock)"),
             ui_small_submit_width)
-  ui.setBackground(layout .. "_start", ui_submit_color)
+
+  ui.setBackground(layout .. "_start" .. release_date, ui_submit_color)
 
   ui.loadProfile(getUIConfigPath(layout))
   -- log(getUIConfigPath(layout))
@@ -1835,7 +1880,7 @@ Q：怎么刷关卡？
 A：勾选“轮次作战”任务，修改“作战”设置，启动。作战将依次执行，跳过无效关，到末尾后再从头开始。
 
 Q：作战设置格式？
-A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+常规关，例如填“当期委托*5 CA-5*1 9-10 上一次x0”，表示5次新剿灭+1次CA-5+1次9-10。
+A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 活动-8*10 CA-5*1 9-10 上一次x0”，表示5次新剿灭+10次活动关+1次CA-5+1次9-10。
 
 Q：合成玉满了还会继续刷吗？
 A：不会，任何作战开始前（包括上一次）都会判断合成玉是否已满，已满则所有剿灭无效。
@@ -1855,11 +1900,14 @@ A：勾选“轮次作战”，作战设置里“当期委托”改成“龙门�
 Q：作战设置不能修改？
 A：别开懒人输入法。
 
-Q：DQWT、LMSQ、syc是什么意思？
-A：当期委托、龙门市区、上一次的首字母简拼
+Q：DQWT、LMSQ、HD、SYC是什么意思？
+A：当期委托、龙门市区、活动、上一次的首字母简拼
 
 Q：活动怎么刷？
-A：不想吃石头的勾选“轮次作战”任务，作战设置填“上一次”，然后手动刷一次活动关再启动。想一口气刷满然后搬空商店的，不修改作战设置，调大石头上限，在活动关代理指挥中启动脚本，脚本将优先重复刷当前关。本人使用后者，因为之后无需再关心。
+A：
+法1. 勾选“轮次作战”，作战设置里写“活动8”或“活动-8”或“HD-8”，启动。活动关闭期间会跳过。
+法2. 作战设置填“上一次”，然后手动刷一次活动关再启动。
+法3. 在活动关代理指挥中启动脚本，脚本将优先重复刷当前关。
 
 Q：基建反复进入退出？
 A：基建退出提示要开。
@@ -1926,11 +1974,14 @@ A：请加群反馈。
 Q：正常运行一段时间后突然没反应？
 A：确认左下角图标有绿边（表示脚本还在运行），按音量加停止脚本，再运行一次脚本，如果能在相似情况下出现问题，请加群反馈，如果每次出现情况不同，可能是无障碍掉了，解决方法一是保证充足内存防止系统杀掉脚本，二是通过vmos使用或更换模拟器。
 
-Q：正常运行一段时间后突然出现“停止运行”？
-A：一般是被系统杀了。保证内存充足，调整系统设置，更换系统等。
+Q：正常运行一段时间后突然出现“停止运行”或者悬浮按钮消失了？
+A：一般是被系统杀了。保证内存充足，调整系统设置，更换系统等。建议模拟器虚拟机使用1核1280x720分辨率4G内存，降低资源占用以减轻与其他软件的竞争。
 
 Q：直接弹出“停止运行”？
-A：一般是安卓版本低于7导致的。请看“模拟器没反应”问题答案。
+A：一般是安卓版本低于7导致的。
+
+Q：正常运行一段时间后突然出现没反应且悬浮按钮没有绿边？
+A：说明脚本正常停止或出现异常，如感觉有问题，请把日志截图发给开发者。
 
 Q：完成后能不能不弹出日志？
 A：暂时不行，属于脚本框架问题。
@@ -1960,34 +2011,15 @@ Q：脚本需要游戏在什么界面时启动？
 A：任意，但不支持线索传递界面。
 
 Q：登陆出现滑动验证码？
-A：一个账号在短时间内多次登陆时会出现。正常8小时间隔挂机不会出现。
+A：短时间内多次登陆时出现。正在接入解法。
+
+Q：卡在制造站干员选择界面？
+A：别用“高产”换班。
 ]])
 
-  newRow(layout)
-  addTextView(layout, [[
-更新：
-2022-01-09 改善换班漏人。
-2022-01-05 修复作战导航。
-2022-01-05 完善帮助页面。
-2022-01-04 修复3200x1400面板不识别。
-2022-01-04 修复party结束后任务跳过。
-2022-01-04 改善第一次作战滑动错位。
-2022-01-04 修复签到活动最后一个漏选。
-2022-01-04 改善慢机上宿舍换人漏选。
-2021-12-31 改善party结束后处理。
-2021-12-28 调高公招ocr超时。
-2021-12-28 改善总览换班漏换问题。
-2021-12-27 修复剿灭后停止问题。
-2021-12-27 修复总览换班时乱序与漏换问题。
-2021-12-26 新增限时活动处理，支持干员/皮肤。
-2021-12-26 修复代理中启动时一直按设置导致1倍速问题。
-2021-12-26 新增公招稀有标签弹窗处理，优选资深避免弹窗。
-2021-12-26 修复信用购买点商品太快导致界面弹不出。
-2021-12-21 公招出现未知标签则认为无效，保证高星标签不漏判。
-2021-12-19 修复1600x900运行问题。
-2021-12-15 规避线索搜集结尾等待。规避任务收集结尾等待。规避公告/签到结尾等待。修正作战右滑高度。
-2021-12-14 修正root权限检测，支持无障碍关闭游戏。允许DPI<320，雷电模拟器平板模式测试未发现问题。修复多次传递线索。修复密码输入错误与截屏权限未开导致的定时任务失败。
-]])
+  --   newRow(layout)
+  --   addTextView(layout, [[
+  -- ]])
 
   ui.show(layout, false)
 end
@@ -2013,7 +2045,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[打不过会重开，卡了30秒以上请反馈。临光帕拉斯可打驯兽]])
+              [[用于刷投资而非等级（等级很容易满）以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。昨晚8小时实测效率为每小时67个。支持凌晨4点数据更新，支持16:9以上分辨率，卡住30秒以上请反馈。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2076,6 +2108,16 @@ jump_github = function()
   local intent = {
     action = "android.intent.action.VIEW",
     uri = "https://github.com/" .. github,
+  }
+  runIntent(intent)
+  peaceExit()
+end
+
+jump_multi_account_json = function()
+  log(getUIConfigPath("multi_account"))
+  local intent = {
+    action = "android.intent.action.VIEW",
+    uri = "file://" .. getUIConfigPath("multi_account"),
   }
   runIntent(intent)
   peaceExit()
@@ -2208,7 +2250,8 @@ end
 getUIConfigPath = function(layout)
   return getWorkPath() .. '/config_' .. layout .. '.json'
 end
-loadUIConfig = function()
+
+loadUIConfig = function(page)
   for _, layout in pairs({"main", "multi_account", "gesture_capture", "extra"}) do
     local config = getUIConfigPath(layout)
     if fileExist(config) then
@@ -2384,8 +2427,13 @@ end
 
 predebug_hook = function()
   if not predebug then return end
-  ssleep(1)
-  log(findOne("指挥分队"))
+  log(findOne("我知道了"))
+  -- log(expand_number_config("1-11   100 1-1 0 -1 1-"))
+  exit()
+  -- tap("指挥分队")
+  findTap("指挥分队确认")
+  -- log(findOne("指挥分队"))
+  -- log(findOne("剿灭说明"))
   exit()
 
   -- swip
@@ -2708,9 +2756,16 @@ update_state_from_ui = function()
     if table.includes(table.keys(extrajianpin2name), v) then
       fight[k] = extrajianpin2name[v]
     end
+    log(2729, v)
+    if table.find({'活动', "WR"}, startsWithX(v)) then
+      local idx = v:gsub(".-(%d+)$", '%1')
+      fight[k] = "HD-" .. (idx or '')
+      log(2731, v, idx)
+    end
   end
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
+  hd_open_time_end = parse_time("202201200400")
   all_open_time_start = parse_time("202111221600")
   all_open_time_end = parse_time("202112060400")
   update_open_time()
@@ -2749,7 +2804,7 @@ end
 apply_multi_account_setting = function(i, visited)
   visited = visited or {}
   table.insert(visited, i)
-  if _G["multi_account_inherit_toggle" .. i] == "切换为独立设置" then
+  if _G["multi_account_inherit_toggle" .. i] == "默认设置" then
     local inherit = _G["multi_account_inherit_spinner" .. i]
     local j = math.floor(inherit)
     if inherit == 0 or table.includes(visited, j) then
@@ -2798,8 +2853,9 @@ setEventCallback = function()
     end
   end)
   -- TODO how to use
-  setUserEventCallBack(function(type) stop(type) end)
+  setUserEventCallBack(function(type) stop(2849 + type) end)
 end
+
 consoleInit = function()
   console.clearLog()
   console.setPos(round(screen.height * 0.05), round(screen.height * 0.05),
@@ -2828,6 +2884,7 @@ showUI = function()
     saveConfig("hideUIOnce", "false")
   else
     main_ui_lock = lock:add()
+    -- if loadConfig("多账号")
     show_main_ui()
     if not wait(function() return not lock:exist(main_ui_lock) end, 600) then
       peaceExit()
@@ -2854,26 +2911,27 @@ ocr = function(r)
   r = ocrEx(r[1], r[2], r[3], r[4]) or {}
   log("ocrresult", r)
   return r
-
 end
 
 -- 集成战略
 swipzl = function(mode)
-  local duration = 300
-  local delay = 150 -- 后面直接ocr或点击了，给点时间吧
+  local duration = 200
+  local delay = 200 -- 后面直接ocr或点击了，给点时间吧
   local x1 = scale(300)
-  local x2 = scale(1555)
+  local x2 = screen.width - scale(300)
   local y = scale(1080 // 2)
   local finger
   if mode == 'right' then
     finger = {
-      {point = {{x1, y}, {x1 + 100000, y}}, start = 0, duration = duration}, {
-        point = {{x1, y}, {x1 + 100000, y}},
+      {point = {{x1, y}, {screen.width - 1, y}}, start = 0, duration = duration},
+      {
+        point = {{x1, y}, {screen.width - 1, y}},
         start = duration + delay,
         duration = duration,
       },
     }
     duration = duration + delay + duration
+    delay = 500
   else
     finger = {
       {point = {{x2, y}, {0, y}}, start = 0, duration = duration},
@@ -2882,9 +2940,10 @@ swipzl = function(mode)
     duration = duration + delay + duration
     delay = 500
   end
-  log(2849, finger)
+  log(28491, finger)
   gesture(finger)
-  sleep(duration + delay)
+  log(28501)
+  sleep(duration + 50)
 end
 
 -- src: 从右数第几个干员
@@ -2905,4 +2964,46 @@ deploy3 = function(src, dst, direction, total)
 
   dst = point["部署位" .. dst]
   deploy(x1, dst[1], dst[2], direction)
+end
+
+always_request_appid = {}
+request_game_permission = function()
+  log(2943)
+  if not root_mode then return end
+  if always_request_appid[appid] then return end
+  always_request_appid[appid] = 1
+  local aapt = [[android.permission.ACCESS_WIFI_STATE
+android.permission.READ_PHONE_STATE
+android.permission.ACCESS_NETWORK_STATE
+android.permission.INTERNET
+android.permission.WRITE_EXTERNAL_STORAGE]]
+  local cmd = ''
+  for s in aapt:gmatch("[^\r\n]+") do
+    cmd = cmd .. 'pm grant ' .. appid .. ' ' .. s .. ';'
+  end
+  log(cmd)
+  exec("su -c '" .. cmd .. "'")
+  log(2944)
+end
+
+str2int = function(number, fallback)
+  return math.floor(tonumber(number) or fallback)
+end
+
+-- string annotation to list
+expand_number_config = function(x, minimum, maximum)
+  minimum = minimum or 1
+  maximum = maximum or 99
+  local y = {}
+  x = string.filterSplit(x)
+  for _, v in pairs(x) do
+    if v:find('-') then
+      local s = str2int(v:sub(1, v:find('-') - 1), 1)
+      local e = str2int(v:sub(v:find('-') + 1), maximum)
+      for i = s, e do table.insert(y, i) end
+    else
+      table.insert(y, str2int(v, 0))
+    end
+  end
+  return y
 end

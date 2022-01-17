@@ -1,4 +1,5 @@
 -- predebug = true
+-- always_enable_log = true
 -- disable_dorm_shift=true
 -- prefer_bapp = true
 -- disable_hotupdate = true
@@ -14,6 +15,7 @@
 -- unsafe_tap = true
 zero_wait_click = true
 check_after_tap = true
+crontab_enable = true
 -- auto_clean_fight=true
 -- enable_dorm_check = true
 -- fake_transfer= true
@@ -39,7 +41,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.01.13 23:00"
+release_date = "2022.01.17 23:49"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -65,31 +67,42 @@ predebug_hook()
 showUI()
 loadUIConfig()
 
-no_valid_account = true
+-- fallback
+if type(username1) == 'string' and #username1 > 0 and type(dual_server) ==
+  "boolean" then
+  stop("多账号已改版，注意重新设置")
+elseif type(dual_server) == "boolean" then
+  toast("多账号已改版，注意重新设置")
+end
+
+if not always_enable_log and not ui_enable_log then disable_log = true end
+milesecond_after_click = tonumber(click_interval) or milesecond_after_click
+
 transfer_global_variable("multi_account_user1", "multi_account_user0")
 
 -- 多帐号模式
-for i = 1, dual_server and 2 or multi_account_num do
-  if extra_mode then break end
-
-  username = _G["username" .. i]
-  password = _G["password" .. i]
-  if (multi_account and _G["multi_account" .. i]) and
-    (#username > 0 and #password > 0 or dual_server) then
+if not crontab_enable_only and not extra_mode and multi_account_enable then
+  multi_account_choice = expand_number_config(multi_account_choice)
+  for _, i in pairs(multi_account_choice) do
+    account_idx = i
+    username = _G["username" .. i]
+    password = _G["password" .. i]
     server = _G["server" .. i]
-    no_valid_account = false
-    apply_multi_account_setting(i)
-    update_state_from_ui()
-    if multi_account_end_closeapp then
-      closeapp(appid == oppid and bppid or oppid)
+    if username ~= nil then
+      apply_multi_account_setting(i)
+      update_state_from_ui()
+      if multi_account_end_closeotherapp then
+        closeapp(appid == oppid and bppid or oppid)
+      end
+      log(account_idx, username, password)
+      if #username > 0 and #password > 0 then
+        table.insert(job, 1, "退出账号")
+      end
+      run(job)
     end
-    if not dual_server then table.insert(job, 1, "退出账号") end
-    run(job)
   end
-end
-
--- 单帐号模式
-if no_valid_account then
+elseif not crontab_enable_only then
+  -- 单帐号模式
   transfer_global_variable("multi_account_user0")
   update_state_from_ui()
   test_fight_hook()
