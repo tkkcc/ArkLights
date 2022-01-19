@@ -41,7 +41,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.01.17 23:49"
+release_date = "2022.01.19 16:42"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -67,6 +67,11 @@ predebug_hook()
 showUI()
 loadUIConfig()
 
+-- log(findOne_interval,tap_interval)
+findOne_interval = str2int(findOne_interval, 0)
+tap_interval = str2int(tap_interval, 0)
+-- log(findOne_interval,tap_interval)
+-- stop()
 -- fallback
 if type(username1) == 'string' and #username1 > 0 and type(dual_server) ==
   "boolean" then
@@ -76,7 +81,7 @@ elseif type(dual_server) == "boolean" then
 end
 
 if not always_enable_log and not ui_enable_log then disable_log = true end
-milesecond_after_click = tonumber(click_interval) or milesecond_after_click
+-- milesecond_after_click = tonumber(click_interval) or milesecond_after_click
 
 transfer_global_variable("multi_account_user1", "multi_account_user0")
 

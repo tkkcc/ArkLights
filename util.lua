@@ -492,7 +492,6 @@ end
 open = function() runApp(appid) end
 
 stop = function(msg)
-
   msg = msg or ''
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
@@ -518,12 +517,14 @@ findColorAbsolute = function(color, confidence)
   return {x = tonumber(x), y = tonumber(y)}
 end
 
-findOne_last_time = 0
+findOne_game_up_check_last_time = 0
+findOne_last_time = time()
 findOne = function(x, confidence, disable_game_up_check)
   if type(x) == "function" then return x() end
 
-  if not disable_game_up_check and (time() - findOne_last_time > 5000) then
-    findOne_last_time = time()
+  if not disable_game_up_check and
+    (time() - findOne_game_up_check_last_time > 5000) then
+    findOne_game_up_check_last_time = time()
     wait_game_up()
   end
 
@@ -535,6 +536,9 @@ findOne = function(x, confidence, disable_game_up_check)
   if type(x) == "table" and #x == 0 then return findNode(x) end
   if type(x) == "table" and #x > 0 then return x end
   if type(x) == "string" then
+    sleep(max(0, findOne_interval - (time() - findOne_last_time)))
+    findOne_last_time = time()
+
     local pos
     -- log(x0, rfl[x0], x, confidence)
     if rfl[x0] then
@@ -559,6 +563,7 @@ findOnes = function(x, confidence)
 end
 
 -- x={2,3} "信用" func nil
+tap_last_time = time()
 tap = function(x, noretry, allow_outside_game)
   if not unsafe_tap and not allow_outside_game and not check_after_tap then
     wait_game_up()
@@ -578,6 +583,8 @@ tap = function(x, noretry, allow_outside_game)
   end
   log("tap", x0, x)
   if type(x) ~= "table" then return end
+  sleep(max(0, tap_interval - (time() - tap_last_time)))
+  tap_last_time = time()
   if #x > 0 then
     clickPoint(x[1], x[2])
   else
@@ -801,24 +808,31 @@ zoom = function(retry)
 
   -- 2x2 pixel zoom
   local duration = 50
-  local finger = {
-    {point = {{0, 0}}, duration = duration},
-    {point = {{5, 0 + 5}, {0, 0}}, duration = duration},
-    -- {point = {{0, scale(123)}}, duration = duration},
-    -- {point = {{5, scale(123) + 5}, {0, scale(123)}}, duration = duration},
-    -- {point = {{0, 0}}, duration = duration},
-    -- {point = {{math.random(1,5), 0 + math.random(1,5)}, {0, 0}}, duration = duration},
-    -- {point = {{0, 0}, {screen.width // 2 - scale(100), 0}}, duration = duration},
-    -- {
-    --   point = {
-    --     {screen.width - scale(300), 0}, {screen.width // 2 - scale(100), 0},
-    --   },
-    --   duration = duration,
-    -- },
+  local delay = 150
+  local finger
+  -- if debug then
+  --   -- duration = 1000
+  --   -- delay = 1000
+  --   finger = {
+  --     {point = {{5, 5}}, duration = duration},
+  --     {point = {{0, 0}, {5, 5}}, duration = duration},
+  --   }
+  -- end
 
-  }
+  if retry % 2 == 0 then
+    -- 华为云缩放bug
+    finger = {
+      {point = {{5, 5}}, duration = duration},
+      {point = {{0, 0}, {5, 5}}, duration = duration},
+    }
+  else
+    finger = {
+      {point = {{0, 0}}, duration = duration},
+      {point = {{5, 5}, {0, 0}}, duration = duration},
+    }
+  end
   gesture(finger)
-  sleep(duration + 150)
+  sleep(duration + delay)
 
   -- local start_time = time()
   -- if appear("缩放结束", (duration + 50) / 1000) then
@@ -1037,20 +1051,35 @@ deploy = function(x1, x2, y2, d)
         {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
         {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
         {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
+        {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2},
+        {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2},
+        {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4},
+        {x3, y2}, {x4, y2}, {x2, y3}, {x2, y4}, {x3, y2}, {x4, y2}, {x2, y3},
         {x2, y4}, {x2, y2},
-        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
-        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
-        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
-        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
-        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
-        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
-        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
-        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
-        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
-        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
-        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2},
-        -- {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2},
-        -- {x4, y2}, {x3, y2}, {x4, y2}, {x3, y2}, {x4, y2}, {x2, y2},
       },
       duration = dragd,
     }, {
@@ -1532,10 +1561,11 @@ make_account_ui = function(layout, prefix)
 
   newRow(layout)
   addTextView(layout, "自动招募")
-  ui.addCheckBox(layout, prefix .. "auto_recruit1", "小车", true)
-  ui.addCheckBox(layout, prefix .. "auto_recruit4", "4星", true)
-  ui.addCheckBox(layout, prefix .. "auto_recruit5", "5星", false)
-  ui.addCheckBox(layout, prefix .. "auto_recruit6", "6星", false)
+  ui.addCheckBox(layout, prefix .. "auto_recruit0", "其他", false)
+  ui.addCheckBox(layout, prefix .. "auto_recruit1", "车", true)
+  ui.addCheckBox(layout, prefix .. "auto_recruit4", "4", true)
+  ui.addCheckBox(layout, prefix .. "auto_recruit5", "5", false)
+  ui.addCheckBox(layout, prefix .. "auto_recruit6", "6", false)
 
   -- local max_checkbox_one_row = getScreen().width //200
   local max_checkbox_one_row = 3
@@ -1567,7 +1597,7 @@ show_multi_account_ui = function()
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
   addTextView(layout,
-              [[填“2”表示跑第2个号，填“8 4 2”表示依次跑第8第4第2个号，填“2-10”表示从第2跑到第10，填“1-99 1-99”表示跑两轮。]])
+              [[填“2”表示跑第2个号，填“8 4 2”表示依次跑第8第4第2个号，填“2-10”表示从第2跑到第10，填“1-10 1-10”表示前10个号跑两轮。]])
 
   newRow(layout, layout .. "_save_row", "center")
   ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
@@ -1583,11 +1613,12 @@ show_multi_account_ui = function()
     addTextView(layout, "密码")
     ui.addEditText(layout, "password" .. i, "", -1)
     -- ui.addCheckBox(layout, "multi_account" .. i, "启用", true)
-    -- newRow(layout)
-    -- addTextView(layout, "账号" .. padi .. "服务器")
-    ui.addRadioGroup(layout, "server" .. i, {"官", "B"}, 0, -2, -2, true)
     newRow(layout)
-    addTextView(layout, "账号" .. padi .. "使用")
+    addTextView(layout, "账号" .. padi .. "在")
+    ui.addRadioGroup(layout, "server" .. i, {"官服", "B服"}, 0, -2, -2, true)
+    -- newRow(layout)
+    -- addTextView(layout, "账号" .. padi .. "使用")
+    addTextView(layout, "使用")
     addButton(layout, "multi_account_inherit_toggle" .. i, "默认设置",
               "multi_account_inherit_toggle(" .. i .. ")")
     -- addTextView(layout, "账号" .. padi .. "使用",multi_account_inherit)
@@ -1777,7 +1808,13 @@ show_main_ui = function()
   -- addTextView(layout, "点击间隔(毫秒)")
   -- ui.addEditText(layout, "click_interval", "")
   newRow(layout)
-  ui.addCheckBox(layout, "ui_enable_log", "开启日志", false)
+  ui.addCheckBox(layout, "ui_enable_log", "日志", false)
+  ui.addCheckBox(layout, "debug", "调试", false)
+  addTextView(layout, "点击")
+  ui.addEditText(layout, "tap_interval", "")
+  addTextView(layout, "找色")
+  ui.addEditText(layout, "findOne_interval", "")
+
   -- ui.addEditText(layout, "enable_log", "")
 
   -- 无法实现
@@ -1880,7 +1917,7 @@ Q：怎么刷关卡？
 A：勾选“轮次作战”任务，修改“作战”设置，启动。作战将依次执行，跳过无效关，到末尾后再从头开始。
 
 Q：作战设置格式？
-A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 活动-8*10 CA-5*1 9-10 上一次x0”，表示5次新剿灭+10次活动关+1次CA-5+1次9-10。
+A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 龙门市区x0 活动8*10 CA-5*1 9-10 上一次x0”，表示5次新剿灭+10次活动关+1次CA-5+1次9-10。
 
 Q：合成玉满了还会继续刷吗？
 A：不会，任何作战开始前（包括上一次）都会判断合成玉是否已满，已满则所有剿灭无效。
@@ -1903,6 +1940,9 @@ A：别开懒人输入法。
 Q：DQWT、LMSQ、HD、SYC是什么意思？
 A：当期委托、龙门市区、活动、上一次的首字母简拼
 
+Q：当期委托是什么意思？
+A：当期委托是新剿灭
+
 Q：活动怎么刷？
 A：
 法1. 勾选“轮次作战”，作战设置里写“活动8”或“活动-8”或“HD-8”，启动。活动关闭期间会跳过。
@@ -1924,8 +1964,11 @@ A：一般是低心情干员过多。用脚本每8小时换一次，一段时间
 Q：自动招募怎么用？
 A：勾选“公招刷新”任务，启动。“公招刷新”对于保底标签会按“自动招募”设置来执行，“自动招募”勾了就招募，没勾则保留。对于非保底标签能刷新就刷新。
 
-Q：非保底标签能不能也自动招募，刷绿票？
-A：暂时不行，建议尝试其他脚本。
+Q：非保底标签能不能也自动招募？
+A：可以，“自动招募”勾上“其他”。
+
+Q：能不能用加急卷刷黄绿票？
+A：可以，见“其他功能”。
 
 Q：自动招募会不会错过资深标签？
 A：不会，一是标签识别非常保守，有问题就保留，二是有官方保险，在未勾选资深标签时招募或刷新都会弹窗，脚本遇到会卡住，但理论上不会遇到。
@@ -2030,7 +2073,11 @@ show_extra_ui = function()
   ui.setTitleText(layout, "其他功能")
 
   newRow(layout)
-  addTextView(layout, [[将沿用脚本主页服务器设置]])
+  ui.addButton(layout, layout .. "_stop", "返回")
+  ui.setBackground(layout .. "_stop", ui_cancel_color)
+  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+  newRow(layout)
+  addTextView(layout, [[以下功能将沿用脚本主页设置]])
 
   newRow(layout)
   ui.addButton(layout, layout .. "_invest" .. release_date, "战略前瞻投资")
@@ -2045,26 +2092,38 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资而非等级（等级很容易满）以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。昨晚8小时实测效率为每小时67个。支持凌晨4点数据更新，支持16:9以上分辨率，卡住30秒以上请反馈。]])
+              [[用于刷投资以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。连续8小时实测效率为每小时42~67个。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可尝试增大“找色”设置，或换用其他设备与其他脚本。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
   --                                                         "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
 
   newRow(layout)
-  ui.addButton(layout, layout .. "_speedrun", "每日任务速通（别用）")
-  ui.setOnClick(layout .. "_speedrun", make_jump_ui_command(layout, nil,
-                                                            "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
+  addButton(layout, layout .. "_recruit", "公开招募加急",
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='公开招募加急';lock:remove(main_ui_lock)"))
+  addTextView(layout, [[保留标签]])
+  ui.addEditText(layout, layout .. "_recruit_important_tag", [[]])
+  newRow(layout)
+  addTextView(layout,
+              [[用于刷黄绿票，或刷出指定标签。使用加急券在第一个公招位反复执行“公招刷新”，沿用脚本主页的“自动招募”设置。“自动招募”只勾“其他”时，刷到保底就会停；只勾“其他”、“车”、“4”时，刷到资深才会停。在此基础上如果想刷到“削弱”或“支援”就停，则“保留标签”填“削弱 支援”。5秒内没识别出标签也会出现反复进入退出，遇到可以反馈下。]])
 
+  newRow(layout)
+  addButton(layout, layout .. "_speedrun", "每日任务速通（别用）",
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
+  -- ui.setOnClick(layout .. "_speedrun", )
+  -- addButton(layout, layout .. "jump_qq_btn", "需加机器人好友",
+  --           make_jump_ui_command(layout, nil, 'jump_qq()'))
+  -- newRow(layout)
+  -- ui.addButton(layout, layout .. "_speedrun", "每日任务速通（别用）")
+  -- ui.setOnClick(layout .. "_speedrun", make_jump_ui_command(layout, nil,
+  --                                                           "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
+  --
   newRow(layout)
   ui.addButton(layout, layout .. "_1-12", "克洛丝单人1-12（没写）")
   ui.setOnClick(layout .. "_1-12", make_jump_ui_command(layout, nil,
                                                         "extra_mode='克洛丝单人1-12';lock:remove(main_ui_lock)"))
-
-  newRow(layout)
-  ui.addButton(layout, layout .. "_stop", "返回")
-  ui.setBackground(layout .. "_stop", ui_cancel_color)
-  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
 
   ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
@@ -2382,7 +2441,10 @@ end
 
 test_fight_hook = function()
   if not test_fight then return end
+  -- log(2392)
   fight = {
+    "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
+    -- "break",
     -- "1-7", "1-7", "CE-5", "LS-5",
 
     -- "9-2", "9-3", "9-4", "9-5", "9-6", "9-7", "9-9", "9-10", "9-11", "9-12",
@@ -2392,31 +2454,31 @@ test_fight_hook = function()
     --
     -- "JT8-2", "R8-2", "M8-8",
     -- "CA-5", "CE-5", 'AP-5', 'SK-5', 'LS-5', "PR-D-2", "PR-C-2", "PR-B-2",
-    "PR-A-2", "龙门外环", "龙门市区", -- "1-7", "1-12", "2-3", "2-4",
+    -- "PR-A-2", "龙门外环", "龙门市区", -- "1-7", "1-12", "2-3", "2-4",
     -- "2-9", "S2-7", "3-7", "S4-10", "S5-3", "6-9", "7-6", "7-15", "S7-2",
     -- "JT8-2", "R8-2", "M8-8",
-    "PR-A-2", "PR-B-1", "PR-B-2", "PR-C-1", "PR-C-2", "PR-D-1", "PR-D-2",
-    "CE-1", "CE-2", "CE-3", "CE-4", "CE-5", "CA-1", "CA-2", "CA-3", "CA-4",
-    "CA-5", "AP-1", "AP-2", "AP-3", "AP-4", "AP-5", "LS-1", "LS-2", "LS-3",
-    "LS-4", "LS-5", "SK-1", "SK-2", "SK-3", "SK-4", "SK-5", "0-1", "0-2", "0-3",
-    "0-8", "1-9", "2-9", "S3-7", "4-10", "5-9", "6-10", "7-14", "R8-2",
-    "积水潮窟", "切尔诺伯格", "龙门外环", "龙门市区",
-    "废弃矿区", "大骑士领郊外", "北原冰封废城", "PR-A-1", "0-4",
-    "0-5", "0-6", "0-7", "0-8", "0-9", "0-10", "0-11", "1-1", "1-3", "1-4",
-    "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12", "2-1", "2-2",
-    "2-3", "2-4", "2-5", "2-6", "2-7", "2-8", "2-9", "2-10", "S2-1", "S2-2",
-    "S2-3", "S2-4", "S2-5", "S2-6", "S2-7", "S2-8", "S2-9", "S2-10", "S2-12",
-    "3-1", "3-2", "3-3", "3-4", "3-5", "3-6", "3-7", "3-8", "S3-1", "S3-2",
-    "S3-3", "S3-4", "S3-5", "S3-6", "S3-7", "4-1", "4-2", "4-3", "4-4", "4-5",
-    "4-6", "4-7", "4-8", "4-9", "4-10", "S4-1", "S4-2", "S4-3", "S4-4", "S4-5",
-    "S4-6", "S4-7", "S4-8", "S4-9", "S4-10", "5-1", "5-2", "S5-1", "S5-2",
-    "5-3", "5-4", "5-5", "5-6", "S5-3", "S5-4", "5-7", "5-8", "5-9", "S5-5",
-    "S5-6", "S5-7", "S5-8", "S5-9", "5-10", "6-1", "6-2", "6-3", "6-4", "6-5",
-    "6-7", "6-8", "6-9", "6-10", "S6-1", "S6-2", "6-11", "6-12", "6-14", "6-15",
-    "S6-3", "S6-4", "6-16", "7-2", "7-3", "7-4", "7-5", "7-6", "7-8", "7-9",
-    "7-10", "7-11", "7-12", "7-13", "7-14", "7-15", "7-16", "S7-1", "S7-2",
-    "7-17", "7-18", "R8-1", "R8-2", "R8-3", "R8-4", "R8-5", "R8-6", "R8-7",
-    "R8-8", "R8-9", "R8-10", "R8-11", "JT8-2", "JT8-3", "M8-6", "M8-7", "M8-8",
+    -- "PR-A-2", "PR-B-1", "PR-B-2", "PR-C-1", "PR-C-2", "PR-D-1", "PR-D-2",
+    -- "CE-1", "CE-2", "CE-3", "CE-4", "CE-5", "CA-1", "CA-2", "CA-3", "CA-4",
+    -- "CA-5", "AP-1", "AP-2", "AP-3", "AP-4", "AP-5", "LS-1", "LS-2", "LS-3",
+    -- "LS-4", "LS-5", "SK-1", "SK-2", "SK-3", "SK-4", "SK-5", "0-1", "0-2", "0-3",
+    -- "0-8", "1-9", "2-9", "S3-7", "4-10", "5-9", "6-10", "7-14", "R8-2",
+    -- "积水潮窟", "切尔诺伯格", "龙门外环", "龙门市区",
+    -- "废弃矿区", "大骑士领郊外", "北原冰封废城", "PR-A-1", "0-4",
+    -- "0-5", "0-6", "0-7", "0-8", "0-9", "0-10", "0-11", "1-1", "1-3", "1-4",
+    -- "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12", "2-1", "2-2",
+    -- "2-3", "2-4", "2-5", "2-6", "2-7", "2-8", "2-9", "2-10", "S2-1", "S2-2",
+    -- "S2-3", "S2-4", "S2-5", "S2-6", "S2-7", "S2-8", "S2-9", "S2-10", "S2-12",
+    -- "3-1", "3-2", "3-3", "3-4", "3-5", "3-6", "3-7", "3-8", "S3-1", "S3-2",
+    -- "S3-3", "S3-4", "S3-5", "S3-6", "S3-7", "4-1", "4-2", "4-3", "4-4", "4-5",
+    -- "4-6", "4-7", "4-8", "4-9", "4-10", "S4-1", "S4-2", "S4-3", "S4-4", "S4-5",
+    -- "S4-6", "S4-7", "S4-8", "S4-9", "S4-10", "5-1", "5-2", "S5-1", "S5-2",
+    -- "5-3", "5-4", "5-5", "5-6", "S5-3", "S5-4", "5-7", "5-8", "5-9", "S5-5",
+    -- "S5-6", "S5-7", "S5-8", "S5-9", "5-10", "6-1", "6-2", "6-3", "6-4", "6-5",
+    -- "6-7", "6-8", "6-9", "6-10", "S6-1", "S6-2", "6-11", "6-12", "6-14", "6-15",
+    -- "S6-3", "S6-4", "6-16", "7-2", "7-3", "7-4", "7-5", "7-6", "7-8", "7-9",
+    -- "7-10", "7-11", "7-12", "7-13", "7-14", "7-15", "7-16", "S7-1", "S7-2",
+    -- "7-17", "7-18", "R8-1", "R8-2", "R8-3", "R8-4", "R8-5", "R8-6", "R8-7",
+    -- "R8-8", "R8-9", "R8-10", "R8-11", "JT8-2", "JT8-3", "M8-6", "M8-7", "M8-8",
   }
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
   log(fight)
@@ -2427,7 +2489,64 @@ end
 
 predebug_hook = function()
   if not predebug then return end
-  log(findOne("我知道了"))
+  ssleep(1)
+  tap("中右确认")
+  exit()
+  fight1 = {text = '与虫为伴'}
+  fight1 = {text = '礼炮小队'}
+  deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
+                                         fight1.text) and 2 or 4)
+  local pagedownzl = function()
+    local flipd = 150
+    local flips = 50
+    local duration = flipd + flips + 500
+    -- "669|144|212121"
+    local x1 = scale(670)
+    local x2 = scale(1838)
+    local y1 = scale(300)
+    local y2 = screen.height - scale(300)
+    local y3 = scale(400)
+    local paths = {
+      {point = {{x1, y1}, {x1, y2}}, duration = duration},
+      {point = {{x2, y1}, {x2, y3}}, duration = flipd, start = flips},
+    }
+    -- sleep(100)
+    gesture(paths)
+    sleep(duration + 50)
+    -- 可能还是需要按下
+    -- tap("入驻干员右侧")
+    -- 不用的话，大分辨率还是有可能出现错过加号
+    -- sleep(100)
+  end
+  pagedownzl()
+
+  -- while true do
+  --   username = "13771571732"
+  --   password = "franix!!!"
+  --   path.退出账号()
+  --   path.跳转("首页")
+  -- end
+  -- path.fallback.活动签到返回()
+  -- swip("HD-1")
+  -- swipzl('card')
+  -- input("bilibili_username_inputbox", "112")
+  -- log(findOne("我知道了"))
+  -- log(exec("ime list"))
+  -- log(exec("ime list -s"))
+  -- local inputmethod = getPackageName() .. [[/com.nx.assist.InputText]]
+  -- log(exec([[ime enable ]] .. inputmethod .. [[;ime set ]] .. inputmethod ..
+  --            [[;ime disable ]] .. inputmethod))
+  -- log(exec([[ime enable ]] .. inputmethod .. [[;ime set ]] .. inputmethod))
+  -- ..
+  --          [[;ime disable ]] .. inputmethod))
+  -- log(exec("settings get secure default_input_method"))
+  -- ssleep(1)
+  -- log(findOne("bilibili_username_inputbox"))
+  --
+  -- log(findOne("bilibili_password_inputbox"))
+  -- log(findOne("bilibili_login"))
+  -- -- tap({10, 10})
+
   -- log(expand_number_config("1-11   100 1-1 0 -1 1-"))
   exit()
   -- tap("指挥分队")
@@ -2921,6 +3040,11 @@ swipzl = function(mode)
   local x2 = screen.width - scale(300)
   local y = scale(1080 // 2)
   local finger
+  if mode == "card" then
+    duration = 300
+    x2 = scale(1516)
+  end
+
   if mode == 'right' then
     finger = {
       {point = {{x1, y}, {screen.width - 1, y}}, start = 0, duration = duration},
@@ -2943,7 +3067,7 @@ swipzl = function(mode)
   log(28491, finger)
   gesture(finger)
   log(28501)
-  sleep(duration + 50)
+  sleep(duration + delay)
 end
 
 -- src: 从右数第几个干员
@@ -3007,3 +3131,16 @@ expand_number_config = function(x, minimum, maximum)
   end
   return y
 end
+
+restart_game_check_last_time = time()
+restart_game_check = function(timeout)
+  timeout = timeout or 1800 -- 半小时
+  if (time() - restart_game_check_last_time) > timeout * 1000 then
+    closeapp(appid)
+    restart_game_check_last_time = time()
+  end
+end
+
+captcha_solver = function() end
+
+forever = function(f, ...) while true do f(...) end end

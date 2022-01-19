@@ -28,8 +28,9 @@ path.base = {
         tap("账号")
         if appear('inputbox', .5) then return true end
       end, 5) then return end
-      input("inputbox", username)
       ssleep(1) -- 等待输入法弹出
+      input("inputbox", username)
+      ssleep(.1) -- 等待输入法弹出
       tap("okbutton")
       disappear("okbutton")
     end
@@ -39,8 +40,9 @@ path.base = {
         tap("密码")
         if appear('inputbox', .5) then return true end
       end, 5) then return end
-      input("inputbox", password)
       ssleep(1) -- 等待输入法弹出
+      input("inputbox", password)
+      ssleep(.1) -- 等待输入法弹出
       tap('okbutton')
       disappear("okbutton")
     end
@@ -48,7 +50,7 @@ path.base = {
     appear("手机验证码登录")
 
     wait(function()
-      if findAny({"用户名或密码错误", "密码不能为空"}) then
+      if appear({"用户名或密码错误", "密码不能为空"}, 0.5) then
         login_error_times = (login_error_times or 0) + 1
         if login_error_times > 5 then stop("登录失败34") end
         return true
@@ -130,17 +132,35 @@ path.base = {
 
 path.bilibili_login = {
   bgame = true,
-  bilibili_account_login = function()
+  bilibili_phone_inputbox = function()
+    -- 把输入法关了
+    wait(function()
+      if findOne("bilibili_account_login") then return true end
+      tap("返回")
+    end, 5)
     tap("bilibili_account_login")
-    appear("bilibili_login")
+    appear("bilibili_username_inputbox")
   end,
-  bilibili_login = function()
+  -- bilibili_username_inputbox = function()
+  --   if not findOne()
+  --   tap("返回")
+  -- end,
+  bilibili_username_inputbox = function()
+    log(149)
+    -- 把输入法关了
+    wait(function()
+      if findOne("bilibili_login") then return true end
+      tap("返回")
+    end, 5)
     if username and #username > 0 and password and #password > 0 then
       input("bilibili_username_inputbox", username)
       input("bilibili_password_inputbox", password)
     end
     tap("bilibili_login")
-    if not disappear("bilibili_login", 30) then stop("登录失败138") end
+    if not disappear("bilibili_username_inputbox", 30) then
+      stop("登录失败138")
+    end
+    log(162)
   end,
   bilibili_oneclicklogin = function()
     tap("bilibili_oneclicklogin")
@@ -152,24 +172,26 @@ path.bilibili_login = {
   end,
   bilibili_other = function()
     tap("bilibili_other")
-    appear("bilibili_account_login")
+    appear("bilibili_phone_inputbox")
   end,
 }
 
 path.bilibili_login_change = update(path.bilibili_login, {
   bilibili_oneclicklogin = false,
-  bilibili_login = true,
+  bilibili_username_inputbox = true,
   bilibili_change2 = function()
     wait(function()
       tap("bilibili_change2")
-      if appear({"bilibili_change", "bilibili_account_login"}, .5) then
+      -- if appear({"bilibili_change", "bilibili_account_login"}, .5) then
+      if appear({"bilibili_change", "bilibili_phone_inputbox"}, .5) then
         return true
       end
     end, 5)
   end,
   bilibili_change = function()
     tap("bilibili_change")
-    appear("bilibili_account_login")
+    -- appear("bilibili_account_login")
+    appear("bilibili_phone_inputbox")
   end,
 }, nil, true)
 
@@ -210,10 +232,10 @@ path.fallback = {
     return path.fallback.签到返回()
   end,
   活动签到返回 = function()
-    for u = screen.width // 2 + scale(300 - 1920 // 2), screen.width -
-      scale(150), scale(100) do tap({u, screen.height // 2}) end
-    for v = screen.height // 2 + scale(160 - 1080 // 2), screen.height -
-      scale(150), scale(100) do tap({screen.width // 2, v}) end
+    for u = screen.width // 2 + scale(825 - 1920 // 2), screen.width // 2 +
+      scale(1730 - 1920 // 2), scale(100) do tap({u, scale(500)}) end
+    for v = screen.height // 2 + scale(180 - 1080 // 2), screen.height // 2 +
+      scale(950 - 1080 // 2), scale(100) do tap({screen.width // 2, v}) end
     return path.fallback.签到返回()
   end,
   返回确认 = function()
@@ -1161,7 +1183,7 @@ end
 -- tap with offset -50,50
 tapCard = function(k)
   local x, y = point[k]:match("(%d+)" .. coord_delimeter .. "(%d+)")
-  tap({tonumber(x) - 50, tonumber(y) + 50})
+  tap({tonumber(x) - scale(50), tonumber(y) + scale(50)})
 end
 
 path.线索布置 = function()
@@ -2207,6 +2229,22 @@ path.公招刷新 = function()
       })
     end
     log(1288)
+    if see == "立即招募列表" .. i and recruit_accelerate_mode then
+      log(2236)
+      if not appear("公开招募箭头") then return end
+      wait(function()
+        if not findOne("公开招募箭头") then return true end
+        tapCard("立即招募列表" .. i)
+      end, 5)
+      log(2237)
+      wait(function()
+        if findOne("公开招募箭头") then return true end
+        tap("中右确认")
+      end, 5)
+      log(2238)
+      appear("聘用候选人列表" .. i)
+      return
+    end
 
     if see == "聘用候选人列表" .. i then
       log(i, 1001)
@@ -2245,14 +2283,18 @@ path.公招刷新 = function()
 
       if not wait(function()
         if not findOne("公开招募箭头") then return true end
+        if findOne("立即招募列表" .. i) then return true end
         tap("公开招募点击列表" .. i)
       end, 5) then return end
+      if findOne("立即招募列表" .. i) then return f(i) end
 
       g = function(pre_tags)
         local tags, r
         wait(function()
           r = point["公开招募标签框范围"]
+          log(2295, r)
           r = ocrEx(r[1], r[2], r[3], r[4]) or {}
+          log(2296, r)
           tags = {}
           for _, p in pairs(r) do
             p.text = tagFix(p.text) -- 替换常见错别字
@@ -2272,10 +2314,22 @@ path.公招刷新 = function()
 
         local skip = false
         if #table.keys(tags) < 5 then skip = true end
+        -- 保留标签处理
+        -- log(2316, extra_recruit_importance_tag, recruit_accelerate_mode)
+        if recruit_accelerate_mode and extra_recruit_importance_tag and
+          table.any(table.keys(tags),
+                    function(x)
+            return extra_recruit_importance_tag:find(x)
+          end) then
+          toast("已找到保留标签：" .. extra_recruit_importance_tag)
+          ssleep(5)
+          peaceExit()
+        end
 
         if debug_tag then
           tmp = {}
-          tmp1 = {"医疗干员", "治疗", "新手", "防护", "削弱"}
+          -- tmp1 = {"医疗干员", "治疗", "新手", "防护", "削弱"}
+          tmp1 = {"支援机械", "治疗", "新手", "防护", "近战位"}
           tmp2 = table.keys(tags)
           for j = 1, 5 do tmp[tmp1[j]] = tags[tmp2[j]] end
           tags = tmp
@@ -2286,6 +2340,12 @@ path.公招刷新 = function()
         local tag4 = table.filter(tag5, function(rule)
           return table.all(rule[1], function(m) return tags[m] end)
         end)
+
+        -- 如果勾选非保底，且不能刷新时，也招
+        if auto_recruit0 and not findOne("公开招募标签刷新蓝") then
+          table.insert(tag4, {{}, 0, {}})
+        end
+
         log(1093, tag4)
         -- toast(JsonEncode(tags))
 
@@ -2307,16 +2367,22 @@ path.公招刷新 = function()
                 disappear("公开招募时间减", 1)
               end
             end, 5) then return end
+            if recruit_accelerate_mode then
+              toast("已遇到需保留情况")
+              ssleep(5)
+              peaceExit()
+            end
           end
         else
           -- 最大星数
-          local max_star = 0
+          local max_star = -1
           local list
 
           for _, v in pairs(tag4) do
-            -- 同星级需要优选“资深”，不选会出弹窗。
-            local better = max_star < v[2] or max_star == v[2] and
-                             v[1][1]:find("资深")
+            -- 同星级需要优选“资深”优选，不选会出弹窗。
+            local better = max_star < v[2] or max_star == v[2] and (v[1][1] and
+                             (v[1][1]:find("资深") or
+                               (#v[1] > #list and not list[1]:find("资深"))))
 
             if better then
               max_star = v[2]
@@ -2324,12 +2390,17 @@ path.公招刷新 = function()
             end
           end
 
-          if max_star > 0 and not _G['auto_recruit' .. max_star] then
+          if max_star >= 0 and not _G['auto_recruit' .. max_star] then
             log("notify 存在", max_star, list)
             table.insert(qqmessage, "可招募：" .. table.join(list))
+            if recruit_accelerate_mode then
+              toast("可招募：" .. table.join(list))
+              ssleep(5)
+              peaceExit()
+            end
           end
 
-          if max_star > 0 and _G['auto_recruit' .. max_star] then
+          if max_star >= 0 and _G['auto_recruit' .. max_star] then
             for _, v in pairs(list) do tap(tags[v]) end
             if max_star == 1 then
               -- 3.5小时
@@ -2345,9 +2416,16 @@ path.公招刷新 = function()
               log("fake_recruit", list)
               tap("返回")
             else
-              tap("公开招募确认蓝")
+              -- 点太快会无效
+              ssleep(.25)
+              wait(function()
+                tap("公开招募确认蓝")
+                if appear({"公开招募箭头", "返回确认界面"}, 3) then
+                  return true
+                end
+              end, 10)
             end
-            if not appear({"公开招募箭头", "返回确认界面"}, 10) then
+            if not appear({"公开招募箭头", "返回确认界面"}) then
               return
             end
 
@@ -2380,7 +2458,7 @@ path.公招刷新 = function()
       g()
     end
   end
-  for i = 1, 4 do
+  for i = 1, #point.公开招募列表 do
     f(i)
     if speedrun and i >= 3 then break end
   end
@@ -2615,7 +2693,7 @@ path.退出账号 = function()
     bilibili_framelayout_only = false,
     [function()
       return findOne("bilibili_framelayout_only") and
-               not findOne("bilibili_login")
+               not findOne("bilibili_username_inputbox")
     end] = function() auto(path.bilibili_login_change) end,
     面板 = function()
       tap("面板设置")
@@ -2626,7 +2704,7 @@ path.退出账号 = function()
       end, 1)
     end,
     开始唤醒 = "账号管理",
-    bilibili_login = true,
+    bilibili_username_inputbox = true,
     手机验证码登录 = true,
   }, nil, true), path.fallback)
 end
@@ -2826,6 +2904,7 @@ path.前瞻投资 = function()
   -- 红色标签直接放弃
   if findOne("偏执的") then
     toast("红色异常重试")
+    restart_game_check()
     return
   end
 
@@ -2861,7 +2940,7 @@ path.前瞻投资 = function()
     toast("驯兽小屋重试")
     return
   end
- 
+
   local unexpect1ocr = {}
   wait(function()
     if #unexpect1ocr > 0 then return true end
@@ -2898,7 +2977,7 @@ path.前瞻投资 = function()
   fight2 = point.第一层作战2
   fight2 = {l = fight2[1], t = fight2[2]}
 
-  local unexpect2ocr ={}
+  local unexpect2ocr = {}
   wait(function()
     if #unexpect2ocr > 0 then return true end
     unexpect2ocr = ocr("第一层不期而遇2")
@@ -2992,9 +3071,8 @@ path.前瞻投资 = function()
 
   if not findOne("生命值") then return end
 
-  -- TODO 生命值有没有更稳的判定方法
   -- 需要等等才能点
-  ssleep(3)
+  ssleep(2)
   tap("两倍速")
 
   if not wait(function()
@@ -3057,7 +3135,7 @@ path.前瞻投资 = function()
     if time() - last_swip_time > 2000 then
       log(2904)
       last_swip_time = time()
-      swipzl('left')
+      swipzl('card')
     end
 
   end, 30) then return end
@@ -3157,4 +3235,11 @@ path.前瞻投资 = never_end_wrapper(path.前瞻投资)
 
 path["克洛丝单人1-12"] = function()
   -- TODO
+end
+
+path.公开招募加急 = function()
+  -- 只处理第一个列表
+  recruit_accelerate_mode = true
+  point.公开招募列表 = table.slice(point.公开招募列表, 1, 1)
+  forever(path.公招刷新)
 end
