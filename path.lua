@@ -26,25 +26,29 @@ path.base = {
       if not wait(function()
         tap("账号左侧")
         tap("账号")
-        if appear('inputbox', .5) then return true end
-      end, 5) then return end
-      ssleep(1) -- 等待输入法弹出
+        if disappear("手机验证码登录", 1) then return true end
+      end, 10) then return end
+      if not appear('inputbox') then return end
+      -- ssleep(1) -- 等待输入法弹出
       input("inputbox", username)
-      ssleep(.1) -- 等待输入法弹出
+      -- ssleep(.5) -- 等待输入法弹出
       tap("okbutton")
-      disappear("okbutton")
+      appear("手机验证码登录")
+      -- disappear("okbutton")
     end
     if #password > 0 then
       if not wait(function()
         tap("账号左侧")
         tap("密码")
-        if appear('inputbox', .5) then return true end
-      end, 5) then return end
-      ssleep(1) -- 等待输入法弹出
+        if disappear("手机验证码登录", 1) then return true end
+      end, 10) then return end
+      if not appear('inputbox') then return end
+      -- ssleep(1) -- 等待输入法弹出
+      -- if debug then toast(password) end
       input("inputbox", password)
-      ssleep(.1) -- 等待输入法弹出
+      -- ssleep(.5) -- 等待输入法弹出
       tap('okbutton')
-      disappear("okbutton")
+      appear("手机验证码登录")
     end
 
     appear("手机验证码登录")
@@ -52,7 +56,7 @@ path.base = {
     wait(function()
       if appear({"用户名或密码错误", "密码不能为空"}, 0.5) then
         login_error_times = (login_error_times or 0) + 1
-        if login_error_times > 5 then stop("登录失败34") end
+        if login_error_times > 10 then stop("登录失败34") end
         return true
       end
       tap("登录")
@@ -338,7 +342,15 @@ path.邮件收取 = function()
   if not wait(function()
     if not findOne(state) then return true end
     tap("收取所有邮件")
-  end, 5) then return end
+  end, 10) then return end
+
+  -- 卡在邮件的获取
+  wait(function()
+    if findAny({"开始唤醒", "面板", "公告返回", "签到返回"}) then
+      return true
+    end
+    tap("返回")
+  end, 5)
 end
 
 path.基建收获 = function()
@@ -1532,6 +1544,10 @@ jianpin2name = {
   LMSQ = "龙门市区",
   LMWH = "龙门外环",
   QENBG = "切尔诺伯格",
+  CQWT1 = "长期委托1",
+  CQWT2 = "长期委托2",
+  CQWT3 = "长期委托3",
+  CQWT4 = "长期委托4",
   -- BYBFFC = "北原冰封废城",
   -- DQSLJW = "大骑士领郊外",
   -- FQKQ = "废弃矿区",
@@ -2291,10 +2307,7 @@ path.公招刷新 = function()
       g = function(pre_tags)
         local tags, r
         wait(function()
-          r = point["公开招募标签框范围"]
-          log(2295, r)
-          r = ocrEx(r[1], r[2], r[3], r[4]) or {}
-          log(2296, r)
+          r = ocr("公开招募标签框范围")
           tags = {}
           for _, p in pairs(r) do
             p.text = tagFix(p.text) -- 替换常见错别字
@@ -2795,13 +2808,15 @@ path.前瞻投资 = function()
 
   -- 开始探索 一路按到 招募干员
   local last_time_see_first_card = time()
+  local first_card_interval = 0
   if not wait(function()
     if findOne("初始招募") then return true end
     tap("战略确认")
 
     -- 因为小号只有指挥分队，但每一秒只做一次
     if findAny({"指挥分队", "指挥分队确认"}) and time() -
-      last_time_see_first_card > 1000 then
+      last_time_see_first_card > first_card_interval then
+      first_card_interval = 1000 -- 1秒
       if findOne("指挥分队") then
         if not wait(function()
           if not findOne("指挥分队") then return true end
@@ -2904,7 +2919,10 @@ path.前瞻投资 = function()
   -- 红色标签直接放弃
   if findOne("偏执的") then
     toast("红色异常重试")
-    restart_game_check()
+    -- 关闭游戏然后重启脚本
+    if restart_game_check(zl_restart_interval) then
+      restart_mode("前瞻投资")
+    end
     return
   end
 
@@ -3096,13 +3114,16 @@ path.前瞻投资 = function()
     deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
                                            fight1.text) and 2 or 4)
   end, 10)
+  appear("生命值")
 
   -- 超时作战不对劲
+  local last_time_see_life = time()
   if not wait(function()
     if findOne("返回确认界面") then tap("右右确认") end
-    if not findOne("生命值") then return true end
+    if findOne("生命值") then last_time_see_life = time() end
+    if time() - last_time_see_life > 3000 then return true end
     tap("开始行动")
-    disappear("生命值", 5)
+    disappear("生命值", 1)
   end, 300) then return end
 
   local last_swip_time = time()
@@ -3120,6 +3141,7 @@ path.前瞻投资 = function()
       end, 10) then return true end
     end
     if findAny({"常规行动", "战略帮助"}) then return true end
+    -- 误触到招募券处理
     if findOne("确认招募") then
       if not wait(function()
         if not findOne("确认招募") then return true end
@@ -3216,7 +3238,19 @@ path.前瞻投资 = function()
     tap("进入")
   end, 5) then return end
 
-  if not appear("诡意行商投资", 1) then return end
+  local goto_next_level = function()
+    if not zl_more_experience then return end
+    -- 去第二层
+    wait(function()
+      if not findOne("战略返回") then return true end
+      tap("诡意行商离开")
+    end, 10)
+    wait(function()
+      if findOne("战略返回") then return true end
+      tap("诡意行商离开")
+    end, 10)
+  end
+  if not appear("诡意行商投资", 1) then return goto_next_level() end
   if not wait(function()
     if findOne("诡意行商投币") then return true end
     tap("诡意行商投资")
@@ -3229,6 +3263,7 @@ path.前瞻投资 = function()
     if not findOne("诡意行商投资入口") then return true end
     tap("诡意行商确认投资")
   end, 15) then return end
+  return goto_next_level()
 end
 
 path.前瞻投资 = never_end_wrapper(path.前瞻投资)

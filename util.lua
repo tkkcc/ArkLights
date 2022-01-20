@@ -10,6 +10,7 @@ exit = exitScript
 JsonDecode = jsonLib.decode
 JsonEncode = jsonLib.encode
 findNode = function(selector) return nodeLib.findOne(selector, true) end
+findNodes = function(selector) return nodeLib.findAll(selector, true) end
 clickNode = function(x) nodeLib.click(x, true) end
 clickPoint = function(x, y)
   local gesture = Gesture:new()
@@ -519,6 +520,7 @@ end
 
 findOne_game_up_check_last_time = 0
 findOne_last_time = time()
+findOne_locked = false
 findOne = function(x, confidence, disable_game_up_check)
   if type(x) == "function" then return x() end
 
@@ -536,9 +538,18 @@ findOne = function(x, confidence, disable_game_up_check)
   if type(x) == "table" and #x == 0 then return findNode(x) end
   if type(x) == "table" and #x > 0 then return x end
   if type(x) == "string" then
-    sleep(max(0, findOne_interval - (time() - findOne_last_time)))
-    findOne_last_time = time()
 
+    -- 控制截图频率
+    local current = time()
+    if findOne_interval > 0 and current - findOne_last_time > findOne_interval then
+      findOne_last_time = time()
+      -- log(500)
+      -- releaseCapture()
+      keepCapture()
+    end
+
+    -- sleep(max(0, findOne_interval - (time() - findOne_last_time)))
+    -- findOne_last_time = time()
     local pos
     -- log(x0, rfl[x0], x, confidence)
     if rfl[x0] then
@@ -583,7 +594,9 @@ tap = function(x, noretry, allow_outside_game)
   end
   log("tap", x0, x)
   if type(x) ~= "table" then return end
-  sleep(max(0, tap_interval - (time() - tap_last_time)))
+  if tap_interval > 0 then
+    sleep(max(0, tap_interval - (time() - tap_last_time)))
+  end
   tap_last_time = time()
   if #x > 0 then
     clickPoint(x[1], x[2])
@@ -1798,7 +1811,7 @@ show_main_ui = function()
   newRow(layout)
   addTextView(layout, "完成后")
   ui.addCheckBox(layout, "end_home", "回到主页", true)
-  ui.addCheckBox(layout, "end_closeapp", "关闭游戏", true)
+  ui.addCheckBox(layout, "end_closeapp", "关闭游戏", false)
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
   newRow(layout)
   addTextView(layout, "定时执行")
@@ -1917,7 +1930,7 @@ Q：怎么刷关卡？
 A：勾选“轮次作战”任务，修改“作战”设置，启动。作战将依次执行，跳过无效关，到末尾后再从头开始。
 
 Q：作战设置格式？
-A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 龙门市区x0 活动8*10 CA-5*1 9-10 上一次x0”，表示5次新剿灭+10次活动关+1次CA-5+1次9-10。
+A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 活动8*10 CA-5*1 9-10 上一次x0”，表示5次新剿灭+10次活动关+1次CA-5+1次9-10。
 
 Q：合成玉满了还会继续刷吗？
 A：不会，任何作战开始前（包括上一次）都会判断合成玉是否已满，已满则所有剿灭无效。
@@ -1931,8 +1944,8 @@ A：勾选“轮次作战”，作战设置填“1-7”，启动
 Q：怎么只刷上一次？
 A：勾选“轮次作战”，作战设置填“上一次”，启动
 
-Q：新剿灭没打，只能打龙门市区？
-A：勾选“轮次作战”，作战设置里“当期委托”改成“龙门市区”，启动
+Q：新剿灭没打，只能打切尔诺伯格？
+A：勾选“轮次作战”，作战设置里“当期委托”改成“长期委托X”（X按每个号的情况来，如“长期委托1”），启动
 
 Q：作战设置不能修改？
 A：别开懒人输入法。
@@ -2014,11 +2027,13 @@ A：vmos（虚拟大师）是手机上的模拟器/虚拟机。在手机上一�
 Q：在云手机上没反应？
 A：请加群反馈。
 
-Q：正常运行一段时间后突然没反应？
-A：确认左下角图标有绿边（表示脚本还在运行），按音量加停止脚本，再运行一次脚本，如果能在相似情况下出现问题，请加群反馈，如果每次出现情况不同，可能是无障碍掉了，解决方法一是保证充足内存防止系统杀掉脚本，二是通过vmos使用或更换模拟器。
+Q：正常运行一段时间后突然卡住不动？
+A：如果多次卡在同一位置，大概率是代码问题，请反馈给开发者。如果停在随机界面，参考下一问题的解决方法。
 
 Q：正常运行一段时间后突然出现“停止运行”或者悬浮按钮消失了？
-A：一般是被系统杀了。保证内存充足，调整系统设置，更换系统等。建议模拟器虚拟机使用1核1280x720分辨率4G内存，降低资源占用以减轻与其他软件的竞争。
+A：一般是被系统杀了。
+1. 增大找色间隔，把“找色”设为1~200的数，如42。
+2. 保证内存充足，调整系统设置，更换系统等。建议模拟器虚拟机使用1核1280x720分辨率4G内存，降低资源占用以减轻与其他软件的竞争。
 
 Q：直接弹出“停止运行”？
 A：一般是安卓版本低于7导致的。
@@ -2058,6 +2073,9 @@ A：短时间内多次登陆时出现。正在接入解法。
 
 Q：卡在制造站干员选择界面？
 A：别用“高产”换班。
+
+Q：无限循环启动/无限重启？
+A：定时任务写“+0:00”。
 ]])
 
   --   newRow(layout)
@@ -2085,14 +2103,18 @@ show_extra_ui = function()
                 make_jump_ui_command(layout, nil,
                                      "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
 
-  ui.addCheckBox(layout, "skip_hard", "不打驯兽", true)
   addTextView(layout, [[选第]])
   ui.addEditText(layout, "best_operator", [[1]])
   addTextView(layout, [[个近卫]])
+  newRow(layout)
+  ui.addCheckBox(layout, "skip_hard", "不打驯兽", true)
+  ui.addCheckBox(layout, "zl_more_experience", "多点经验", true)
+  addTextView(layout, [[重启间隔(秒)]])
+  ui.addEditText(layout, "zl_restart_interval", [[900]])
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。连续8小时实测效率为每小时42~67个。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可尝试增大“找色”设置，或换用其他设备与其他脚本。]])
+              [[用于刷投资以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。“多点经验”会去下第二层。红色异常时会按“重启间隔”重启游戏与脚本，“重启间隔”不影响正常刷投资效率，只影响稳定性，甚至可设成0。连续8小时实测效率为每小时42~67个。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可尝试增大“找色”设置，或换用其他设备与其他脚本。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2359,9 +2381,9 @@ end
 
 input = function(selector, text)
   if type(text) ~= 'string' then return end
-  local node = findOne(selector)
+  local node = findNodes(point[selector])
   if not node then return end
-  nodeLib.setText(node, text)
+  for _, n in pairs(node) do nodeLib.setText(n, text) end
 end
 
 enable_accessibility_service = function()
@@ -2430,6 +2452,7 @@ enable_snapshot_service = function()
   if loadConfig("hideUIOnce", "false") ~= "false" then
     log(2237)
     log("定时模式启动，不敢弹录屏")
+    return
   end
 
   openPermissionSetting()
@@ -2489,8 +2512,24 @@ end
 
 predebug_hook = function()
   if not predebug then return end
+
   ssleep(1)
-  tap("中右确认")
+  password = '11111111'
+  if not wait(function()
+    tap("账号左侧")
+    tap("密码")
+    if disappear("手机验证码登录") then return true end
+  end, 10) then return end
+  if not appear('inputbox') then return end
+  ssleep(1) -- 等待输入法弹出
+  if debug then toast(password) end
+  input("inputbox", password)
+  ssleep(.5) -- 等待输入法弹出
+  tap('okbutton')
+  appear("手机验证码登录")
+  -- log(findOne("获得物资"))
+  -- log(point["获得物资"])
+  -- tap("中右确认")
   exit()
   fight1 = {text = '与虫为伴'}
   fight1 = {text = '礼炮小队'}
@@ -2939,10 +2978,19 @@ end
 -- 定时执行逻辑：如果到点但脚本还在run则跳过，因为run中重启可能出现异常
 check_crontab = function()
   if not crontab_enable then return end
+  local restart = function()
+    saveConfig("hideUIOnce", "true")
+    restartScript()
+  end
+
   local config = string.filterSplit(crontab_text, {"：", ":"})
   local candidate = {}
   if #config == 0 then return end
+  local current = os.time()
   for _, v in pairs(config) do
+    -- TODO
+    if v:startsWith("+") then restart() end
+
     local hour_second = v:split(':')
     local hour = math.round(tonumber(hour_second[1] or 0) or 0)
     local min = math.round(tonumber(hour_second[2] or 0) or 0)
@@ -2952,15 +3000,14 @@ check_crontab = function()
                  os.time(update(os.date("*t"), {hour = hour + 24, min = min})))
   end
   table.sort(candidate)
-  local next_time = table.findv(candidate, function(x) return x > os.time() end)
+  local next_time = table.findv(candidate, function(x) return x > current end)
   toast("下次执行时间：" .. os.date("%H:%M", next_time))
   while true do
     if os.time() >= next_time then break end
     ssleep(1)
     -- ssleep(clamp(next_time - os.time(), 0, 1000))
   end
-  saveConfig("hideUIOnce", "true")
-  restartScript()
+  restart()
 end
 
 setEventCallback = function()
@@ -3025,9 +3072,14 @@ extra_mode_hook = function()
 end
 
 ocr = function(r)
+  releaseCapture()
   r = point[r]
   log("ocrinput", r)
-  r = ocrEx(r[1], r[2], r[3], r[4]) or {}
+  local d1 = scale(math.random(-1, 1))
+  local d2 = scale(math.random(-1, 1))
+  local d3 = scale(math.random(-1, 1))
+  local d4 = scale(math.random(-1, 1))
+  r = ocrEx(r[1] + d1, r[2] + d2, r[3] + d3, r[4] + d4) or {}
   log("ocrresult", r)
   return r
 end
@@ -3135,12 +3187,26 @@ end
 restart_game_check_last_time = time()
 restart_game_check = function(timeout)
   timeout = timeout or 1800 -- 半小时
+  log(3145, timeout)
   if (time() - restart_game_check_last_time) > timeout * 1000 then
     closeapp(appid)
     restart_game_check_last_time = time()
+    log(3149)
+    return true
   end
 end
 
 captcha_solver = function() end
 
 forever = function(f, ...) while true do f(...) end end
+
+restart_mode = function(mode)
+  saveConfig("restart_mode_hook", "extra_mode=[[" .. mode .. "]]")
+  saveConfig("hideUIOnce", "true")
+  restartScript()
+end
+
+restart_mode_hook = function()
+  load(loadConfig("restart_mode_hook", ''))()
+  saveConfig("restart_mode_hook", '')
+end

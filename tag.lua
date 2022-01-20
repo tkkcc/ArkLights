@@ -7,8 +7,7 @@ tag = {
   "支援机械",
 }
 
---[[
-# how to get tag5
+--[[ # how to get tag5
 # open https://arkn.lolicon.app/#/hr, click 查看保底词条组合, open console and run
 let all=[...document.querySelector("#arkn-hr .comb-large table").querySelectorAll('tr')].slice(1)
 let ans=''
@@ -74,8 +73,8 @@ table.extend(tag5, {
   {{'支援机械'}, 1, {"支援机械"}},
   {{'资深干员'}, 5, {"资深干员"}},
   {{'高级资深干员'}, 6, {"高级资深干员"}},
-  {{'生存'}, 0, {"火神"}},
-  {{'防护'}, 0, {"火神"}},
-  {{'群功'}, 0, {"火神"}},
+  -- {{'生存'}, 0, {"火神"}},
+  -- {{'防护'}, 0, {"火神"}},
+  -- {{'群功'}, 0, {"火神"}},
 })
 tagFix = function(x) return x:map({沮 = "狙", 千 = "干"}) end
