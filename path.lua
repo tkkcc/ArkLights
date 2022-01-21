@@ -2356,7 +2356,7 @@ path.公招刷新 = function()
 
         -- 如果勾选非保底，且不能刷新时，也招
         if auto_recruit0 and not findOne("公开招募标签刷新蓝") then
-          table.insert(tag4, {{}, 0, {}})
+          table.extend(tag4, tag0)
         end
 
         log(1093, tag4)
@@ -2709,11 +2709,12 @@ path.退出账号 = function()
                not findOne("bilibili_username_inputbox")
     end] = function() auto(path.bilibili_login_change) end,
     面板 = function()
-      tap("面板设置")
+      tap("面板设置", true)
       if not appear("返回3") then return end
       wait(function()
         tap("退出登录" .. (appid == oppid and '' or '2'))
-        tap("右确认")
+        ssleep(.1)
+        tap("右右确认")
       end, 1)
     end,
     开始唤醒 = "账号管理",
@@ -2884,7 +2885,7 @@ path.前瞻投资 = function()
   end, 5) then return end
 
   if not wait(function()
-    if findOne("初始招募") then
+    if findAny({"初始招募", "战略返回"}) then
       log(26)
       return true
     end
@@ -2898,7 +2899,7 @@ path.前瞻投资 = function()
     end
     log(28, best_operator)
     tap("近卫招募列表" .. (best_operator or 1))
-    tap("确认招募")
+    findTap("确认招募")
     tap("开包skip")
   end, 10) then return end
 
@@ -2914,16 +2915,20 @@ path.前瞻投资 = function()
   log(2700)
 
   -- 不太确定是否需要等，先等了
+
   swipzl("right")
 
-  -- 红色标签直接放弃
-  if findOne("偏执的") then
-    toast("红色异常重试")
+  local restart = function()
     -- 关闭游戏然后重启脚本
     if restart_game_check(zl_restart_interval) then
       restart_mode("前瞻投资")
     end
-    return
+  end
+
+  -- 红色标签直接放弃
+  if findOne("偏执的") then
+    toast("红色异常重试")
+    return restart()
   end
 
   local fight1ocr = {}
@@ -2956,7 +2961,7 @@ path.前瞻投资 = function()
     not (fight1.text == "意外" or fight1.text == "礼炮小队" or fight1.text ==
       '与虫为伴') then
     toast("驯兽小屋重试")
-    return
+    return restart()
   end
 
   local unexpect1ocr = {}
@@ -2975,7 +2980,7 @@ path.前瞻投资 = function()
   if not table.find(unexpect1ocr,
                     function(x) return x.text == "不期而遇" end) then
     log("第二列没找到不期而遇，只找到", unexpect1ocr)
-    return
+    return restart()
   end
 
   log(2723)
@@ -3008,7 +3013,7 @@ path.前瞻投资 = function()
   if not table.find(unexpect2ocr,
                     function(x) return x.text == "不期而遇" end) then
     toast("第二列没找到不期而遇")
-    return
+    return restart()
   end
   if #unexpect2ocr == 0 then return end
 
@@ -3033,7 +3038,7 @@ path.前瞻投资 = function()
                             function(x) return x.text == "不期而遇" end)
   else
     toast("难以找到一条全是不期而遇的路")
-    return
+    return restart()
   end
 
   swipzl("right")
@@ -3141,6 +3146,11 @@ path.前瞻投资 = function()
       end, 10) then return true end
     end
     if findAny({"常规行动", "战略帮助"}) then return true end
+    if time() - last_swip_time > 3000 then
+      log(2904)
+      last_swip_time = time()
+      swipzl('card')
+    end
     -- 误触到招募券处理
     if findOne("确认招募") then
       if not wait(function()
@@ -3154,11 +3164,6 @@ path.前瞻投资 = function()
       end, 5) then return end
     end
     tap("战略确认")
-    if time() - last_swip_time > 2000 then
-      log(2904)
-      last_swip_time = time()
-      swipzl('card')
-    end
 
   end, 30) then return end
 
@@ -3233,10 +3238,6 @@ path.前瞻投资 = function()
   -- 商店
   swipzl("left")
   tap({fight2.l, fight2.t})
-  if not wait(function()
-    if not findOne("战略帮助") then return true end
-    tap("进入")
-  end, 5) then return end
 
   local goto_next_level = function()
     if not zl_more_experience then return end
@@ -3250,7 +3251,13 @@ path.前瞻投资 = function()
       tap("诡意行商离开")
     end, 10)
   end
-  if not appear("诡意行商投资", 1) then return goto_next_level() end
+
+  if not wait(function()
+    -- if not findOne("战略帮助") then return true end
+    if findOne("诡意行商投资") then return true end
+    tap("进入")
+  end, 3) then return goto_next_level() end
+  -- if not appear("诡意行商投资", 1) then return goto_next_level() end
   if not wait(function()
     if findOne("诡意行商投币") then return true end
     tap("诡意行商投资")
@@ -3259,10 +3266,10 @@ path.前瞻投资 = function()
     if findOne("诡意行商投资入口") then return true end
     tap("诡意行商投币")
   end) then return end
-  if not wait(function()
+  wait(function()
     if not findOne("诡意行商投资入口") then return true end
     tap("诡意行商确认投资")
-  end, 15) then return end
+  end, 10)
   return goto_next_level()
 end
 

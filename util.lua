@@ -1863,7 +1863,10 @@ show_main_ui = function()
       layout .. "help" .. release_date, "必读",
       make_jump_ui_command(layout, "help"),
     },
-    {layout .. "stop", "退出", make_jump_ui_command(layout, "peaceExit()")},
+    {
+      layout .. "stop", "退出",
+      make_jump_ui_command(layout, nil, "peaceExit()"),
+    },
     -- {
     --   layout .. "demo", "视频演示",
     --   make_jump_ui_command(layout, nil, "jump_bilibili()"),
@@ -2076,6 +2079,9 @@ A：别用“高产”换班。
 
 Q：无限循环启动/无限重启？
 A：定时任务写“+0:00”。
+
+Q：能不能一键重启？
+A：悬浮按钮最上方的那一个。
 ]])
 
   --   newRow(layout)
@@ -2114,7 +2120,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。“多点经验”会去下第二层。红色异常时会按“重启间隔”重启游戏与脚本，“重启间隔”不影响正常刷投资效率，只影响稳定性，甚至可设成0。连续8小时实测效率为每小时42~67个。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可尝试增大“找色”设置，或换用其他设备与其他脚本。]])
+              [[用于刷投资以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。“多点经验”会去下第二层。红色异常时会按“重启间隔”重启游戏与脚本，“重启间隔”不影响正常刷投资效率，只影响稳定性，甚至可设成0。连续8小时实测效率为每小时42~67个。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可尝试增大“找色”设置(1~200)，或换用其他设备与其他脚本。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -3018,8 +3024,7 @@ setEventCallback = function()
       console.dismiss()
     end
   end)
-  -- TODO how to use
-  setUserEventCallBack(function(type) stop(2849 + type) end)
+  setUserEventCallBack(function(type) restartScript() end)
 end
 
 consoleInit = function()
