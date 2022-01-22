@@ -26,29 +26,39 @@ path.base = {
       if not wait(function()
         tap("账号左侧")
         tap("账号")
-        if disappear("手机验证码登录", 1) then return true end
+        -- if disappear("手机验证码登录", 1) then return true end
+        if appear('inputbox', 1) then return true end
       end, 10) then return end
-      if not appear('inputbox') then return end
+      -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
+      if debug then
+        toast(username)
+        ssleep(5)
+
+        input("inputbox", username)
+        ssleep(5)
+      end
       input("inputbox", username)
       -- ssleep(.5) -- 等待输入法弹出
       tap("okbutton")
-      appear("手机验证码登录")
-      -- disappear("okbutton")
+      -- appear("手机验证码登录")
+      disappear("inputbox")
     end
     if #password > 0 then
       if not wait(function()
         tap("账号左侧")
         tap("密码")
-        if disappear("手机验证码登录", 1) then return true end
+        -- if disappear("手机验证码登录", 1) then return true end
+        if appear('inputbox', 1) then return true end
       end, 10) then return end
-      if not appear('inputbox') then return end
+      -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
       -- if debug then toast(password) end
       input("inputbox", password)
       -- ssleep(.5) -- 等待输入法弹出
       tap('okbutton')
-      appear("手机验证码登录")
+      disappear("inputbox")
+      -- appear("手机验证码登录")
     end
 
     appear("手机验证码登录")
@@ -161,10 +171,7 @@ path.bilibili_login = {
       input("bilibili_password_inputbox", password)
     end
     tap("bilibili_login")
-    if not disappear("bilibili_username_inputbox", 30) then
-      stop("登录失败138")
-    end
-    log(162)
+    disappear("bilibili_login", 5)
   end,
   bilibili_oneclicklogin = function()
     tap("bilibili_oneclicklogin")
@@ -3136,13 +3143,15 @@ path.前瞻投资 = function()
     local p = findOne("不要了")
     if p then
       if not wait(function()
-        p = findOne("不要了")
+        findTap("源石锭")
         if not p or findOne("战略帮助") then return true end
-        tap({p[1] + scale(759 - 668), scale(788)})
+        -- log(p[1], scale(760 - 668), p[1] + scale(759 - 668))
+        tap({p[1] + scale(765 - 668), scale(789)})
         ssleep(.1)
-        tap({p[1] + scale(759 - 668), scale(788)})
+        tap({p[1] + scale(765 - 668), scale(789)})
         ssleep(.1)
-        tap({p[1] + scale(759 - 668), scale(788)})
+        tap({p[1] + scale(765 - 668), scale(789)})
+        p = findOne("不要了")
       end, 10) then return true end
     end
     if findAny({"常规行动", "战略帮助"}) then return true end

@@ -1,4 +1,16 @@
 print('util')
+disable_game_up_check_wrapper = function(func)
+  return function(...)
+    local state = disable_game_up_check
+    disable_game_up_check = true
+    local ret = func(...)
+    disable_game_up_check = state
+    return ret
+  end
+end
+never_end_wrapper = function(func)
+  return function(...) while true do func(...) end end
+end
 
 -- transfer 节点精灵 to 懒人精灵
 getColor = function(x, y)
@@ -1176,15 +1188,23 @@ end
 
 wait_game_up = function(retry)
   if disable_game_up_check then return end
+  local prev = disable_game_up_check
+  disable_game_up_check = true
+  if findOne("game") then
+    disable_game_up_check = prev
+    return
+  end
   retry = retry or 0
-  if retry > 3 then stop("不能启动游戏") end
-  if findOne("game") then return end
+  if retry == 2 then home() end
+  if retry == 4 then closeapp(appid) end
+  if retry > 6 then stop("不能启动游戏") end
   open()
   request_game_permission()
   screenon()
   appear({"game", "keyguard_indication", "keyguard_input"}, 5)
   checkScreenLock()
   log("wait_game_up next", retry)
+  disable_game_up_check = prev
   return wait_game_up(retry + 1)
 end
 
@@ -1212,19 +1232,6 @@ screenLockGesture = function()
     end
     if not disappear("keyguard_input") then stop("解锁失败1005") end
   end
-end
-
-disable_game_up_check_wrapper = function(func)
-  return function(...)
-    local state = disable_game_up_check
-    disable_game_up_check = true
-    local ret = func(...)
-    disable_game_up_check = state
-    return ret
-  end
-end
-never_end_wrapper = function(func)
-  return function(...) while true do func(...) end end
 end
 
 -- 检查解锁界面
@@ -2035,7 +2042,7 @@ A：如果多次卡在同一位置，大概率是代码问题，请反馈给开�
 
 Q：正常运行一段时间后突然出现“停止运行”或者悬浮按钮消失了？
 A：一般是被系统杀了。
-1. 增大找色间隔，把“找色”设为1~200的数，如42。
+1. 增大找色间隔，把“找色”大于0的数，如200。
 2. 保证内存充足，调整系统设置，更换系统等。建议模拟器虚拟机使用1核1280x720分辨率4G内存，降低资源占用以减轻与其他软件的竞争。
 
 Q：直接弹出“停止运行”？
@@ -2120,7 +2127,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。“多点经验”会去下第二层。红色异常时会按“重启间隔”重启游戏与脚本，“重启间隔”不影响正常刷投资效率，只影响稳定性，甚至可设成0。连续8小时实测效率为每小时42~67个。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可尝试增大“找色”设置(1~200)，或换用其他设备与其他脚本。]])
+              [[用于刷投资以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。“多点经验”会去下第二层。重开时会按“重启间隔”重启游戏与脚本，“重启间隔”不影响正常刷投资效率，只影响稳定性，甚至可设成0。连续8小时实测简单难度打驯兽效率为每小时42~67个，简单普通效率一致，推荐选简单。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可尝试设置“找色”为200，或换用其他设备与其他脚本。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2518,8 +2525,21 @@ end
 
 predebug_hook = function()
   if not predebug then return end
+  tap_interval = -1
+  findOne_interval = -1
 
   ssleep(1)
+  log(point.聘用候选人列表2)
+  log(findOne("聘用候选人列表2"))
+  -- findTap("源石锭")
+  -- tap_interval = 0
+  -- tap({1586,scale(790)})
+  -- tap({1586, scale(810)})
+  -- ssleep(.1)
+  -- tap({1586, scale(810)})
+  ssleep(1)
+  -- "1586|1074|A3A3A3"
+  exit()
   password = '11111111'
   if not wait(function()
     tap("账号左侧")
@@ -3018,6 +3038,9 @@ end
 
 setEventCallback = function()
   setStopCallBack(function()
+    disable_log = false
+    log(exec("free -h"))
+    -- log(exec("top -n 1"))
     if need_show_console then
       console.show()
     else
