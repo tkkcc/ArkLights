@@ -31,13 +31,7 @@ path.base = {
       end, 10) then return end
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
-      if debug then
-        toast(username)
-        ssleep(5)
-
-        input("inputbox", username)
-        ssleep(5)
-      end
+      if debug then toast(username) end
       input("inputbox", username)
       -- ssleep(.5) -- 等待输入法弹出
       tap("okbutton")
@@ -45,6 +39,7 @@ path.base = {
       disappear("inputbox")
     end
     if #password > 0 then
+      if debug then toast(password) end
       if not wait(function()
         tap("账号左侧")
         tap("密码")
@@ -2820,6 +2815,8 @@ path.前瞻投资 = function()
   if not wait(function()
     if findOne("初始招募") then return true end
     tap("战略确认")
+    tap("战略确认")
+    tap("战略确认")
 
     -- 因为小号只有指挥分队，但每一秒只做一次
     if findAny({"指挥分队", "指挥分队确认"}) and time() -
@@ -2830,9 +2827,10 @@ path.前瞻投资 = function()
           if not findOne("指挥分队") then return true end
           tap("指挥分队")
         end, 5) then return end
-        appear("指挥分队确认", 1)
       end
+      wait(function() tap("战略确认") end, 0.5)
       findTap("指挥分队确认")
+      if findOne("指挥分队") then disappear("指挥分队") end
       last_time_see_first_card = time()
     end
 
@@ -2904,8 +2902,8 @@ path.前瞻投资 = function()
       -- 不等会怎么样呢，有时会闪
       ssleep(.5)
     end
-    log(28, best_operator)
-    tap("近卫招募列表" .. (best_operator or 1))
+    log(28, zl_best_operator)
+    tap("近卫招募列表" .. (zl_best_operator or 1))
     findTap("确认招募")
     tap("开包skip")
   end, 10) then return end
@@ -2964,7 +2962,7 @@ path.前瞻投资 = function()
     return
   end
 
-  if skip_hard and
+  if zl_skip_hard and
     not (fight1.text == "意外" or fight1.text == "礼炮小队" or fight1.text ==
       '与虫为伴') then
     toast("驯兽小屋重试")
@@ -3063,9 +3061,17 @@ path.前瞻投资 = function()
   end, 10) then return end
 
   if not wait(function()
-    if findOne("攻击范围") then return true end
+    if findOne("攻击范围") and
+      (zl_skill_idx ~= 2 or zl_skill_idx == 2 and findOne("战略二技能")) then
+      return true
+    end
+
     tap("近卫招募列表1")
-    appear("攻击范围", 1)
+    if not appear("攻击范围", 1) then return end
+    if zl_skill_idx == 2 then
+      tap("战略二技能")
+      if not appear("战略二技能", 1) then return end
+    end
   end, 10) then return end
 
   if not wait(function()
@@ -3130,11 +3136,23 @@ path.前瞻投资 = function()
 
   -- 超时作战不对劲
   local last_time_see_life = time()
+  local skill_times = 0
   if not wait(function()
     if findOne("返回确认界面") then tap("右右确认") end
     if findOne("生命值") then last_time_see_life = time() end
+    -- 超过3秒没看到生命值
     if time() - last_time_see_life > 3000 then return true end
     tap("开始行动")
+    local p = findOne("技能亮")
+    if p and skill_times < zl_skill_times then
+      skill_times = skill_times + 1
+      tap({p[1], p[2] + scale(200)})
+      appear("技能ready", 1)
+      wait(function()
+        tap("开技能")
+        if not findOne("技能ready") then return true end
+      end)
+    end
     disappear("生命值", 1)
   end, 300) then return end
 
@@ -3143,9 +3161,12 @@ path.前瞻投资 = function()
     local p = findOne("不要了")
     if p then
       if not wait(function()
-        findTap("源石锭")
+        local p1 = findOne("源石锭")
+        local p2 = findOne("收藏品")
+        tap(p2)
+        tap(p1)
+        log(3168,p1,p2)
         if not p or findOne("战略帮助") then return true end
-        -- log(p[1], scale(760 - 668), p[1] + scale(759 - 668))
         tap({p[1] + scale(765 - 668), scale(789)})
         ssleep(.1)
         tap({p[1] + scale(765 - 668), scale(789)})

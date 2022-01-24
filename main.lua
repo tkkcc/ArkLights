@@ -41,7 +41,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.01.22 11:46"
+release_date = "2022.01.24 23:58"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -72,6 +72,15 @@ restart_mode_hook()
 findOne_interval = str2int(findOne_interval, -1)
 tap_interval = str2int(tap_interval, -1)
 zl_restart_interval = str2int(zl_restart_interval, math.huge)
+zl_skill_times = str2int(zl_skill_times, 0)
+zl_skill_idx = str2int(zl_skill_idx, 1)
+
+if best_operator then
+  zl_best_operator = best_operator
+  zl_skip_hard = skip_hard
+end
+zl_best_operator = string.trim(zl_best_operator)
+
 -- log(findOne_interval,tap_interval)
 -- stop()
 -- fallback

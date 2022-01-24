@@ -95,8 +95,10 @@ round = math.round
 clip = function(x, minimum, maximum) return min(max(x, minimum), maximum) end
 
 -- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
-string.trim = function(s) return
-  s:match '^()%s*$' and '' or s:match '^%s*(.*%S)' end
+string.trim = function(s)
+  s = s or ''
+  return s:match '^()%s*$' and '' or s:match '^%s*(.*%S)'
+end
 
 string.count = function(str, pattern)
   local ans = 0
@@ -460,6 +462,7 @@ ssleep = function(x)
 end
 
 table.join = function(t, d)
+  t = t or {}
   d = not d and ',' or d
   local a = ''
   for i = 1, #t do
@@ -509,6 +512,8 @@ stop = function(msg)
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
   toast(msg)
+  -- captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+  --                         table.join(qqmessage, ' ') .. msg, QQ)
   home() -- 游戏长时间在前台时模拟器很卡
   exit()
 end
@@ -1201,7 +1206,13 @@ wait_game_up = function(retry)
   open()
   request_game_permission()
   screenon()
-  appear({"game", "keyguard_indication", "keyguard_input"}, 5)
+  local p = appear(
+              {"game", "keyguard_indication", "keyguard_input", "captcha2"}, 5)
+  if p:startsWith("captcha") then
+    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+                            table.join(qqmessage, ' ') .. "验证码", QQ)
+    stop("验证码")
+  end
   checkScreenLock()
   log("wait_game_up next", retry)
   disable_game_up_check = prev
@@ -1451,6 +1462,7 @@ end
 lock = Lock:new()
 
 captureqqimagedeliver = function(info, to)
+  if not to then return end
   io.open(getWorkPath() .. '/.nomedia', 'w')
   local img = getWorkPath() .. "/tmp.jpg"
   snapShot(img)
@@ -1550,7 +1562,7 @@ make_account_ui = function(layout, prefix)
   newRow(layout)
   addTextView(layout, "作战")
   ui.addEditText(layout, prefix .. "fight_ui",
-                 [[当期委托x5 活动8*8 9-10*2 9-19 4-4 4-9 JT8-3 PR-D-2 CE-5 LS-5 上一次]])
+                 [[当期委托x5 长期委托1*0 活动8*8 CA-5 9-10*2 JT8-3 PR-D-2 CE-5 LS-5 上一次]])
 
   newRow(layout)
   addTextView(layout, "最多吃")
@@ -1821,7 +1833,7 @@ show_main_ui = function()
   ui.addCheckBox(layout, "end_closeapp", "关闭游戏", false)
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
   newRow(layout)
-  addTextView(layout, "定时执行")
+  addTextView(layout, "定时启动")
   ui.addEditText(layout, "crontab_text", "8:00 16:00 24:00")
   -- ui.addCheckBox(layout, "crontab_enable", "启用", true)
   -- newRow(layout)
@@ -1842,7 +1854,7 @@ show_main_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[异形屏适配设为0，开基建退出提示。关游戏模式，关智能分辨率，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。有问题先看左下角必读。]])
+              [[开基建退出提示，异形屏适配设为0。关游戏模式，关智能分辨率，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。有问题先看左下角必读。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
@@ -2116,18 +2128,24 @@ show_extra_ui = function()
                 make_jump_ui_command(layout, nil,
                                      "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
 
-  addTextView(layout, [[选第]])
-  ui.addEditText(layout, "best_operator", [[1]])
-  addTextView(layout, [[个近卫]])
   newRow(layout)
-  ui.addCheckBox(layout, "skip_hard", "不打驯兽", true)
-  ui.addCheckBox(layout, "zl_more_experience", "多点经验", true)
+  addTextView(layout, [[选第]])
+  ui.addEditText(layout, "zl_best_operator", [[1]])
+  addTextView(layout, [[个近卫 开]])
+  ui.addEditText(layout, "zl_skill_times", [[0]])
+  addTextView(layout, [[次]])
+  ui.addEditText(layout, "zl_skill_idx", [[1]])
+  addTextView(layout, [[技能]])
+
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
+  ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", true)
   addTextView(layout, [[重启间隔(秒)]])
   ui.addEditText(layout, "zl_restart_interval", [[900]])
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。超过一次作战或者出现红色异常不打，7级临光、帕拉斯、羽毛笔可打驯兽，其他不行。“多点经验”会去下第二层。重开时会按“重启间隔”重启游戏与脚本，“重启间隔”不影响正常刷投资效率，只影响稳定性，甚至可设成0。连续8小时实测简单难度打驯兽效率为每小时42~67个，简单普通效率一致，推荐选简单。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可尝试设置“找色”为200，或换用其他设备与其他脚本。]])
+              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、帕拉斯1、羽毛笔1、山2、煌2、赫拉格2、史尔特尔2 可打简单驯兽。“重启间隔”不影响正常刷投资效率，只影响稳定性。连续8小时实测简单难度打驯兽效率为每小时40~80个，简单普通效率一致，但幕后筹备可能影响效率（大号效率是小号两倍）。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可设置“找色”为200，重启设备后再跑一次，还经常出现请换用其他设备与其他脚本。推荐genymotion安卓10模拟器。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2527,10 +2545,34 @@ predebug_hook = function()
   if not predebug then return end
   tap_interval = -1
   findOne_interval = -1
+  zl_skill_times = 100
 
   ssleep(1)
-  log(point.聘用候选人列表2)
-  log(findOne("聘用候选人列表2"))
+  -- log(point.技能ready)
+  -- log(findOne("技能ready"))
+  -- exit()
+
+
+  local p = findOne("技能亮")
+  local skill_times = 0
+  if p and skill_times < zl_skill_times then
+    skill_times = skill_times + 1
+    tap({p[1], p[2] + scale(200)})
+    appear("技能ready", 1)
+    wait(function()
+      tap("开技能")
+      if not findOne("技能ready") then return true end
+    end)
+  end
+  --
+  -- if p and skill_times < zl_skill_times then
+  --   skill_times = skill_times + 1
+  --   tap({p[1], p[2] + scale(200)})
+  --   ssleep(.5)
+  --   tap("开技能")
+  -- end
+  -- log(point.聘用候选人列表2)
+  -- log(findOne("聘用候选人列表2"))
   -- findTap("源石锭")
   -- tap_interval = 0
   -- tap({1586,scale(790)})
@@ -2910,9 +2952,9 @@ end
 update_state_from_ui = function()
   prefer_skill = true
   drug_times = 0
-  max_drug_times = tonumber(max_drug_times)
+  max_drug_times = str2int(max_drug_times, 0)
   stone_times = 0
-  max_stone_times = tonumber(max_stone_times)
+  max_stone_times = str2int(max_stone_times, 0)
   appid = server == 0 and oppid or bppid
   job = parse_from_ui("now_job_ui", all_job)
 
@@ -3191,7 +3233,7 @@ android.permission.WRITE_EXTERNAL_STORAGE]]
 end
 
 str2int = function(number, fallback)
-  return math.floor(tonumber(number) or fallback)
+  return math.floor(tonumber(string.trim(number)) or fallback)
 end
 
 -- string annotation to list

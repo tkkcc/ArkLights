@@ -22,8 +22,22 @@ oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  captcha = {id = 'com.hypergryph.arknights:id/gt3_wait_tv2'},
+  captcha2 = {
+    class = "android.webkit.WebView",
+    package = "com.hypergryph.arknights",
+  },
+  -- 技能ready = "1181|687|CBEC47,1191|697|FFFFFF,1203|708|CBEC47",
+  -- 技能ready = "1192|699|FFFFFF,1314|691|CBEC47,1180|689|CBEC47",
+  -- 技能ready = "1192|699|FFFFFF,1314|691|CBEC47,1180|689|CBEC47,1182|710|CBEC47",
+  技能ready = "1315|689|CBEC47,1308|685|CBEC47,1308|700|CBEC47,1320|685|CBEC47,1322|700|CBEC47",
+  -- "1192|699|FFFFFF,1314|691|CBEC47,1180|689|CBEC47",
+  开技能 = {1270, 600},
+  技能亮 = "958|316|FFD802,959|331|000000,959|344|FFD802,975|329|FFD802",
   源石锭 = "251|788|3A7258",
-  源石锭范围 = {0, 788, 1919, 789},
+  收藏品 = "251|788|9D6A21",
+  源石锭范围 = {0, 788, 1919, 790},
+  收藏品范围 = {0, 788, 1919, 790},
   战略二技能 = "525|831|00B3FD",
   我知道了 = "582|780|060606,948|1050|3F3F3F,942|906|E9E9E9,1332|822|060606",
   获得物资 = "959|942|262424,1031|84|8A8987,1007|144|8A8A8A,931|143|8A8A8A",
@@ -915,6 +929,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  开技能 = "center_center",
   诡意行商离开 = "right_center",
   战略二技能 = "left_center",
   我知道了 = "center_center",
@@ -1668,6 +1683,10 @@ rfg = {
   入驻干员 = point.入驻干员范围,
   第一干员卡片 = point.第一干员卡片范围,
   不要了 = point.不要了范围,
+  源石锭 = point.源石锭范围,
+  收藏品 = point.收藏品范围,
+  技能亮 = {0, 0, screen.width-1, screen.height-1},
+  技能ready = {0, 0, screen.width-1, screen.height-1},
 }
 
 rfl = {}
@@ -1680,14 +1699,21 @@ update_rfl = function()
       rfl[k] = point2region(v)
       first_point[k] = {rfl[k][1], rfl[k][2]}
     elseif type(v) == "string" and v:find(coord_delimeter) and rfg[k] then
-      -- log(1410,v)
+      -- log(1410,k,v)
 
       v = point2relative(v)
       first_color[k] = v:match("%d+" .. coord_delimeter .. "%d+" ..
                                  coord_delimeter .. "(......)")
-      point[k] = v:match("[^" .. point_delimeter .. "+]" .. point_delimeter ..
-                           "(.+)"):map({[","] = '|'})
+      log(v)
+      if v:find(point_delimeter) then
+        point[k] = v:match("[^" .. point_delimeter .. "+]" .. point_delimeter ..
+                             "(.+)"):map({[","] = '|'})
+      else
+        point[k] = ''
+      end
+
       -- log(1411,point[k],first_color[k])
+      --
     end
   end
 end
