@@ -1754,17 +1754,30 @@ hotUpdate = function()
   toast("正在检查更新...")
   if disable_hotupdate then return end
   local url = 'https://gitee.com/bilabila/arknights/raw/master/script.lr'
-  local newPath = getWorkPath() .. '/newscript.lr'
-  if downloadFile(url, newPath) == -1 then
-    toast("更新失败")
+  local md5url = url .. '.md5'
+  local path = getWorkPath() .. '/newscript.lr'
+  local md5path = path .. '.md5'
+  if downloadFile(md5url, md5path) == -1 then
+    toast("下载校验数据失败")
     return
   end
-  if fileMD5(newPath) == loadConfig("lr_md5", "") then
+  io.input(md5path)
+  local expectmd5 = io.read() or '1'
+  if expectmd5 == loadConfig("lr_md5", "2") then
     toast("已经是最新版")
     return
   end
-  installLrPkg(newPath)
-  saveConfig("lr_md5", fileMD5(newPath))
+  if downloadFile(url, path) == -1 then
+    toast("下载最新脚本失败")
+    return
+  end
+  if fileMD5(path) ~= expectmd5 then
+    toast("脚本校验失败")
+    return
+  end
+
+  installLrPkg(path)
+  saveConfig("lr_md5", expectmd5)
   -- toast("已更新至最新")
   return restartScript()
 end
@@ -2497,7 +2510,7 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8","HD-9",
+    "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8", "HD-9",
     -- "break",
     -- "1-7", "1-7", "CE-5", "LS-5",
 
@@ -2984,7 +2997,7 @@ update_state_from_ui = function()
       fight[k] = extrajianpin2name[v]
     end
     log(2729, v)
-    if table.find({'活动', "WR","IW"}, startsWithX(v)) then
+    if table.find({'活动', "WR", "IW"}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       fight[k] = "HD-" .. (idx or '')
       log(2731, v, idx)

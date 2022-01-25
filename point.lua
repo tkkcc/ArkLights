@@ -1707,7 +1707,7 @@ update_rfl = function()
       v = point2relative(v)
       first_color[k] = v:match("%d+" .. coord_delimeter .. "%d+" ..
                                  coord_delimeter .. "(......)")
-      log(v)
+      -- log(v)
       if v:find(point_delimeter) then
         point[k] = v:match("[^" .. point_delimeter .. "+]" .. point_delimeter ..
                              "(.+)"):map({[","] = '|'})

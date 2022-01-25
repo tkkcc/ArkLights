@@ -42,8 +42,10 @@
     cp /F:/software/懒人精灵3.6.0/out/main.lr script.lr
     # cp /F:/software/懒人精灵3.6.0/tmp/明日方舟速通.apk .
     numfmt --to=iec $(stat -c %s script.lr)
-    git add -u
-    git commit --amend --date=now -m "$(md5sum script.lr | cut -d' ' -f1)"
+    local md5=$(md5sum script.lr | cut -d' ' -f1)
+    echo $md5 > script.lr.md5
+    git add -A
+    git commit --amend --date=now -m "$md5"
     git push --force
   }
   stop() {
