@@ -19,9 +19,14 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 oppid = "com.hypergryph.arknights"
+if use_zhuzhu_game then
+  oppid = "com.hypergryph.arknightss"
+end
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  活动导航1 = "166|188|C3F4FC,199|164|313A52",
+  活动导航2 = "1520|877|FFE1A9",
   captcha = {id = 'com.hypergryph.arknights:id/gt3_wait_tv2'},
   captcha2 = {
     class = "android.webkit.WebView",
@@ -47,8 +52,6 @@ point = {
   -- 下载资源确认 = "987|671|1D6687,1268|671|1D6687,1340|671|313131",
   --- 画中人导航
   -- 活动导航1 = "832|1030|0C181A,1084|913|DFD7C1,1120|1012|927F5F",
-  活动导航1 = "832|1030|0C181A,1084|913|DFD7C1",
-  活动导航2 = "1778|840|B57434,1821|494|3C3C3C",
 
   --- 肉鸽
   选择分队 = "935|93|CE9320",
@@ -574,16 +577,16 @@ point = {
     ["PR-C-0"] = "666|595|000000,672|612|FFFFFF,511|597|000000,672|636|FFFFFF",
     ["PR-D-0"] = "689|628|000000,693|646|FFFFFF,537|626|000000,699|671|FFFFFF",
 
-    ["HD-10"] = {960, 575},
-    ["HD-9"] = {960, 395},
-    ["HD-8"] = {960, 575},
-    ["HD-7"] = {960, 757},
-    ["HD-6"] = {960, 575},
-    ["HD-5"] = {960, 575},
-    ["HD-4"] = {960, 757},
-    ["HD-3"] = {960, 575},
-    ["HD-2"] = {960, 395},
-    ["HD-1"] = {960, 575},
+    -- ["HD-10"] = {960, 575},
+    ["HD-9"] = {960, 320},
+    ["HD-8"] = {960, 541},
+    ["HD-7"] = {960, 680},
+    ["HD-6"] = {960, 799},
+    ["HD-5"] = {960, 790},
+    ["HD-4"] = {960, 781},
+    ["HD-3"] = {960, 361},
+    ["HD-2"] = {960, 361},
+    ["HD-1"] = {863, 679},
 
     ["0-1"] = {960, 500},
     ["0-3"] = {960, 500},
@@ -1282,15 +1285,15 @@ center = {
 
 distance = {
   ["HD-1"] = {swip_right_max},
-  ["HD-2"] = {swip_right_max, -450},
-  ["HD-3"] = {swip_right_max, -650},
-  ["HD-4"] = {swip_right_max, -800},
-  ["HD-5"] = {swip_right_max, -950},
-  ["HD-6"] = {swip_right_max, -1250},
-  ["HD-7"] = {swip_right_max, -1300},
-  ["HD-8"] = {swip_right_max, -1500},
-  ["HD-9"] = {swip_right_max, -1700},
-  ["HD-10"] = {swip_right_max, -1850},
+  ["HD-2"] = {swip_right_max, -150},
+  ["HD-3"] = {swip_right_max, -500},
+  ["HD-4"] = {swip_right_max, -700},
+  ["HD-5"] = {swip_right_max, -1100},
+  ["HD-6"] = {swip_right_max, -1500},
+  ["HD-7"] = {swip_right_max, -1800},
+  ["HD-8"] = {swip_right_max, -2000},
+  ["HD-9"] = {swip_right_max, -2300},
+  -- ["HD-10"] = {swip_right_max, -1850},
 
   ["chapter5"] = {1000},
   right = swip_right_max,

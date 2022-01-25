@@ -2497,7 +2497,7 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
+    "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8","HD-9",
     -- "break",
     -- "1-7", "1-7", "CE-5", "LS-5",
 
@@ -2548,10 +2548,11 @@ predebug_hook = function()
   zl_skill_times = 100
 
   ssleep(1)
+  swip("HD-2")
+  exit()
   -- log(point.技能ready)
-  -- log(findOne("技能ready"))
-  -- exit()
-
+  log(findOne("返回确认界面"))
+  exit()
 
   local p = findOne("技能亮")
   local skill_times = 0
@@ -2983,7 +2984,7 @@ update_state_from_ui = function()
       fight[k] = extrajianpin2name[v]
     end
     log(2729, v)
-    if table.find({'活动', "WR"}, startsWithX(v)) then
+    if table.find({'活动', "WR","IW"}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       fight[k] = "HD-" .. (idx or '')
       log(2731, v, idx)
@@ -2991,7 +2992,7 @@ update_state_from_ui = function()
   end
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
-  hd_open_time_end = parse_time("202201200400")
+  hd_open_time_end = parse_time("202202080400")
   all_open_time_start = parse_time("202111221600")
   all_open_time_end = parse_time("202112060400")
   update_open_time()

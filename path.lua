@@ -3134,11 +3134,11 @@ path.前瞻投资 = function()
   end, 10)
   appear("生命值")
 
-  -- 超时作战不对劲
+  -- 超时作战不对劲 超15分钟
   local last_time_see_life = time()
   local skill_times = 0
   if not wait(function()
-    if findOne("返回确认界面") then tap("右右确认") end
+    if findOne("返回确认界面") then tap("左取消") end
     if findOne("生命值") then last_time_see_life = time() end
     -- 超过3秒没看到生命值
     if time() - last_time_see_life > 3000 then return true end
@@ -3153,8 +3153,7 @@ path.前瞻投资 = function()
         if not findOne("技能ready") then return true end
       end)
     end
-    disappear("生命值", 1)
-  end, 300) then return end
+  end, 900) then return closeapp(appid) end
 
   local last_swip_time = time()
   if not wait(function()
@@ -3165,7 +3164,7 @@ path.前瞻投资 = function()
         local p2 = findOne("收藏品")
         tap(p2)
         tap(p1)
-        log(3168,p1,p2)
+        log(3168, p1, p2)
         if not p or findOne("战略帮助") then return true end
         tap({p[1] + scale(765 - 668), scale(789)})
         ssleep(.1)
