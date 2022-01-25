@@ -13,7 +13,7 @@
 -- debug = true
 -- disable_log = true
 -- unsafe_tap = true
---
+
 zero_wait_click = true
 check_after_tap = true
 crontab_enable = true
@@ -43,7 +43,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.01.25 18:23"
+release_date = "2022.01.25 21:45"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2

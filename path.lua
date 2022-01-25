@@ -10,6 +10,7 @@ path = {}
 path.base = {
   面板 = true,
   下载资源确认 = "下载资源确认",
+  资源下载确定 = "资源下载确定",
   start黄框 = function()
     wait(function()
       tap("保持配音")
@@ -99,6 +100,7 @@ path.base = {
 
     -- current fight success
     pre_fight = cur_fight
+    fight_failed_times[cur_fight] = 0
 
     -- if same fight or same page fight
     local next_fight_tick = fight_tick % #fight + 1
@@ -141,6 +143,9 @@ path.base = {
 
 path.bilibili_login = {
   bgame = true,
+  bilibili_license_ok = function()
+    tap("bilibili_license_ok")
+  end,
   bilibili_phone_inputbox = function()
     -- 把输入法关了
     wait(function()
@@ -209,6 +214,7 @@ path.fallback = {
     tap("战略返回")
     appear("常规行动", 2)
   end,
+  签到返回黄 = function() return path.fallback.签到返回() end,
   签到返回 = function()
     local x
     local last_time_tap_return = time()
@@ -288,22 +294,26 @@ path.fallback = {
     --   findTap("行动结束")
     -- end, 10) then stop(217) end
   end,
+  限时幸运签 = function()
+    tapAll(point.限时幸运签列表)
+    tap("限时幸运签抽取")
+    return path.fallback.签到返回()
+  end,
   限时开放许可 = function()
     wait(function() tap("开始作业") end, 1)
     wait(function()
       if findOne("面板") then return true end
-      tap("基建右上角")
+      tap("开包skip")
     end, 10)
-    disappear("面板", 1)
+    -- disappear("面板", 1)
   end,
   感谢庆典返回 = function()
     wait(function() tap("感谢典点击领取") end, 1)
     wait(function()
       if findOne("面板") then return true end
-      tap("基建右上角")
-    end, 4)
-    disappear("面板", 1)
-
+      tap("开包skip")
+    end, 10)
+    -- disappear("面板", 1)
   end,
   返回 = function()
     local x = findAny({
@@ -328,14 +338,44 @@ path.fallback = {
 path.限时活动 = function(retry)
   -- 只包含主页红点
   retry = retry or 0
-  if retry > 3 then return end
+  if retry > 5 then return end
   path.跳转("首页")
   if findOne("面板限时活动") then
     tap("面板限时活动")
-    appear({'活动签到返回', '抽签返回'})
+    appear({
+      '活动签到返回', '抽签返回', '感谢庆典返回',
+      '限时开放许可', "限时幸运签",
+    })
+  elseif findOne("面板限时活动2") then
+    tap("面板限时活动2")
+    appear({
+      '活动签到返回', '抽签返回', '感谢庆典返回',
+      '限时开放许可', "限时幸运签",
+    })
+  elseif findOne("面板赠送一次") then
+    tap("面板干员寻访")
+    if not appear("赠送一次") then return end
+    if not wait(function()
+      if not findOne("赠送一次") then return true end
+      tap("寻访一次")
+    end, 10) then return end
+    if not appear("返回确认界面") then return end
+    if not wait(function()
+      if not findOne("返回确认界面") then return true end
+      tap("右右确认")
+    end, 2) then return end
+    appear("主页", 2)
+    disappear("主页", 10)
+    if not wait(function()
+      if findOne("主页") then return true end
+      tap("开包skip")
+    end, 15) then return end
   end
+
   path.跳转("首页")
-  if findOne("面板限时活动") then return path.限时活动(retry + 1) end
+  if findAny({"面板限时活动", "面板限时活动2", "面板赠送一次"}) then
+    return path.限时活动(retry + 1)
+  end
 end
 
 path.邮件收取 = function()
@@ -587,6 +627,7 @@ end
 
 -- 对于单个用户的不同任务
 update_state = function()
+  fight_failed_times = {}
   zero_san = false
 
   local day = (parse_time() - start_time) // (24 * 3600)
@@ -1536,6 +1577,10 @@ path.轮次作战 = function()
     log(820, fight, fight_tick)
     pre_fight = nil
     path.作战(fight[fight_tick])
+
+    -- 导航失败2次就删除
+    fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
+    if fight_failed_times[cur_fight] > 1 then clean_fight(cur_fight) end
   end
 end
 
@@ -2080,7 +2125,14 @@ path.活动 = function(x)
   end
   path.跳转("首页")
   tap("面板作战活动上")
-  if not appear("活动导航1", 10) then return end
+  wait(function()
+    if findOne("活动导航1") then return true end
+    if findOne("跳过剧情") then
+      tap("跳过剧情")
+      ssleep(.5)
+      tap("跳过剧情确认")
+    end
+  end, 10)
   if not wait(function()
     tap("活动导航2")
     if not findOne("活动导航1") then return true end
@@ -2109,9 +2161,12 @@ path["1-11"] = function()
   end, 5) then return end
   if not appear("跳过剧情", 20) then return end
   ssleep(.5)
-  tap("跳过剧情")
-  ssleep(.5)
-  tap("跳过剧情确认")
+
+  if findOne("跳过剧情") then
+    tap("跳过剧情")
+    ssleep(.5)
+    tap("跳过剧情确认")
+  end
 
   -- start
   ssleep(23)
