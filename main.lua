@@ -13,7 +13,6 @@
 -- debug = true
 -- disable_log = true
 -- unsafe_tap = true
-
 zero_wait_click = true
 check_after_tap = true
 crontab_enable = true
@@ -43,7 +42,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.01.25 21:45"
+release_date = "2022.01.27  2:11"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -77,21 +76,21 @@ zl_restart_interval = str2int(zl_restart_interval, math.huge)
 zl_skill_times = str2int(zl_skill_times, 0)
 zl_skill_idx = str2int(zl_skill_idx, 1)
 
-if best_operator then
-  zl_best_operator = best_operator
-  zl_skip_hard = skip_hard
-end
-zl_best_operator = string.trim(zl_best_operator)
+-- if best_operator then
+--   zl_best_operator = best_operator
+--   zl_skip_hard = skip_hard
+-- end
+-- zl_best_operator = string.trim(zl_best_operator)
 
 -- log(findOne_interval,tap_interval)
 -- stop()
 -- fallback
-if type(username1) == 'string' and #username1 > 0 and type(dual_server) ==
-  "boolean" then
-  stop("多账号已改版，注意重新设置")
-elseif type(dual_server) == "boolean" then
-  toast("多账号已改版，注意重新设置")
-end
+-- if type(username1) == 'string' and #username1 > 0 and type(dual_server) ==
+--   "boolean" then
+--   stop("多账号已改版，注意重新设置")
+-- elseif type(dual_server) == "boolean" then
+--   toast("多账号已改版，注意重新设置")
+-- end
 
 if not always_enable_log and not ui_enable_log then disable_log = true end
 -- milesecond_after_click = tonumber(click_interval) or milesecond_after_click
@@ -101,7 +100,8 @@ transfer_global_variable("multi_account_user1", "multi_account_user0")
 -- 多帐号模式
 if not crontab_enable_only and not extra_mode and multi_account_enable then
   multi_account_choice = expand_number_config(multi_account_choice)
-  for _, i in pairs(multi_account_choice) do
+  for idx, i in pairs(multi_account_choice) do
+    multi_account_choice_idx = idx
     account_idx = i
     username = _G["username" .. i]
     password = _G["password" .. i]
@@ -125,6 +125,12 @@ elseif not crontab_enable_only then
   update_state_from_ui()
   test_fight_hook()
   extra_mode_hook()
+  if debug then
+    log(getUIConfigPath("main"))
+    log(fight)
+    log(job)
+    stop(130)
+  end
   run(job)
 end
 

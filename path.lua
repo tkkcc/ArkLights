@@ -19,8 +19,14 @@ path.base = {
     end)
   end,
   start黄框暗 = function() return path.base["start黄框"]() end,
-  账号登录 = "账号登录",
-  开始唤醒 = "开始唤醒",
+  账号登录 = function()
+    check_login_frequency()
+    tap("账号登录")
+  end,
+  开始唤醒 = function()
+    check_login_frequency()
+    tap("开始唤醒")
+  end,
   手机验证码登录 = function()
     if appid ~= oppid then return end
     if #username > 0 then
@@ -59,11 +65,17 @@ path.base = {
 
     appear("手机验证码登录")
 
+    -- local login_error_times = 0
     wait(function()
-      if appear({"用户名或密码错误", "密码不能为空"}, 0.5) then
-        login_error_times = (login_error_times or 0) + 1
-        if login_error_times > 10 then stop("登录失败34") end
+      local p = appear({
+        "用户名或密码错误", "密码不能为空", "captcha", "captcha2",
+      }, 1)
+      if p then
+        if p:startsWith("captcha") then wait_game_up() end
         return true
+        -- login_error_times = (login_error_times or 0) + 1
+        -- if login_error_times > 10 then stop("登录失败34", true) end
+        -- return true
       end
       tap("登录")
     end, 5)
@@ -143,9 +155,7 @@ path.base = {
 
 path.bilibili_login = {
   bgame = true,
-  bilibili_license_ok = function()
-    tap("bilibili_license_ok")
-  end,
+  bilibili_license_ok = function() tap("bilibili_license_ok") end,
   bilibili_phone_inputbox = function()
     -- 把输入法关了
     wait(function()
@@ -171,7 +181,7 @@ path.bilibili_login = {
       input("bilibili_password_inputbox", password)
     end
     tap("bilibili_login")
-    disappear("bilibili_login", 5)
+    if not disappear("bilibili_login", 5) then stop("登录失败35", true) end
   end,
   bilibili_oneclicklogin = function()
     tap("bilibili_oneclicklogin")
@@ -2246,15 +2256,20 @@ end
 
 path.访问好友 = function()
   if communication_enough then return end
+  log(2253)
   path.跳转("好友")
+  log(2254)
   if not wait(function()
-    if findOne("好友列表") then return true end
     tap('好友列表')
-  end, 5) then return end
-  if not wait(function()
-    if not findOne("主页") then return true end
+    if findOne("好友列表") then return true end
+  end, 10) then return end
+  log(2255)
+  wait(function()
     tap('访问基建')
-  end, 5) then return end
+    if findAny({"访问下位灰", "访问下位橘"}) then return true end
+    -- if not findOne("好友列表") then return true end
+  end, 10)
+  log(2256)
   if speedrun then
     disappear("正在提交反馈至神经", 20)
     appear("主页", 5)
@@ -2276,6 +2291,7 @@ path.访问好友 = function()
     end
     tap("访问下位橘")
   end, 60) then return end
+  log(2257)
 end
 
 path.公招刷新 = function()
@@ -2329,7 +2345,9 @@ path.公招刷新 = function()
           log(1052)
           -- disappear("公开招募", 1)
         end
-      end, 10) then return end
+      end, 15) then return end
+      appear("主页", 2)
+      disappear("主页", 10)
       -- 聘用
       if not wait(function()
         if findOne("公开招募") and findOne("主页") then return true end

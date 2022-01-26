@@ -507,13 +507,14 @@ end
 
 open = function() runApp(appid) end
 
-stop = function(msg)
+stop = function(msg, try_next_account)
   msg = msg or ''
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
   toast(msg)
-  -- captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-  --                         table.join(qqmessage, ' ') .. msg, QQ)
+  captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+                          table.join(qqmessage, ' ') .. msg, QQ)
+  if try_next_account then restart_next_account() end
   home() -- 游戏长时间在前台时模拟器很卡
   exit()
 end
@@ -1208,12 +1209,22 @@ wait_game_up = function(retry)
   screenon()
   local p = appear(
               {"game", "keyguard_indication", "keyguard_input", "captcha2"}, 5)
-  if p:startsWith("captcha") then
-    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                            table.join(qqmessage, ' ') .. "验证码", QQ)
-    stop("验证码")
+
+  if p and p:startsWith("captcha") then
+    local msg =
+      "请在1分钟内手动滑动验证码，超时将暂时跳过该账号"
+    -- captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+    --                         table.join(qqmessage, ' ') .. msg, QQ)
+    toast(msg)
+    if not disappear("captcha2", 60) then
+      back()
+      if not disappear("captcha2", 5) then closeapp(appid) end
+      stop("验证码", true)
+    end
   end
+  log(1212)
   checkScreenLock()
+  log(1213)
   log("wait_game_up next", retry)
   disable_game_up_check = prev
   return wait_game_up(retry + 1)
@@ -1562,7 +1573,7 @@ make_account_ui = function(layout, prefix)
   newRow(layout)
   addTextView(layout, "作战")
   ui.addEditText(layout, prefix .. "fight_ui",
-                 [[当期委托x5 长期委托1*0 活动8*8 CA-5 9-10*2 JT8-3 PR-D-2 CE-5 LS-5 上一次]])
+                 [[当期委托x5 长期委托1*5 活动6*99 CA-5 9-10*2 JT8-3 PR-D-2 CE-5 LS-5 上一次]])
 
   newRow(layout)
   addTextView(layout, "最多吃")
@@ -1763,6 +1774,7 @@ hotUpdate = function()
   end
   io.input(md5path)
   local expectmd5 = io.read() or '1'
+  io.close()
   if expectmd5 == loadConfig("lr_md5", "2") then
     toast("已经是最新版")
     return
@@ -1958,6 +1970,9 @@ show_help_ui = function()
   addTextView(layout, [[
 Q&A
 
+Q：基建反复进入退出？
+A：基建退出提示要开。
+
 Q：怎么用？
 A：脚本主界面上方为“任务开始前的设置”，中间为“需要执行的任务”，下方为“任务完成后的设置”，底部为“更多功能”。勾选任务，然后点启动。
 
@@ -1965,7 +1980,7 @@ Q：怎么刷关卡？
 A：勾选“轮次作战”任务，修改“作战”设置，启动。作战将依次执行，跳过无效关，到末尾后再从头开始。
 
 Q：作战设置格式？
-A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 活动8*10 CA-5*1 9-10 上一次x0”，表示5次新剿灭+10次活动关+1次CA-5+1次9-10。
+A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 长期委托1*5 活动6*99 CA-5*1 9-10 上一次x0”，表示5次剿灭+99次活动+1次CA-5+1次9-10。
 
 Q：合成玉满了还会继续刷吗？
 A：不会，任何作战开始前（包括上一次）都会判断合成玉是否已满，已满则所有剿灭无效。
@@ -1980,13 +1995,13 @@ Q：怎么只刷上一次？
 A：勾选“轮次作战”，作战设置填“上一次”，启动
 
 Q：新剿灭没打，只能打切尔诺伯格？
-A：勾选“轮次作战”，作战设置里“当期委托”改成“长期委托X”（X按每个号的情况来，如“长期委托1”），启动
+A：勾选“轮次作战”，作战设置里填“长期委托X”（X按每个号的情况来，如“长期委托1”），启动
 
 Q：作战设置不能修改？
 A：别开懒人输入法。
 
-Q：DQWT、LMSQ、HD、SYC是什么意思？
-A：当期委托、龙门市区、活动、上一次的首字母简拼
+Q：DQWT、CQWT1、LMSQ、HD、SYC是什么意思？
+A：当期委托、长期委托1、龙门市区、活动、上一次的首字母简拼
 
 Q：当期委托是什么意思？
 A：当期委托是新剿灭
@@ -1996,9 +2011,6 @@ A：
 法1. 勾选“轮次作战”，作战设置里写“活动8”或“活动-8”或“HD-8”，启动。活动关闭期间会跳过。
 法2. 作战设置填“上一次”，然后手动刷一次活动关再启动。
 法3. 在活动关代理指挥中启动脚本，脚本将优先重复刷当前关。
-
-Q：基建反复进入退出？
-A：基建退出提示要开。
 
 Q：换班产率太低？
 A：“极速”换班以最快放满干员为目标，不考虑干员技能。“高产”换班考虑单站最优技能组合，忽略其他站干员技能加成（如迷迭香、焰尾、森蚺），忽略“意识协议”技能效果。“高产”换班还在开发，建议尝试其他脚本，详见github项目主页。
@@ -2026,7 +2038,7 @@ A：优先给缺线索且今日登录的好友。
 
 Q：通知QQ有什么用？
 A：任务完成后，机器人将把首页截图与可招募标签发给QQ。一般与 定时任务+云手机/模拟器/备用机 配合使用，这样平时只需检查聊天记录，无需接触游戏。
-    
+
 Q：通知QQ无效？
 A：一是分辨率过高导致截图超过10M被服务端拒绝，二是机器人仍然无法向你发消息，可以加反馈群，机器人能以“群临时会话”方式向你发消息。
 
@@ -2109,11 +2121,21 @@ A：短时间内多次登陆时出现。正在接入解法。
 Q：卡在制造站干员选择界面？
 A：别用“高产”换班。
 
-Q：无限循环启动/无限重启？
+Q：无限循环启动/无限重启/24小时刷？
 A：定时任务写“+0:00”。
 
 Q：能不能一键重启？
 A：悬浮按钮最上方的那一个。
+
+Q：模拟器屏幕颠倒/旋转/竖屏
+A：符合预期，模拟器设置里如果有“强制横屏”可以尝试开。
+
+Q：多账号密码错误处理
+A：官服登录出验证码/B服登录失败时会跳过该账号，请配合QQ通知使用。
+
+Q：单账号密码错误处理
+A：等待10分钟后重试，请配合QQ通知使用。
+
 ]])
 
   --   newRow(layout)
@@ -2376,13 +2398,15 @@ getUIConfigPath = function(layout)
   return getWorkPath() .. '/config_' .. layout .. '.json'
 end
 
-loadUIConfig = function(page)
-  for _, layout in pairs({"main", "multi_account", "gesture_capture", "extra"}) do
+loadUIConfig = function()
+  for _, layout in pairs({"multi_account", "gesture_capture", "extra", "main"}) do
     local config = getUIConfigPath(layout)
     if fileExist(config) then
       log("load", config)
       io.input(config)
-      assignGlobalVariable(JsonDecode(io.read() or '{}'))
+      local content = io.read() or '{}'
+      io.close()
+      assignGlobalVariable(JsonDecode(content) or {})
     end
   end
 end
@@ -2429,6 +2453,7 @@ input = function(selector, text)
   if not node then return end
   for _, n in pairs(node) do nodeLib.setText(n, text) end
 end
+input = disable_game_up_check_wrapper(input)
 
 enable_accessibility_service = function()
   if isAccessibilityServiceRun() then return end
@@ -2567,7 +2592,7 @@ predebug_hook = function()
   -- log(findOne("面板赠送一次"))
 
   -- log(findOne("主页"))
-      -- tap("开包skip")
+  -- tap("开包skip")
   -- tap("开包skip")
   -- tap("跳过剧情")
   -- ssleep(.5)
@@ -3009,11 +3034,11 @@ update_state_from_ui = function()
     if table.includes(table.keys(extrajianpin2name), v) then
       fight[k] = extrajianpin2name[v]
     end
-    log(2729, v)
+    -- log(2729, v)
     if table.find({'活动', "WR", "IW"}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       fight[k] = "HD-" .. (idx or '')
-      log(2731, v, idx)
+      -- log(2731, v, idx)
     end
   end
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
@@ -3058,7 +3083,9 @@ apply_multi_account_setting = function(i, visited)
   visited = visited or {}
   table.insert(visited, i)
   if _G["multi_account_inherit_toggle" .. i] == "默认设置" then
-    local inherit = _G["multi_account_inherit_spinner" .. i]
+    -- local inherit = _G["multi_account_inherit_spinner" .. i]
+    local inherit = 0
+
     local j = math.floor(inherit)
     if inherit == 0 or table.includes(visited, j) then
       transfer_global_variable("multi_account_user0")
@@ -3303,7 +3330,40 @@ restart_mode = function(mode)
   restartScript()
 end
 
+restart_next_account = function()
+  -- 只在多账号模式启用跳过账号
+  if not account_idx then
+    ssleep(600) -- 10分钟后再试
+    return
+  end
+
+  -- closeapp(appid)
+  -- 插入当前号
+  -- table.insert(multi_account_choice, account_idx)
+  log(3322, multi_account_choice, multi_account_choice_idx, account_idx)
+  -- 跳过一样的号
+  while multi_account_choice[multi_account_choice_idx] == account_idx do
+    multi_account_choice_idx = multi_account_choice_idx + 1
+  end
+  -- 截取之后的号，可能为空
+  multi_account_choice = table.slice(multi_account_choice,
+                                     multi_account_choice_idx)
+
+  log(3323, multi_account_choice, multi_account_choice_idx, account_idx)
+
+  saveConfig("restart_mode_hook", "multi_account_choice=[[" ..
+               table.join(multi_account_choice, ' ') .. "]]")
+  log(3324, loadConfig("restart_mode_hook", ''))
+  saveConfig("hideUIOnce", "true")
+  restartScript()
+end
+
 restart_mode_hook = function()
   load(loadConfig("restart_mode_hook", ''))()
   saveConfig("restart_mode_hook", '')
+end
+
+check_login_frequency = function()
+  -- TODO
+
 end
