@@ -1864,13 +1864,6 @@ show_main_ui = function()
   -- newRow(layout)
   -- addTextView(layout, "点击间隔(毫秒)")
   -- ui.addEditText(layout, "click_interval", "")
-  newRow(layout)
-  ui.addCheckBox(layout, "ui_enable_log", "日志", false)
-  ui.addCheckBox(layout, "debug", "调试", false)
-  addTextView(layout, "点击")
-  ui.addEditText(layout, "tap_interval", "")
-  addTextView(layout, "找色")
-  ui.addEditText(layout, "findOne_interval", "")
 
   -- ui.addEditText(layout, "enable_log", "")
 
@@ -1879,7 +1872,7 @@ show_main_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[开基建退出提示，异形屏适配设为0。关游戏模式，关智能分辨率，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。有问题先看左下角必读。]])
+              [[开基建退出提示，异形屏适配设为0。关游戏模式，关智能分辨率，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。有问题看必读。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
@@ -1902,15 +1895,13 @@ show_main_ui = function()
     --   layout .. "qqgroup", "反馈群",
     --   make_jump_ui_command(layout, nil, "jump_qqgroup()"),
     -- },
-    {layout .. "extra", "其他功能", make_jump_ui_command(layout, "extra")},
+    {layout .. "_extra", "其他功能", make_jump_ui_command(layout, "extra")},
+    {layout .. "_help", "必读", make_jump_ui_command(layout, "help")},
     {
-      layout .. "help" .. release_date, "必读",
-      make_jump_ui_command(layout, "help"),
-    },
-    {
-      layout .. "stop", "退出",
+      layout .. "_stop", "退出",
       make_jump_ui_command(layout, nil, "peaceExit()"),
     },
+    {layout .. "_debug", "调试设置", make_jump_ui_command(layout, "debug")},
     -- {
     --   layout .. "demo", "视频演示",
     --   make_jump_ui_command(layout, nil, "jump_bilibili()"),
@@ -2141,6 +2132,27 @@ A：等待10分钟后重试，请配合QQ通知使用。
   --   newRow(layout)
   --   addTextView(layout, [[
   -- ]])
+
+  ui.show(layout, false)
+end
+
+show_debug_ui = function()
+  local layout = "debug"
+  ui.newLayout(layout, ui_page_width, -2)
+  ui.setTitleText(layout, "调试设置")
+
+  newRow(layout)
+  ui.addButton(layout, layout .. "_stop", "返回")
+  ui.setBackground(layout .. "_stop", ui_cancel_color)
+  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+
+  newRow(layout)
+  ui.addCheckBox(layout, "ui_enable_log", "日志", true)
+  ui.addCheckBox(layout, "debug", "调试", false)
+  addTextView(layout, "点击")
+  ui.addEditText(layout, "tap_interval", "")
+  addTextView(layout, "找色")
+  ui.addEditText(layout, "findOne_interval", "")
 
   ui.show(layout, false)
 end
@@ -2453,7 +2465,7 @@ input = function(selector, text)
   if not node then return end
   for _, n in pairs(node) do nodeLib.setText(n, text) end
 end
-input = disable_game_up_check_wrapper(input)
+-- input = disable_game_up_check_wrapper(input)
 
 enable_accessibility_service = function()
   if isAccessibilityServiceRun() then return end
@@ -2586,6 +2598,12 @@ predebug_hook = function()
   zl_skill_times = 100
 
   ssleep(1)
+  tap("面板作战")
+  -- tap("返回")
+  --   if findOne("暂停中") then
+  --   tap("开包skip")
+  --   disappear("暂停中")
+  -- end
   -- log(findOne("game"))
   -- log(findOne("限时开放许可"))
   -- log(point["面板赠送一次"])

@@ -27,7 +27,7 @@ path.base = {
     check_login_frequency()
     tap("开始唤醒")
   end,
-  手机验证码登录 = function()
+  手机验证码登录 = disable_game_up_check_wrapper(function()
     if appid ~= oppid then return end
     if #username > 0 then
       if not wait(function()
@@ -55,7 +55,7 @@ path.base = {
       end, 10) then return end
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
-      -- if debug then toast(password) end
+      if debug then toast(password) end
       input("inputbox", password)
       -- ssleep(.5) -- 等待输入法弹出
       tap('okbutton')
@@ -79,7 +79,7 @@ path.base = {
       end
       tap("登录")
     end, 5)
-  end,
+  end),
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then
       stop("正在释放神经递质")
@@ -306,6 +306,7 @@ path.fallback = {
   end,
   限时幸运签 = function()
     tapAll(point.限时幸运签列表)
+    ssleep(.25)
     tap("限时幸运签抽取")
     return path.fallback.签到返回()
   end,
@@ -374,7 +375,7 @@ path.限时活动 = function(retry)
       if not findOne("返回确认界面") then return true end
       tap("右右确认")
     end, 2) then return end
-    appear("主页", 2)
+    appear("主页", 1)
     disappear("主页", 10)
     if not wait(function()
       if findOne("主页") then return true end
@@ -383,9 +384,9 @@ path.限时活动 = function(retry)
   end
 
   path.跳转("首页")
-  if findAny({"面板限时活动", "面板限时活动2", "面板赠送一次"}) then
-    return path.限时活动(retry + 1)
-  end
+  -- 需要点时间才能找到 面板限时活动2
+  if appear({"面板限时活动", "面板限时活动2", "面板赠送一次"},
+            .5) then return path.限时活动(retry + 1) end
 end
 
 path.邮件收取 = function()
@@ -398,10 +399,10 @@ path.邮件收取 = function()
 
   -- 卡在邮件的获取
   wait(function()
-    if findAny({"开始唤醒", "面板", "公告返回", "签到返回"}) then
+    if findAny({"开始唤醒", "账号登录", "返回确认3"}) then
       return true
     end
-    tap("返回")
+    back()
   end, 5)
 end
 
@@ -1507,8 +1508,8 @@ path.信用购买 = function()
     if not wait(function()
       if not findOne("信用交易所横线") then return true end
       tap("信用交易所列表" .. i)
-      -- 快速点击物品导致二次弹出 或 弹不出
-      disappear("信用交易所横线", .1)
+      -- 快速点击物品将导致购买界面消失
+      disappear("信用交易所横线", 1)
     end, 5) then return end
 
     if not wait(function()
@@ -2101,6 +2102,7 @@ path.剿灭 = function(x)
     if not wait(function()
       if not findOne("当前委托侧边栏") then return true end
       tap("作战列表" .. x)
+      disappear("当前委托侧边栏")
     end, 5) then return end
 
     log(1287)
@@ -2264,11 +2266,11 @@ path.访问好友 = function()
     if findOne("好友列表") then return true end
   end, 10) then return end
   log(2255)
-  wait(function()
+  if not wait(function()
     tap('访问基建')
     if findAny({"访问下位灰", "访问下位橘"}) then return true end
     -- if not findOne("好友列表") then return true end
-  end, 10)
+  end, 10) then return end -- 无好友或网络超时10秒
   log(2256)
   if speedrun then
     disappear("正在提交反馈至神经", 20)
@@ -3212,6 +3214,10 @@ path.前瞻投资 = function()
   local skill_times = 0
   if not wait(function()
     if findOne("返回确认界面") then tap("左取消") end
+    if findOne("暂停中") then
+      tap("开包skip")
+      disappear("暂停中")
+    end
     if findOne("生命值") then last_time_see_life = time() end
     -- 超过3秒没看到生命值
     if time() - last_time_see_life > 3000 then return true end
