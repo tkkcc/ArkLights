@@ -1946,7 +1946,7 @@ end
 show_help_ui = function()
   local layout = "help"
   ui.newLayout(layout, ui_page_width, -2)
-  ui.setTitleText(layout, "帮助")
+  ui.setTitleText(layout, "必读")
   newRow(layout)
   addTextView(layout, [[
 源码与其他脚本：github.com/tkkcc/arknights
@@ -2121,10 +2121,10 @@ A：悬浮按钮最上方的那一个。
 Q：模拟器屏幕颠倒/旋转/竖屏
 A：符合预期，模拟器设置里如果有“强制横屏”可以尝试开。
 
-Q：多账号密码错误处理
+Q：遇到多账号密码错误会怎么处理
 A：官服登录出验证码/B服登录失败时会跳过该账号，请配合QQ通知使用。
 
-Q：单账号密码错误处理
+Q：遇到单账号密码错误会怎么处理
 A：等待10分钟后重试，请配合QQ通知使用。
 
 ]])
@@ -2147,8 +2147,8 @@ show_debug_ui = function()
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
 
   newRow(layout)
-  ui.addCheckBox(layout, "ui_enable_log", "日志", true)
-  ui.addCheckBox(layout, "debug", "调试", false)
+  ui.addCheckBox(layout, "debug_disable_log", "关日志", false)
+  ui.addCheckBox(layout, "debug_mode", "开调试", false)
   addTextView(layout, "点击")
   ui.addEditText(layout, "tap_interval", "")
   addTextView(layout, "找色")
@@ -2660,7 +2660,7 @@ predebug_hook = function()
   end, 10) then return end
   if not appear('inputbox') then return end
   ssleep(1) -- 等待输入法弹出
-  if debug then toast(password) end
+  if debug_mode then toast(password) end
   input("inputbox", password)
   ssleep(.5) -- 等待输入法弹出
   tap('okbutton')

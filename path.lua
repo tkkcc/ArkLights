@@ -38,7 +38,7 @@ path.base = {
       end, 10) then return end
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
-      if debug then toast(username) end
+      if debug_mode then toast(username) end
       input("inputbox", username)
       -- ssleep(.5) -- 等待输入法弹出
       tap("okbutton")
@@ -46,7 +46,7 @@ path.base = {
       disappear("inputbox")
     end
     if #password > 0 then
-      if debug then toast(password) end
+      if debug_mode then toast(password) end
       if not wait(function()
         tap("账号左侧")
         tap("密码")
@@ -55,7 +55,7 @@ path.base = {
       end, 10) then return end
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
-      if debug then toast(password) end
+      if debug_mode then toast(password) end
       input("inputbox", password)
       -- ssleep(.5) -- 等待输入法弹出
       tap('okbutton')
@@ -283,7 +283,7 @@ path.fallback = {
   返回确认2 = "右确认",
   返回确认3 = function()
     if not wait(function()
-      if findOne("面板") then return true end
+      if findAny({"面板", "开始唤醒"}) then return true end
       tap("左取消")
     end, 5) then stop(213) end
   end,

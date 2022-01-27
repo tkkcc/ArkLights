@@ -42,7 +42,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.01.27 16:13"
+release_date = "2022.01.27 16:45"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -92,7 +92,7 @@ zl_skill_idx = str2int(zl_skill_idx, 1)
 --   toast("多账号已改版，注意重新设置")
 -- end
 
-if not always_enable_log and not ui_enable_log then disable_log = true end
+if not always_enable_log and debug_disable_log then disable_log = true end
 -- milesecond_after_click = tonumber(click_interval) or milesecond_after_click
 
 transfer_global_variable("multi_account_user1", "multi_account_user0")
@@ -125,7 +125,9 @@ elseif not crontab_enable_only then
   update_state_from_ui()
   test_fight_hook()
   extra_mode_hook()
-  if debug then
+  disable_log= false
+  if debug_mode then
+    log(128,debug)
     log(getUIConfigPath("main"))
     log(fight)
     log(job)
