@@ -23,6 +23,7 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  查看谢幕表 = "829|9|4B1A12,844|38|491F10",
   暂停中 = "929|506|FFFFFF,1121|542|FFFFFF,972|584|FFFFFF,1031|512|FFFFFF",
 
   -- 面板赠送一次 = "1792|708|D48804,1809|708|EAEAEA",
@@ -954,6 +955,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  查看谢幕表 = "center_top",
   面板赠送一次范围 = "right_center",
   暂停中 = "center_center",
   寻访一次 = "center_center",

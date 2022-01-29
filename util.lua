@@ -2598,7 +2598,8 @@ predebug_hook = function()
   zl_skill_times = 100
 
   ssleep(1)
-  tap("面板作战")
+  log(findOne("返回3"))
+  -- tap("面板作战")
   -- tap("返回")
   --   if findOne("暂停中") then
   --   tap("开包skip")

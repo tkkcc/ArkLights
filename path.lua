@@ -217,6 +217,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+  查看谢幕表 = function() tap("战略确认") end,
   我知道了 = function() tap("我知道了") end,
   剿灭提示 = function() tap("左上角返回") end,
   获得物资 = function() tap("返回") end,
@@ -228,10 +229,15 @@ path.fallback = {
   签到返回 = function()
     local x
     local last_time_tap_return = time()
+    local start_time = time()
     if not wait(function()
       -- 曾出现 返回确认 误判为 活动公告返回
       -- 返回确认3按back太快弹不出来
-      x = appear({"返回确认", "返回确认3"}, 0.5)
+      local timeout = min(2, (time() - start_time) / 1000 * 2 / 10)
+      log(237, timeout)
+      -- timeout = 0
+      x = appear({"返回确认", "返回确认3"}, timeout)
+      -- disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
       if x then return true end
       back()
 
@@ -242,7 +248,7 @@ path.fallback = {
         last_time_tap_return = time()
       end
       -- 干员/皮肤界面用返回键没用，这时按基建右上角
-    end, 10) then stop("返回键10秒超时") end
+    end, 30) then stop("返回键10秒超时") end
     if x then return tap(path.fallback[x]) end
   end,
   活动公告返回 = function() return path.fallback.签到返回() end,
@@ -275,7 +281,7 @@ path.fallback = {
       else
         tap("右确认")
       end
-    end, 10) then stop("基建返回提示不消失") end
+    end, 60) then stop("基建返回提示不消失") end
     stay_in_dorm_once = false
 
     if appear("进驻总览", 1) then leaving_jump = true end
@@ -336,7 +342,7 @@ path.fallback = {
     -- back()
     tap("返回")
     -- 基建内返回太快会卡
-    -- ssleep(.1)
+    ssleep(.1)
     -- TODO: 基建内用back怎么样？
   end,
   返回3 = function()
@@ -366,17 +372,27 @@ path.限时活动 = function(retry)
   elseif findOne("面板赠送一次") then
     tap("面板干员寻访")
     if not appear("赠送一次") then return end
+    ssleep(.5)
     if not wait(function()
       if not findOne("赠送一次") then return true end
       tap("寻访一次")
+      disappear("赠送一次", 1)
     end, 10) then return end
     if not appear("返回确认界面") then return end
     if not wait(function()
       if not findOne("返回确认界面") then return true end
       tap("右右确认")
     end, 2) then return end
-    appear("主页", 1)
-    disappear("主页", 10)
+
+    local last_time_see_home = time()
+    if not wait(function()
+      if findOne("主页") then last_time_see_home = time() end
+      if time() - last_time_see_home > 1000 then return true end
+      tap("开包skip")
+    end, 15) then return end
+
+    -- appear("主页", 2)
+    -- disappear("主页", 10)
     if not wait(function()
       if findOne("主页") then return true end
       tap("开包skip")
@@ -384,9 +400,15 @@ path.限时活动 = function(retry)
   end
 
   path.跳转("首页")
-  -- 需要点时间才能找到 面板限时活动2
-  if appear({"面板限时活动", "面板限时活动2", "面板赠送一次"},
-            .5) then return path.限时活动(retry + 1) end
+
+  -- 需要点时间才能找到 面板限时活动2 与 单抽
+  if not wait(function()
+    if not findOne("面板") then return true end
+    if findAny({
+      "面板限时活动", "面板限时活动2", "面板赠送一次",
+    }) then return true end
+  end, 1) then return end
+  return path.限时活动(retry + 1)
 end
 
 path.邮件收取 = function()
@@ -398,12 +420,15 @@ path.邮件收取 = function()
   end, 10) then return end
 
   -- 卡在邮件的获取
+  local start_time = time()
   wait(function()
-    if findAny({"开始唤醒", "账号登录", "返回确认3"}) then
+    local timeout = min(2, (time() - start_time) / 1000 * 2 / 10)
+    -- local timeout = 0
+    if appear({"开始唤醒", "账号登录", "返回确认3"}, timeout) then
       return true
     end
     back()
-  end, 5)
+  end, 30)
 end
 
 path.基建收获 = function()
@@ -567,7 +592,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
         end
 
         if findOne("返回") then
-          log(458)
+          -- log(458)
           if not first_time_see_home then
             first_time_see_home = time()
           elseif (time() - first_time_see_home) > 1000 then
@@ -1421,11 +1446,12 @@ path.任务收集 = function()
 
       -- wait for popup
       disappear("任务有列表" .. i, 10)
-      if disappear("主页", 1) then
+      if disappear("主页", 2) then
         if not wait(function()
           if findOne("主页") then return true end
           tap("任务有列表" .. i)
-        end, 5) then return end
+          -- tap("开包skip")
+        end, 10) then return end
 
         -- 等待剩余红点出现
         if remain then appear(remain) end
@@ -2339,17 +2365,21 @@ path.公招刷新 = function()
 
     if see == "聘用候选人列表" .. i then
       log(i, 1001)
+      -- 这个界面有噪点
+      local last_time_see_home = time()
       if not wait(function()
-        if not findOne("公开招募") and not findOne("主页") then
-          return true
-        end
+        if findOne("主页") then last_time_see_home = time() end
+        if time() - last_time_see_home > 1000 then return true end
+        -- if not findOne("公开招募") and not findOne("主页") then
+        --   return true
+        -- end
         if findTap("聘用候选人列表" .. i) then
           log(1052)
           -- disappear("公开招募", 1)
         end
+        tap("开包skip")
       end, 15) then return end
-      appear("主页", 2)
-      disappear("主页", 10)
+
       -- 聘用
       if not wait(function()
         if findOne("公开招募") and findOne("主页") then return true end
@@ -2857,7 +2887,9 @@ path.前瞻投资 = function()
 
     end
     if not wait(function()
-      if findOne("常规行动") then return true end
+      if findOne("常规行动") and not findOne("放弃探索") then
+        return true
+      end
       -- 第一次数据更新处理
       if findAny({
         "面板", "活动公告返回", "签到返回", "开始唤醒",
