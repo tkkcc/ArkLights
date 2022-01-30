@@ -101,6 +101,8 @@ path.base = {
         unfinished = true
         return true
       end
+      -- 战斗记录未同步
+      if findOne("返回确认界面") then tap("左取消") end
       tap("开始行动")
       appear({"开始行动", "接管作战"}, 1)
     end, 60) then return end
@@ -314,6 +316,7 @@ path.fallback = {
     tapAll(point.限时幸运签列表)
     ssleep(.25)
     tap("限时幸运签抽取")
+    disappear("限时幸运签", 10)
     return path.fallback.签到返回()
   end,
   限时开放许可 = function()
@@ -2831,6 +2834,7 @@ path.退出账号 = function()
 end
 
 path.前瞻投资 = function()
+  if zl_disable_log then disable_log = true end
   local jumpout
   if findOne("战略返回") then path.fallback.战略返回() end
 

@@ -1212,11 +1212,11 @@ wait_game_up = function(retry)
 
   if p and p:startsWith("captcha") then
     local msg =
-      "请在1分钟内手动滑动验证码，超时将暂时跳过该账号"
-    -- captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-    --                         table.join(qqmessage, ' ') .. msg, QQ)
+      "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
     toast(msg)
-    if not disappear("captcha2", 60) then
+    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+                            table.join(qqmessage, ' ') .. msg, QQ)
+    if not disappear("captcha2", 120) then
       back()
       if not disappear("captcha2", 5) then closeapp(appid) end
       stop("验证码", true)
