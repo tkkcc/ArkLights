@@ -250,7 +250,7 @@ path.fallback = {
         last_time_tap_return = time()
       end
       -- 干员/皮肤界面用返回键没用，这时按基建右上角
-    end, 30) then stop("返回键10秒超时") end
+    end, 30) then stop("214 返回键10秒超时") end
     if x then return tap(path.fallback[x]) end
   end,
   活动公告返回 = function() return path.fallback.签到返回() end,
@@ -290,10 +290,12 @@ path.fallback = {
   end,
   返回确认2 = "右确认",
   返回确认3 = function()
-    if not wait(function()
-      if findAny({"面板", "开始唤醒"}) then return true end
+    wait(function()
+      if findAny({"面板", "开始唤醒", "活动公告返回"}) then
+        return true
+      end
       tap("左取消")
-    end, 5) then stop(213) end
+    end, 5)
   end,
   单选确认框 = "右确认",
   剿灭说明 = function()
@@ -1571,12 +1573,16 @@ end
 
 get_fight_type = function(x)
   local f = startsWithX(x)
-  if table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
+  if table.any({"上一次"}, f) then
+    return "上一次"
+  elseif table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
     return "物资芯片"
   elseif table.any(table.values(jianpin2name), f) then
     return "剿灭"
   elseif f('HD') then
     return "活动"
+  elseif f('BREAK') then
+    return "BREAK"
   else
     return "主线"
   end
@@ -1613,10 +1619,12 @@ path.轮次作战 = function()
     end
     cur_fight = fight[fight_tick]
     log(971, cur_fight)
+    if cur_fight == 'BREAK' then break end
     if not same_page_fight(pre_fight, cur_fight) then path.跳转("首页") end
     log(820, fight, fight_tick)
     pre_fight = nil
-    path.作战(fight[fight_tick])
+
+    path[get_fight_type(cur_fight)](cur_fight)
 
     -- 导航失败2次就删除
     fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
@@ -1640,22 +1648,6 @@ jianpin2name = {
   -- FQKQ = "废弃矿区",
 }
 extrajianpin2name = {SYC = "上一次"}
-
-path.作战 = function(x)
-  log(table.values(jmfight2name), x)
-  local f = startsWithX(x)
-  if table.any({"上一次"}, f) then
-    path.上一次(x)
-  elseif table.any({"PR", "CE", "CA", "AP", "LS", "SK"}, f) then
-    path.物资芯片(x)
-  elseif table.any(table.values(jianpin2name), f) then
-    path.剿灭(x)
-  elseif f('HD') then
-    path.活动(x)
-  else
-    path.主线(x)
-  end
-end
 
 path.开始游戏 = function(x, disable_ptrs_check)
   log("开始游戏", fight_tick, x)
@@ -2837,6 +2829,11 @@ path.前瞻投资 = function()
   if zl_disable_log then disable_log = true end
   local jumpout
   if findOne("战略返回") then path.fallback.战略返回() end
+
+  if findOne("暂停中") and findOne("生命值") then
+    closeapp(appid)
+    wait_game_up()
+  end
 
   -- 先导航到常规行动
   if not findOne("常规行动") then

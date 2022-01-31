@@ -40,7 +40,6 @@
     git add -u
     cd release
     cp /F:/software/懒人精灵3.6.0/out/main.lr script.lr
-    # cp /F:/software/懒人精灵3.6.0/tmp/明日方舟速通.apk .
     numfmt --to=iec $(stat -c %s script.lr)
     local md5=$(md5sum script.lr | cut -d' ' -f1)
     echo $md5 > script.lr.md5
@@ -89,10 +88,12 @@
     sed -i -r 's/^(release_date =).+$/\1 "'"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
     local dst_dir=/F:/software/懒人精灵3.6.0/script/main
     dst="$dst_dir"/脚本
+    mkdir -p $dst
     while IFS= read -r -d '' f; do
       iconv -f UTF-8 -t GB18030 "$f" -o "$dst/$f"
     done < <(find . -type f -name '*.lua' -printf '%P\0')
     dst="$dst_dir"/界面
+    mkdir -p $dst
     while IFS= read -r -d '' f; do
       iconv -f UTF-8 -t GB18030 "$f" -o "$dst/$f"
     done < <(find . -type f -name '*.ui' -printf '%P\0')

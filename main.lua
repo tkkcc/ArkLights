@@ -43,7 +43,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.01.30 22:46"
+release_date = "2022.02.01  1:23"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -112,6 +112,9 @@ if not crontab_enable_only and not extra_mode and multi_account_enable then
       update_state_from_ui()
       if multi_account_end_closeotherapp then
         closeapp(appid == oppid and bppid or oppid)
+      end
+      if multi_account_end_closeapp then
+        closeapp(appid)
       end
       log(account_idx, username, password)
       if #username > 0 and #password > 0 then
