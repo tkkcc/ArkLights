@@ -2608,6 +2608,9 @@ predebug_hook = function()
   zl_skill_times = 100
 
   ssleep(1)
+  log(getSdkVersion())
+  log(getApkVerInt())
+  log(getInstalledApps())
   log(findOne("返回3"))
   -- tap("面板作战")
   -- tap("返回")

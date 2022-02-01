@@ -362,14 +362,11 @@ path.限时活动 = function(retry)
   retry = retry or 0
   if retry > 5 then return end
   path.跳转("首页")
-  if findOne("面板限时活动") then
-    tap("面板限时活动")
-    appear({
-      '活动签到返回', '抽签返回', '感谢庆典返回',
-      '限时开放许可', "限时幸运签",
-    })
-  elseif findOne("面板限时活动2") then
-    tap("面板限时活动2")
+  local p = findAny({
+    "面板限时活动", "面板限时活动2", "面板限时活动3",
+  })
+  if p then
+    tap(p)
     appear({
       '活动签到返回', '抽签返回', '感谢庆典返回',
       '限时开放许可', "限时幸运签",
@@ -410,7 +407,8 @@ path.限时活动 = function(retry)
   if not wait(function()
     if not findOne("面板") then return true end
     if findAny({
-      "面板限时活动", "面板限时活动2", "面板赠送一次",
+      "面板限时活动", "面板限时活动2", "面板限时活动3",
+      "面板赠送一次",
     }) then return true end
   end, 1) then return end
   return path.限时活动(retry + 1)
@@ -567,7 +565,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
         -- TODO .5 => .1 failed
         if not y or disappear(y, .5) then
           -- not y 表示 当前主页列表正在展开、收缩或停止，这时
-          if home_target == "任务" or home_target == "好友" then
+          if table.includes({"任务", "好友", "首页"}, home_target) then
             ssleep(.2)
           end
 
@@ -805,8 +803,13 @@ path.宿舍换班 = function()
   if not no_dorm then for i = 1, 4 do f(i) end end
 end
 
-path.制造换班 = function()
+path.基建信息获取 = function()
+
+end
+
+path.制造换班 = function(trading)
   -- if not debug then return end
+  local station_color = trading and "#33CCFF" or "#FFCC00"
 
   local f
   f = function(i)
@@ -814,39 +817,47 @@ path.制造换班 = function()
     path.跳转("基建")
     local x, y = table.unpack(point["基建列表" .. i])
     -- 检测kernel，因为可能被条纹挡住
-    if not (compareColor(x, y, "#FFCC00", default_findcolor_confidence) or
-      compareColor(x - 5, y - 10, "#FFCC00", default_findcolor_confidence) or
-      compareColor(x - 5, y + 10, "#FFCC00", default_findcolor_confidence) or
-      compareColor(x + 5, y + 10, "#FFCC00", default_findcolor_confidence) or
-      compareColor(x - 5, y - 10, "#FFCC00", default_findcolor_confidence)) then
+    if not (compareColor(x, y, station_color, default_findcolor_confidence) or
+      compareColor(x - 5, y - 10, station_color, default_findcolor_confidence) or
+      compareColor(x - 5, y + 10, station_color, default_findcolor_confidence) or
+      compareColor(x + 5, y + 10, station_color, default_findcolor_confidence) or
+      compareColor(x - 5, y - 10, station_color, default_findcolor_confidence)) then
       log("skip", i)
       return
     end
+
     -- 进入制造站
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
       end
       tap({x, y})
-    end, 10) then return end
+    end) then return end
 
-    -- 收起进驻信息
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
-    if not wait(function()
-      if findOne("进驻信息") then return true end
-      if findOne("进驻信息选中") then
-        tap("进驻信息选中")
-        disappear("进驻信息选中")
-      end
-    end, 5) then return end
 
-    -- 确认类型
-    local type = appear({"经验站", "赤金站"}, 5)
-    if not type then
-      log("not support", i)
-      return
+    -- 制造站需要确认产品类型，贸易不需要
+    if not trading then
+      -- 收起进驻信息
+      if not wait(function()
+        if findOne("进驻信息") and not disappear("进驻信息", .5) then
+          return true
+        end
+        if findOne("进驻信息选中") then
+          tap("进驻信息选中")
+          disappear("进驻信息选中")
+        end
+      end, 5) then return end
+
+      -- 确认类型
+      local type = findAny({"经验站", "赤金站", "源石站", "芯片站"})
+      log(854,type)
+      if not type then
+        log("not support", i)
+        return
+      end
+      log(524, type)
     end
-    log(524, type)
 
     -- 进入干员列表
     if not wait(function()
@@ -859,6 +870,24 @@ path.制造换班 = function()
         disappear("进驻信息", .5)
       end
     end, 5) then return end
+
+    -- TODO 下面这段稳定吗
+    -- if not wait(function()
+    --   if findOne("筛选") then return true end
+    --   if findOne("进驻信息选中") then
+    --     wait(function()
+    --       if findOne("筛选") then return true end
+    --       tap("进驻第一人")
+    --     end, 1)
+    --   elseif findOne("进驻信息") then
+    --     tap("进驻信息")
+    --     ssleep(.2)
+    --     wait(function()
+    --       if findOne("筛选") then return true end
+    --       tap("进驻第一人")
+    --     end, 1)
+    --   end
+    -- end, 5) then return end
 
     -- 筛选出无进驻技能排序
     if not wait(function()
@@ -893,12 +922,21 @@ path.制造换班 = function()
     end, 5) then return end
 
     if not wait(function()
-      if findOne("干员未选中") and findOne("筛选横线") and
-        findOne("筛选") then return true end
+      -- and findOne("筛选横线") and
+      -- findOne("筛选")
+      if findOne("干员未选中") and findOne("第一干员未选中") then
+        return true
+      end
       tap("清空选择")
     end, 5) then return end
 
-    findtap_operator_type(type)
+    if not trading then
+      -- TODO
+      -- findtap_operator_type(type)
+    else
+      -- TODO
+      -- findtap_operator_type(type)
+    end
 
     if not wait(function()
       if findAny({
@@ -911,6 +949,7 @@ path.制造换班 = function()
   -- 找到所有制造站
   for i = 1, 9 do f(i) end
 end
+path.贸易换班 = function() return path.制造换班(true) end
 
 path.总览换班 = function()
   local f
@@ -1108,7 +1147,7 @@ path.基建换班 = function()
     path.制造换班()
     path.贸易换班()
   end
-  path.总览换班()
+  if not disable_overview_shift then path.总览换班() end
 end
 
 path.制造加速 = function()
