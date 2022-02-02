@@ -45,7 +45,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.02.01 13:58"
+release_date = "2022.02.03  0:07"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -97,8 +97,23 @@ zl_skill_idx = str2int(zl_skill_idx, 1)
 
 if not always_enable_log and debug_disable_log then disable_log = true end
 -- milesecond_after_click = tonumber(click_interval) or milesecond_after_click
-
+-- log(100)
+-- for i = 1, 12 do
+--   log("now_job_ui" .. i, _G["now_job_ui" .. i])
+--   log("multi_account_user1now_job_ui" .. i,
+--       _G["multi_account_user1now_job_ui" .. i])
+--   log("multi_account_user0now_job_ui" .. i,
+--       _G["multi_account_user0now_job_ui" .. i])
+-- end
 transfer_global_variable("multi_account_user1", "multi_account_user0")
+-- log(101)
+-- for i = 1, 12 do
+--   log("now_job_ui" .. i, _G["now_job_ui" .. i])
+--   log("multi_account_user1now_job_ui" .. i,
+--       _G["multi_account_user1now_job_ui" .. i])
+--   log("multi_account_user0now_job_ui" .. i,
+--       _G["multi_account_user0now_job_ui" .. i])
+-- end
 
 -- 多帐号模式
 if not crontab_enable_only and not extra_mode and multi_account_enable then
@@ -115,9 +130,7 @@ if not crontab_enable_only and not extra_mode and multi_account_enable then
       if multi_account_end_closeotherapp then
         closeapp(appid == oppid and bppid or oppid)
       end
-      if multi_account_end_closeapp then
-        closeapp(appid)
-      end
+      if multi_account_end_closeapp then closeapp(appid) end
       log(account_idx, username, password)
       if #username > 0 and #password > 0 then
         table.insert(job, 1, "退出账号")
@@ -128,12 +141,20 @@ if not crontab_enable_only and not extra_mode and multi_account_enable then
 elseif not crontab_enable_only then
   -- 单帐号模式
   transfer_global_variable("multi_account_user0")
+  -- log(102)
+  -- for i = 1, 12 do
+  --   log("now_job_ui" .. i, _G["now_job_ui" .. i])
+  --   log("multi_account_user1now_job_ui" .. i,
+  --       _G["multi_account_user1now_job_ui" .. i])
+  --   log("multi_account_user0now_job_ui" .. i,
+  --       _G["multi_account_user0now_job_ui" .. i])
+  -- end
   update_state_from_ui()
   test_fight_hook()
   extra_mode_hook()
-  disable_log= false
+  disable_log = false
   if debug_mode then
-    log(128,debug)
+    log(128, debug)
     log(getUIConfigPath("main"))
     log(fight)
     log(job)

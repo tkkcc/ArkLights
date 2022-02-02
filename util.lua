@@ -48,7 +48,7 @@ deviceClickEventMaxX = nil
 deviceClickEventMaxY = nil
 catchClick = function()
   if not root_mode then stop(15) end
-  local result = exec("su -c 'getevent -l -c 4 -q'")
+  local result = exec("su root sh -c 'getevent -l -c 4 -q'")
   local x, y
   x = result:match('POSITION_X%s+([^%s]+)')
   y = result:match('POSITION_Y%s+([^%s]+)')
@@ -56,7 +56,7 @@ catchClick = function()
   if x and y then
     if not deviceClickEventX then
       local event = result:match('(/dev/[^:]+):.+POSITION_X')
-      result = exec("su -c 'getevent -il " .. event .. "'")
+      result = exec("su root sh -c 'getevent -il " .. event .. "'")
       deviceClickEventMaxX = result:match("POSITION_X[^\n]+max%s*(%d+)")
       deviceClickEventMaxY = result:match("POSITION_Y[^\n]+max%s*(%d+)")
     end
@@ -1206,9 +1206,7 @@ wait_game_up = function(retry)
     home()
     ssleep(2)
   end
-  if retry == 2 then
-    closeapp(appid)
-  end
+  if retry == 2 then closeapp(appid) end
   if retry > 6 then stop("不能启动游戏") end
   open()
   request_game_permission()
@@ -1486,12 +1484,12 @@ captureqqimagedeliver = function(info, to)
   notifyqq(base64(img), tostring(info), tostring(to))
 end
 
-poweroff = function() if root_mode then exec("su -c 'reboot -p'") end end
+poweroff = function() if root_mode then exec("su root sh -c 'reboot -p'") end end
 closeapp = function(package)
   log("closeapp", package)
   if not isAppInstalled(package) then return end
   if root_mode then
-    exec("su -c 'am force-stop " .. package .. "'")
+    exec("su root sh -c 'am force-stop " .. package .. "'")
   elseif false then
     local intent = {
       action = "android.settings.APPLICATION_DETAILS_SETTINGS",
@@ -1521,10 +1519,10 @@ closeapp = function(package)
 end
 closeapp = disable_game_up_check_wrapper(closeapp)
 screenoff =
-  function() if root_mode then exec('su -c "input keyevent 223"') end end
+  function() if root_mode then exec('su root sh -c "input keyevent 223"') end end
 screenon = function()
   if root_mode then
-    exec('su -c "input keyevent 224"')
+    exec('su root sh -c "input keyevent 224"')
   else
     -- stop("无障碍亮屏未实现")
   end
@@ -1734,15 +1732,18 @@ end
 
 transfer_global_variable = function(prefix, save_prefix)
   local stem
+  -- 存在了几个月的BUG：遍历key的过程中修改key
+  local G = {}
   for k, v in pairs(_G) do
     if k:startsWith(prefix) then
       stem = string.sub(k, #prefix + 1)
       if save_prefix and #save_prefix > 0 then
-        _G[save_prefix .. stem] = _G[stem]
+        G[save_prefix .. stem] = _G[stem] or false
       end
-      _G[stem] = v
+      G[stem] = v
     end
   end
+  update(_G, G, true)
 end
 
 notifyqq = function(image, info, to, sync)
@@ -2164,6 +2165,7 @@ show_debug_ui = function()
   addTextView(layout, "找色")
   ui.addEditText(layout, "findOne_interval", "")
 
+  ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
 end
 
@@ -2421,7 +2423,9 @@ getUIConfigPath = function(layout)
 end
 
 loadUIConfig = function()
-  for _, layout in pairs({"multi_account", "gesture_capture", "extra", "main"}) do
+  for _, layout in pairs({
+    "multi_account", "gesture_capture", "extra", "debug", "main",
+  }) do
     local config = getUIConfigPath(layout)
     if fileExist(config) then
       log("load", config)
@@ -2483,7 +2487,7 @@ enable_accessibility_service = function()
     local package = getPackageName()
     local service = package .. "/com.nx.assist.AssistService"
     local services = exec(
-                       "su -c 'settings get secure enabled_accessibility_services'")
+                       "su root sh -c 'settings get secure enabled_accessibility_services'")
     services = table.filter(services:trim():split(':'),
                             function(x) return x ~= 'null' end)
     local other_services = table.join(table.filter(services, function(x)
@@ -2492,31 +2496,31 @@ enable_accessibility_service = function()
     -- log(2042, services)
     -- if table.includes(services, service) then
     -- 即 “无障碍故障情况”, 需要先停
-    -- exec("su -c 'settings put secure enabled_accessibility_services " ..
+    -- exec("su root sh -c 'settings put secure enabled_accessibility_services " ..
     --        (#other_services > 0 and other_services or '""') .. "'")
     -- log(2037, other_services, service)
     -- wait(function()
     --   local current = exec(
-    --                     "su -c 'settings get secure enabled_accessibility_services'")
+    --                     "su root sh -c 'settings get secure enabled_accessibility_services'")
     --   return not current:find(service)
     -- end)
     -- local current = exec(
-    --                   "su -c 'settings get secure enabled_accessibility_services'")
+    --                   "su root sh -c 'settings get secure enabled_accessibility_services'")
     -- log(current)
 
-    -- log("su -c 'settings put secure enabled_accessibility_services " ..
+    -- log("su root sh -c 'settings put secure enabled_accessibility_services " ..
     --       other_services .. (#other_services > 0 and ':' or '') .. service ..
     --       "'")
-    -- log("su -c 'settings put secure enabled_accessibility_services " ..
+    -- log("su root sh -c 'settings put secure enabled_accessibility_services " ..
     --       (#other_services > 0 and other_services or '""') .. "'")
 
     -- 秘诀：先开再关再开
-    exec("su -c 'settings put secure enabled_accessibility_services " ..
+    exec("su root sh -c 'settings put secure enabled_accessibility_services " ..
            other_services .. (#other_services > 0 and ':' or '') .. service ..
            "'")
-    exec("su -c 'settings put secure enabled_accessibility_services " ..
+    exec("su root sh -c 'settings put secure enabled_accessibility_services " ..
            (#other_services > 0 and other_services or '""') .. "'")
-    exec("su -c 'settings put secure enabled_accessibility_services " ..
+    exec("su root sh -c 'settings put secure enabled_accessibility_services " ..
            other_services .. (#other_services > 0 and ':' or '') .. service ..
            "'")
     if wait(function() return isAccessibilityServiceRun() end) then return end
@@ -2535,8 +2539,8 @@ enable_snapshot_service = function()
   if root_mode then
     local package = getPackageName()
     -- TODO need this?
-    -- exec("su -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
-    -- exec("su -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
+    -- exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
+    -- exec("su root sh -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
     if isSnapshotServiceRun() then return end
   end
 
@@ -3027,7 +3031,7 @@ predebug_hook = function()
 end
 
 check_root_mode = function()
-  if not disable_root_mode and #exec("su -c 'echo aaa'") > 1 then
+  if not disable_root_mode and #exec("su root sh -c 'echo aaa'") > 1 then
     root_mode = true
   end
   log("root_mode", root_mode)
@@ -3314,7 +3318,7 @@ android.permission.WRITE_EXTERNAL_STORAGE]]
     cmd = cmd .. 'pm grant ' .. appid .. ' ' .. s .. ';'
   end
   log(cmd)
-  exec("su -c '" .. cmd .. "'")
+  exec("su root sh -c '" .. cmd .. "'")
   log(2944)
 end
 

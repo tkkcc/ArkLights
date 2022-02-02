@@ -338,17 +338,16 @@ path.fallback = {
     -- disappear("面板", 1)
   end,
   返回 = function()
-    local x = findAny({
+    -- 基建内返回太快会卡
+    local x = appear({
       "返回确认", "返回确认2", "返回确认3", "活动公告返回",
       "签到返回", "活动签到返回", "抽签返回", "战略返回",
-    })
+      '感谢庆典返回', '限时开放许可', "限时幸运签",
+    }, .1)
     log(251, x)
     if x then return tap(path.fallback[x]) end
     -- back()
     tap("返回")
-    -- 基建内返回太快会卡
-    ssleep(.1)
-    -- TODO: 基建内用back怎么样？
   end,
   返回3 = function()
     -- 只有邮件与设置界面有白色返回
@@ -441,14 +440,18 @@ path.基建收获 = function()
   local max_retry = 5
   for i = 1, max_retry do
     x = appear({
-      "基建灯泡蓝", "基建灯泡蓝2", "基建收获线索提示",
+      "正在提交反馈至神经", "基建灯泡蓝", "基建灯泡蓝2",
+      "基建收获线索提示",
     }, 3)
     -- 没看到灯泡或线索提示
     if not x then
+      log(448)
       leaving_jump = true
       return
     end
-    if x == "基建收获线索提示" then
+    if table.includes({
+      "基建收获线索提示", "正在提交反馈至神经",
+    }, x) then
       disappear(x, 5)
       if i >= max_retry then
         log('unknown 140')
@@ -803,9 +806,7 @@ path.宿舍换班 = function()
   if not no_dorm then for i = 1, 4 do f(i) end end
 end
 
-path.基建信息获取 = function()
-
-end
+path.基建信息获取 = function() end
 
 path.制造换班 = function(trading)
   -- if not debug then return end
@@ -851,7 +852,7 @@ path.制造换班 = function(trading)
 
       -- 确认类型
       local type = findAny({"经验站", "赤金站", "源石站", "芯片站"})
-      log(854,type)
+      log(854, type)
       if not type then
         log("not support", i)
         return
@@ -2612,7 +2613,10 @@ path.公招刷新 = function()
       g()
     end
   end
-  for i = 1, #point.公开招募列表 do
+
+  -- 第二个容易被刷新通知卡着，最后再做
+  -- for i = 1, #point.公开招募列表 do
+  for _,i in pairs({1,3,4,2}) do
     f(i)
     if speedrun and i >= 3 then break end
   end
