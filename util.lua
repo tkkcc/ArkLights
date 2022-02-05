@@ -505,7 +505,10 @@ log = function(...)
   writeLog(l)
 end
 
-open = function() runApp(appid) end
+open = function(id)
+  id = id or appid
+  runApp(id)
+end
 
 stop = function(msg, try_next_account)
   if try_next_account == nil then try_next_account = true end
@@ -1208,7 +1211,7 @@ wait_game_up = function(retry)
   end
   if retry == 2 then closeapp(appid) end
   if retry > 6 then stop("不能启动游戏") end
-  open()
+  open(appid)
   request_game_permission()
   screenon()
   local p = appear(
@@ -1484,7 +1487,8 @@ captureqqimagedeliver = function(info, to)
   notifyqq(base64(img), tostring(info), tostring(to))
 end
 
-poweroff = function() if root_mode then exec("su root sh -c 'reboot -p'") end end
+poweroff =
+  function() if root_mode then exec("su root sh -c 'reboot -p'") end end
 closeapp = function(package)
   log("closeapp", package)
   if not isAppInstalled(package) then return end
@@ -1518,8 +1522,9 @@ closeapp = function(package)
   end
 end
 closeapp = disable_game_up_check_wrapper(closeapp)
-screenoff =
-  function() if root_mode then exec('su root sh -c "input keyevent 223"') end end
+screenoff = function()
+  if root_mode then exec('su root sh -c "input keyevent 223"') end
+end
 screenon = function()
   if root_mode then
     exec('su root sh -c "input keyevent 224"')
@@ -2082,7 +2087,7 @@ Q：正常运行一段时间后突然卡住不动？
 A：如果多次卡在同一位置，大概率是代码问题，请反馈给开发者。如果停在随机界面，参考下一问题的解决方法。
 
 Q：正常运行一段时间后突然出现“停止运行”或者悬浮按钮消失了？
-A：一般是被系统杀了。重启一次设备再启动看能否复现。保证内存充足，调整系统设置，更换系统等。建议模拟器虚拟机使用1核1280x720分辨率4G内存，降低资源占用以减轻与其他软件的竞争。
+A：一般是被系统杀了。重启一次设备再启动看能否复现。保证内存充足，调整系统设置，更换系统等。建议模拟器虚拟机使用4核1280x720分辨率4G内存，降低资源占用以减轻与其他软件的竞争。
 
 Q：直接弹出“停止运行”？
 A：一般是安卓版本低于7导致的。
@@ -2130,10 +2135,10 @@ Q：能不能一键重启？
 A：悬浮按钮最上方的那一个。
 
 Q：模拟器屏幕颠倒/旋转/竖屏
-A：符合预期，模拟器设置里如果有“强制横屏”可以尝试开。
+A：正常，模拟器设置里如果有“强制横屏”可以尝试开。
 
 Q：遇到多账号密码错误会怎么处理
-A：官服登录出验证码/B服登录失败时会跳过该账号，请配合QQ通知使用。
+A：官服登录出验证码/B服登录失败时会暂时跳过该账号，请配合QQ通知使用。
 
 Q：遇到单账号密码错误会怎么处理
 A：等待10分钟后重试，请配合QQ通知使用。
@@ -2204,7 +2209,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、帕拉斯1、羽毛笔1、山2、煌2、赫拉格2 可打简单驯兽。“重启间隔”不影响正常刷投资效率，只影响稳定性。连续8小时实测简单难度打驯兽效率为每小时40~80个，简单普通效率一致，但幕后筹备可能影响效率（大号效率是小号两倍）。支持凌晨4点数据更新，支持16:9及以上分辨率，卡住30秒以上请反馈。出现停止运行、随机状态卡住，可设置“找色”为200，重启设备后再跑一次，还经常出现请换用其他设备与其他脚本。推荐genymotion安卓10模拟器。]])
+              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、帕拉斯1、羽毛笔1、山2、煌2、赫拉格2 可打简单驯兽。“重启间隔”不影响正常刷投资效率，只影响稳定性。连续8小时实测简单难度打驯兽效率为每小时40(0级幕后筹备)~110(满级幕后筹备)个，简单普通效率一致。支持凌晨4点数据更新，支持16:9及以上分辨率。多次出现停止运行、随机状态卡住、悬浮按钮消失，应尝试换用其他设备或其他脚本。模拟器可在adb中使用top命令查看各进程内存占用，尤其要关注surfaceflinger进程。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2534,13 +2539,17 @@ enable_accessibility_service = function()
 end
 
 enable_snapshot_service = function()
-  if skip_snapshot_service_check then return end
+  log("snapshot service check")
   if isSnapshotServiceRun() then return end
+  log("snapshot service disabled")
+  if skip_snapshot_service_check then return end
   if root_mode then
+    log("enable snapshot service by root")
     local package = getPackageName()
     -- TODO need this?
-    -- exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
-    -- exec("su root sh -c 'appops set " .. package .. " SYSTEM_ALERT_WINDOW allow'")
+    exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
+    exec("su root sh -c 'appops set " .. package ..
+           " SYSTEM_ALERT_WINDOW allow'")
     if isSnapshotServiceRun() then return end
   end
 
@@ -2553,7 +2562,7 @@ enable_snapshot_service = function()
   openPermissionSetting()
   toast("请开启录屏权限")
   if not wait(function() return isSnapshotServiceRun() end, 600) then
-    stop("开启录屏权限超时")
+    stop("开启录屏权限超时", false)
   end
 end
 
@@ -3363,6 +3372,10 @@ forever = function(f, ...) while true do f(...) end end
 restart_mode = function(mode)
   saveConfig("restart_mode_hook", "extra_mode=[[" .. mode .. "]]")
   saveConfig("hideUIOnce", "true")
+  -- TODO：这里把速通放到前台会不会有助于防止被杀（genymotion 安卓10）
+  open(getPackageName())
+  toast("5秒前台，防止别杀")
+  ssleep(5)
   restartScript()
 end
 

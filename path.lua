@@ -13,6 +13,7 @@ path.base = {
   资源下载确定 = "资源下载确定",
   start黄框 = function()
     wait(function()
+      tap("适龄提示")
       tap("保持配音")
       tap("保持配音确定")
       tap("start黄框")
@@ -2506,11 +2507,11 @@ path.公招刷新 = function()
 
         if #tag4 == 0 or skip then
           if not skip and findTap("公开招募标签刷新蓝") then
-            if not disappear("公开招募时间减") then return end
+            if not disappear("公开招募时间减", 10) then return end
             if not wait(function()
               if findOne("公开招募时间减") then return true end
               tap("公开招募右确认")
-            end, 5) then return end
+            end, 10) then return end
             -- if not appear("公开招募时间减") then return end
             return g(tags)
           else
@@ -2616,7 +2617,7 @@ path.公招刷新 = function()
 
   -- 第二个容易被刷新通知卡着，最后再做
   -- for i = 1, #point.公开招募列表 do
-  for _,i in pairs({1,3,4,2}) do
+  for _, i in pairs({1, 3, 4, 2}) do
     f(i)
     if speedrun and i >= 3 then break end
   end
