@@ -39,7 +39,7 @@ path.base = {
       end, 10) then return end
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
-      if debug_mode then toast(username) end
+      -- if debug_mode then toast(username) end
       input("inputbox", username)
       -- ssleep(.5) -- 等待输入法弹出
       tap("okbutton")
@@ -47,7 +47,7 @@ path.base = {
       disappear("inputbox")
     end
     if #password > 0 then
-      if debug_mode then toast(password) end
+      -- if debug_mode then toast(password) end
       if not wait(function()
         tap("账号左侧")
         tap("密码")
@@ -56,7 +56,7 @@ path.base = {
       end, 10) then return end
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
-      if debug_mode then toast(password) end
+      -- if debug_mode then toast(password) end
       input("inputbox", password)
       -- ssleep(.5) -- 等待输入法弹出
       tap('okbutton')
@@ -64,7 +64,7 @@ path.base = {
       -- appear("手机验证码登录")
     end
 
-    appear("手机验证码登录")
+    if not appear("手机验证码登录") then return end
 
     -- local login_error_times = 0
     wait(function()
@@ -1494,9 +1494,8 @@ path.任务收集 = function()
       disappear("任务有列表" .. i, 10)
       if disappear("主页", 2) then
         if not wait(function()
-          if findOne("主页") then return true end
           tap("任务有列表" .. i)
-          -- tap("开包skip")
+          if findOne("主页") and findOne("返回") then return true end
         end, 10) then return end
 
         -- 等待剩余红点出现
@@ -2871,6 +2870,12 @@ end
 
 path.前瞻投资 = function()
   if zl_disable_log then disable_log = true end
+  local restart = function()
+    -- 关闭游戏然后重启脚本
+    if restart_game_check(zl_restart_interval) then
+      restart_mode("前瞻投资")
+    end
+  end
   local jumpout
   if findOne("战略返回") then path.fallback.战略返回() end
 
@@ -3070,24 +3075,46 @@ path.前瞻投资 = function()
   end, 10) then return end
 
   log(2700)
+  -- 先看右边，可以少滑一次
 
-  -- 不太确定是否需要等，先等了
-
-  swipzl("right")
-
-  local restart = function()
-    -- 关闭游戏然后重启脚本
-    if restart_game_check(zl_restart_interval) then
-      restart_mode("前瞻投资")
-    end
-  end
-
+  swipzl("left")
   -- 红色标签直接放弃
   if findOne("偏执的") then
     toast("红色异常重试")
     return restart()
   end
 
+  -- local fight2ocr = ocr("第一层作战2")
+  -- local fight2
+  -- if #fight2ocr > 0 then fight2 = fight2ocr[1] end
+
+  -- -- 只支持商店，不检测诡意行商
+  -- if not fight2 then
+  --   toast("没找到诡意行商")
+  --   return
+  -- end
+
+  fight2 = point.第一层作战2
+  fight2 = {l = fight2[1], t = fight2[2]}
+
+  local unexpect2ocr = {}
+  wait(function()
+    if #unexpect2ocr > 0 then return true end
+    unexpect2ocr = ocr("第一层不期而遇2")
+  end, 5)
+  if #unexpect2ocr == 0 then return end
+  -- 替换幕间余兴
+  for _, v in pairs(unexpect2ocr) do
+    if v.text:find("兴") then v.text = "不期而遇" end
+  end
+  if not table.find(unexpect2ocr,
+                    function(x) return x.text == "不期而遇" end) then
+    toast("第三列没找到不期而遇")
+    return restart()
+  end
+  if #unexpect2ocr == 0 then return end
+
+  swipzl("right")
   local fight1ocr = {}
   wait(function()
     if #fight1ocr > 0 then return true end
@@ -3142,38 +3169,6 @@ path.前瞻投资 = function()
 
   log(2723)
 
-  swipzl("left")
-
-  -- local fight2ocr = ocr("第一层作战2")
-  -- local fight2
-  -- if #fight2ocr > 0 then fight2 = fight2ocr[1] end
-
-  -- -- 只支持商店，不检测诡意行商
-  -- if not fight2 then
-  --   toast("没找到诡意行商")
-  --   return
-  -- end
-
-  fight2 = point.第一层作战2
-  fight2 = {l = fight2[1], t = fight2[2]}
-
-  local unexpect2ocr = {}
-  wait(function()
-    if #unexpect2ocr > 0 then return true end
-    unexpect2ocr = ocr("第一层不期而遇2")
-  end, 5)
-  if #unexpect2ocr == 0 then return end
-  -- 替换幕间余兴
-  for _, v in pairs(unexpect2ocr) do
-    if v.text:find("兴") then v.text = "不期而遇" end
-  end
-  if not table.find(unexpect2ocr,
-                    function(x) return x.text == "不期而遇" end) then
-    toast("第二列没找到不期而遇")
-    return restart()
-  end
-  if #unexpect2ocr == 0 then return end
-
   -- 根据不期而遇来选择路径，只有边上两个均为不期而遇才行
   local unexpect1, unexpect2
   if unexpect1ocr[1].text == "不期而遇" and unexpect2ocr[1].text ==
@@ -3198,7 +3193,8 @@ path.前瞻投资 = function()
     return restart()
   end
 
-  swipzl("right")
+  -- 省一次滑动
+  -- swipzl("right")
 
   tap({fight1.l, fight1.t})
 
@@ -3316,12 +3312,16 @@ path.前瞻投资 = function()
     local p = findOne("不要了")
     if p then
       if not wait(function()
+        -- 不要了 点了之后短时间内不能再滑
+        last_swip_time = time()
+        if not p or findOne("战略帮助") then return true end
+        -- 收集下源石（0级幕后筹备很少）
         local p1 = findOne("源石锭")
+        -- 点亮藏品
         local p2 = findOne("收藏品")
         tap(p2)
         tap(p1)
         log(3168, p1, p2)
-        if not p or findOne("战略帮助") then return true end
         tap({p[1] + scale(765 - 668), scale(789)})
         ssleep(.1)
         tap({p[1] + scale(765 - 668), scale(789)})
@@ -3358,8 +3358,10 @@ path.前瞻投资 = function()
   end
 
   -- 不期而遇1
-  swipzl("right")
-  tap({unexpect1.l, unexpect1.t})
+  -- swipzl("right")
+  -- tap({unexpect1.l, unexpect1.t})
+  tap({point.第一层下一个[1], unexpect1.t})
+
   if not wait(function()
     if not findOne("战略帮助") then return true end
     tap("进入")
@@ -3390,8 +3392,9 @@ path.前瞻投资 = function()
   end, 10)
 
   -- 不期而遇2
-  swipzl("left")
-  tap({unexpect2.l, unexpect2.t})
+  -- swipzl("left")
+  tap({point.第一层下一个[1], unexpect2.t})
+
   if not wait(function()
     if not findOne("战略帮助") then return true end
     tap("进入")
@@ -3421,7 +3424,9 @@ path.前瞻投资 = function()
   end, 10)
 
   -- 商店
-  swipzl("left")
+  -- swipzl("left")
+  --
+  fight2.l = max(point.第一层下一个[1], fight2.l)
   tap({fight2.l, fight2.t})
 
   local goto_next_level = function()

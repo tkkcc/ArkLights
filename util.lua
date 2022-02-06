@@ -70,6 +70,17 @@ end
 home = function() keyPress(3) end
 back = function() keyPress(4) end
 power = function() keyPress(26) end
+_getDisplaySize = getDisplaySize
+getDisplaySize = function()
+  -- try to get from wm command
+  local wmsize = exec("wm size")
+  local x, y = wmsize:match("(%d+)%s*x%s*(%d+)%s*$")
+  x = str2int(x, -1)
+  y = str2int(y, -1)
+  if x > 0 and y > 0 then return x, y end
+  -- use internal api
+  return _getDisplaySize()
+end
 getScreen = function()
   local width, height = getDisplaySize()
   if getDisplayRotate() % 2 == 1 then width, height = height, width end
@@ -1887,7 +1898,7 @@ show_main_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[开基建退出提示，异形屏适配设为0。关游戏模式，关智能分辨率，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。有问题看必读。]])
+              [[开基建退出提示，异形屏适配设为0。关游戏模式，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。有问题看必读。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
@@ -2203,7 +2214,7 @@ show_extra_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
-  ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", true)
+  ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
   addTextView(layout, [[重启间隔(秒)]])
   ui.addEditText(layout, "zl_restart_interval", [[900]])
 
@@ -2619,12 +2630,40 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
+  -- log(getScreen())
+  log(point["常规行动1"])
+  log(point["常规行动2"])
+  log(findOne("常规行动1"))
+  log(findOne("常规行动2"))
+  log(findOne("常规行动"))
+  log(point["返回"])
+  log(findOne("返回"))
+  log(findOne("主页"))
+  disappear("任务有列表3",1000)
+        -- tap("进入主题")
+  -- tap("第一层下一个")
+  exit()
 
   ssleep(1)
-  log(getSdkVersion())
-  log(getApkVerInt())
-  log(getInstalledApps())
-  log(findOne("返回3"))
+
+  local id = createHUD()
+  showHUD(id, "HelloWorld!", 12, "0xffff0000", "0xffffffff", 0, 100, 0, 228, 32) -- 显示HUD内容
+  sleep(2000)
+  showHUD(id, "HelloWorld!", 12, "0xffff0000", "msgbox_click.png", 0, 100, 0,
+          228, 32) -- 变更显示的HUD内容
+  sleep(5000)
+  hideHUD(id) -- 隐藏HUD
+  sleep(3000)
+
+  -- while true do
+  --
+  --   playAudio('/system/media/audio/ui/Effect_Tick.ogg')
+  -- end
+
+  -- log(getSdkVersion())
+  -- log(getApkVerInt())
+  -- log(getInstalledApps())
+  -- log(findOne("返回3"))
   -- tap("面板作战")
   -- tap("返回")
   --   if findOne("暂停中") then
@@ -2687,7 +2726,7 @@ predebug_hook = function()
   end, 10) then return end
   if not appear('inputbox') then return end
   ssleep(1) -- 等待输入法弹出
-  if debug_mode then toast(password) end
+  -- if debug_mode then toast(password) end
   input("inputbox", password)
   ssleep(.5) -- 等待输入法弹出
   tap('okbutton')
