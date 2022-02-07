@@ -40,6 +40,7 @@
     git add -u
     cd release
     cp /F:/software/懒人精灵3.6.0/out/main.lr script.lr
+    cp ../README.md README.md
     numfmt --to=iec $(stat -c %s script.lr)
     local md5=$(md5sum script.lr | cut -d' ' -f1)
     echo $md5 > script.lr.md5

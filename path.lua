@@ -251,7 +251,7 @@ path.fallback = {
         last_time_tap_return = time()
       end
       -- 干员/皮肤界面用返回键没用，这时按基建右上角
-    end, 30) then stop("214 返回键10秒超时") end
+    end, 30) then stop("214 返回键30秒超时") end
     if x then return tap(path.fallback[x]) end
   end,
   活动公告返回 = function() return path.fallback.签到返回() end,
@@ -3358,9 +3358,8 @@ path.前瞻投资 = function()
   end
 
   -- 不期而遇1
-  -- swipzl("right")
-  -- tap({unexpect1.l, unexpect1.t})
-  tap({point.第一层下一个[1], unexpect1.t})
+  swipzl("right")
+  tap({unexpect1.l, unexpect1.t})
 
   if not wait(function()
     if not findOne("战略帮助") then return true end
@@ -3384,16 +3383,13 @@ path.前瞻投资 = function()
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
-    tap("不期而遇第二选项")
-    tap("不期而遇第二选项")
-    tap("不期而遇第二选项")
     tap("不期而遇第二选项")
     log(2960, findOne("确认招募"))
   end, 10)
 
   -- 不期而遇2
-  -- swipzl("left")
-  tap({point.第一层下一个[1], unexpect2.t})
+  swipzl("left")
+  tap({unexpect2.l, unexpect2.t})
 
   if not wait(function()
     if not findOne("战略帮助") then return true end
@@ -3417,16 +3413,11 @@ path.前瞻投资 = function()
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
     tap("不期而遇第二选项")
-    tap("不期而遇第二选项")
-    tap("不期而遇第二选项")
-    tap("不期而遇第二选项")
     log(2960, findOne("确认招募"))
   end, 10)
 
   -- 商店
-  -- swipzl("left")
-  --
-  fight2.l = max(point.第一层下一个[1], fight2.l)
+  swipzl("left")
   tap({fight2.l, fight2.t})
 
   local goto_next_level = function()

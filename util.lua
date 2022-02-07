@@ -837,7 +837,7 @@ end
 zoom = function(retry)
   log("zoom", retry)
   retry = retry or 0
-  if retry > 10 then
+  if retry > 20 then -- 20*200 = 4000（毫秒）
     -- TODO: 提示到底影响了什么，是不能缩放，还是缩放结束找不到
     log("缩放结束未找到")
     return true
@@ -851,6 +851,9 @@ zoom = function(retry)
     log("缩放结束")
     return true
   end
+
+  -- 网络加载时重置retry
+  if findOne("正在提交反馈至神经") then retry = 0 end
 
   -- 2x2 pixel zoom
   local duration = 50
@@ -884,7 +887,7 @@ zoom = function(retry)
   -- if appear("缩放结束", (duration + 50) / 1000) then
   --   sleep(max(0, start_time + duration + 50 - time()))
   --   return true
-  -- end 
+  -- end
   return zoom(retry + 1)
 end
 
@@ -955,7 +958,10 @@ run = function(...)
   end
   qqmessage = {' '}
   if account_idx ~= nil then
-    table.extend(qqmessage, {getDevice(), "账号" .. account_idx, username})
+    table.extend(qqmessage, {
+      getDevice(), "账号" .. account_idx, server == 0 and "官服" or "B服",
+      username,
+    })
   end
   init_state()
 
@@ -1216,12 +1222,12 @@ wait_game_up = function(retry)
     return
   end
   retry = retry or 0
-  if retry == 4 then
-    home()
-    ssleep(2)
-  end
+  -- if retry == 4 then
+  --   home()
+  --   ssleep(2)
+  -- end
   if retry == 2 then closeapp(appid) end
-  if retry > 6 then stop("不能启动游戏") end
+  if retry >= 4 then stop("不能启动游戏") end
   open(appid)
   request_game_permission()
   screenon()
@@ -2216,11 +2222,11 @@ show_extra_ui = function()
   ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
   ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
   addTextView(layout, [[重启间隔(秒)]])
-  ui.addEditText(layout, "zl_restart_interval", [[900]])
+  ui.addEditText(layout, "zl_restart_interval", [[]])
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、帕拉斯1、羽毛笔1、山2、煌2、赫拉格2 可打简单驯兽。“重启间隔”不影响正常刷投资效率，只影响稳定性。连续8小时实测简单难度打驯兽效率为每小时40(0级幕后筹备)~110(满级幕后筹备)个，简单普通效率一致。支持凌晨4点数据更新，支持16:9及以上分辨率。多次出现停止运行、随机状态卡住、悬浮按钮消失，应尝试换用其他设备或其他脚本。模拟器可在adb中使用top命令查看各进程内存占用，尤其要关注surfaceflinger进程。]])
+              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、帕拉斯1、羽毛笔1、山2、煌2、赫拉格2 可打简单驯兽。“重启间隔”一般留空，如设置，则会在等待CD时重启游戏与脚本。连续8小时实测简单难度打驯兽效率为每小时40(0级幕后筹备)~110(满级幕后筹备)个，简单普通效率一致。支持凌晨4点数据更新，支持16:9及以上分辨率。多次出现停止运行、随机状态卡住、悬浮按钮消失，应尝试换用其他设备或其他脚本。模拟器可在adb中使用top命令查看各进程内存占用，尤其要关注surfaceflinger进程。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2639,8 +2645,8 @@ predebug_hook = function()
   log(point["返回"])
   log(findOne("返回"))
   log(findOne("主页"))
-  disappear("任务有列表3",1000)
-        -- tap("进入主题")
+  disappear("任务有列表3", 1000)
+  -- tap("进入主题")
   -- tap("第一层下一个")
   exit()
 
@@ -3409,20 +3415,27 @@ captcha_solver = function() end
 forever = function(f, ...) while true do f(...) end end
 
 restart_mode = function(mode)
+  if not mode then return end
   saveConfig("restart_mode_hook", "extra_mode=[[" .. mode .. "]]")
   saveConfig("hideUIOnce", "true")
   -- TODO：这里把速通放到前台会不会有助于防止被杀（genymotion 安卓10）
-  open(getPackageName())
-  toast("5秒前台，防止别杀")
-  ssleep(5)
+  -- 结果：没用
+  -- open(getPackageName())
+  -- toast("5秒前台，防止别杀")
+  -- ssleep(5)
   restartScript()
 end
 
 restart_next_account = function()
+  -- 肉鸽中尝试重启脚本
+  if extra_mode then restart_mode(extra_mode) end
+
   -- 只在多账号模式启用跳过账号
   if not account_idx then
-    ssleep(600) -- 10分钟后再试
-    return
+    toast("等待10分钟后")
+    ssleep(600) -- 10分钟后重启脚本
+    saveConfig("hideUIOnce", "true")
+    restartScript()
   end
 
   -- closeapp(appid)
