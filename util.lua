@@ -33,6 +33,7 @@ clickPoint = function(x, y)
   gesture:addPath(path)
   gesture:dispatch()
 end
+_tap = tap
 if not zero_wait_click then clickPoint = tap end
 
 getDir = getWorkPath
@@ -47,7 +48,7 @@ end
 deviceClickEventMaxX = nil
 deviceClickEventMaxY = nil
 catchClick = function()
-  if not root_mode then stop(15) end
+  if not root_mode then stop("未实现免root获取用户点击", false) end
   local result = exec("su root sh -c 'getevent -l -c 4 -q'")
   local x, y
   x = result:match('POSITION_X%s+([^%s]+)')
@@ -529,6 +530,7 @@ stop = function(msg, try_next_account)
   toast(msg)
   captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
                           table.join(qqmessage, ' ') .. msg, QQ)
+  ssleep(3)
   if try_next_account then restart_next_account() end
   home() -- 游戏长时间在前台时模拟器很卡
   exit()
@@ -689,7 +691,7 @@ swipu = function(dis)
       swipe(sign > 0 and "right" or "left")
     else
       -- 只实现了右移
-      if sign > 0 then stop(141) end
+      if sign > 0 then stop("swipu左移未实现", false) end
 
       local finger = {
         {
@@ -763,7 +765,7 @@ end
 
 -- 安卓8以下的滑动用双指
 android_verison_code = tonumber(getSdkVersion())
-if android_verison_code < 24 then stop("安卓版本7以下不可用") end
+if android_verison_code < 24 then stop("安卓版本7以下不可用", false) end
 -- if android_verison_code < 26 then
 --   is_device_swipe_too_fast = true
 -- else
@@ -843,10 +845,7 @@ zoom = function(retry)
     return true
   end
   log(696, findOne("进驻总览"))
-  if not findOne("进驻总览") then
-    -- stop(695)
-    return path.跳转("基建")
-  end
+  if not findOne("进驻总览") then return path.跳转("基建") end
   if findOne("缩放结束") then
     log("缩放结束")
     return true
@@ -1262,7 +1261,7 @@ screenLockSwipUp = function()
     local width = getScreen().width
     gesture({point = {{width // 2, center}, {width // 2, 1}}, duration = 1000})
     sleep(1000 + 50)
-  end, 5) then stop("解锁失败1004") end
+  end, 5) then stop("解锁失败1004", false) end
 end
 screenLockGesture = function()
   local point = JsonDecode(unlock_gesture or "[]") or {}
@@ -1276,7 +1275,7 @@ screenLockGesture = function()
         ssleep(.5)
       end
     end
-    if not disappear("keyguard_input") then stop("解锁失败1005") end
+    if not disappear("keyguard_input") then stop("解锁失败1005", false) end
   end
 end
 
@@ -2076,10 +2075,10 @@ A：没有，每次运行完全独立，不依赖之前运行结果。
 
 Q：在模拟器上没反应？
 A：
-1. 脚本适用于雷电、夜神、逍遥、蓝叠4、genymotion、vmos。不适用于蓝叠5（无障碍录屏功能缺失），mumu6（安卓6版本过低），mumu9（横竖屏切换闪烁，属于脚本框架问题）。
+1. 脚本适用于雷电、夜神、逍遥、蓝叠4(开高级图形引擎)、蓝叠5(开进阶模式图形引擎)、mumu9（启动时存在横竖屏切换闪烁，启动后不影响）、genymotion 10 9 8 7、vmos、redroid10、Android Emulator。不适用于mumu安卓6、红手指安卓6、redroid 8 9 11 12。
 2. 脚本要求安卓>=7，分辨率>=1280x720，长宽比>=16:9。
 3. 切换渲染引擎（DirectX与OpenGL）后再尝试一次。本人逍遥只能用OpenGL。
-4. 建议更换其他模拟器或尝试其他脚本。
+4. 换其他设备或其他脚本。
 
 Q：有root还要手动开启无障碍？
 A：有root脚本会自动开无障碍。软件启动后的无障碍提示选“以后不再提醒”，进入后直接点“确定”即可。
@@ -2101,10 +2100,10 @@ Q：在云手机上没反应？
 A：加群反馈。
 
 Q：正常运行一段时间后突然卡住不动？
-A：如果多次卡在同一位置，大概率是代码问题，请反馈给开发者。如果停在随机界面，参考下一问题的解决方法。
+A：多次卡同一界面，请反馈给开发者。卡随机界面，参考下一问题的解决方法。
 
-Q：正常运行一段时间后突然出现“停止运行”或者悬浮按钮消失了？
-A：一般是被系统杀了。重启一次设备再启动看能否复现。保证内存充足，调整系统设置，更换系统等。建议模拟器虚拟机使用4核1280x720分辨率4G内存，降低资源占用以减轻与其他软件的竞争。
+Q：正常运行一段时间后突然出现“停止运行”或者悬浮按钮消失了或位置变了？
+A：被系统杀了。安卓<=9出现可能与surfaceflinger进程相关，可在adb中用top命令确认该进程内存占用是否合理。安卓>=10出现可能与脚本框架相关，可回退速通49版本。
 
 Q：直接弹出“停止运行”？
 A：一般是安卓版本低于7导致的。
@@ -2159,6 +2158,7 @@ A：官服登录出验证码/B服登录失败时会暂时跳过该账号，请�
 
 Q：遇到单账号密码错误会怎么处理
 A：等待10分钟后重试，请配合QQ通知使用。
+
 
 ]])
 
@@ -2226,7 +2226,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、帕拉斯1、羽毛笔1、山2、煌2、赫拉格2 可打简单驯兽。“重启间隔”一般留空，如设置，则会在等待CD时重启游戏与脚本。连续8小时实测简单难度打驯兽效率为每小时40(0级幕后筹备)~110(满级幕后筹备)个，简单普通效率一致。支持凌晨4点数据更新，支持16:9及以上分辨率。多次出现停止运行、随机状态卡住、悬浮按钮消失，应尝试换用其他设备或其他脚本。模拟器可在adb中使用top命令查看各进程内存占用，尤其要关注surfaceflinger进程。]])
+              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、帕拉斯1、羽毛笔1、山2、煌2、赫拉格2 可打简单驯兽。“重启间隔”最好留空，如设置，则会在等待CD时重启游戏与脚本。战斗掉落收藏品会捡。连续8小时实测简单难度打驯兽效率为每小时40(0级幕后筹备)~125(满级幕后筹备)个，简单普通效率一致。支持凌晨4点数据更新，支持16:9及以上分辨率。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，应尝试换用其他设备或其他脚本。模拟器可在adb中使用top命令查看各进程内存占用，尤其要关注surfaceflinger进程。实测2核2G内存的genymotion安卓10可连续刷13小时以上肉鸽。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2384,7 +2384,7 @@ gesture_capture = function()
       "gesture_capture_ui", "keyguard_indication", "keyguard_input",
     }, 5)
     if not state then
-      stop("未找到解锁界面")
+      stop("未找到解锁界面", false)
     elseif state == "gesture_capture_ui" then
       ui.setText("unlock_gesture", JsonEncode({}))
       return true
@@ -2393,7 +2393,7 @@ gesture_capture = function()
     elseif state == "keyguard_input" then
       return true
     end
-  end, 30) then stop("手势录制2010") end
+  end, 30) then stop("手势录制2010", false) end
 
   if state == title then return end
   log(200)
@@ -2405,7 +2405,7 @@ gesture_capture = function()
       table.insert(finger, {p.x, p.y})
       ui.setText("unlock_gesture", JsonEncode(finger))
     end
-  end, 30) then stop("手势录制超时") end
+  end, 30) then stop("手势录制超时", false) end
 end
 gesture_capture = disable_game_up_check_wrapper(gesture_capture)
 
@@ -2550,7 +2550,7 @@ enable_accessibility_service = function()
   openPermissionSetting()
   toast("请开启无障碍权限")
   if not wait(function() return isAccessibilityServiceRun() end, 600) then
-    stop("开启无障碍权限超时")
+    stop("开启无障碍权限超时", false)
   end
   toast("已开启无障碍权限")
 end
@@ -3088,6 +3088,18 @@ check_root_mode = function()
   if not disable_root_mode and #exec("su root sh -c 'echo aaa'") > 1 then
     root_mode = true
   end
+  -- log(exec("echo aaa"))
+  -- log(exec("sh -c 'echo aaa'"))
+  -- log(exec("sh -c 'echo aaa'"))
+  -- log(exec("su root sh -c 'echo aaa'"))
+  -- log(exec("su -c 'echo aaa'"))
+  -- log(exec("su -h"))
+  -- log(exec("which su"))
+  -- log(exec("echo $PATH"))
+  -- log(exec("ls /system/xbin/su"))
+  -- log(exec("/system/xbin/su -h"))
+  -- log(exec("/system/xbin/su -h 2>&1"))
+  log(exec("id"))
   log("root_mode", root_mode)
 end
 
@@ -3252,7 +3264,7 @@ detectServer = function()
   local app_info = isAppInstalled(appid)
   local bpp_info = isAppInstalled(bppid)
   if not app_info and not bpp_info then
-    stop("未安装明日方舟官服或B服")
+    stop("未安装明日方舟官服或B服", false)
   end
   if bpp_info and not app_info then appid = bppid end
   if bpp_info and app_info then appid_need_user_select = true end

@@ -3243,8 +3243,13 @@ path.前瞻投资 = function()
 
   -- 开始游戏
   if not wait(function()
-    if not findOne("快捷编队") then return true end
     tap("确认招募")
+    if not findOne("快捷编队") then return true end
+    -- 出现过在这儿卡死的
+    if not disappear("正在提交反馈至神经", 10) then
+      closeapp(appid)
+      return true
+    end
   end, 10) then return end
 
   -- 游戏界面

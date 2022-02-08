@@ -45,7 +45,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.02.07 15:16"
+release_date = "2022.02.08 16:49"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -153,6 +153,25 @@ elseif not crontab_enable_only then
   test_fight_hook()
   extra_mode_hook()
   disable_log = false
+  if debug_mode then
+    -- clickPoint = function(x, y)
+    --   log(159,x,y)
+    --   local gesture = Gesture:new()
+    --   local path = Path:new()
+    --   path:setStartTime(0)
+    --   path:setDurTime(200)
+    --   path:addPoint(x, y)
+    --   gesture:addPath(path)
+    --   gesture:dispatch()
+    -- end
+    -- clickPoint(733,509)
+    log(168)
+    _tap(733,509)
+    log(169)
+    -- if not zero_wait_click then clickPoint = tap end
+    exit()
+  end
+
   -- if debug_mode then
   --   log(128, debug)
   --   log(getUIConfigPath("main"))
