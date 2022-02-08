@@ -1065,7 +1065,7 @@ deploy = function(x1, x2, y2, d)
   d = {d[1] * 500, d[2] * 500}
   local dragd = 500
   local dird = 200
-  local delay = 150
+  local delay = 200  -- 有人卡这儿？
   local x3 = x2 - scale(5)
   local x4 = x2 + scale(5)
   local y3 = y2 - scale(5)
@@ -3312,8 +3312,9 @@ end
 
 -- 集成战略
 swipzl = function(mode)
-  local duration = 200
-  local delay = 200 -- 后面直接ocr或点击了，给点时间吧
+  -- 200的时候逍遥有概率出先没点下一关情况，不知道是不是这个引起的。
+  local duration = 300
+  local delay = 300 -- 后面直接ocr或点击了，给点时间吧
   local x1 = scale(300)
   local x2 = screen.width - scale(300)
   local y = scale(1080 // 2)

@@ -3007,43 +3007,41 @@ path.前瞻投资 = function()
   end, 5) then return end
 
   if not wait(function()
-    if not findOne("确认招募") then return true end
-    if findOne("剿灭说明") then tap("剿灭说明") end
     tap("放弃招募")
+    if findOne("剿灭说明") then tap("剿灭说明") end
+    if not findOne("确认招募") then return true end
   end, 5) then return end
 
   if not wait(function()
-    if findOne("初始招募") then return true end
-    if findOne("剿灭说明") then tap("剿灭说明") end
     tap("右右确认")
+    if findOne("剿灭说明") then tap("剿灭说明") end
+    if findOne("初始招募") then return true end
   end, 5) then return end
-
-  if not appear("初始招募", 5) then return end
 
   -- 第三人
   if not wait(function()
-    if findOne("确认招募") then return true end
     tap("医疗招募券")
     tap("招募说明关闭")
+    if findOne("确认招募") then return true end
   end, 5) then return end
 
   if not wait(function()
-    if not findOne("确认招募") then return true end
     tap("放弃招募")
+    if not findOne("确认招募") then return true end
   end, 5) then return end
 
   if not wait(function()
-    if findOne("初始招募") then return true end
     tap("右右确认")
+    if findOne("初始招募") then return true end
   end, 5) then return end
 
   -- 第一人
   if not wait(function()
+    tap("近卫招募券")
+    tap("招募说明关闭")
     if not findOne("初始招募") and findOne("确认招募") then
       return true
     end
-    tap("近卫招募券")
-    tap("招募说明关闭")
   end, 5) then return end
 
   if not wait(function()
@@ -3284,6 +3282,8 @@ path.前瞻投资 = function()
     -- 部署 拖拽当前第一个干员至部署位dst，方向朝左或右
     deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
                                            fight1.text) and 2 or 4)
+    tap("开始行动")
+
   end, 10)
   appear("生命值")
 
@@ -3335,7 +3335,6 @@ path.前瞻投资 = function()
         p = findOne("不要了")
       end, 10) then return true end
     end
-    if findAny({"常规行动", "战略帮助"}) then return true end
     if time() - last_swip_time > 3000 then
       log(2904)
       last_swip_time = time()
@@ -3353,8 +3352,8 @@ path.前瞻投资 = function()
         tap("右右确认")
       end, 5) then return end
     end
+    if findAny({"常规行动", "战略帮助"}) then return true end
     tap("战略确认")
-
   end, 30) then return end
 
   if not findOne("战略帮助") then
@@ -3372,7 +3371,6 @@ path.前瞻投资 = function()
   end, 5) then return end
 
   wait(function()
-    if findOne("战略帮助") then return true end
     if findOne("确认招募") then
       if not wait(function()
         if not findOne("确认招募") then return true end
@@ -3384,6 +3382,7 @@ path.前瞻投资 = function()
         tap("右右确认")
       end, 5) then return end
     end
+    if findOne("战略帮助") then return true end
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
@@ -3401,7 +3400,6 @@ path.前瞻投资 = function()
     tap("进入")
   end, 5) then return end
   wait(function()
-    if findOne("战略帮助") then return true end
     if findOne("确认招募") then
       if not wait(function()
         if not findOne("确认招募") then return true end
@@ -3413,6 +3411,7 @@ path.前瞻投资 = function()
         tap("右右确认")
       end, 5) then return end
     end
+    if findOne("战略帮助") then return true end
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
