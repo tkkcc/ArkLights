@@ -6,7 +6,7 @@
 
 [视频演示](https://www.bilibili.com/video/BV1LM4y1F7kA)
 [每日任务速通最速记录35.25s](https://www.bilibili.com/video/BV1eQ4y1C7Ch)
-[7时56分速刷999源石锭](https://www.bilibili.com/video/BV1MT4y1X7Tb)
+[7时56分速刷999源石锭](https://www.bilibili.com/video/BV1FF411n7aU)
 
 ## 特点
 

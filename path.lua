@@ -3278,13 +3278,17 @@ path.前瞻投资 = function()
 
   -- 重复拖拽
   wait(function()
-    if not appear("干员费用够列表1", 5) then return true end
     -- 部署 拖拽当前第一个干员至部署位dst，方向朝左或右
     deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
                                            fight1.text) and 2 or 4)
-    tap("开始行动")
+    wait(function()
+      if findOne("生命值") then return true end
+      tap("开始行动")
+    end)
 
-  end, 10)
+    if not appear("干员费用够列表1", 5) then return true end
+  end, 20)
+
   appear("生命值")
 
   -- 超时作战不对劲 超15分钟
