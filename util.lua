@@ -327,6 +327,10 @@ table.includes = function(t, e)
   return table.any(t, function(x) return x == e end)
 end
 
+string.includes = function(s, t)
+  for _, v in pairs(t) do if s:find(v) then return true end end
+end
+
 table.extend = function(t, e)
   for k, v in pairs(e) do table.insert(t, v) end
   return t
@@ -1065,7 +1069,7 @@ deploy = function(x1, x2, y2, d)
   d = {d[1] * 500, d[2] * 500}
   local dragd = 500
   local dird = 200
-  local delay = 150  -- 有人卡这儿？
+  local delay = 150 -- 有人卡这儿？
   local x3 = x2 - scale(5)
   local x4 = x2 + scale(5)
   local y3 = y2 - scale(5)
@@ -2158,8 +2162,6 @@ A：官服登录出验证码/B服登录失败时会暂时跳过该账号，请�
 
 Q：遇到单账号密码错误会怎么处理
 A：等待10分钟后重试，请配合QQ通知使用。
-
-
 ]])
 
   --   newRow(layout)
@@ -2636,6 +2638,21 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
+  --   swipzl("left")
+  --   local unexpect2ocr = {}
+  -- wait(function()
+  --   if #unexpect2ocr > 0 then return true end
+  --   unexpect2ocr = ocr("第一层不期而遇2")
+  -- end, 5)
+    swipzl("right")
+    local unexpect2ocr = {}
+  wait(function()
+    if #unexpect2ocr > 0 then return true end
+    unexpect2ocr = ocr("第一层不期而遇1")
+  end, 5)
+  log(unexpect2ocr)
+  exit()
+
   -- log(getScreen())
   log(point["常规行动1"])
   log(point["常规行动2"])
@@ -3312,9 +3329,10 @@ end
 
 -- 集成战略
 swipzl = function(mode)
-  -- 200的时候逍遥有概率出先没点下一关情况，不知道是不是这个引起的。
-  local duration = 300
-  local delay = 300 -- 后面直接ocr或点击了，给点时间吧
+  -- 两个200的时候逍遥有概率出先没点下一关情况，不知道是不是这个引起的。
+  -- 加了一次滑动冗余，应该不会了，改回200
+  local duration = 200
+  local delay = 200 -- 后面直接ocr或点击了，给点时间吧
   local x1 = scale(300)
   local x2 = screen.width - scale(300)
   local y = scale(1080 // 2)

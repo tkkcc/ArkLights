@@ -23,7 +23,9 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
-
+  投币提示采样列表 = {
+    {1789, 820}, {1789, 739}, {1798, 631}, {1798, 523},
+  },
   适龄提示 = "1620|204|BFBFBF",
   查看谢幕表 = "829|9|4B1A12,844|38|491F10",
   暂停中 = "929|506|FFFFFF,1121|542|FFFFFF,972|584|FFFFFF,1031|512|FFFFFF",
@@ -970,6 +972,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  投币提示采样列表 = "right_center",
   第一层上一个 = "center_center",
   第一层下一个 = "center_center",
   适龄提示 = "center_center",

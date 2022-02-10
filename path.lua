@@ -245,7 +245,7 @@ path.fallback = {
       back()
 
       -- 每两秒按下返回，处理限时活动中领到干员/皮肤
-      if time() - last_time_tap_return > 2000 then
+      if time() - last_time_tap_return > 5000 then
         -- TODO:按返回在获得物资界面没用
         tap("返回", true)
         last_time_tap_return = time()
@@ -3103,7 +3103,11 @@ path.前瞻投资 = function()
   if #unexpect2ocr == 0 then return end
   -- 替换幕间余兴
   for _, v in pairs(unexpect2ocr) do
-    if v.text:find("兴") then v.text = "不期而遇" end
+    -- 720p甚至 有 "作期"
+    if not v.text:includes({"作"}) and
+      v.text:includes({"期", "遇", "幕", "兴"}) then
+      v.text = "不期而遇"
+    end
   end
   if not table.find(unexpect2ocr,
                     function(x) return x.text == "不期而遇" end) then
@@ -3126,13 +3130,13 @@ path.前瞻投资 = function()
   end
   local fight1 = fight1ocr[1]
   -- 只支持三种作战
-  if fight1.text:find("意") then
+  if fight1.text:includes({"意", "外"}) then
     fight1.text = "意外"
-  elseif fight1.text:find("队") then
+  elseif fight1.text:includes({"礼", "炮", "队"}) then
     fight1.text = "礼炮小队"
-  elseif fight1.text:find("虫") then
+  elseif fight1.text:includes({"与", "虫", "伴"}) then
     fight1.text = "与虫为伴"
-  elseif fight1.text:find("屋") then
+  elseif fight1.text:includes({"驯", "兽", "屋"}) then
     fight1.text = "驯兽小屋"
   else
     toast("不知道什么作战：" .. fight1.text)
@@ -3156,7 +3160,11 @@ path.前瞻投资 = function()
   if #unexpect1ocr == 0 then return end
   -- 替换幕间余兴
   for _, v in pairs(unexpect1ocr) do
-    if v.text:find("兴") then v.text = "不期而遇" end
+    -- if v.text:includes({"兴"}) then v.text = "不期而遇" end
+    if not v.text:includes({"作"}) and
+      v.text:includes({"期", "遇", "幕", "兴"}) then
+      v.text = "不期而遇"
+    end
   end
 
   if not table.find(unexpect1ocr,
@@ -3324,13 +3332,15 @@ path.前瞻投资 = function()
         -- 不要了 点了之后短时间内不能再滑
         last_swip_time = time()
         if not p or findOne("战略帮助") then return true end
-        -- 收集下源石（0级幕后筹备很少）
-        local p1 = findOne("源石锭")
-        -- 点亮藏品
-        local p2 = findOne("收藏品")
-        tap(p2)
-        tap(p1)
-        log(3168, p1, p2)
+        if not zl_disable_fight_drop then
+          -- 收集下源石（0级幕后筹备很少）
+          local p1 = findOne("源石锭")
+          -- 点亮藏品
+          local p2 = findOne("收藏品")
+          tap(p2)
+          tap(p1)
+          log(3168, p1, p2)
+        end
         tap({p[1] + scale(765 - 668), scale(789)})
         ssleep(.1)
         tap({p[1] + scale(765 - 668), scale(789)})
@@ -3365,14 +3375,16 @@ path.前瞻投资 = function()
     return
   end
 
-  -- 不期而遇1
-  swipzl("right")
-  tap({unexpect1.l, unexpect1.t})
-
+  -- 不期而遇1 两次尝试
   if not wait(function()
-    if not findOne("战略帮助") then return true end
-    tap("进入")
-  end, 5) then return end
+    swipzl("right")
+    tap({unexpect1.l, unexpect1.t})
+    if not wait(function()
+      if not findOne("战略帮助") then return true end
+      tap("进入")
+    end, 3) then return end
+    return true
+  end, 6) then return end
 
   wait(function()
     if findOne("确认招募") then
@@ -3395,14 +3407,17 @@ path.前瞻投资 = function()
     log(2960, findOne("确认招募"))
   end, 10)
 
-  -- 不期而遇2
-  swipzl("left")
-  tap({unexpect2.l, unexpect2.t})
-
+  -- 不期而遇2 两次尝试
   if not wait(function()
-    if not findOne("战略帮助") then return true end
-    tap("进入")
-  end, 5) then return end
+    swipzl("left")
+    tap({unexpect2.l, unexpect2.t})
+    if not wait(function()
+      if not findOne("战略帮助") then return true end
+      tap("进入")
+    end, 3) then return end
+    return true
+  end, 6) then return end
+
   wait(function()
     if findOne("确认招募") then
       if not wait(function()
@@ -3455,10 +3470,22 @@ path.前瞻投资 = function()
     if findOne("诡意行商投资入口") then return true end
     tap("诡意行商投币")
   end) then return end
+
+  local coin_notification = sample("投币提示")
+  local coin_start_time = time()
+
+  -- 超时改为60秒，有时会出现上限极高情况
   wait(function()
+    -- 不能投情况
     if not findOne("诡意行商投资入口") then return true end
+
+    -- 6秒后，如果底部投币提示没有，那就说明投币结束
+    -- 能投但币不够或者已投满
+    if time() - coin_start_time > 6000 and findOne(coin_notification) then
+      return true
+    end
     tap("诡意行商确认投资")
-  end, 10)
+  end, 60)
   return goto_next_level()
 end
 
