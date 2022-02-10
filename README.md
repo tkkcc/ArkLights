@@ -79,7 +79,8 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度极高，飞天助手实现，群号881842570</td>
+      <td>完成度极高，飞天助手实现，群号https://t.me/+m0RQ3VfP1GY4MmU1
+</td>
    </tr>
    <tr>
    <td><a href="https://www.bilibili.com/video/BV1ML411x7gz">星火方舟</a></td>
