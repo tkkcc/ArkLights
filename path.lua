@@ -1839,7 +1839,7 @@ path.主线 = function(x)
       p[state_with_home("当前进度列表" .. i)] =
         "当前进度列表" .. (i > chapter_index and "左" or "右")
       p[state_with_home("按下当前进度列表" .. i)] =
-        p["当前进度列表" .. i]
+        "当前进度列表" .. (i > chapter_index and "左" or "右")
     end
   end
 
@@ -1879,7 +1879,10 @@ path.主线 = function(x)
       if not findOne("怒号光明") then return true end
       tap("作战主线章节列表" .. 8)
     end, 3) then return end
-    if not appear(table.keys(p), 5) then return end
+    if not appear(table.keys(p), 5) then
+      log("无法确认是第几章")
+      return
+    end
   end
   -- 10秒内需要完成章节切换
   auto(p, nil, 10, 10)
@@ -2616,7 +2619,7 @@ path.公招刷新 = function()
 
   -- 第二个容易被刷新通知卡着，最后再做
   -- for i = 1, #point.公开招募列表 do
-  for _, i in pairs({1, 3, 4, 2}) do
+  for _, i in pairs(table.slice({1, 3, 4, 2}, 1, #point.公开招募列表)) do
     f(i)
     if speedrun and i >= 3 then break end
   end

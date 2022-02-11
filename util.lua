@@ -2638,6 +2638,8 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
+  log(findOne("当前进度列表6"))
+  exit()
   --   swipzl("left")
   --   local unexpect2ocr = {}
   -- wait(function()
