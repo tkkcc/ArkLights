@@ -73,12 +73,19 @@ back = function() keyPress(4) end
 power = function() keyPress(26) end
 _getDisplaySize = getDisplaySize
 getDisplaySize = function()
-  -- try to get from wm command
+  -- override height and width
+  if type(override_height) == 'number' and type(override_width) == 'number' and
+    override_width > 0 and override_height > 0 then
+    return override_width, override_height
+  end
+
+  -- try to get from wm command, seems not work on real devices
   local wmsize = exec("wm size")
   local x, y = wmsize:match("(%d+)%s*x%s*(%d+)%s*$")
   x = str2int(x, -1)
   y = str2int(y, -1)
   if x > 0 and y > 0 then return x, y end
+
   -- use internal api
   return _getDisplaySize()
 end
@@ -769,7 +776,10 @@ end
 
 -- 安卓8以下的滑动用双指
 android_verison_code = tonumber(getSdkVersion())
-if android_verison_code < 24 then stop("安卓版本7以下不可用", false) end
+if android_verison_code < 24 then
+  toast("安卓版本7以下不可用")
+  ssleep(3)
+end
 -- if android_verison_code < 26 then
 --   is_device_swipe_too_fast = true
 -- else
@@ -2189,6 +2199,13 @@ show_debug_ui = function()
   addTextView(layout, "找色")
   ui.addEditText(layout, "findOne_interval", "")
 
+  newRow(layout)
+  ui.addEditText(layout, "post_util_hook", [[
+-- 分辨率替换：填好后点返回再重启脚本，填0无效
+override_width = 0
+override_height = 0
+]])
+
   ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
 end
@@ -2223,12 +2240,14 @@ show_extra_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
   ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
-  addTextView(layout, [[重启间隔(秒)]])
-  ui.addEditText(layout, "zl_restart_interval", [[]])
+  ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", true)
+  -- newRow(layout)
+  -- addTextView(layout, [[重启间隔(秒)]])
+  -- ui.addEditText(layout, "zl_restart_interval", [[]])
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、帕拉斯1、羽毛笔1、山2、煌2、赫拉格2 可打简单驯兽。“重启间隔”最好留空，如设置，则会在等待CD时重启游戏与脚本。战斗掉落收藏品会捡。连续8小时实测简单难度打驯兽效率为每小时40(0级幕后筹备)~125(满级幕后筹备)个，简单普通效率一致。支持凌晨4点数据更新，支持16:9及以上分辨率。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，应尝试换用其他设备或其他脚本。模拟器可在adb中使用top命令查看各进程内存占用，尤其要关注surfaceflinger进程。实测2核2G内存的genymotion安卓10可连续刷13小时以上肉鸽。]])
+              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打简单驯兽。战斗掉落收藏品会捡(观光只能点亮)。连续8小时实测观光效率为每小时40(0级幕后筹备)~129(全结局满级幕后筹备7时42分刷999个)个。支持凌晨4点数据更新，支持16:9及以上分辨率。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，应尝试换用其他设备或其他脚本。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2446,10 +2465,11 @@ getUIConfigPath = function(layout)
   return getWorkPath() .. '/config_' .. layout .. '.json'
 end
 
-loadUIConfig = function()
-  for _, layout in pairs({
-    "multi_account", "gesture_capture", "extra", "debug", "main",
-  }) do
+loadUIConfig = function(layouts)
+  if not layouts then
+    layouts = {"multi_account", "gesture_capture", "extra", "debug", "main"}
+  end
+  for _, layout in pairs(layouts) do
     local config = getUIConfigPath(layout)
     if fileExist(config) then
       log("load", config)
@@ -2639,6 +2659,8 @@ predebug_hook = function()
   findOne_interval = -1
   zl_skill_times = 100
   log(findOne("当前进度列表6"))
+  log(point['每周报酬合成玉'])
+  log(findOne("每周报酬合成玉"))
   exit()
   --   swipzl("left")
   --   local unexpect2ocr = {}
@@ -2646,8 +2668,8 @@ predebug_hook = function()
   --   if #unexpect2ocr > 0 then return true end
   --   unexpect2ocr = ocr("第一层不期而遇2")
   -- end, 5)
-    swipzl("right")
-    local unexpect2ocr = {}
+  swipzl("right")
+  local unexpect2ocr = {}
   wait(function()
     if #unexpect2ocr > 0 then return true end
     unexpect2ocr = ocr("第一层不期而遇1")
@@ -3283,7 +3305,8 @@ detectServer = function()
   local app_info = isAppInstalled(appid)
   local bpp_info = isAppInstalled(bppid)
   if not app_info and not bpp_info then
-    stop("未安装明日方舟官服或B服", false)
+    toast("未安装明日方舟官服或B服")
+    ssleep(3)
   end
   if bpp_info and not app_info then appid = bppid end
   if bpp_info and app_info then appid_need_user_select = true end
@@ -3310,6 +3333,7 @@ setControlBar = function()
 end
 
 extra_mode_hook = function()
+
   if extra_mode then
     run(extra_mode)
     exit()
@@ -3501,3 +3525,7 @@ check_login_frequency = function()
   -- TODO
 
 end
+
+-- post_util_hook
+loadUIConfig({"debug"})
+load(post_util_hook or '')()

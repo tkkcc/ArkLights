@@ -9,7 +9,8 @@ if screen.width < screen.height then
 end
 log("分辨率：" .. screen.width .. "x" .. screen.height)
 if screen.width / screen.height < 16 / 9 or screen.height < 720 then
-  stop("不支持分辨率" .. screen.width .. 'x' .. screen.height)
+  toast("不支持当前分辨率" .. screen.width .. 'x' .. screen.height .. "")
+  ssleep(3)
 end
 -- if getDisplayDpi() < 320 then stop("不支持DPI" .. getDisplayDpi()) end
 
@@ -23,6 +24,8 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  代理指挥未解锁 = "975|110|FFFFFF,993|110|FFFFFF,1008|123|FFFFFF,1003|134|FFFFFF",
+  每周报酬合成玉 = "1677|186|C82A36,1668|184|313131,1675|213|C82A36",
   投币提示采样列表 = {
     {1789, 820}, {1789, 739}, {1798, 631}, {1798, 523},
   },
@@ -972,6 +975,8 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  代理指挥未解锁 = "right_top",
+  每周报酬合成玉 = "center_center",
   投币提示采样列表 = "right_center",
   第一层上一个 = "center_center",
   第一层下一个 = "center_center",

@@ -1673,6 +1673,7 @@ path.轮次作战 = function()
 end
 
 jianpin2name = {
+  -- JM = '剿灭',
   DQWT = "当期委托",
   -- JSCK = "积水潮窟",
   -- CMHB = "潮没海滨",
@@ -1897,8 +1898,8 @@ path.上一次 = function(x)
   tap("面板作战")
   if not appear("主页") then return end
   wait(function()
-    if not findOne("主页") then return true end
     tap("上一次")
+    if not findOne("主页") then return true end
   end, 5)
   if not appear("开始行动", 5) then return end
   -- 专为剿灭设计
@@ -2120,57 +2121,59 @@ path.剿灭 = function(x)
   tap("面板作战")
   if not appear("主页") then return end
 
+  -- 噪声是一方面，未解锁提示也会挡着，邮件提示也会挡着
+  -- if not appear("每周报酬合成玉", 3) then
+  --   jmfight_enough = true
+  --   return
+  -- end
+  -- if not wait(function()
+  --   tap("每周报酬合成玉")
+  --   if not findOne("每周报酬合成玉") then return true end
+  -- end) then return end
+
   if not wait(function()
-    if findOne("主题曲界面") then return true end
     tap("主题曲")
+    if findOne("主题曲界面") then return true end
   end) then return end
 
   wait(function()
-    if not findOne("主题曲界面") then return true end
     tap("每周部署")
+    if not findOne("主题曲界面") then return true end
   end)
 
-  -- if not wait(function()
-  --   if findOne("每周部署", 90) and not findOne("主题曲", 90) and
-  --     not findOne("资源收集", 90) then return true end
-  -- tap("每周部署")
-  -- end) then return end
-  -- if not wait(function()
-  --   if findOne("每周部署", 90) then return true end
-  --   tap("每周部署")
-  -- end) then return end
-
-  if not findOne("主页") then return end
+  -- 注意有噪点
+  if not appear("主页") then return end
   if not wait(function()
-    -- if is_jmfight_enough(x, true) then return true end
-    if not findOne("主页") then return true end
     tap("当期委托")
+    if not findOne("主页") then return true end
   end, 5) then return end
+
   if is_jmfight_enough(x) then return end
   if not appear("开始行动", 5) then return end
   if is_jmfight_enough(x) then return end
-  -- if x ~= "当期委托" then
-  -- -- 非当期委托需要切换
-  if x ~= "unknown" then
-    -- 都需要切换
-    if not wait(function()
-      if findOne("切换") then return true end
-      tap("主页右侧")
-    end, 5) then return end
-    if is_jmfight_enough(x) then return end
-    if not wait(function()
-      if findOne("当前委托侧边栏") then return true end
-      tap("切换")
-      appear("当前委托侧边栏")
-    end, 5) then return end
-    if not wait(function()
-      if not findOne("当前委托侧边栏") then return true end
-      tap("作战列表" .. x)
-      disappear("当前委托侧边栏")
-    end, 5) then return end
 
-    log(1287)
-  end
+  -- if x ~= "当期委托" then
+  -- 当期委托也需要切换
+  -- if x ~= "剿灭" then
+  -- 都需要切换
+  if not wait(function()
+    if findOne("切换") then return true end
+    tap("主页右侧")
+  end, 5) then return end
+  if is_jmfight_enough(x) then return end
+  if not wait(function()
+    if findOne("当前委托侧边栏") then return true end
+    tap("切换")
+    appear("当前委托侧边栏")
+  end, 5) then return end
+  if not wait(function()
+    if not findOne("当前委托侧边栏") then return true end
+    tap("作战列表" .. x)
+    disappear("当前委托侧边栏")
+  end, 5) then return end
+
+  log(1287)
+  -- end
   if is_jmfight_enough(x) then return end
   log(1289)
   -- ssleep(1)
@@ -2872,7 +2875,11 @@ path.退出账号 = function()
 end
 
 path.前瞻投资 = function()
+  -- 防止日志占用资源过多把脚本挤掉
   if zl_disable_log then disable_log = true end
+  -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）
+  if zl_disable_game_up_check then disable_game_up_check = true end
+
   local restart = function()
     -- 关闭游戏然后重启脚本
     if restart_game_check(zl_restart_interval) then
