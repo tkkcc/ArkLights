@@ -2878,7 +2878,9 @@ path.前瞻投资 = function()
   -- 防止日志占用资源过多把脚本挤掉
   if zl_disable_log then disable_log = true end
   -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）
-  if zl_disable_game_up_check then disable_game_up_check = true end
+  -- if zl_disable_game_up_check then disable_game_up_check = true end
+  -- 3.6.0发现当节点获取失效时，点击、找色其实都出问题了
+  --
 
   local restart = function()
     -- 关闭游戏然后重启脚本
@@ -3108,7 +3110,7 @@ path.前瞻投资 = function()
   local unexpect2ocr = {}
   wait(function()
     if #unexpect2ocr > 0 then return true end
-    unexpect2ocr = ocr("第一层不期而遇2")
+    unexpect2ocr = ocr("第一层不期而遇2",scale(60))
   end, 5)
   if #unexpect2ocr == 0 then return end
   -- 替换幕间余兴
@@ -3163,7 +3165,7 @@ path.前瞻投资 = function()
   local unexpect1ocr = {}
   wait(function()
     if #unexpect1ocr > 0 then return true end
-    unexpect1ocr = ocr("第一层不期而遇1")
+    unexpect1ocr = ocr("第一层不期而遇1",scale(60))
   end, 5)
 
   log(2722)

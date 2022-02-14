@@ -2240,7 +2240,7 @@ show_extra_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
   ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
-  ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", true)
+  -- ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", false)
   -- newRow(layout)
   -- addTextView(layout, [[重启间隔(秒)]])
   -- ui.addEditText(layout, "zl_restart_interval", [[]])
@@ -2658,23 +2658,57 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
-  log(findOne("当前进度列表6"))
-  log(point['每周报酬合成玉'])
-  log(findOne("每周报酬合成玉"))
+  -- log(findOne("当前进度列表6"))
+  -- log(point['每周报酬合成玉'])
+  -- log(findOne("每周报酬合成玉"))
+  --
+  swipzl("left")
+  ocr("第一层不期而遇2", scale(60))
+  swipzl("right")
+  ocr("第一层不期而遇1", scale(60))
+  -- while true do
+  --   local x = ocr("第一层不期而遇1", scale(60))
+  --   if #x ~= 1 then log(x) end
+  -- end
+  --
   exit()
-  --   swipzl("left")
-  --   local unexpect2ocr = {}
-  -- wait(function()
-  --   if #unexpect2ocr > 0 then return true end
-  --   unexpect2ocr = ocr("第一层不期而遇2")
+  swipzl("left")
+  -- ssleep(1)
+  local unexpect2ocr = {}
+  -- point.第一层不期而遇2 = {191,182,461,560}
+  -- point.第一层不期而遇2 = {191,182,461,560}
+  --
+  -- point.第一层不期而遇2 = {173,219,467,531}
+  -- point.第一层不期而遇2 = {180,182,461,560}
+
+  -- point.第一层不期而遇2 = {173, 219, 470 , 516}
+  wait(function()
+    if #ocr("第一层不期而遇2") ~= 3 then
+      toast(1)
+      exit()
+    end
+  end, 5)
+
+  swipzl("right")
+  -- point.第一层不期而遇1 = {1048, 219, 1345 , 516}
+  wait(function()
+    if #ocr("第一层不期而遇1") ~= 2 then
+      toast(1)
+      exit()
+    end
+  end, 5)
+  wait(function()
+    if #ocr("第一层作战1") ~= 1 then
+      toast(1)
+      exit()
+    end
+  end, 5)
+
+  exit()
   -- end, 5)
   swipzl("right")
-  local unexpect2ocr = {}
-  wait(function()
-    if #unexpect2ocr > 0 then return true end
-    unexpect2ocr = ocr("第一层不期而遇1")
-  end, 5)
-  log(unexpect2ocr)
+  -- local unexpect2ocr = {}
+  wait(function() if #ocr("第一层不期而遇1") < 3 then stop(1) end end, 5)
   exit()
 
   -- log(getScreen())
@@ -3340,16 +3374,19 @@ extra_mode_hook = function()
   end
 end
 
-ocr = function(r)
-  releaseCapture()
+ocr = function(r, max_height)
+  -- releaseCapture()
   r = point[r]
-  log("ocrinput", r)
+  log("ocrinput", r, max_height)
   local d1 = scale(math.random(-1, 1))
   local d2 = scale(math.random(-1, 1))
   local d3 = scale(math.random(-1, 1))
   local d4 = scale(math.random(-1, 1))
   r = ocrEx(r[1] + d1, r[2] + d2, r[3] + d3, r[4] + d4) or {}
-  log("ocrresult", r)
+  if max_height then
+    r = table.filter(r, function(x) return (x.b - x.t) <= max_height end)
+  end
+  log("ocroutput", r)
   return r
 end
 
