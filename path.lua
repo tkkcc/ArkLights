@@ -1666,9 +1666,9 @@ path.轮次作战 = function()
 
     path[get_fight_type(cur_fight)](cur_fight)
 
-    -- 导航失败2次就删除
+    -- 导航失败3次就删除
     fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
-    if fight_failed_times[cur_fight] > 1 then clean_fight(cur_fight) end
+    if fight_failed_times[cur_fight] > 2 then clean_fight(cur_fight) end
   end
 end
 
@@ -3110,7 +3110,7 @@ path.前瞻投资 = function()
   local unexpect2ocr = {}
   wait(function()
     if #unexpect2ocr > 0 then return true end
-    unexpect2ocr = ocr("第一层不期而遇2",scale(60))
+    unexpect2ocr = ocr("第一层不期而遇2", scale(60))
   end, 5)
   if #unexpect2ocr == 0 then return end
   -- 替换幕间余兴
@@ -3165,7 +3165,7 @@ path.前瞻投资 = function()
   local unexpect1ocr = {}
   wait(function()
     if #unexpect1ocr > 0 then return true end
-    unexpect1ocr = ocr("第一层不期而遇1",scale(60))
+    unexpect1ocr = ocr("第一层不期而遇1", scale(60))
   end, 5)
 
   log(2722)
@@ -3178,6 +3178,8 @@ path.前瞻投资 = function()
       v.text = "不期而遇"
     end
   end
+
+  local from_bottom_node = findOne("第一层从下方来")
 
   if not table.find(unexpect1ocr,
                     function(x) return x.text == "不期而遇" end) then
@@ -3206,6 +3208,18 @@ path.前瞻投资 = function()
     unexpect2 = unexpect2ocr[1]
     unexpect1 = table.findv(unexpect1ocr,
                             function(x) return x.text == "不期而遇" end)
+
+    -- 2 走 3 且 3只有中间为不期而遇时，确认2的上还是下来的
+  elseif #unexpect2ocr == 3 and unexpect2ocr[2].text == '不期而遇' and
+    #unexpect1ocr == 2 and unexpect1ocr[1].text == '不期而遇' and
+    not from_bottom_node then
+    unexpect2 = unexpect2ocr[2]
+    unexpect1 = unexpect1ocr[1]
+  elseif #unexpect2ocr == 3 and unexpect2ocr[2].text == '不期而遇' and
+    #unexpect1ocr == 2 and unexpect1ocr[2].text == '不期而遇' and
+    from_bottom_node then
+    unexpect2 = unexpect2ocr[2]
+    unexpect1 = unexpect1ocr[2]
   else
     toast("难以找到一条全是不期而遇的路")
     return restart()
@@ -3343,7 +3357,9 @@ path.前瞻投资 = function()
       if not wait(function()
         -- 不要了 点了之后短时间内不能再滑
         last_swip_time = time()
-        if not p or findOne("战略帮助") then return true end
+        if not p or findAny({"战略帮助", "确认招募"}) then
+          return true
+        end
         if not zl_disable_fight_drop then
           -- 收集下源石（0级幕后筹备很少）
           local p1 = findOne("源石锭")
@@ -3392,7 +3408,8 @@ path.前瞻投资 = function()
     swipzl("right")
     tap({unexpect1.l, unexpect1.t})
     if not wait(function()
-      if not findOne("战略帮助") then return true end
+      -- 被蓝线影响
+      if not appear("战略帮助", 0.1) then return true end
       tap("进入")
     end, 3) then return end
     return true
