@@ -74,10 +74,8 @@ power = function() keyPress(26) end
 _getDisplaySize = getDisplaySize
 getDisplaySize = function()
   -- override height and width
-  if type(override_height) == 'number' and type(override_width) == 'number' and
-    override_width > 0 and override_height > 0 then
-    return override_width, override_height
-  end
+  if type(force_height) == 'number' and type(force_width) == 'number' and
+    force_width > 0 and force_height > 0 then return force_width, force_height end
 
   -- try to get from wm command, seems not work on real devices
   local wmsize = exec("wm size")
@@ -985,6 +983,7 @@ run = function(...)
   setControlBar()
 
   for _, v in ipairs(arg) do
+    setControlBar()
     -- setControlBarPosNew(0.00001, 1)
     running = v
     if type(v) == 'function' then
@@ -1478,6 +1477,8 @@ tapAll = function(ks)
   -- 0 还是漏第一个
   -- 试试100 还是会漏第一个，这是界面看上去已经是完全可用状态了
   local duration = 1
+  if tapall_duration > 0 then duration = tapall_duration end
+
   local finger = {}
   ks = shallowCopy(ks)
   for i, k in pairs(ks) do
@@ -1677,7 +1678,7 @@ show_multi_account_ui = function()
   ui.addCheckBox(layout, "multi_account_end_closeotherapp",
                  "切号前关别服", true)
   ui.addCheckBox(layout, "multi_account_end_closeapp", "切号前关本服",
-                 false)
+                 true)
   newRow(layout)
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
@@ -1810,6 +1811,7 @@ hotUpdate = function()
   toast("正在检查更新...")
   if disable_hotupdate then return end
   local url = 'https://gitee.com/bilabila/arknights/raw/master/script.lr'
+  if beta_mode then url = url .. '.beta' end
   local md5url = url .. '.md5'
   local path = getWorkPath() .. '/newscript.lr'
   local md5path = path .. '.md5'
@@ -2205,11 +2207,20 @@ show_debug_ui = function()
   ui.addEditText(layout, "findOne_interval", "")
 
   newRow(layout)
-  ui.addEditText(layout, "post_util_hook", [[
--- 分辨率替换：填好后点返回再重启脚本，填0无效
-override_width = 0
-override_height = 0
-]])
+  addTextView(layout, "多点点击时长(miui13换班不上人)")
+  ui.addEditText(layout, "tapall_duration", "")
+  -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
+
+  newRow(layout)
+  addTextView(layout, "强制分辨率(点返回再重启脚本)")
+  ui.addEditText(layout, "force_width", [[]])
+  addTextView(layout, "x")
+  ui.addEditText(layout, "force_height", [[]])
+
+  newRow(layout)
+  ui.addCheckBox(layout, "beta_mode", "beta更新源", false)
+  -- addTextView(layout, "多点点击时长(miui13换班不上人)")
+  -- ui.addEditText(layout, "tapall_duration", "")
 
   ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
@@ -2665,7 +2676,25 @@ predebug_hook = function()
   zl_skill_times = 100
   -- log(findOne("当前进度列表6"))
   -- log(point['每周报酬合成玉'])
-  -- log(findOne("每周报酬合成玉"))
+  -- log(findOne("战略返回"))
+  -- point.r={1187,289,1231,310}
+  -- point.r={1077,203,1265,533}
+  -- point.r={597,220,815,520}
+  -- point.r={605,212,807,520}
+  -- point.r={691,211,853,517}
+  -- log(ocr("r"))
+
+  -- log(ocr("第一层作战"))
+  -- log(findOne(""))
+  p = point.第一层不期而遇1列表
+  log(map(function(x) return point[x] end, p))
+  log(map(function(x) return findOne(x) end, p))
+  p = point.第一层不期而遇2列表
+  log(map(function(x) return point[x] end, p))
+  log(map(function(x) return findOne(x) end, p))
+
+  exit()
+  -- exec("su root sh -c ' " .. package .. "'")
   while true do
     -- tap("右右确认")
     -- tap("战略确认")
@@ -3583,6 +3612,25 @@ check_login_frequency = function()
 
 end
 
+oom_score_adj = function()
+  if not root_mode then return end
+  local set = function(package)
+    exec("su root sh -c 'echo -1000 > /proc/$(pidof " .. package ..
+           ")/oom_score_adj'")
+  end
+  local get = function(package)
+    return (exec("su root sh -c 'cat /proc/$(pidof " .. package ..
+                   ")/oom_score_adj'") or ''):trim()
+  end
+  local package = getPackageName()
+  set(package)
+  set(package .. ":acc")
+  set(package .. ":remote")
+  log("oom_score_adj:" .. get(package) .. get(package .. ":acc") ..
+        get(package .. ":remote"))
+end
+
 -- post_util_hook
 loadUIConfig({"debug"})
-load(post_util_hook or '')()
+force_width = str2int(force_width, 0)
+force_height = str2int(force_height, 0)

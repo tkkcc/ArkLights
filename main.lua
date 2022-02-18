@@ -46,13 +46,12 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.02.15 20:33"
+release_date = "2022.02.18 20:15"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
 ui_submit_width = -2
 ui_small_submit_width = -2
-
 
 require('util')
 require("point")
@@ -61,13 +60,13 @@ require("tag")
 require('skill')
 
 showControlBar(true)
--- setControlBar()
 setEventCallback()
 hotUpdate()
 consoleInit()
 check_root_mode()
 enable_accessibility_service()
 enable_snapshot_service()
+oom_score_adj()
 detectServer()
 predebug_hook()
 showUI()
@@ -80,6 +79,7 @@ tap_interval = str2int(tap_interval, -1)
 zl_restart_interval = str2int(zl_restart_interval, math.huge)
 zl_skill_times = str2int(zl_skill_times, 0)
 zl_skill_idx = str2int(zl_skill_idx, 1)
+tapall_duration = str2int(tapall_duration, -1)
 log("debug_mode", debug_mode)
 -- if best_operator then
 --   zl_best_operator = best_operator
@@ -156,6 +156,25 @@ elseif not crontab_enable_only then
   extra_mode_hook()
   disable_log = false
   if debug_mode then
+    toast(fight[1])
+    ssleep(3)
+    exit()
+    toast(getWorkPath())
+    ssleep(3)
+    local img = getWorkPath() .. "/tmp.jpg"
+    snapShot(img)
+    log(base64(img))
+    log(tostring(111))
+    log(1, exec("ls " .. getWorkPath()))
+    img = "/sdcard/com.bilabila.arknightsspeedrun2/tmp.jpg"
+    log(2, exec("ls /sdcard/com.bilabila.arknightsspeedrun2"))
+    snapShot(img)
+    log(3, exec("ls /sdcard/com.bilabila.arknightsspeedrun2"))
+    exec("echo 1111111 > /sdcard/com.bilabila.arknightsspeedrun2/11.jpg")
+    log(4, exec("ls /sdcard/com.bilabila.arknightsspeedrun2"))
+    log(tostring(222))
+    -- captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') .. "调试模式", QQ)
+    exit()
     -- clickPoint = function(x, y)
     --   log(159,x,y)
     --   local gesture = Gesture:new()

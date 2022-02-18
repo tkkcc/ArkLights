@@ -2116,7 +2116,9 @@ is_jmfight_enough = function(x, outside)
 end
 
 path.剿灭 = function(x)
-  if is_jmfight_enough(x) then return end
+  -- 白色皮肤首页误判为已满
+  -- if is_jmfight_enough(x) then return end
+
   path.跳转("首页")
   tap("面板作战")
   if not appear("主页") then return end
@@ -3293,8 +3295,7 @@ path.前瞻投资 = function()
   if not findOne("生命值") then return end
 
   -- 需要等等才能点
-  ssleep(2)
-  tap("两倍速")
+  appearTap("两倍速", 3)
 
   if not wait(function()
     if findOne("干员费用够列表1") then return true end
@@ -3336,7 +3337,7 @@ path.前瞻投资 = function()
     end
     if findOne("生命值") then last_time_see_life = time() end
     -- 超过3秒没看到生命值
-    if time() - last_time_see_life > 3000 then return true end
+    if time() - last_time_see_life > 5000 then return true end
     tap("开始行动")
     local p = findOne("技能亮")
     if p and skill_times < zl_skill_times then
@@ -3350,37 +3351,17 @@ path.前瞻投资 = function()
     end
   end, 900) then return closeapp(appid) end
 
-  local last_swip_time = time()
+  if not appear("战略返回", 10) then return end
+
   if not wait(function()
+    findTap("收藏品")
+    findTap("源石锭")
     local p = findOne("不要了")
     if p then
-      if not wait(function()
-        -- 不要了 点了之后短时间内不能再滑
-        last_swip_time = time()
-        if not p or findAny({"战略帮助", "确认招募"}) then
-          return true
-        end
-        if not zl_disable_fight_drop then
-          -- 收集下源石（0级幕后筹备很少）
-          local p1 = findOne("源石锭")
-          -- 点亮藏品
-          local p2 = findOne("收藏品")
-          tap(p2)
-          tap(p1)
-          log(3168, p1, p2)
-        end
-        tap({p[1] + scale(765 - 668), scale(789)})
-        ssleep(.1)
-        tap({p[1] + scale(765 - 668), scale(789)})
-        ssleep(.1)
-        tap({p[1] + scale(765 - 668), scale(789)})
-        p = findOne("不要了")
-      end, 10) then return true end
-    end
-    if time() - last_swip_time > 3000 then
-      log(2904)
-      last_swip_time = time()
-      swipzl('card')
+      tap({p[1] + scale(765 - 668), scale(789)})
+      tap({p[1] + scale(765 - 668), scale(789)})
+      tap({p[1] + scale(765 - 668), scale(789)})
+      tap({p[1] + scale(765 - 668), scale(789)})
     end
     -- 误触到招募券处理
     if findOne("确认招募") then
@@ -3394,26 +3375,35 @@ path.前瞻投资 = function()
         tap("右右确认")
       end, 5) then return end
     end
+    if not findOne("战略返回") then
+      appear({"战略返回","战略帮助"})
+    end
+    -- if disappear("战略返回",0.5) then return true end
     if findAny({"常规行动", "战略帮助"}) then return true end
     tap("战略确认")
   end, 30) then return end
+
+  -- if not appear("战略返回", 5) then return end
 
   if not findOne("战略帮助") then
     log(2873)
     return
   end
 
+
   -- 不期而遇1 两次尝试
+  tap({point.第一层下一个[1], unexpect1.t})
   if not wait(function()
+    if not appear("战略帮助", 0.1) then return true end
+    tap("进入")
+  end, 3) then
     swipzl("right")
     tap({unexpect1.l, unexpect1.t})
     if not wait(function()
-      -- 被蓝线影响
       if not appear("战略帮助", 0.1) then return true end
       tap("进入")
     end, 3) then return end
-    return true
-  end, 6) then return end
+  end
 
   wait(function()
     if findOne("确认招募") then
@@ -3427,6 +3417,8 @@ path.前瞻投资 = function()
         tap("右右确认")
       end, 5) then return end
     end
+    -- 需要提前退出
+    if not findOne("战略返回") then return true end
     if findOne("战略帮助") then return true end
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
@@ -3436,16 +3428,21 @@ path.前瞻投资 = function()
     log(2960, findOne("确认招募"))
   end, 10)
 
+  if not appear("战略帮助") then return end
+
   -- 不期而遇2 两次尝试
+  tap({point.第一层下一个[1], unexpect2.t})
   if not wait(function()
+    if not appear("战略帮助", 0.1) then return true end
+    tap("进入")
+  end, 3) then
     swipzl("left")
     tap({unexpect2.l, unexpect2.t})
     if not wait(function()
-      if not findOne("战略帮助") then return true end
+      if not appear("战略帮助", 0.1) then return true end
       tap("进入")
     end, 3) then return end
-    return true
-  end, 6) then return end
+  end
 
   wait(function()
     if findOne("确认招募") then
@@ -3459,6 +3456,7 @@ path.前瞻投资 = function()
         tap("右右确认")
       end, 5) then return end
     end
+    if not findOne("战略返回") then return true end
     if findOne("战略帮助") then return true end
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
@@ -3468,8 +3466,11 @@ path.前瞻投资 = function()
     log(2960, findOne("确认招募"))
   end, 10)
 
+  if not appear("战略帮助") then return end
   -- 商店
-  swipzl("left")
+  -- swipzl("left")
+  -- tap({fight2.l, fight2.t})
+  fight2.l = max(point.第一层下一个[1], fight2.l)
   tap({fight2.l, fight2.t})
 
   local goto_next_level = function()

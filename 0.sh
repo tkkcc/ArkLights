@@ -36,14 +36,19 @@
   remove() {
     curl 'http://localhost:9090/script/del?name=test' -X 'POST'
   }
+  beta() {
+    release 'script.lr.beta'
+  }
   release() {
+    local lr=${1:-script.lr}
     git add -u
     cd release
-    cp /F:/software/懒人精灵3.6.0/out/main.lr script.lr
+    cp /F:/software/懒人精灵3.6.0/out/main.lr $lr
     cp ../README.md README.md
-    numfmt --to=iec $(stat -c %s script.lr)
-    local md5=$(md5sum script.lr | cut -d' ' -f1)
-    echo $md5 > script.lr.md5
+    numfmt --to=iec $(stat -c %s $lr)
+
+    local md5=$(md5sum $lr | cut -d' ' -f1)
+    echo $md5 >$lr.md5
     git add -A
     git commit --amend --date=now -m "$md5"
     git push --force
