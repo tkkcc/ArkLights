@@ -1549,14 +1549,11 @@ path.信用购买 = function()
   local f
   f = function(i)
     if not findOne("信用交易所横线") then
-
       if not wait(function()
         if findOne("信用交易所横线") then return true end
         tap("收取信用有")
       end, 5) then return end
-
     end
-
     log(832)
     if not appear({
       "信用交易所列表" .. i, "信用交易所已购列表" .. i,
@@ -3353,11 +3350,13 @@ path.前瞻投资 = function()
 
   if not appear("战略返回", 10) then return end
 
+  local drop_page = false
   if not wait(function()
+    if not drop_page then tap("战略确认") end
     findTap("收藏品")
-    findTap("源石锭")
+    if findTap("源石锭") then drop_page = true end
     local p = findOne("不要了")
-    if p then
+    if p and findOne("战略返回") then
       tap({p[1] + scale(765 - 668), scale(789)})
       tap({p[1] + scale(765 - 668), scale(789)})
       tap({p[1] + scale(765 - 668), scale(789)})
@@ -3376,11 +3375,10 @@ path.前瞻投资 = function()
       end, 5) then return end
     end
     if not findOne("战略返回") then
-      appear({"战略返回","战略帮助"})
+      appear({"战略返回", "战略帮助"})
     end
     -- if disappear("战略返回",0.5) then return true end
     if findAny({"常规行动", "战略帮助"}) then return true end
-    tap("战略确认")
   end, 30) then return end
 
   -- if not appear("战略返回", 5) then return end
@@ -3389,7 +3387,6 @@ path.前瞻投资 = function()
     log(2873)
     return
   end
-
 
   -- 不期而遇1 两次尝试
   tap({point.第一层下一个[1], unexpect1.t})
@@ -3417,9 +3414,9 @@ path.前瞻投资 = function()
         tap("右右确认")
       end, 5) then return end
     end
+    if findOne("战略帮助") then return true end
     -- 需要提前退出
     if not findOne("战略返回") then return true end
-    if findOne("战略帮助") then return true end
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
@@ -3428,7 +3425,7 @@ path.前瞻投资 = function()
     log(2960, findOne("确认招募"))
   end, 10)
 
-  if not appear("战略帮助") then return end
+  if not appear("战略帮助", 5) then return end
 
   -- 不期而遇2 两次尝试
   tap({point.第一层下一个[1], unexpect2.t})
@@ -3456,8 +3453,8 @@ path.前瞻投资 = function()
         tap("右右确认")
       end, 5) then return end
     end
-    if not findOne("战略返回") then return true end
     if findOne("战略帮助") then return true end
+    if not findOne("战略返回") then return true end
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
@@ -3466,7 +3463,7 @@ path.前瞻投资 = function()
     log(2960, findOne("确认招募"))
   end, 10)
 
-  if not appear("战略帮助") then return end
+  if not appear("战略帮助", 5) then return end
   -- 商店
   -- swipzl("left")
   -- tap({fight2.l, fight2.t})

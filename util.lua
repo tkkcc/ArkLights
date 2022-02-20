@@ -611,6 +611,7 @@ end
 
 findAny = function(x) return appear(x, 0, 0) end
 
+
 findOnes = function(x, confidence)
   confidence = confidence or default_findcolor_confidence
   return findMultiColorAll(rfg[x][1], rfg[x][2], rfg[x][3], rfg[x][4],
@@ -2179,6 +2180,10 @@ A：官服登录出验证码/B服登录失败时会暂时跳过该账号，请�
 
 Q：遇到单账号密码错误会怎么处理
 A：等待10分钟后重试，请配合QQ通知使用。
+
+Q：脚本有没有肉鸽刷投资源石锭功能
+A：有，见其他功能。
+
 ]])
 
   --   newRow(layout)
@@ -2218,9 +2223,14 @@ show_debug_ui = function()
   ui.addEditText(layout, "force_height", [[]])
 
   newRow(layout)
-  ui.addCheckBox(layout, "beta_mode", "beta更新源", false)
+  ui.addCheckBox(layout, "beta_mode", "使用beta更新源", false)
   -- addTextView(layout, "多点点击时长(miui13换班不上人)")
   -- ui.addEditText(layout, "tapall_duration", "")
+  --
+
+  newRow(layout)
+  ui.addCheckBox(layout, "enable_oom_score_adj", "设置oom_score_adj为-1000",
+                 false)
 
   ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
@@ -2263,7 +2273,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现多次作战或红色异常时重开，临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打简单驯兽。战斗掉落收藏品会捡(观光只能点亮)。连续8小时实测观光效率为每小时40(0级幕后筹备)~129(三结局满级幕后筹备7时42分刷999个)个。支持凌晨4点数据更新，支持16:9及以上分辨率。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，应尝试换用其他设备或其他脚本。]])
+              [[用于刷投资以提高集成战略起点。出现两次以上作战或红色异常时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议720x1280。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，应尝试换用更稳定的设备或其他脚本。通过999速刷耗时可知效率与难度、幕后筹备无关，与是否通关三结局、是否漏怪有关，漏怪+双结局耗时10时14分(每小时97个)，漏怪+三结局耗时8时10分(每小时122个)，无漏怪+三结局耗时7时42分(每小时129个)。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2674,6 +2684,14 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
+  while true do
+    log(1, findOne("战略返回"))
+    log(2, findOne("战略帮助"))
+  end
+  exit()
+
+  log(findOne("收藏品"), findOne("源石锭"), findOne("不要了"))
+  exit()
   -- log(findOne("当前进度列表6"))
   -- log(point['每周报酬合成玉'])
   -- log(findOne("战略返回"))
@@ -3222,7 +3240,7 @@ check_root_mode = function()
   -- log(exec("ls /system/xbin/su"))
   -- log(exec("/system/xbin/su -h"))
   -- log(exec("/system/xbin/su -h 2>&1"))
-  log(exec("id"))
+  -- log(exec("id"))
   log("root_mode", root_mode)
 end
 
@@ -3269,12 +3287,12 @@ update_state_from_ui = function()
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
   hd_open_time_end = parse_time("202202080400")
-  all_open_time_start = parse_time("202111221600")
-  all_open_time_end = parse_time("202112060400")
+  all_open_time_start = parse_time("202202241600")
+  all_open_time_end = parse_time("202203100400")
   update_open_time()
 
-  crisis_contract_start = parse_time("202111301600")
-  crisis_contract_end = parse_time("202112060400")
+  crisis_contract_start = parse_time("202202241600")
+  crisis_contract_end = parse_time("202203100400")
   local current = parse_time()
   if crisis_contract_start < current and current < crisis_contract_end then
     during_crisis_contract = true
@@ -3614,6 +3632,7 @@ end
 
 oom_score_adj = function()
   if not root_mode then return end
+  if not enable_oom_score_adj then return end
   local set = function(package)
     exec("su root sh -c 'echo -1000 > /proc/$(pidof " .. package ..
            ")/oom_score_adj'")
