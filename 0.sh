@@ -113,7 +113,8 @@
     local cur
     while :; do
       cur=$(date -u +"%s.%N")
-      printf "\r$(date -u -d "0 $cur seconds - $start seconds" +"%H:%M:%S:%3N")"
+      printf "\r$(date -u -d "0 $cur seconds - $start seconds" +"%H:%M:%S")"
+      sleep 1
     done
   }
   scrcpy() {

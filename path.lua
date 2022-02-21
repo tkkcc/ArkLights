@@ -69,7 +69,7 @@ path.base = {
     -- local login_error_times = 0
     wait(function()
       local p = appear({
-        "用户名或密码错误", "密码不能为空", "captcha", "captcha2",
+        "captcha2", "用户名或密码错误", "密码不能为空",
       }, 1)
       if p then
         if p:startsWith("captcha") then wait_game_up() end
@@ -122,7 +122,10 @@ path.base = {
     local next_fight = fight[next_fight_tick]
     log(cur_fight, next_fight)
 
-    if next_fight == cur_fight then
+    if get_fight_type(cur_fight) == "剿灭" then
+      -- 剿灭必须回主页
+      path.跳转("首页")
+    elseif next_fight == cur_fight then
       fight_tick = next_fight_tick
       pre_fight = nil
       return path.开始游戏(next_fight)
@@ -2168,7 +2171,7 @@ path.剿灭 = function(x)
   if not wait(function()
     if not findOne("当前委托侧边栏") then return true end
     tap("作战列表" .. x)
-    disappear("当前委托侧边栏")
+    disappear("当前委托侧边栏", 1)
   end, 5) then return end
 
   log(1287)
@@ -2989,16 +2992,10 @@ path.前瞻投资 = function()
     -- 因为小号只有指挥分队，但每一秒只做一次
     if findAny({"指挥分队", "指挥分队确认"}) and time() -
       last_time_see_first_card > first_card_interval then
-      first_card_interval = 1000 -- 1秒
-      if findOne("指挥分队") then
-        if not wait(function()
-          if not findOne("指挥分队") then return true end
-          tap("指挥分队")
-        end, 5) then return end
-      end
+      first_card_interval = 5000 -- 1秒
+      findTap("指挥分队")
       wait(function() tap("战略确认") end, 0.5)
-      findTap("指挥分队确认")
-      if findOne("指挥分队") then disappear("指挥分队") end
+      if findTap("指挥分队确认") then disappear("指挥分队确认") end
       last_time_see_first_card = time()
     end
 
@@ -3084,54 +3081,13 @@ path.前瞻投资 = function()
   end, 10) then return end
 
   log(2700)
-  -- 先看右边，可以少滑一次
+  if not appear("战略帮助") then return end
 
-  swipzl("left")
-  -- 红色标签直接放弃
-  if findOne("偏执的") then
-    toast("红色异常重试")
-    return restart()
-  end
-
-  -- local fight2ocr = ocr("第一层作战2")
-  -- local fight2
-  -- if #fight2ocr > 0 then fight2 = fight2ocr[1] end
-
-  -- -- 只支持商店，不检测诡意行商
-  -- if not fight2 then
-  --   toast("没找到诡意行商")
-  --   return
-  -- end
-
-  fight2 = point.第一层作战2
-  fight2 = {l = fight2[1], t = fight2[2]}
-
-  local unexpect2ocr = {}
-  wait(function()
-    if #unexpect2ocr > 0 then return true end
-    unexpect2ocr = ocr("第一层不期而遇2", scale(60))
-  end, 5)
-  if #unexpect2ocr == 0 then return end
-  -- 替换幕间余兴
-  for _, v in pairs(unexpect2ocr) do
-    -- 720p甚至 有 "作期"
-    if not v.text:includes({"作"}) and
-      v.text:includes({"期", "遇", "幕", "兴"}) then
-      v.text = "不期而遇"
-    end
-  end
-  if not table.find(unexpect2ocr,
-                    function(x) return x.text == "不期而遇" end) then
-    toast("第三列没找到不期而遇")
-    return restart()
-  end
-  if #unexpect2ocr == 0 then return end
-
-  swipzl("right")
+  -- 先看作战
   local fight1ocr = {}
   wait(function()
     if #fight1ocr > 0 then return true end
-    fight1ocr = ocr("第一层作战1")
+    fight1ocr = ocr("第一层作战")
   end, 5)
   log(fight1ocr)
 
@@ -3161,21 +3117,47 @@ path.前瞻投资 = function()
     return restart()
   end
 
-  local unexpect1ocr = {}
-  wait(function()
-    if #unexpect1ocr > 0 then return true end
-    unexpect1ocr = ocr("第一层不期而遇1", scale(60))
-  end, 5)
+  -- 红色标签直接放弃
+  if findOne("偏执的") then
+    toast("红色异常重试")
+    return restart()
+  end
 
-  log(2722)
-  if #unexpect1ocr == 0 then return end
-  -- 替换幕间余兴
-  for _, v in pairs(unexpect1ocr) do
-    -- if v.text:includes({"兴"}) then v.text = "不期而遇" end
-    if not v.text:includes({"作"}) and
-      v.text:includes({"期", "遇", "幕", "兴"}) then
-      v.text = "不期而遇"
+  -- 再看不期而遇
+  for col = 1, 2 do
+    local unexpect
+    if findOne("第一层不期而遇" .. col .. "入口列表1") then
+      unexpect = {
+        "第一层不期而遇" .. col .. "列表1",
+        "第一层不期而遇" .. col .. "列表3",
+        "第一层不期而遇" .. col .. "列表5",
+      }
+    elseif findOne("第一层不期而遇" .. col .. "入口列表2") then
+      unexpect = {
+        "第一层不期而遇" .. col .. "列表2",
+        "第一层不期而遇" .. col .. "列表4",
+      }
+    else
+      unexpect = {"第一层不期而遇" .. col .. "列表3"}
     end
+    for k, v in pairs(unexpect) do
+      unexpect[k] = {
+        text = findOne(v) and "不期而遇" or '作战',
+        l = str2int(point[v]:match("^(%d+)|"), 0),
+        t = str2int(point[v]:match("^%d+|(%d+)|"), 0),
+      }
+    end
+    _G["unexpect" .. col .. "ocr"] = unexpect
+  end
+
+  -- 设置商店
+  fight2 = point.第一层作战2
+  fight2 = {l = fight2[1], t = fight2[2]}
+
+  if not table.find(unexpect2ocr,
+                    function(x) return x.text == "不期而遇" end) then
+    toast("第三列没找到不期而遇")
+    return restart()
   end
 
   local from_bottom_node = findOne("第一层从下方来")
@@ -3185,9 +3167,9 @@ path.前瞻投资 = function()
     log("第二列没找到不期而遇，只找到", unexpect1ocr)
     return restart()
   end
+  log(unexpect1ocr, unexpect2ocr)
 
   log(2723)
-
   -- 根据不期而遇来选择路径，只有边上两个均为不期而遇才行
   local unexpect1, unexpect2
   if unexpect1ocr[1].text == "不期而遇" and unexpect2ocr[1].text ==
@@ -3198,7 +3180,6 @@ path.前瞻投资 = function()
     unexpect2ocr[#unexpect2ocr].text == "不期而遇" then
     unexpect1 = unexpect1ocr[#unexpect1ocr]
     unexpect2 = unexpect2ocr[#unexpect2ocr]
-    -- TODO need test
   elseif #unexpect1ocr == 1 then
     unexpect1 = unexpect1ocr[1]
     unexpect2 = table.findv(unexpect2ocr,
@@ -3223,9 +3204,6 @@ path.前瞻投资 = function()
     toast("难以找到一条全是不期而遇的路")
     return restart()
   end
-
-  -- 省一次滑动
-  -- swipzl("right")
 
   tap({fight1.l, fight1.t})
 
@@ -3388,16 +3366,26 @@ path.前瞻投资 = function()
     return
   end
 
+  local last_time_see_help
+
   -- 不期而遇1 两次尝试
   tap({point.第一层下一个[1], unexpect1.t})
+  last_time_see_help = time()
   if not wait(function()
-    if not appear("战略帮助", 0.1) then return true end
-    tap("进入")
+    if findOne("战略帮助") then last_time_see_help = time() end
+    if time() - last_time_see_help > 250 then return true end
+    tap("不期而遇第三选项")
+    tap("不期而遇第三选项")
+    tap("不期而遇第三选项")
+    tap("不期而遇第三选项")
+    tap("不期而遇第二选项")
   end, 3) then
     swipzl("right")
     tap({unexpect1.l, unexpect1.t})
+    last_time_see_help = time()
     if not wait(function()
-      if not appear("战略帮助", 0.1) then return true end
+      if findOne("战略帮助") then last_time_see_help = time() end
+      if time() - last_time_see_help > 250 then return true end
       tap("进入")
     end, 3) then return end
   end
@@ -3429,14 +3417,22 @@ path.前瞻投资 = function()
 
   -- 不期而遇2 两次尝试
   tap({point.第一层下一个[1], unexpect2.t})
+  last_time_see_help = time()
   if not wait(function()
-    if not appear("战略帮助", 0.1) then return true end
-    tap("进入")
+    if findOne("战略帮助") then last_time_see_help = time() end
+    if time() - last_time_see_help > 250 then return true end
+    tap("不期而遇第三选项")
+    tap("不期而遇第三选项")
+    tap("不期而遇第三选项")
+    tap("不期而遇第三选项")
+    tap("不期而遇第二选项")
   end, 3) then
     swipzl("left")
     tap({unexpect2.l, unexpect2.t})
+    last_time_see_help = time()
     if not wait(function()
-      if not appear("战略帮助", 0.1) then return true end
+      if findOne("战略帮助") then last_time_see_help = time() end
+      if time() - last_time_see_help > 250 then return true end
       tap("进入")
     end, 3) then return end
   end
@@ -3460,7 +3456,7 @@ path.前瞻投资 = function()
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
     tap("不期而遇第二选项")
-    log(2960, findOne("确认招募"))
+    log(2961, findOne("确认招募"))
   end, 10)
 
   if not appear("战略帮助", 5) then return end
