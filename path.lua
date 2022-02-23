@@ -345,8 +345,9 @@ path.fallback = {
     -- 基建内返回太快会卡
     local x = appear({
       "返回确认", "返回确认2", "返回确认3", "活动公告返回",
-      "签到返回", "活动签到返回", "抽签返回", "战略返回",
-      '感谢庆典返回', '限时开放许可', "限时幸运签",
+      "签到返回", "签到返回黄", "活动签到返回", "抽签返回",
+      "战略返回", '感谢庆典返回', '限时开放许可',
+      "限时幸运签",
     }, .1)
     log(251, x)
     if x then return tap(path.fallback[x]) end
@@ -558,8 +559,8 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
       tap(plain[x])
       log(208)
       appear({
-        target, "活动公告返回", "签到返回", "活动签到返回",
-        "抽签返回", "单选确认框", "返回3",
+        target, "活动公告返回", "签到返回", "签到返回黄",
+        "活动签到返回", "抽签返回", "单选确认框", "返回3",
       }, timeout)
       log(209)
     end,
@@ -2884,7 +2885,11 @@ path.前瞻投资 = function()
   -- 3.6.0发现当节点获取失效时，点击、找色其实都出问题了
   --
 
+  local in_fight_return = ''
   local restart = function()
+    log(in_fight_return)
+    toast(in_fight_return or '重开')
+    ssleep(3)
     -- 关闭游戏然后重启脚本
     if restart_game_check(zl_restart_interval) then
       restart_mode("前瞻投资")
@@ -2940,7 +2945,8 @@ path.前瞻投资 = function()
         if findOne("常规行动") then return true end
         -- 第一次数据更新处理
         if findAny({
-          "面板", "活动公告返回", "签到返回", "开始唤醒",
+          "面板", "活动公告返回", "签到返回", "签到返回黄",
+          "开始唤醒",
         }) then
           jumpout = true
           return true
@@ -2956,7 +2962,8 @@ path.前瞻投资 = function()
       end
       -- 第一次数据更新处理
       if findAny({
-        "面板", "活动公告返回", "签到返回", "开始唤醒",
+        "面板", "活动公告返回", "签到返回", "签到返回黄",
+        "开始唤醒",
       }) then
         jumpout = true
         return true
@@ -2971,7 +2978,10 @@ path.前瞻投资 = function()
   if not wait(function()
     if findOne("战略返回") then return true end
     -- 第二次数据更新处理
-    if findAny({"面板", "活动公告返回", "签到返回", "开始唤醒"}) then
+    if findAny({
+      "面板", "活动公告返回", "签到返回", "签到返回黄",
+      "开始唤醒",
+    }) then
       jumpout = true
       return true
     end
@@ -3132,13 +3142,13 @@ path.前瞻投资 = function()
   if zl_skip_hard and
     not (fight1.text == "意外" or fight1.text == "礼炮小队" or fight1.text ==
       '与虫为伴') then
-    toast("驯兽小屋重试")
+    in_fight_return = "驯兽小屋重试"
     return restart()
   end
 
   -- 红色标签直接放弃
   if findOne("偏执的") then
-    toast("红色异常重试")
+    in_fight_return = "红色异常重试"
     return restart()
   end
 
@@ -3175,7 +3185,7 @@ path.前瞻投资 = function()
 
   if not table.find(unexpect2ocr,
                     function(x) return x.text == "不期而遇" end) then
-    toast("第三列没找到不期而遇")
+    in_fight_return = "第三列没找到不期而遇"
     return restart()
   end
 
@@ -3183,7 +3193,7 @@ path.前瞻投资 = function()
 
   if not table.find(unexpect1ocr,
                     function(x) return x.text == "不期而遇" end) then
-    log("第二列没找到不期而遇，只找到", unexpect1ocr)
+    in_fight_return = "第二列没找到不期而遇"
     return restart()
   end
   log(unexpect1ocr, unexpect2ocr)
@@ -3220,12 +3230,12 @@ path.前瞻投资 = function()
     unexpect2 = unexpect2ocr[2]
     unexpect1 = unexpect1ocr[2]
   else
-    toast("难以找到一条全是不期而遇的路")
+    in_fight_return = "难以找到一条全是不期而遇的路"
     return restart()
   end
 
   tap({fight1.l, fight1.t})
-  -- ssleep(.25)
+  if not appear("进入界面") then return end
   if not wait(function()
     if findOne("快捷编队") then return true end
     tap("进入")
@@ -3290,6 +3300,26 @@ path.前瞻投资 = function()
 
   -- 需要等等才能点
   appearTap("两倍速", 3)
+
+  if #in_fight_return > 0 then
+    toast(in_fight_return .. "，10秒后重开")
+    ssleep(10)
+    tap(point["面板设置"])
+    ssleep(2)
+    tap("放弃行动")
+    ssleep(2)
+    tap("右确认")
+
+    wait(function()
+      if findAny({
+        "战略返回", "面板", "活动公告返回", "签到返回",
+        "签到返回黄", "开始唤醒", "常规行动",
+      }) then return true end
+      tap("战略确认")
+    end, 60)
+
+    return
+  end
 
   if not wait(function()
     if findOne("干员费用够列表1") then return true end
@@ -3389,7 +3419,8 @@ path.前瞻投资 = function()
 
   -- 不期而遇1 两次尝试
   tap({point.第一层下一个[1], unexpect1.t})
-  -- ssleep(.25)
+  -- ssleep(.2)
+  if not appear("进入界面") then return end
   last_time_see_help = time()
   if not wait(function()
     if findOne("战略帮助") then last_time_see_help = time() end
@@ -3437,7 +3468,9 @@ path.前瞻投资 = function()
 
   -- 不期而遇2 两次尝试
   tap({point.第一层下一个[1], unexpect2.t})
-  -- ssleep(.25)
+  -- ssleep(.2)
+  -- ssleep(.2)
+  if not appear("进入界面") then return end
   last_time_see_help = time()
   if not wait(function()
     if findOne("战略帮助") then last_time_see_help = time() end
@@ -3486,7 +3519,7 @@ path.前瞻投资 = function()
   -- tap({fight2.l, fight2.t})
   fight2.l = max(point.第一层下一个[1], fight2.l)
   tap({fight2.l, fight2.t})
-  -- ssleep(.25)
+  if not appear("进入界面") then return end
   local goto_next_level = function()
     if not zl_more_experience then return end
     -- 去第二层
