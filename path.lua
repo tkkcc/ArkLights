@@ -2981,23 +2981,37 @@ path.前瞻投资 = function()
   if jumpout then return end
 
   -- 开始探索 一路按到 招募干员
-  local last_time_see_first_card = time()
-  local first_card_interval = 0
+  local first_time_see_first_card = 0
   if not wait(function()
     if findOne("初始招募") then return true end
     tap("战略确认")
     tap("战略确认")
     tap("战略确认")
+    if findOne("指挥分队") then
+      if first_time_see_first_card == 0 then
+        first_time_see_first_card = time()
+      end
+      if time() - first_time_see_first_card > 3000 then
+        tap("指挥分队")
+        appear("指挥分队确认", 1)
+        ssleep(.5)
+        tap("指挥分队确认")
+        disappear("指挥分队确认")
+        first_time_see_first_card = 0
+      end
+    else
+      first_time_see_first_card = 0
+    end
 
     -- 因为小号只有指挥分队，但每一秒只做一次
-    if findAny({"指挥分队", "指挥分队确认"}) and time() -
-      last_time_see_first_card > first_card_interval then
-      first_card_interval = 5000 -- 1秒
-      findTap("指挥分队")
-      wait(function() tap("战略确认") end, 0.5)
-      if findTap("指挥分队确认") then disappear("指挥分队确认") end
-      last_time_see_first_card = time()
-    end
+    -- if findAny({"指挥分队", "指挥分队确认"}) and time() -
+    --   last_time_see_first_card > first_card_interval then
+    --   first_card_interval = 5000 -- 1秒
+    --   findTap("指挥分队")
+    --   wait(function() tap("战略确认") end, 0.5)
+    --   if findTap("指挥分队确认") then disappear("指挥分队确认") end
+    --   last_time_see_first_card = time()
+    -- end
 
   end, 10) then return end
 
@@ -3071,17 +3085,22 @@ path.前瞻投资 = function()
     tap("开包skip")
   end, 10) then return end
 
-  -- if not appear("初始招募",5) then return end
+  if not appear("初始招募") then return end
 
   log(2698)
-  -- 进入古堡
+  -- 进入古堡 必须分为两段，否则产生位移
   if not wait(function()
-    if findOne("编队") then return true end
+    if not findOne("初始招募") then return true end
     tap("进入古堡")
-  end, 10) then return end
+  end, 5) then return end
+
+  -- if not wait(function()
+  --   if findOne("编队") then return true end
+  --   tap("进入古堡")
+  -- end, 10) then return end
 
   log(2700)
-  if not appear("战略帮助") then return end
+  if not appear("战略帮助", 10) then return end
 
   -- 先看作战
   local fight1ocr = {}
@@ -3206,7 +3225,7 @@ path.前瞻投资 = function()
   end
 
   tap({fight1.l, fight1.t})
-
+  -- ssleep(.25)
   if not wait(function()
     if findOne("快捷编队") then return true end
     tap("进入")
@@ -3370,6 +3389,7 @@ path.前瞻投资 = function()
 
   -- 不期而遇1 两次尝试
   tap({point.第一层下一个[1], unexpect1.t})
+  -- ssleep(.25)
   last_time_see_help = time()
   if not wait(function()
     if findOne("战略帮助") then last_time_see_help = time() end
@@ -3417,6 +3437,7 @@ path.前瞻投资 = function()
 
   -- 不期而遇2 两次尝试
   tap({point.第一层下一个[1], unexpect2.t})
+  -- ssleep(.25)
   last_time_see_help = time()
   if not wait(function()
     if findOne("战略帮助") then last_time_see_help = time() end
@@ -3465,7 +3486,7 @@ path.前瞻投资 = function()
   -- tap({fight2.l, fight2.t})
   fight2.l = max(point.第一层下一个[1], fight2.l)
   tap({fight2.l, fight2.t})
-
+  -- ssleep(.25)
   local goto_next_level = function()
     if not zl_more_experience then return end
     -- 去第二层

@@ -12,6 +12,74 @@ never_end_wrapper = function(func)
   return function(...) while true do func(...) end end
 end
 
+-- 无障碍函数替换
+if not openPermissionSetting then
+  openPermissionSetting =
+    function() stop("没root请换用无障碍版速通") end
+  isSnapshotServiceRun = function() return true end
+  isAccessibilityServiceRun = function() return true end
+  Path = {}
+  function Path:new(o)
+    o = o or {startTime = 0, durTime = 0, point = {}}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end
+  function Path:setStartTime(t) self.startTime = t end
+  function Path:setDurTime(t) self.durTime = t end
+  function Path:addPoint(x, y)
+    table.insert(self.point, x)
+    table.insert(self.point, y)
+  end
+  Gesture = {}
+  function Gesture:new(o)
+    o = o or {path = {}}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end
+  function Gesture:addPath(path) table.insert(self.path, path) end
+  gestureDispatchOnePath = function(path, id)
+    local point = path.point
+    if #point < 2 then return end
+    local start_time = time()
+    local timeline = {}
+    local length = 0
+    local x, y, px, py
+    px = point[1]
+    py = point[2]
+    sleep(path.startTime)
+    for i = 2, #point / 2 do
+      x = point[i * 2]
+      y = point[i * 2 + 1]
+      length = length + math.sqrt((x - px) ^ 2 + (y - py) ^ 2)
+      table.insert(timeline, length)
+      px, py = x, y
+    end
+    touchUp(id)
+    touchMove(id, point[1], point[2])
+    touchDown(id)
+    print(59, id, point)
+    for i = 2, #point / 2 do
+      x = point[i * 2]
+      y = point[i * 2 + 1]
+      timeline[i] = timeline[i] / length * path.durTime
+      touchMoveEx(id, x, y, timeline[i])
+      if time() - start_time > path.durTime then break end
+    end
+    sleep(max(0, time() - start_time - path.durTime))
+    print(60, id, point, start_time + path.durTime - time())
+    touchUp(id)
+  end
+  function Gesture:dispatch()
+
+    for id, path in pairs(self.path) do
+      log(71, id, path)
+      beginThread(gestureDispatchOnePath, path, id)
+    end
+  end
+end
+
 -- transfer 节点精灵 to 懒人精灵
 getColor = function(x, y)
   local bgr = getPixelColor(x, y):upper()
@@ -1240,9 +1308,10 @@ wait_game_up = function(retry)
   -- end
   if retry == 2 then closeapp(appid) end
   if retry >= 4 then stop("不能启动游戏") end
-  open(appid)
-  request_game_permission()
+  oom_score_adj()
   screenon()
+  request_game_permission()
+  open(appid)
   local p = appear(
               {"game", "keyguard_indication", "keyguard_input", "captcha2"}, 5)
 
@@ -2231,7 +2300,7 @@ show_debug_ui = function()
   --
 
   newRow(layout)
-  ui.addCheckBox(layout, "enable_oom_score_adj", "设置oom_score_adj为-1000",
+  ui.addCheckBox(layout, "diable_oom_score_adj", "禁用设置oom_score_adj为-1000",
                  false)
 
   ui.loadProfile(getUIConfigPath(layout))
@@ -2686,12 +2755,26 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
+  touchMove(0,23,13)
+  touchDown(0)
+  sleep(200)
+  touchUp(0)
   ssleep(1)
-  -- tap("进入")
+  -- tap("战略返回")
+  ssleep(1)
+  exit()
   -- tap("不期而遇第三选项")
-  log(findOne("查看谢幕表"))
+  -- log(findOne("查看谢幕表"))
   -- log(1, findOne("指挥分队"))
   -- log(2, findOne("指挥分队确认"))
+  --
+  --
+  --
+
+  if not wait(function()
+    if findOne("编队") then return true end
+    tap("进入古堡")
+  end, 100) then return end
   exit()
 
   for col = 1, 2 do
@@ -3666,7 +3749,7 @@ end
 
 oom_score_adj = function()
   if not root_mode then return end
-  if not enable_oom_score_adj then return end
+  if disable_oom_score_adj then return end
   local set = function(package)
     exec("su root sh -c 'echo -1000 > /proc/$(pidof " .. package ..
            ")/oom_score_adj'")
