@@ -68,18 +68,22 @@ path.base = {
 
     -- local login_error_times = 0
     wait(function()
+      tap("登录")
       local p = appear({
         "captcha2", "用户名或密码错误", "密码不能为空",
-      }, 1)
+        "单选确认框",
+      }, 2)
       if p then
         if p:startsWith("captcha") then wait_game_up() end
+        if p == "单选确认框" then
+          stop("登录出现单选确认框")
+        end
         return true
         -- login_error_times = (login_error_times or 0) + 1
         -- if login_error_times > 10 then stop("登录失败34", true) end
         -- return true
       end
-      tap("登录")
-    end, 5)
+    end, 4)
   end),
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then

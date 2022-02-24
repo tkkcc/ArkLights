@@ -2760,9 +2760,10 @@ predebug_hook = function()
   -- sleep(200)
   -- touchUp(0)
   ssleep(1)
+  log(findOne("单选确认框"))
   -- tap(point["面板设置"])
   -- tap("放弃行动")
-  tap("右确认")
+  -- tap("右确认")
   -- tap("右")
   -- log(findOne("进入界面"))
   ssleep(1)
@@ -2771,9 +2772,6 @@ predebug_hook = function()
   -- log(findOne("查看谢幕表"))
   -- log(1, findOne("指挥分队"))
   -- log(2, findOne("指挥分队确认"))
-  --
-  --
-  --
 
   if not wait(function()
     if findOne("编队") then return true end
