@@ -46,7 +46,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.02.25  0:19"
+release_date = "2022.02.27 18:34"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -71,7 +71,6 @@ predebug_hook()
 showUI()
 loadUIConfig()
 restart_mode_hook()
-oom_score_adj()
 
 -- log(findOne_interval,tap_interval)
 findOne_interval = str2int(findOne_interval, -1)
@@ -80,6 +79,7 @@ zl_restart_interval = str2int(zl_restart_interval, math.huge)
 zl_skill_times = str2int(zl_skill_times, 0)
 zl_skill_idx = str2int(zl_skill_idx, 1)
 tapall_duration = str2int(tapall_duration, -1)
+max_login_times = str2int(max_login_times, math.huge)
 log("debug_mode", debug_mode)
 -- if best_operator then
 --   zl_best_operator = best_operator
@@ -107,6 +107,7 @@ if not always_enable_log and debug_disable_log then disable_log = true end
 --   log("multi_account_user0now_job_ui" .. i,
 --       _G["multi_account_user0now_job_ui" .. i])
 -- end
+load(before_account_hook or '')()
 transfer_global_variable("multi_account_user1", "multi_account_user0")
 -- log(101)
 -- for i = 1, 12 do

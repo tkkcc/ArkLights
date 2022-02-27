@@ -108,15 +108,17 @@
     save
     run
   }
+
   timer() {
-    local start=$(date -u +"%s.%N")
+    local start=$(date +"%s.%N" -d "${1:-now}")
     local cur
     while :; do
-      cur=$(date -u +"%s.%N")
-      printf "\r$(date -u -d "0 $cur seconds - $start seconds" +"%H:%M:%S")"
+      cur=$(date +"%s.%N")
+      printf "\r$(date -d "0 $cur seconds - $start seconds" +"%H:%M:%S")"
       sleep 1
     done
   }
+
   scrcpy() {
     scrcpy "$@"
   }

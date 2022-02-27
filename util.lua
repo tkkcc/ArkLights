@@ -607,9 +607,9 @@ stop = function(msg, try_next_account)
   toast(msg)
   captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
                           table.join(qqmessage, ' ') .. msg, QQ)
-  ssleep(3)
+  home()
+  ssleep(2)
   if try_next_account then restart_next_account() end
-  home() -- 游戏长时间在前台时模拟器很卡
   exit()
 end
 
@@ -706,8 +706,9 @@ tap = function(x, noretry, allow_outside_game)
   end
   log("tap", x0, x)
   if type(x) ~= "table" then return end
-  if tap_interval > 0 then
-    sleep(max(0, tap_interval - (time() - tap_last_time)))
+  if tap_interval > 0 and tap_interval - (time() - tap_last_time) > 0 then
+    return
+    -- sleep(max(0, tap_interval - (time() - tap_last_time)))
   end
   tap_last_time = time()
   if #x > 0 then
@@ -1308,10 +1309,10 @@ wait_game_up = function(retry)
   -- end
   if retry == 2 then closeapp(appid) end
   if retry >= 4 then stop("不能启动游戏") end
+  open(appid)
   oom_score_adj()
   screenon()
   request_game_permission()
-  open(appid)
   local p = appear(
               {"game", "keyguard_indication", "keyguard_input", "captcha2"}, 5)
 
@@ -2300,8 +2301,15 @@ show_debug_ui = function()
   --
 
   newRow(layout)
-  ui.addCheckBox(layout, "diable_oom_score_adj", "禁用设置oom_score_adj为-1000",
-                 false)
+  ui.addCheckBox(layout, "diable_oom_score_adj",
+                 "禁用设置oom_score_adj为-1000", false)
+
+  newRow(layout)
+  addTextView(layout, "单号最大登录次数")
+  ui.addEditText(layout, "max_login_times", "")
+
+  newRow(layout)
+  ui.addEditText(layout, "before_account_hook", "-- before_account_hook")
 
   ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
@@ -2344,7 +2352,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现两次以上作战或红色异常时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议720x1280。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，可换用其他设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、是否漏怪有关，漏怪+双结局耗时10时14分(每小时97个)，漏怪+三结局耗时8时10分(每小时122个)，无漏怪+三结局耗时7时42分(每小时129个)。]])
+              [[用于刷投资以提高集成战略起点。出现两次以上作战或红色异常时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议720x1280。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，可换用其他设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时28分(每小时133个，仍有优化空间)。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2760,6 +2768,10 @@ predebug_hook = function()
   -- sleep(200)
   -- touchUp(0)
   ssleep(1)
+  log(ocr("第一层作战"))
+  -- tap("不期而遇第三选项")
+  ssleep(1)
+  exit()
   log(findOne("单选确认框"))
   -- tap(point["面板设置"])
   -- tap("放弃行动")
@@ -3745,8 +3757,10 @@ restart_mode_hook = function()
 end
 
 check_login_frequency = function()
-  -- TODO
-
+  login_times = (login_times or 0) + 1
+  if login_times >= max_login_times then
+    stop("登录次数达到"..login_times)
+  end
 end
 
 oom_score_adj = function()

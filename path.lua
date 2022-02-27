@@ -20,16 +20,17 @@ path.base = {
     end)
   end,
   start黄框暗 = function() return path.base["start黄框"]() end,
-  账号登录 = function()
-    check_login_frequency()
-    tap("账号登录")
-  end,
+  账号登录 = function() tap("账号登录") end,
   开始唤醒 = function()
     check_login_frequency()
     tap("开始唤醒")
+    disappear("开始唤醒")
   end,
   手机验证码登录 = disable_game_up_check_wrapper(function()
     if appid ~= oppid then return end
+    if not username or #username == 0 or not password or #password == 0 then
+      stop("账号或密码为空")
+    end
     if #username > 0 then
       if not wait(function()
         tap("账号左侧")
@@ -75,15 +76,19 @@ path.base = {
       }, 2)
       if p then
         if p:startsWith("captcha") then wait_game_up() end
-        if p == "单选确认框" then
-          stop("登录出现单选确认框")
-        end
+
         return true
         -- login_error_times = (login_error_times or 0) + 1
         -- if login_error_times > 10 then stop("登录失败34", true) end
         -- return true
       end
     end, 4)
+    if findTap("单选确认框") then
+      login_error_times = (login_error_times or 0) + 1
+    else
+      login_error_times = 0
+    end
+    if login_error_times > 10 then stop("单选确认框") end
   end),
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then
@@ -204,6 +209,10 @@ path.bilibili_login = {
   bilibili_other = function()
     tap("bilibili_other")
     appear("bilibili_phone_inputbox")
+  end,
+  bilibili_change2 = function()
+    check_login_frequency()
+    disappear(bilibili_change2, 10)
   end,
 }
 
@@ -680,6 +689,8 @@ end
 update_state = function()
   fight_failed_times = {}
   zero_san = false
+  login_error_times = 0
+  login_times = 0
 
   local day = (parse_time() - start_time) // (24 * 3600)
   if day == update_state_last_day then return end
@@ -1592,7 +1603,7 @@ path.信用购买 = function()
       if findAny({"信用交易所横线", "信用不足"}) then
         return true
       end
-      tap("购买物品")
+      findTap("购买物品")
     end, 5) then return end
 
     if findOne("信用不足") then
@@ -2185,7 +2196,7 @@ path.剿灭 = function(x)
   log(1289)
   -- ssleep(1)
   -- log(1290)
-  appear("开始行动")
+  appear("开始行动", 5)
   path.开始游戏(x)
 end
 
@@ -3118,30 +3129,47 @@ path.前瞻投资 = function()
 
   -- 先看作战
   local fight1ocr = {}
-  wait(function()
-    if #fight1ocr > 0 then return true end
+  if not wait(function()
     fight1ocr = ocr("第一层作战")
-  end, 5)
-  log(fight1ocr)
 
-  if #fight1ocr == 0 then
+    if #fight1ocr > 0 then
+      local fight1 = fight1ocr[1]
+      -- 只支持三种作战
+      if fight1.text:includes({"意", "外"}) then
+        fight1.text = "意外"
+      elseif fight1.text:includes({"礼", "炮", "队"}) then
+        fight1.text = "礼炮小队"
+      elseif fight1.text:includes({"与", "虫", "伴"}) then
+        fight1.text = "与虫为伴"
+      elseif fight1.text:includes({"驯", "兽", "屋"}) then
+        fight1.text = "驯兽小屋"
+      else
+        log("不知道什么作战：" .. fight1.text)
+        return
+      end
+      return true
+    end
+  end, 5) then
     log("不知道第一个作战是什么")
     return
   end
+  log(fight1ocr)
+
   local fight1 = fight1ocr[1]
-  -- 只支持三种作战
-  if fight1.text:includes({"意", "外"}) then
-    fight1.text = "意外"
-  elseif fight1.text:includes({"礼", "炮", "队"}) then
-    fight1.text = "礼炮小队"
-  elseif fight1.text:includes({"与", "虫", "伴"}) then
-    fight1.text = "与虫为伴"
-  elseif fight1.text:includes({"驯", "兽", "屋"}) then
-    fight1.text = "驯兽小屋"
-  else
-    toast("不知道什么作战：" .. fight1.text)
-    return
-  end
+
+  -- -- 只支持三种作战
+  -- if fight1.text:includes({"意", "外"}) then
+  --   fight1.text = "意外"
+  -- elseif fight1.text:includes({"礼", "炮", "队"}) then
+  --   fight1.text = "礼炮小队"
+  -- elseif fight1.text:includes({"与", "虫", "伴"}) then
+  --   fight1.text = "与虫为伴"
+  -- elseif fight1.text:includes({"驯", "兽", "屋"}) then
+  --   fight1.text = "驯兽小屋"
+  -- else
+  --   toast("不知道什么作战：" .. fight1.text)
+  --   return
+  -- end
 
   if zl_skip_hard and
     not (fight1.text == "意外" or fight1.text == "礼炮小队" or fight1.text ==
@@ -3238,8 +3266,17 @@ path.前瞻投资 = function()
     return restart()
   end
 
-  tap({fight1.l, fight1.t})
-  if not appear("进入界面") then return end
+  if not wait(function()
+    tap({fight1.l, fight1.t})
+    if appear("进入界面", 1) then return true end
+  end) then
+    in_fight_return = "无法进入作战"
+    return restart()
+  end
+  -- tap({fight1.l, fight1.t})
+  -- if not appear("进入界面") then
+  --   return
+  -- end
   if not wait(function()
     if findOne("快捷编队") then return true end
     tap("进入")
@@ -3430,10 +3467,6 @@ path.前瞻投资 = function()
     if findOne("战略帮助") then last_time_see_help = time() end
     if time() - last_time_see_help > 250 then return true end
     tap("不期而遇第三选项")
-    tap("不期而遇第三选项")
-    tap("不期而遇第三选项")
-    tap("不期而遇第三选项")
-    tap("不期而遇第二选项")
   end, 3) then
     swipzl("right")
     tap({unexpect1.l, unexpect1.t})
@@ -3441,7 +3474,7 @@ path.前瞻投资 = function()
     if not wait(function()
       if findOne("战略帮助") then last_time_see_help = time() end
       if time() - last_time_see_help > 250 then return true end
-      tap("进入")
+      tap("不期而遇第三选项")
     end, 3) then return end
   end
 
@@ -3480,10 +3513,6 @@ path.前瞻投资 = function()
     if findOne("战略帮助") then last_time_see_help = time() end
     if time() - last_time_see_help > 250 then return true end
     tap("不期而遇第三选项")
-    tap("不期而遇第三选项")
-    tap("不期而遇第三选项")
-    tap("不期而遇第三选项")
-    tap("不期而遇第二选项")
   end, 3) then
     swipzl("left")
     tap({unexpect2.l, unexpect2.t})
@@ -3491,7 +3520,7 @@ path.前瞻投资 = function()
     if not wait(function()
       if findOne("战略帮助") then last_time_see_help = time() end
       if time() - last_time_see_help > 250 then return true end
-      tap("进入")
+      tap("不期而遇第三选项")
     end, 3) then return end
   end
 
