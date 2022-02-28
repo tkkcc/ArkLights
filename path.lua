@@ -2904,6 +2904,7 @@ path.前瞻投资 = function()
     log(in_fight_return)
     toast(in_fight_return or '重开')
     ssleep(3)
+    oom_score_adj()
     -- 关闭游戏然后重启脚本
     if restart_game_check(zl_restart_interval) then
       restart_mode("前瞻投资")
@@ -3491,7 +3492,9 @@ path.前瞻投资 = function()
     end
     if findOne("战略帮助") then return true end
     -- 需要提前退出
-    if not findOne("战略返回") then return true end
+    if not findOne("战略返回") and appear("战略帮助") then
+      return true
+    end
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
@@ -3536,7 +3539,9 @@ path.前瞻投资 = function()
       end, 5) then return end
     end
     if findOne("战略帮助") then return true end
-    if not findOne("战略返回") then return true end
+    if not findOne("战略返回") and appear("战略帮助") then
+      return true
+    end
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
     tap("不期而遇第三选项")
