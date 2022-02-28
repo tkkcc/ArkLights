@@ -2120,8 +2120,7 @@ is_jmfight_enough = function(x, outside)
   end
   if jmfight_enough then return true end
 
-  if not outside and findOne("报酬合成玉已满") or outside and
-    findOne("报酬合成玉已满2") then
+  if findOne("报酬合成玉已满") then
     log("find报酬合成玉已满")
     jmfight_enough = true
     clean_jmfight()
@@ -2896,7 +2895,7 @@ path.前瞻投资 = function()
   -- 防止日志占用资源过多把脚本挤掉
   if zl_disable_log then disable_log = true end
   -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）
-  -- if zl_disable_game_up_check then disable_game_up_check = true end
+  if zl_disable_game_up_check then disable_game_up_check = true end
   -- 3.6.0发现当节点获取失效时，点击、找色其实都出问题了
   --
 

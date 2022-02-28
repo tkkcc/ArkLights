@@ -2217,8 +2217,8 @@ A：先看左下角图标有无绿边，有绿边先按音量加停止脚本，�
 Q：手指点屏幕没反应？
 A：脚本运行中极难点击，先按音量加停止脚本。
 
-Q：账号被抢登会怎么样？
-A：立即抢登后执行后续任务。
+Q：账号被抢登/抢占会怎么样？
+A：重登后执行后续任务。调试设置中可设最大登录次数为2，则被抢登或掉线一次时跳过(多号)或等10分钟(单号)，仅官服有效。
 
 Q：脚本什么原理？
 A：脚本通过无障碍录屏方式获取屏幕，判断状态，执行相应的操作，即所谓的图色脚本。
@@ -2284,12 +2284,12 @@ show_debug_ui = function()
   ui.addEditText(layout, "findOne_interval", "")
 
   newRow(layout)
-  addTextView(layout, "多点点击时长(miui13换班不上人)")
+  addTextView(layout, "多点点击时长(宿舍换班选不上人)")
   ui.addEditText(layout, "tapall_duration", "")
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
 
   newRow(layout)
-  addTextView(layout, "强制分辨率(点返回再重启脚本)")
+  addTextView(layout, "强制分辨率")
   ui.addEditText(layout, "force_width", [[]])
   addTextView(layout, "x")
   ui.addEditText(layout, "force_height", [[]])
@@ -2345,7 +2345,7 @@ show_extra_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
   ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
-  -- ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", false)
+  ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", false)
   -- newRow(layout)
   -- addTextView(layout, [[重启间隔(秒)]])
   -- ui.addEditText(layout, "zl_restart_interval", [[]])
@@ -3759,27 +3759,29 @@ end
 check_login_frequency = function()
   login_times = (login_times or 0) + 1
   if login_times >= max_login_times then
-    stop("登录次数达到"..login_times)
+    stop("登录次数达到" .. login_times)
   end
 end
 
 oom_score_adj = function()
   if not root_mode then return end
   if disable_oom_score_adj then return end
-  local set = function(package)
-    exec("su root sh -c 'echo -1000 > /proc/$(pidof " .. package ..
-           ")/oom_score_adj'")
+  local getCmd = function(package, score)
+    score = score or "-1000"
+    return "'echo " .. score .. " > /proc/$(pidof " .. package ..
+             ")/oom_score_adj'"
   end
   local get = function(package)
     return (exec("su root sh -c 'cat /proc/$(pidof " .. package ..
                    ")/oom_score_adj'") or ''):trim()
   end
   local package = getPackageName()
-  set(package)
-  set(package .. ":acc")
-  set(package .. ":remote")
-  log("oom_score_adj:" .. get(package) .. get(package .. ":acc") ..
-        get(package .. ":remote"))
+  local cmd = table.join({
+    getCmd(package), getCmd(package .. ":acc"), getCmd(package .. ":remote"),
+  }, ';')
+  exec("su root sh -c '" .. cmd .. "'")
+  -- log("oom_score_adj:" .. get(package) .. get(package .. ":acc") ..
+  --       get(package .. ":remote"))
 end
 
 -- post_util_hook
