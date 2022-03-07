@@ -1748,11 +1748,11 @@ path.开始游戏 = function(x, disable_ptrs_check)
   if not wait(function()
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
-      "单选确认框", "源石恢复理智不足", "切换",
+      "单选确认框", "源石恢复理智不足",
       "当期委托侧边栏",
     })
     -- 剿灭后一直按开始行动导致开始行动界面消失，可能出现下面的界面
-    if state == "切换" or state == "当前委托侧边栏" then
+    if  state == "当前委托侧边栏" then
       path.跳转("首页")
       return true
     end
@@ -2173,10 +2173,10 @@ path.剿灭 = function(x)
   -- 当期委托也需要切换
   -- if x ~= "剿灭" then
   -- 都需要切换
-  if not wait(function()
+  wait(function()
     if findOne("切换") then return true end
     tap("主页右侧")
-  end, 5) then return end
+  end, 5)
   if is_jmfight_enough(x) then return end
   if not wait(function()
     if findOne("当前委托侧边栏") then return true end
