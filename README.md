@@ -79,8 +79,7 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高，触动精灵实现，群号912397682
-  </td>
+      <td>完成度高，细节设置多，触动精灵实现，群号912397682</td>
    </tr>
    <tr>
    <td><a href="https://www.bilibili.com/video/BV1ML411x7gz">星火方舟</a></td>
@@ -99,24 +98,36 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td></td>
-      <td></td>
+      <td>多种</td>
+      <td>多种</td>
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>&#10004;</td>
-      <td>autojs实现，群号1087079756</td>
+      <td>用户量大，兼容性强，autojs实现，群号1087079756</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/AgainstEntropy/PRTS">PRTS</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>多种</td>
+      <td>多种</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>autojs实现</td>
    </tr>
    <tr>
    <td><a href="https://www.bilibili.com/video/BV1kA41147HA">明日方舟托管助手</a></td>
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>&#10004;</td>
-      <td></td>
-      <td></td>
+      <td>多种</td>
+      <td>多种</td>
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>&#10004;</td>
-      <td>节点精灵实现</td>
+      <td>触动精灵实现</td>
    </tr>
    <tr>
    <td><a href="https://github.com/mslxl/arkayo">arkayo</a></td>
@@ -127,18 +138,6 @@
       <td>官服</td>
       <td>&#10006;</td>
       <td>&#10004;</td>
-      <td>&#10006;</td>
-      <td>autojs实现</td>
-   </tr>
-   <tr>
-   <td><a href="https://github.com/AgainstEntropy/PRTS">PRTS</a></td>
-      <td>&#10004;</td>
-      <td>&#10004;</td>
-      <td>&#10004;</td>
-      <td></td>
-      <td></td>
-      <td>&#10006;</td>
-      <td>&#10006;</td>
       <td>&#10006;</td>
       <td>autojs实现</td>
    </tr>
@@ -206,6 +205,30 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>python实现，自定义换班，群号648836471</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/FlandiaYingman/auto-ark">auto-ark</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>java实现，大更新时自动下载安装</td>
+   </tr>
+   <tr>
+   <td><a href="https://github.com/zqh531500317/arknight-script">arknight-script</a></td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td>&#10004;</td>
+      <td></td>
+      <td></td>
+      <td>&#10006;</td>
+      <td>&#10006;</td>
+      <td>&#10004;</td>
+      <td>python实现</td>
    </tr>
    <tr>
    <td><a href="https://github.com/zsppp/Arknights-Sora">Arknights-Sora</a></td>
