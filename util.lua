@@ -1729,8 +1729,6 @@ show_multi_account_ui = function()
   local layout = "multi_account"
   ui.newLayout(layout, ui_page_width, -2)
   ui.setTitleText(layout, "多账号")
-  newRow(layout)
-  addTextView(layout, [[账密为空则不重登]])
 
   newRow(layout)
   ui.addCheckBox(layout, layout .. '_enable', "启用账号", false)
@@ -1744,7 +1742,7 @@ show_multi_account_ui = function()
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
   addTextView(layout,
-              [[填“2”表示跑第2个号，填“8 4 2”表示依次跑第8第4第2个号，填“2-10”表示从第2跑到第10，填“1-10 1-10”表示前10个号跑两轮。]])
+              [[“启用账号”填“2”表示跑第2个号，填“8 4 2”表示依次跑第8第4第2个号，填“2-10”表示从第2跑到第10，填“1-10 1-10”表示前10个号跑两轮。账密为空则不做账号退出。]])
 
   newRow(layout, layout .. "_save_row", "center")
   ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
@@ -2253,7 +2251,7 @@ Q：限时活动是什么？
 A：限时签到活动 + 每日赠送寻访
 
 Q：信用交易所尽量买/不买指定商品？
-A：“信用多/少买”填“碳 家 加急”。填了速度会变慢。
+A：“信用多/少买” 填 “碳 家 加急”。填了速度会变慢。
 
 Q：怎么备份、恢复、快速修改设置？
 A：所有设置均明文保存在固定目录，日志开头几行有打印目录。
@@ -3565,7 +3563,7 @@ showUI = function()
     main_ui_lock = lock:add()
     -- if loadConfig("多账号")
     show_main_ui()
-    if not wait(function() return not lock:exist(main_ui_lock) end, 600) then
+    if not wait(function() return not lock:exist(main_ui_lock) end, math.huge) then
       peaceExit()
     end
   end
