@@ -1145,7 +1145,7 @@ path.总览换班 = function()
 
   local bottom
   local reach_bottom = false
-  for i = 1, 15 do
+  for i = 1, 30 do
     if i ~= 1 then
       swipd()
       -- TODO wait bottom for stable
@@ -1566,6 +1566,7 @@ path.信用购买 = function()
   end
 
   local f
+  local order = {}
   f = function(i)
     if not findOne("信用交易所横线") then
       if not wait(function()
@@ -1585,7 +1586,7 @@ path.信用购买 = function()
     end
 
     -- 获取遗漏物品
-    for j = 1, i do
+    for _, j in pairs(order) do
       if findOne("信用交易所列表" .. j) then
         i = j
         break
@@ -1624,7 +1625,35 @@ path.信用购买 = function()
     end
   end
   if speedrun then return f(2) end
-  for i = 1, 10 do if f(i) then return end end
+
+  -- 按优先级排
+  if type(low_priority_goods) == 'string' and type(high_priority_goods) ==
+    'string' and (#low_priority_goods > 0 or #high_priority_goods > 0) then
+    local first_want = {}
+    local last_want = {}
+    local low_goods = low_priority_goods:filterSplit()
+    local high_goods = high_priority_goods:filterSplit()
+    for i, v in pairs(point.信用交易所列表) do
+      local x, y = point[v]:match("(%d+)|(%d+)")
+      x = str2int(x, 0)
+      y = str2int(y, 0)
+      point.t = {x - scale(105), y, x + scale(105), y + scale(46)}
+      local r = ocr("t")
+      if #r > 0 and r[1].text:includes(high_goods) then
+        table.insert(first_want, i)
+      elseif #r > 0 and r[1].text:includes(low_goods) then
+        table.insert(last_want, i)
+      else
+        table.insert(order, i)
+      end
+    end
+    order = table.extend(first_want, order)
+    table.extend(order, last_want)
+  else
+    order = range(1, 10)
+  end
+  log(1635, "信用物品排序", order)
+  for _, i in pairs(order) do if f(i) then return end end
 end
 
 get_fight_type = function(x)
@@ -1748,11 +1777,10 @@ path.开始游戏 = function(x, disable_ptrs_check)
   if not wait(function()
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
-      "单选确认框", "源石恢复理智不足",
-      "当期委托侧边栏",
+      "单选确认框", "源石恢复理智不足", "当期委托侧边栏",
     })
     -- 剿灭后一直按开始行动导致开始行动界面消失，可能出现下面的界面
-    if  state == "当前委托侧边栏" then
+    if state == "当前委托侧边栏" then
       path.跳转("首页")
       return true
     end

@@ -1683,7 +1683,7 @@ make_account_ui = function(layout, prefix)
   newRow(layout)
   addTextView(layout, "作战")
   ui.addEditText(layout, prefix .. "fight_ui",
-                 [[当期委托x5 长期委托1*5 活动6*99 CA-5 9-10*2 JT8-3 PR-D-2 CE-5 LS-5 上一次]])
+                 [[当期委托x5 活动6*99 9-16*2 JT8-3 PR-D-2 CE-5 LS-5 上一次]])
 
   newRow(layout)
   addTextView(layout, "最多吃")
@@ -1697,20 +1697,11 @@ make_account_ui = function(layout, prefix)
   ui.addRadioGroup(layout, prefix .. "prefer_speed",
                    {"极速", "高产(别用)"}, 0, -2, -2, true)
 
-  -- newRow(layout)
-  -- addTextView(layout, "信用不买")
-  -- ui.addEditText(layout, prefix .. 'goods_blacklist', "碳 碳素")
-
-  -- newRow(layout)
-  -- addTextView(layout, "换班优先")
-  -- ui.addRadioGroup(layout, prefix .. "prefer_skill", {"工作状态", "技能"},
-  --                  1, -2, -2, true)
-
-  -- newRow(layout)
-  -- addTextView(layout, "基建换班")
-  -- ui.addCheckBox(layout, prefix .. "shift1", "宿舍", true)
-  -- ui.addCheckBox(layout, prefix .. "shift2", "制造", true)
-  -- ui.addCheckBox(layout, prefix .. "shift3", "总览", true)
+  newRow(layout)
+  addTextView(layout, "信用多买")
+  ui.addEditText(layout, "high_priority_goods", "")
+  addTextView(layout, "信用少买")
+  ui.addEditText(layout, "low_priority_goods", "")
 
   newRow(layout)
   addTextView(layout, "自动招募")
@@ -2091,7 +2082,7 @@ Q：怎么刷关卡？
 A：勾选“轮次作战”任务，修改“作战”设置，启动。关卡将依次执行，跳过无效关，到最后一关后再从第一关开始开始。
 
 Q：作战设置格式？
-A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 长期委托1*5 活动6*99 CA-5*1 9-10 上一次x0”，表示10次剿灭+99次活动+1次CA-5+1次9-10。
+A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 活动6*99 CA-5*1 9-10 上一次x0”，表示5次剿灭+99次活动+1次CA-5+1次9-10。
 
 Q：合成玉满了还会继续刷吗？
 A：不会，任何作战开始前（包括上一次）都会判断合成玉是否已满，已满则所有剿灭无效。
@@ -2136,13 +2127,13 @@ Q：换班换了低心情干员？
 A：一般是低心情干员过多。用脚本每8小时换一次，一段时间后不会出现。
 
 Q：自动招募怎么用？
-A：勾选“公招刷新”任务，启动。“公招刷新”对于保底标签会按“自动招募”设置来执行，“自动招募”勾了就招募，没勾则保留。对于非保底标签能刷新就刷新。
+A：勾选“公招刷新”任务，启动。设置中“其他”表示非保底标签，“车456”表示保底小车与456星。
 
-Q：非保底标签能不能也自动招募？
-A：可以，“自动招募”勾上“其他”。
+Q：非保底标签怎么自动招募？
+A：“自动招募”勾上“其他”。
 
-Q：能不能用加急卷刷黄绿票？
-A：可以，见“其他功能”。
+Q：怎么用加急卷刷黄绿票？
+A：见“其他功能”。
 
 Q：自动招募会不会错过资深标签？
 A：不会，一是标签识别非常保守，有问题就保留，二是有官方保险，在未勾选资深标签时招募或刷新都会弹窗，脚本遇到会卡住，但理论上不会遇到。
@@ -2154,35 +2145,37 @@ Q：通知QQ有什么用？
 A：任务完成后，机器人将把首页截图与可招募标签发给QQ。一般与 定时任务+云手机/模拟器/备用机 配合使用，这样平时只需检查聊天记录，无需接触游戏。
 
 Q：通知QQ怎么用？
-A：用自己QQ加机器人QQ为好友（机器人无需同意），将自己QQ填入脚本横线处，然后正常启动。
+A：用自己QQ加机器人QQ为好友（机器人无需同意），将自己QQ填入脚本横线处，然后启动。
 
 Q：通知QQ无效？
 A：一是分辨率过高导致截图超过10M被服务端拒绝，二是机器人仍然无法向你发消息，可以加反馈群，机器人能以“群临时会话”方式向你发消息。
+
+Q：QQ通知没图片？
+A：QQ每日发图总数量有上限。目前找不到更好的推送服务。
 
 Q：定时任务无效？
 A：任务完成后，如果设了定时，脚本会等到下个定时点再做。不按“仅定时”或“启动并定时”无效。注意系统时区是不是东八区。
 
 Q：脚本有没有记忆？
-A：没有，每次运行完全独立，不依赖之前运行结果。需要记住状态请换其他脚本。
+A：没有，每次运行完全独立，不依赖之前运行结果。
 
 Q：在模拟器上没反应？
 A：
 1. 脚本适用于雷电、夜神、逍遥、蓝叠4(开高级图形引擎)、蓝叠5(开进阶模式图形引擎)、mumu9（启动时存在横竖屏切换闪烁，启动后不影响）、genymotion 10 9 8 7、vmos、redroid10、Android Emulator。不适用于mumu安卓6、红手指安卓6、redroid 8 9 11 12。
 2. 脚本要求安卓>=7，分辨率>=1280x720，长宽比>=16:9。
 3. 切换渲染引擎（DirectX与OpenGL）后再尝试一次。本人逍遥只能用OpenGL。
-4. 换其他设备或其他脚本。
 
 Q：有root还要手动开启无障碍？
 A：有root脚本会自动开无障碍。软件启动后的无障碍提示选“以后不再提醒”，进入后直接点“确定”即可。
 
 Q：在手机上没反应？
 A：
-1. 手机相比模拟器更复杂，首先检查“模拟器没反应”问题答案。
-2. 脚本主界面下方有一段注意事项，请检查。
-3. 重启一次系统。
-4. 如果使用了不同于物理设备的分辨率，如开启智能分辨率、省电模式，则需在“调试设置”中修改分辨率。
+1. 检查“模拟器没反应”问题答案。
+2. 检查脚本主界面底部注意事项。
+3. 重启设备。
+4. 如果使用不同于物理设备的分辨率，需在“调试设置”中指定分辨率。
 5. 部分系统不兼容脚本的多点触控，如miui13，导致基建换班漏人。本人只在红米K40miui12.5上测试。
-9. 通过vmos使用或换其他设备或其他脚本。
+9. 通过vmos使用、换设备、换脚本。
 
 Q：游戏在小窗/后台/熄屏时支持吗？
 A：不支持，除非通过vmos使用。
@@ -2191,31 +2184,31 @@ Q：vmos是什么？
 A：vmos（虚拟大师）是手机上的模拟器/虚拟机。在手机上一边后台刷活动一边做其他事的时候用。类似还有光速虚拟机。
 
 Q：在云手机上没反应？
-A：加群反馈。
+A：红手指安卓6不支持，让客服升到8。其他问题加群反馈。
 
 Q：正常运行一段时间后突然卡住不动？
-A：多次卡同一界面，请反馈给开发者。卡随机界面，参考下一问题的解决方法。
+A：卡随机界面，参考下一问题答案。多次卡同一界面，请反馈给开发者。
 
-Q：正常运行一段时间后突然出现“停止运行”或者悬浮按钮消失或位置变了？
-A：被系统杀了。确保速通版本号是49。调整设备设置。换用更稳定的设备。
+Q：正常运行一段时间后突然出现“停止运行”、悬浮按钮消失、悬浮按钮位置改变？
+A：被系统杀了。调整系统设置、给足权限、换设备。
 
 Q：直接弹出“停止运行”？
-A：一般是安卓版本低于7导致的。
+A：一般是安卓版本低于7。
 
 Q：正常运行一段时间后突然出现没反应且悬浮按钮没有绿边？
-A：说明脚本正常停止或出现异常，如感觉有问题，请把日志截图发给开发者。
+A：说明脚本正常停止或出现代码错误，如感觉有问题，请把日志截图发给开发者。
 
 Q：完成后能不能不弹出日志？
-A：不行，属于脚本框架问题。
+A：不行。脚本框架问题。
 
-Q：能不能不震动？
+Q：怎么关闭震动？
 A：软件右上角设置里关掉震动。
 
 Q：弹出日志关不掉？
 A：先看左下角图标有无绿边，有绿边先按音量加停止脚本，再向左拖拽日志窗口标题栏，窗口右上角有关闭按钮。
 
 Q：手指点屏幕没反应？
-A：脚本运行中极难点击，先按音量加停止脚本。
+A：脚本运行中极难点击，先按音量加停止脚本。或狂按红色停止按钮。
 
 Q：账号被抢登/抢占会怎么样？
 A：重登后执行后续任务。调试设置中可设最大登录次数为2，则被抢登或掉线一次时跳过(多号)或等10分钟(单号)，仅官服有效。
@@ -2233,7 +2226,7 @@ Q：脚本需要游戏在什么界面时启动？
 A：几乎所有。
 
 Q：登陆出现滑动验证码？
-A：短时间内多次登陆时出现。正在接入解法。
+A：一段时间内多次登陆时出现。正在接入解法。
 
 Q：制造站贸易站干员全被下了？
 A：别用“高产”换班。
@@ -2241,24 +2234,29 @@ A：别用“高产”换班。
 Q：无限循环启动/无限重启/24小时刷/无等待？
 A：定时任务写“+0:00”。
 
-Q：能不能一键重启？
+Q：怎么一键重启脚本？
 A：悬浮按钮中最上方那个。
 
-Q：模拟器屏幕颠倒/旋转/竖屏
-A：正常，模拟器设置里如果有“强制横屏”可以尝试开。
+Q：模拟器屏幕颠倒/旋转/竖屏？
+A：正常，模拟器设置里如果有“强制锁定横屏”可以开。
 
-Q：遇到多账号密码错误会怎么处理
+Q：多账号密码错误会怎么处理？
 A：官服登录出验证码/B服登录失败时会暂时跳过该账号，请配合QQ通知使用。
 
-Q：遇到单账号密码错误会怎么处理
+Q：单账号密码错误会怎么处理？
 A：等待10分钟后重试，请配合QQ通知使用。
 
-Q：脚本有没有肉鸽刷投资源石锭功能
-A：有，见“其他功能”。
+Q：刷肉鸽投资/刷源石锭？
+A：见“其他功能”。
 
-Q：QQ通知没图片
-A：QQ每日发图有上限。找不到更好的推送服务。
+Q：限时活动是什么？
+A：限时签到活动 + 每日赠送寻访
 
+Q：信用交易所尽量买/不买指定商品？
+A：“信用多/少买”填“碳 家 加急”。填了速度会变慢。
+
+Q：怎么备份、恢复、快速修改设置？
+A：所有设置均明文保存在固定目录，日志开头几行有打印目录。
 ]])
 
   --   newRow(layout)
@@ -2279,12 +2277,14 @@ show_debug_ui = function()
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
 
   newRow(layout)
-  ui.addCheckBox(layout, "debug_disable_log", "关日志", false)
-  ui.addCheckBox(layout, "debug_mode", "开调试", false)
-  addTextView(layout, "点击")
-  ui.addEditText(layout, "tap_interval", "")
-  addTextView(layout, "找色")
-  ui.addEditText(layout, "findOne_interval", "")
+  addTextView(layout, "单号最大登录次数")
+  ui.addEditText(layout, "max_login_times", "")
+
+  newRow(layout)
+  addTextView(layout, "强制分辨率")
+  ui.addEditText(layout, "force_width", [[]])
+  addTextView(layout, "x")
+  ui.addEditText(layout, "force_height", [[]])
 
   newRow(layout)
   addTextView(layout, "多点点击时长(宿舍换班选不上人)")
@@ -2292,10 +2292,12 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
 
   newRow(layout)
-  addTextView(layout, "强制分辨率")
-  ui.addEditText(layout, "force_width", [[]])
-  addTextView(layout, "x")
-  ui.addEditText(layout, "force_height", [[]])
+  ui.addCheckBox(layout, "debug_disable_log", "关日志", false)
+  ui.addCheckBox(layout, "debug_mode", "开调试", false)
+  addTextView(layout, "点击")
+  ui.addEditText(layout, "tap_interval", "")
+  addTextView(layout, "找色")
+  ui.addEditText(layout, "findOne_interval", "")
 
   newRow(layout)
   ui.addCheckBox(layout, "beta_mode", "使用beta更新源", false)
@@ -2306,10 +2308,6 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "diable_oom_score_adj",
                  "禁用设置oom_score_adj为-1000", false)
-
-  newRow(layout)
-  addTextView(layout, "单号最大登录次数")
-  ui.addEditText(layout, "max_login_times", "")
 
   newRow(layout)
   ui.addEditText(layout, "before_account_hook", "-- before_account_hook")
@@ -2773,7 +2771,17 @@ predebug_hook = function()
   ssleep(1)
   -- log()
   -- log(ocr("第一层作战"))
-  tap("不期而遇第三选项")
+  -- point.t={27,148,245,183}
+  for _, v in pairs(point.信用交易所列表) do
+    local x, y = point[v]:match("(%d+)|(%d+)")
+    -- log(point[v],x,y)
+    -- exit()
+    x = str2int(x, 0)
+    y = str2int(y, 0)
+    point.t = {x - scale(105), y, x + scale(105), y + scale(46)}
+    log(ocr('t'))
+  end
+  -- tap("不期而遇第三选项")
   -- tap("进入")
   ssleep(1)
   exit()
