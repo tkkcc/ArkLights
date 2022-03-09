@@ -11,6 +11,25 @@ end
 never_end_wrapper = function(func)
   return function(...) while true do func(...) end end
 end
+still_wrapper = function(func)
+  return function(...)
+    -- nodeLib.keepNode()
+    keepCapture()
+    local ret = func(...)
+    releaseCapture()
+    -- nodeLib.releaseNode()
+    return ret
+  end
+end
+disable_log_wrapper = function(func)
+  return function(...)
+    local state = disable_log
+    disable_log = true
+    local ret = func(...)
+    disable_log = state
+    return ret
+  end
+end
 
 -- 无障碍函数替换
 if not openPermissionSetting then
@@ -371,6 +390,11 @@ end
 table.filter = function(t, f)
   local a = {}
   for _, v in pairs(t) do if f(v) then table.insert(a, v) end end
+  return a
+end
+table.filterKV = function(t, f)
+  local a = {}
+  for k, v in pairs(t) do if f(k, v) then a[k] = v end end
   return a
 end
 
@@ -869,15 +893,17 @@ swipc = function()
 end
 
 -- swip for operator
-swipo = function(left)
+swipo = function(left, nodelay)
   local duration
   local finger
+  local delay
   if left then
     local x1 = scale(600)
-    local x2 = 10000000
+    local x2 = scale(10000 / 720 * 1080)
     local y1 = scale(533)
     duration = 400
     finger = {{point = {{x1, y1}, {x2, y1}}, duration = duration}}
+    delay = 500
   else
     local x = scale(600)
     local y = scale(533)
@@ -895,10 +921,11 @@ swipo = function(left)
       {point = {{x2, y}, {x2, y3}}, start = slids, duration = slidd},
       {point = {{x2, y}, {x2, y3}}, start = taps, duration = tapd},
     }
+    delay = 150
   end
   log(JsonEncode(finger))
   gesture(finger)
-  sleep(duration)
+  sleep(duration + (nodelay and 0 or delay))
 end
 
 -- swip for fight
@@ -969,17 +996,6 @@ zoom = function(retry)
   --   return true
   -- end
   return zoom(retry + 1)
-end
-
-still_wrapper = function(func)
-  return function(...)
-    -- nodeLib.keepNode()
-    keepCapture()
-    local ret = func(...)
-    releaseCapture()
-    -- nodeLib.releaseNode()
-    return ret
-  end
 end
 
 -- 为什么auto要有两组状态： 第二组状态点唯一性不足，比如返回与邮件同时出现时，需要的是邮件。没有优先级。
@@ -1492,49 +1508,49 @@ findtap_operator_fast = function(operator)
   end
 end
 
-findtap_operator_type = function(type)
-  swipo(true)
-  tap("清空选择")
-  ssleep(2)
-  log('type', type)
-  local 经验加速 = {
-    '#261500-50',
-    '[{"a":0.129,"d":1.622,"id":"1","r":529.0,"s":"34|5<fOm>&5~9zPN&5~amm]&5>Yg}@&5]8m]^&5X[L$H&5X[L$H&5X[L$X&5>xRmv&5<quBx&5>GERF&5>GERE&5X[L$Y&5X[Npu&5X[Npu&5Y6o!c&5>YhCE&5~a15*&5~9z^6&5~9z^6&2~zjVe"}]',
-    0.85,
-  }
-  local 赤金加速 = {
-    '#202020-50',
-    '[{"a":-0.044,"d":1.807,"id":"1","r":358.0,"s":"22|py&PS&PS&PS&H6!&18dN&18dN&18dM&18dM&2OY&2OY&2LC&2LC&2gre&4wSA&8{v2&8{v2&4wSs&aL6&ax~&ax~&lgc&k]*&k]*&lGs&H6!&H6!&H6!&18dM&H6Y"}]',
-    0.85,
-  }
-  if type == '经验站' then
-    type = 经验加速
-  elseif type == "赤金站" then
-    type = 赤金加速
-  end
-  -- swip 3 times only
-  for i = 1, 3 do
-    if i ~= 1 then swipo() end
-
-    local candidate = findShape(type)
-    if candidate then
-      log(11777, #candidate)
-      local p = {}
-      for j, c in pairs(candidate) do
-        -- 宽度不超过
-        if c['x'] < 1920 * minscale then
-          table.insert(p, 'candidates' .. j)
-          point['candidates' .. j] = {c['x'], c['y']}
-        end
-      end
-      if #p > 0 then
-        tapAll(p)
-        ssleep(.1)
-      end
-    end
-  end
-  swipo(true)
-end
+-- findtap_operator_type = function(type)
+--   swipo(true)
+--   tap("清空选择")
+--   ssleep(2)
+--   log('type', type)
+--   local 经验加速 = {
+--     '#261500-50',
+--     '[{"a":0.129,"d":1.622,"id":"1","r":529.0,"s":"34|5<fOm>&5~9zPN&5~amm]&5>Yg}@&5]8m]^&5X[L$H&5X[L$H&5X[L$X&5>xRmv&5<quBx&5>GERF&5>GERE&5X[L$Y&5X[Npu&5X[Npu&5Y6o!c&5>YhCE&5~a15*&5~9z^6&5~9z^6&2~zjVe"}]',
+--     0.85,
+--   }
+--   local 赤金加速 = {
+--     '#202020-50',
+--     '[{"a":-0.044,"d":1.807,"id":"1","r":358.0,"s":"22|py&PS&PS&PS&H6!&18dN&18dN&18dM&18dM&2OY&2OY&2LC&2LC&2gre&4wSA&8{v2&8{v2&4wSs&aL6&ax~&ax~&lgc&k]*&k]*&lGs&H6!&H6!&H6!&18dM&H6Y"}]',
+--     0.85,
+--   }
+--   if type == '经验站' then
+--     type = 经验加速
+--   elseif type == "赤金站" then
+--     type = 赤金加速
+--   end
+--   -- swip 3 times only
+--   for i = 1, 3 do
+--     if i ~= 1 then swipo() end
+--
+--     local candidate = findShape(type)
+--     if candidate then
+--       log(11777, #candidate)
+--       local p = {}
+--       for j, c in pairs(candidate) do
+--         -- 宽度不超过
+--         if c['x'] < 1920 * minscale then
+--           table.insert(p, 'candidates' .. j)
+--           point['candidates' .. j] = {c['x'], c['y']}
+--         end
+--       end
+--       if #p > 0 then
+--         tapAll(p)
+--         ssleep(.1)
+--       end
+--     end
+--   end
+--   swipo(true)
+-- end
 
 timeit = function(f)
   local start = time()
@@ -1694,8 +1710,8 @@ make_account_ui = function(layout, prefix)
 
   newRow(layout)
   addTextView(layout, "换班模式")
-  ui.addRadioGroup(layout, prefix .. "prefer_speed",
-                   {"极速", "高产(别用)"}, 0, -2, -2, true)
+  ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
+                   -2, -2, true)
 
   newRow(layout)
   addTextView(layout, "信用多买")
@@ -2116,7 +2132,13 @@ A：
 法3. 在活动关代理指挥中启动脚本，脚本将优先重复刷当前关。
 
 Q：换班产率太低？
-A：“极速”换班以最快放满干员为目标，不考虑干员技能。“高产”换班考虑单站最优技能组合，忽略其他站干员技能加成（如迷迭香、焰尾、森蚺），忽略“意识协议”技能效果。“高产”换班还在开发，建议尝试其他脚本，详见github项目主页。
+A：“极速”换班以最快放满干员为目标，不考虑干员技能。“高产”换班增加对制造与贸易的特殊处理，根据各干员基建技能效果穷举计算出单站最优组合，但有如下限制：
+0. 已进驻（即使满心情）、或心情低于12的干员不会选。
+1. 忽略其他站技能加成（如迷迭香、焰尾、森蚺），忽略“意识协议”技能效果。
+2. 假定宿舍数量为4。假定所有设施均为满级。假定每次换班间隔8小时。
+3. 部分技能效果采用近似估计。
+4. 部分设备翻页滑动可能不灵，请反馈。
+5. 除上述限制外，效率不如手换或其他脚本，请反馈。
 
 Q：换班漏换干员？
 A：请加群反馈。
@@ -2185,7 +2207,7 @@ Q：在云手机上没反应？
 A：红手指安卓6不支持，让客服升到8。其他问题加群反馈。
 
 Q：正常运行一段时间后突然卡住不动？
-A：卡随机界面，参考下一问题答案。多次卡同一界面，请反馈给开发者。
+A：卡随机界面，参考下一问题答案。多次卡同一界面，请反馈。
 
 Q：正常运行一段时间后突然出现“停止运行”、悬浮按钮消失、悬浮按钮位置改变？
 A：被系统杀了。调整系统设置、给足权限、换设备。
@@ -2194,7 +2216,7 @@ Q：直接弹出“停止运行”？
 A：一般是安卓版本低于7。
 
 Q：正常运行一段时间后突然出现没反应且悬浮按钮没有绿边？
-A：说明脚本正常停止或出现代码错误，如感觉有问题，请把日志截图发给开发者。
+A：说明脚本正常停止或出现代码错误，如感觉有问题，请反馈日志与录屏。
 
 Q：完成后能不能不弹出日志？
 A：不行。脚本框架问题。
@@ -2225,9 +2247,6 @@ A：几乎所有。
 
 Q：登陆出现滑动验证码？
 A：一段时间内多次登陆时出现。正在接入解法。
-
-Q：制造站贸易站干员全被下了？
-A：别用“高产”换班。
 
 Q：无限循环启动/无限重启/24小时刷/无等待？
 A：定时任务写“+0:00”。
@@ -2288,6 +2307,9 @@ show_debug_ui = function()
   addTextView(layout, "多点点击时长(宿舍换班选不上人)")
   ui.addEditText(layout, "tapall_duration", "")
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "enable_shift_log", "开高产换班日志", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "debug_disable_log", "关日志", false)
@@ -2762,6 +2784,9 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
+  unZip('/sdcard/skill.zip', '/sdcard/skill')
+
+  exit()
   -- touchMove(0,23,13)
   -- touchDown(0)
   -- sleep(200)
@@ -3230,43 +3255,43 @@ predebug_hook = function()
   end
   -- log("1s:sub(1,#s)", s:sub(1, #s))
 
-  gg = function(x1, y1, x2, y2)
-    s = ''
-    local w, h, color = getScreenPixel(x1, y1, x2, y2)
-    local i, j, b, g, r
-    local data = {}
-    for _, m in pairs(mask) do
-      i, j = m[1], m[2]
-      b, g, r = colorToRGB(color[(i - 1) * w + j])
-      table.extend(data, {r, g, b})
-
-      if nil then
-        r = string.format('%X', r):padStart(2, '0')
-        g = string.format('%X', g):padStart(2, '0')
-        b = string.format('%X', b):padStart(2, '0')
-        s = s .. i .. '|' .. j .. '|' .. r .. g .. b .. ','
-      end
-    end
-    -- log(s)
-    -- exit()
-    local best_score = 100000
-    local best = nil
-    local score
-    local abs = math.abs
-    for k, v in pairs(pngdata) do
-      score = 0
-      for i = 1, #mask * 3 do
-        score = score + abs(data[i] - v[i])
-        if score > best_score then break end
-      end
-      if best_score > score then
-        best_score = score
-        best = k
-      end
-    end
-    log(2208, best_score, best)
-    return best
-  end
+  -- gg = function(x1, y1, x2, y2)
+  --   s = ''
+  --   local w, h, color = getScreenPixel(x1, y1, x2, y2)
+  --   local i, j, b, g, r
+  --   local data = {}
+  --   for _, m in pairs(mask) do
+  --     i, j = m[1], m[2]
+  --     b, g, r = colorToRGB(color[(i - 1) * w + j])
+  --     table.extend(data, {r, g, b})
+  --
+  --     if nil then
+  --       r = string.format('%X', r):padStart(2, '0')
+  --       g = string.format('%X', g):padStart(2, '0')
+  --       b = string.format('%X', b):padStart(2, '0')
+  --       s = s .. i .. '|' .. j .. '|' .. r .. g .. b .. ','
+  --     end
+  --   end
+  --   -- log(s)
+  --   -- exit()
+  --   local best_score = 100000
+  --   local best = nil
+  --   local score
+  --   local abs = math.abs
+  --   for k, v in pairs(pngdata) do
+  --     score = 0
+  --     for i = 1, #mask * 3 do
+  --       score = score + abs(data[i] - v[i])
+  --       if score > best_score then break end
+  --     end
+  --     if best_score > score then
+  --       best_score = score
+  --       best = k
+  --     end
+  --   end
+  --   log(2208, best_score, best)
+  --   return best
+  -- end
 
   discover()
   exit()

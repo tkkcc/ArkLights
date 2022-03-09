@@ -826,11 +826,93 @@ path.宿舍换班 = function()
   if not no_dorm then for i = 1, 4 do f(i) end end
 end
 
-path.基建信息获取 = function() end
+-- 各站数量与等级，直接全局变量
+path.基建信息获取 = function()
+  dormitoryCapacity = 0
+  dormitoryLevelSum = 0
+  dormitoryNum = 0
+  goldStationNum = 0
+  tradingStationNum = 0
+  powerStationNum = 0
 
+  dormitoryStation = {}
+  dormitoryLevel = {}
+  powerStation = {}
+  powerStationLevel = {}
+  tradingStation = {}
+  tradingStationLevel = {}
+  manufacturingStation = {}
+  manufacturingStationLevel = {}
+
+  path.跳转("基建")
+
+  local type2color = {
+    制造站 = "#FFCC00",
+    贸易站 = "#33CCFF",
+    发电站 = "#CCFF66",
+  }
+  local f
+  keepCapture()
+  f = function(i)
+    local x, y = table.unpack(point["基建列表" .. i])
+    for type, color in pairs(type2color) do
+      -- 检测kernel，因为可能被条纹挡住
+      if (compareColor(x, y, color, default_findcolor_confidence) or
+        compareColor(x - scale(5), y - scale(10), color,
+                     default_findcolor_confidence) or
+        compareColor(x - scale(5), y + scale(10), color,
+                     default_findcolor_confidence) or
+        compareColor(x + scale(5), y + scale(10), color,
+                     default_findcolor_confidence) or
+        compareColor(x - scale(5), y - scale(10), color,
+                     default_findcolor_confidence)) then
+
+        if type == "制造站" then
+          table.insert(manufacturingStation, {x, y})
+        elseif type == "贸易站" then
+          table.insert(tradingStation, {x, y})
+        elseif type == "发电站" then
+          table.insert(powerStation, {x, y})
+        end
+        break
+      end
+    end
+  end
+
+  for i = 1, 9 do f(i) end
+
+  -- 假设了4个满级宿舍
+  dormitoryStation = map(function(x) return point[x] end, point.宿舍列表)
+  log(dormitoryStation)
+  dormitoryLevel = map(function() return 5 end, dormitoryStation)
+  dormitoryNum = #dormitoryStation
+  dormitoryCapacity = dormitoryNum * 5
+  dormitoryLevelSum = table.sum(dormitoryLevel)
+
+  -- 假定了满级设施
+  powerStationLevel = map(function() return 3 end, powerStation)
+  powerStationNum = #powerStation
+
+  tradingStationLevel = map(function() return 3 end, tradingStation)
+  tradingStationNum = #tradingStation
+
+  manufacturingStationLevel = map(function() return 3 end, manufacturingStation)
+  manufacturingStationNum = #manufacturingStation
+
+  releaseCapture()
+end
+
+-- trading 是否是贸易站
 path.制造换班 = function(trading)
   -- if not debug then return end
   local station_color = trading and "#33CCFF" or "#FFCC00"
+  local goodType
+  local good2type = {
+    经验站 = "作战记录",
+    赤金站 = "贵金属",
+    源石站 = "源石",
+    芯片站 = "芯片",
+  }
 
   local f
   f = function(i)
@@ -871,13 +953,16 @@ path.制造换班 = function(trading)
       end, 5) then return end
 
       -- 确认类型
-      local type = findAny({"经验站", "赤金站", "源石站", "芯片站"})
-      log(854, type)
-      if not type then
+      goodType = findAny({"经验站", "赤金站", "源石站", "芯片站"})
+      -- 计算赤金站数量，用于贸易站技能计算
+      if goodType == "赤金站" then goldStationNum = goldStationNum + 1 end
+      log(854, goodType)
+      if not goodType then
         log("not support", i)
         return
       end
-      log(524, type)
+      goodType = good2type[goodType]
+      log(524, goodType)
     end
 
     -- 进入干员列表
@@ -951,13 +1036,8 @@ path.制造换班 = function(trading)
       tap("清空选择")
     end, 5) then return end
 
-    if not trading then
-      -- TODO
-      -- findtap_operator_type(type)
-    else
-      -- TODO
-      -- findtap_operator_type(type)
-    end
+    chooseOperator(trading, goodType, 3, tradingStationNum, powerStationNum,
+                   dormitoryCapacity, dormitoryLevelSum, goldStationNum)
 
     if not wait(function()
       if findAny({
@@ -1165,6 +1245,7 @@ end
 path.基建换班 = function()
   if not disable_dorm_shift then path.宿舍换班() end
   if prefer_speed == 1 then
+    path.基建信息获取()
     path.制造换班()
     path.贸易换班()
   end
