@@ -60,7 +60,7 @@
 -- console.log(ans)
 -- // console.log(JSON.stringify(ans))
 fetchSkillIcon = function()
-  toast("正在检查更新2...")
+  toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
   local url = 'https://gitee.com/bilabila/arknights/raw/master/skill.zip'
   -- if beta_mode then url = url .. '.beta' end
@@ -69,22 +69,22 @@ fetchSkillIcon = function()
   local extract_path = getWorkPath() .. '/skill'
   local md5path = path .. '.md5'
   if downloadFile(md5url, md5path) == -1 then
-    toast("下载校验数据失败2")
+    toast("下载基建图标校验数据失败")
     return
   end
   io.input(md5path)
   local expectmd5 = io.read() or '1'
   io.close()
   if expectmd5 == loadConfig("skill_md5", "2") then
-    toast("已经是最新版2")
+    toast("已经是最新版基建图标")
     return
   end
   if downloadFile(url, path) == -1 then
-    toast("下载最新脚本失败2")
+    toast("下载最新基建图标失败")
     return
   end
   if fileMD5(path) ~= expectmd5 then
-    toast("脚本校验失败2")
+    toast("基建图标校验失败")
     return
   end
   unZip(path, extract_path)
@@ -190,7 +190,7 @@ skillpng2operator['empty2.png'] = skillpng2operator['empty1.png']
 -- goldStationNum: 赤金生产线数
 -- 返回效率最高的index
 tradingStationOperatorBest = function(operator, dormitoryCapacity,
-                                      dormitoryLevelSum, goldStationNum)
+                                      dormitoryLevelSum, goldStationNum, level)
   log("194,goldStationNum,dormitoryCapacity,dormitoryLevelSum", 194,
       goldStationNum, dormitoryCapacity, dormitoryLevelSum)
   -- 参考 https://prts.wiki/w/罗德岛基建
@@ -208,7 +208,7 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
   -- 1. 只考虑8小时平均收益，非实际换班间隔
   -- 2. 12心情以下干员不考虑，也忽略心情消耗
   -- 3. 忽略 ?? 效果
-  local base, storage, all, gold
+  local base, storage, all, gold, extra
   local score = function(icons)
     base = 0
     storage = 0 -- 容量
@@ -290,30 +290,6 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
         base = base + 0.65
       end
     end
-    -- 巫恋
-    if all['Bskill_tra_vodfox.png'] then
-      if maxOperator == 1 then
-        base = 0
-      elseif maxOperator == 2 then
-        base = 0.45 + 0.01
-      else
-        -- 参考 https://bbs.nga.cn/read.php?tid=25965441&rand=365
-        if all['Bskill_tra_wt%26cost2.png'] and all['Bskill_tra_long2.png'] then
-          base = 1.7192
-        elseif all['Bskill_tra_long2.png'] then
-          base = 1.4734
-        elseif all['Bskill_tra_wt%26cost2.png'] and all['Bskill_tra_long1.png'] then
-          base = 1.3205
-        elseif all['Bskill_tra_long1.png'] then
-          base = 1.1927
-        elseif all['Bskill_tra_wt%26cost2.png'] then
-          base = 0.9218
-        else
-          -- 尽量用白板
-          base = 0.9120 - base * 0.001
-        end
-      end
-    end
 
     -- 雪雉
     if all['Bskill_tra_spd_variable22.png'] then
@@ -336,11 +312,37 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
       -- 孑精0 近似 14及以上仓库时为0.36
       base = base + 0.36 * min(1, (maxStorage + storage) / 14)
     end
+
+    -- 巫恋
+    if all['Bskill_tra_vodfox.png'] then
+      if maxOperator == 1 then
+        base = 0
+      elseif maxOperator == 2 then
+        base = 0.45 + 0.01
+      else
+        -- 参考 https://bbs.nga.cn/read.php?tid=25965441&rand=365
+        if all['Bskill_tra_wt%26cost2.png'] and all['Bskill_tra_long2.png'] then
+          base = 1.7192
+        elseif all['Bskill_tra_long2.png'] then
+          base = 1.4734
+        elseif all['Bskill_tra_wt%26cost2.png'] and all['Bskill_tra_long1.png'] then
+          base = 1.3205
+        elseif all['Bskill_tra_long1.png'] then
+          base = 1.1927
+        elseif all['Bskill_tra_wt%26cost2.png'] then
+          base = 0.9218
+        else
+          -- 尽量用白板
+          base = 0.9120
+        end
+      end
+    end
     return base
   end
 
   -- 过滤心情小于阈值的干员
   local minAllowedMood = 12
+  if disable_shift_mood then minAllowedMood = -1 end
   operator = table.filter(operator,
                           function(x) return x[3] >= minAllowedMood end)
   -- 移除心情
@@ -349,15 +351,26 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
   -- 遍历全部组合
   local best
   local best_score = -1
+  log(354, #operator, maxOperator)
   for _, c in pairs(table.combination(range(1, #operator), maxOperator)) do
     local s = score(table.index(operatorIcon, c))
-    -- log(401, table.index(operator, c), s)
+    log(401, table.index(operator, c), s)
     if s > best_score then
       best = c
       best_score = s
     end
   end
-  best = table.index(operatorIcon, best)
+
+  best = table.index(operator, best)
+
+  -- 特殊处理，白板干员用白板
+  for _, v in pairs(best) do
+    if best_score <= 0.9120 and v[1] == "Bskill_tra_vodfox.png" or v[2] ==
+      "Bskill_tra_vodfox.png" then
+      best = {v}
+      break
+    end
+  end
   return best, best_score
 end
 
@@ -554,6 +567,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
 
   -- 过滤心情小于阈值的干员
   local minAllowedMood = 12
+  if disable_shift_mood then minAllowedMood = -1 end
   operator = table.filter(operator,
                           function(x) return x[3] >= minAllowedMood end)
   -- 移除心情
@@ -573,6 +587,16 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     -- if table.equal(c, {1, 2, 3}) then exit() end
   end
   best = table.index(operator, best)
+
+  -- 特殊处理，白板干员用白板
+  for _, v in pairs(best) do
+    if v[1]:startsWith("Bskill_man_spd%26power") or
+      v[2]:startsWith("Bskill_man_spd%26power") then
+      best = {v}
+      break
+    end
+  end
+
   return best, best_score
 end
 
@@ -693,7 +717,7 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   -- TODO 滑动时就可以开始计算
   -- 计算最优技能
   local best, best_score
-  if not trainding then
+  if not trading then
     best, best_score = manufacturingStationOperatorBest(operator,
                                                         tradingStationNum,
                                                         powerStationNum,
@@ -701,7 +725,7 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   else
     best, best_score = tradingStationOperatorBest(operator, dormitoryCapacity,
                                                   dormitoryLevelSum,
-                                                  goldStationNum)
+                                                  goldStationNum, stationLevel)
   end
 
   sleep(max(0, 500 - (time() - start_time)))
@@ -717,9 +741,8 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
       pageid = pageid + 1
     end
     tap(operator[i][4])
+    sleep(50)
   end
   swipo(true)
   -- exit()
 end
-if not enable_shift_log then chooseOperator =
-  disable_log_wrapper(chooseOperator) end

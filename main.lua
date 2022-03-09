@@ -47,7 +47,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.03.09 21:37"
+release_date = "2022.03.10  0:40"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -73,6 +73,9 @@ predebug_hook()
 showUI()
 loadUIConfig()
 restart_mode_hook()
+
+if not enable_shift_log then chooseOperator =
+  disable_log_wrapper(chooseOperator) end
 
 -- log(findOne_interval,tap_interval)
 findOne_interval = str2int(findOne_interval, -1)
@@ -232,3 +235,4 @@ check_crontab()
 ssleep(.5)
 console.dismiss()
 peaceExit()
+load(after_all_hook or '')()

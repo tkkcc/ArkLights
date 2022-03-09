@@ -1246,7 +1246,7 @@ path.基建换班 = function()
   if not disable_dorm_shift then path.宿舍换班() end
   if prefer_speed == 1 then
     path.基建信息获取()
-    path.制造换班()
+    if not disable_manu_shift then path.制造换班() end
     path.贸易换班()
   end
   if not disable_overview_shift then path.总览换班() end

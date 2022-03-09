@@ -903,25 +903,26 @@ swipo = function(left, nodelay)
     local y1 = scale(533)
     duration = 400
     finger = {{point = {{x1, y1}, {x2, y1}}, duration = duration}}
-    delay = 500
+    delay = 750
   else
     local x = scale(600)
     local y = scale(533)
+    -- local y2 = scale(900)
     local y2 = scale(900)
     local x2 = scale(1681)
     local y3 = scale(900)
     local slids = 50
     local slidd = 200
-    local taps = slids + slidd + 100
+    local taps = slids + slidd + 150
     local tapd = 200
-    local downd = taps + 50
+    local downd = taps + 100
     duration = downd
     finger = {
       {point = {{x, y}, {x, y2}}, start = 0, duration = downd},
       {point = {{x2, y}, {x2, y3}}, start = slids, duration = slidd},
-      {point = {{x2, y}, {x2, y3}}, start = taps, duration = tapd},
+      {point = {{x2, y}, {x2, y}}, start = taps, duration = tapd},
     }
-    delay = 150
+    delay = 250
   end
   log(JsonEncode(finger))
   gesture(finger)
@@ -2270,10 +2271,16 @@ Q：限时活动是什么？
 A：限时签到活动 + 每日赠送寻访
 
 Q：信用交易所尽量买/不买指定商品？
-A：“信用多/少买” 填 “碳 家 加急”。填了速度会变慢。
+A：“信用多/少买” 填 “碳 家 加急 招”等关键字。填了速度会变慢。
 
 Q：怎么备份、恢复、快速修改设置？
 A：所有设置均明文保存在固定目录，日志开头几行有打印目录。
+
+Q：怎么加速第n个制造站？
+A：只能加速第一个。手动用无人机交换下两个制造站的物品。
+
+Q：怎么加速贸易站？
+A：不行。
 ]])
 
   --   newRow(layout)
@@ -2309,7 +2316,9 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "enable_shift_log", "开高产换班日志", false)
+  ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "debug_disable_log", "关日志", false)
@@ -2331,6 +2340,9 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addEditText(layout, "before_account_hook", "-- before_account_hook")
+
+  newRow(layout)
+  ui.addEditText(layout, "after_all_hook", "-- after_all_hook")
 
   ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
@@ -2373,7 +2385,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现两次以上作战或红色异常时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议720x1280。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，可换用其他设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时28分(每小时133个)。]])
+              [[用于刷投资以提高集成战略起点。出现两次以上作战或红色异常时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议720x1280。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，可换用其他设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2786,12 +2798,16 @@ predebug_hook = function()
   zl_skill_times = 100
   unZip('/sdcard/skill.zip', '/sdcard/skill')
 
-  exit()
+  -- exit()
   -- touchMove(0,23,13)
   -- touchDown(0)
   -- sleep(200)
   -- touchUp(0)
   ssleep(1)
+  swipo(true)
+  for i = 1, 10 do swipo() end
+  ssleep(1)
+  exit()
   -- log()
   -- log(ocr("第一层作战"))
   -- point.t={27,148,245,183}
