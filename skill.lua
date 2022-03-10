@@ -93,6 +93,10 @@ fetchSkillIcon = function()
 end
 
 discover = still_wrapper(function(operators, pngdata, pageid)
+  -- 异步滑动
+  -- local delay = swipo(false, true)
+  -- local start_time = time()
+
   local corner = findOnes("第一干员卡片")
   corner = table.filter(corner, function(v) return v.x < scale(1590) end)
   local card = {}
@@ -100,9 +104,13 @@ discover = still_wrapper(function(operators, pngdata, pageid)
     log("基建换班找不到卡片")
     return
   end
+  local prex = -math.huge
   for _, v in pairs(corner) do
-    table.insert(card, {v.x, v.y})
-    table.insert(card, {v.x, scale(801)})
+    if v.x - prex > scale(207) then
+      prex = v.x
+      table.insert(card, {v.x, v.y})
+      table.insert(card, {v.x, scale(801)})
+    end
   end
 
   log(card)
@@ -126,9 +134,10 @@ discover = still_wrapper(function(operators, pngdata, pageid)
 
     else
       png2 = gg(icon2[1], icon2[2], icon2[3], icon2[4], pngdata) or png2
-      operator2 = skillpng2operator[png2]
-      -- log(128, operator, operator2)
-      operator = table.intersect(operator, operator2)
+      if png2 ~= 'empty2.png' then
+        operator2 = skillpng2operator[png2]
+        operator = table.intersect(operator, operator2)
+      end
     end
 
     -- TODO
@@ -152,6 +161,7 @@ discover = still_wrapper(function(operators, pngdata, pageid)
     log(129, idx, operator, mood)
     table.insert(operators, {png, png2, mood, icon1, pageid})
   end
+  -- sleep(max(0, delay - (time() - start_time)))
 end)
 
 skillpng2operator = JsonDecode(
@@ -190,7 +200,8 @@ skillpng2operator['empty2.png'] = skillpng2operator['empty1.png']
 -- goldStationNum: 赤金生产线数
 -- 返回效率最高的index
 tradingStationOperatorBest = function(operator, dormitoryCapacity,
-                                      dormitoryLevelSum, goldStationNum, level)
+                                      dormitoryLevelSum, goldStationNum,
+                                      goodType, level)
   log("194,goldStationNum,dormitoryCapacity,dormitoryLevelSum", 194,
       goldStationNum, dormitoryCapacity, dormitoryLevelSum)
   -- 参考 https://prts.wiki/w/罗德岛基建
@@ -208,17 +219,18 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
   -- 1. 只考虑8小时平均收益，非实际换班间隔
   -- 2. 12心情以下干员不考虑，也忽略心情消耗
   -- 3. 忽略 ?? 效果
-  local base, storage, all, gold, extra
+  local base, storage, all, gold, extra, only_need
   local score = function(icons)
     base = 0
     storage = 0 -- 容量
     extra = 0 -- 额外加成
     gold = goldStationNum
     all = {}
+    only_need = {}
 
     -- 应用独立技能效果
     for _, icon in pairs(table.flatten(icons)) do
-      all[icon] = 1
+      all[icon] = (all[icon] or 0) + 1
       -- log(266, icon, goodType, base)
       if icon == 'Bskill_tra_spd3.png' then
         base = base + 0.35
@@ -229,6 +241,9 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
         storage = storage + 1
       elseif icon == 'Bskill_tra_spd%26limit6.png' then
         base = base + 0.25
+        storage = storage + 1
+      elseif icon == 'Bskill_tra_spd%26limit5.png' then
+        base = base + 0.20
         storage = storage + 4
       elseif icon == 'Bskill_tra_spd%26limit4.png' then
         base = base + 0.15
@@ -261,16 +276,16 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
         base = base + 0.01 * dormitoryCapacity
       elseif icon == 'Bskill_tra_limit%26cost.png"' then
         storage = storage + 5
-      elseif icon == 'Bskill_tra_wt%26cost2.png' then
+      elseif icon == 'Bskill_tra_wt%26cost2.png' and goodType == '贵金属' then
         -- 认为裁缝B单独用效果极小
         base = base + 0.02
-      elseif icon == 'Bskill_tra_wt%26cost1.png' then
+      elseif icon == 'Bskill_tra_wt%26cost1.png' and goodType == '贵金属' then
         -- 认为裁缝B单独用效果极小
         base = base + 0.01
-      elseif all['Bskill_tra_long2.png'] then
+      elseif all['Bskill_tra_long2.png'] and goodType == '贵金属' then
         -- 认为投资B单独用效果极小
         base = base + 0.02
-      elseif all['Bskill_tra_long1.png'] then
+      elseif all['Bskill_tra_long1.png'] and goodType == '贵金属' then
         -- 认为投资A单独用效果极小
         base = base + 0.01
       end
@@ -314,7 +329,7 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
     end
 
     -- 巫恋
-    if all['Bskill_tra_vodfox.png'] then
+    if all['Bskill_tra_vodfox.png'] and goodType == '贵金属' then
       if maxOperator == 1 then
         base = 0
       elseif maxOperator == 2 then
@@ -322,22 +337,33 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
       else
         -- 参考 https://bbs.nga.cn/read.php?tid=25965441&rand=365
         if all['Bskill_tra_wt%26cost2.png'] and all['Bskill_tra_long2.png'] then
+          only_need = {
+            'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost2.png',
+            'Bskill_tra_long2.png',
+          }
           base = 1.7192
-        elseif all['Bskill_tra_long2.png'] then
-          base = 1.4734
         elseif all['Bskill_tra_wt%26cost2.png'] and all['Bskill_tra_long1.png'] then
+          only_need = {
+            'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost2.png',
+            'Bskill_tra_long1.png',
+          }
           base = 1.3205
-        elseif all['Bskill_tra_long1.png'] then
-          base = 1.1927
         elseif all['Bskill_tra_wt%26cost2.png'] then
+          only_need = {'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost2.png'}
           base = 0.9218
+        elseif all['Bskill_tra_long2.png'] then
+          only_need = {'Bskill_tra_vodfox.png', 'Bskill_tra_long2.png'}
+          base = 1.4734
+        elseif all['Bskill_tra_long1.png'] then
+          only_need = {'Bskill_tra_vodfox.png', 'Bskill_tra_long1.png'}
+          base = 1.1927
         else
-          -- 尽量用白板
+          only_need = {'Bskill_tra_vodfox.png'}
           base = 0.9120
         end
       end
     end
-    return base
+    return base, only_need
   end
 
   -- 过滤心情小于阈值的干员
@@ -349,27 +375,27 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
   operatorIcon = map(function(x) return {x[1], x[2]} end, operator)
 
   -- 遍历全部组合
-  local best
+  local best = {}
   local best_score = -1
+  local best_only_need = {}
   log(354, #operator, maxOperator)
   for _, c in pairs(table.combination(range(1, #operator), maxOperator)) do
-    local s = score(table.index(operatorIcon, c))
+    local s, only_need = score(table.index(operatorIcon, c))
     log(401, table.index(operator, c), s)
     if s > best_score then
       best = c
       best_score = s
+      best_only_need = only_need
     end
   end
 
   best = table.index(operator, best)
 
-  -- 特殊处理，白板干员用白板
-  for _, v in pairs(best) do
-    if best_score <= 0.9120 and v[1] == "Bskill_tra_vodfox.png" or v[2] ==
-      "Bskill_tra_vodfox.png" then
-      best = {v}
-      break
-    end
+  -- 特殊处理，只需要部分干员
+  if #best_only_need > 0 then
+    best = table.filter(best, function(v)
+      return #table.intersect(best_only_need, {v[1], v[2]}) > 0
+    end)
   end
   return best, best_score
 end
@@ -425,7 +451,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
   -- 4. 忽略 意识协议 效果（标准化技能识别不支持）
   -- 5. 忽略 我寻思能行 效果（发电站技能加成）
   local base, disable_moon_effect, storage, storages, standard, all, station,
-        station_only
+        station_only, only_need
 
   local score = function(icons)
     base = 0
@@ -434,6 +460,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     station = 0 -- 根据设施加成
     station_only = false -- 是否只根据设施加成
     all = {}
+    only_need = {}
     -- log(icons)
     -- log(table.flatten(icons))
 
@@ -539,15 +566,18 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     if all['Bskill_man_spd%26power3.png'] then
       station_only = true
       staition = station + 0.15 * powerStationNum
+      only_need = {'Bskill_man_spd%26power3.png'}
     end
     -- 需要优先，发电站数
     if all['Bskill_man_spd%26power2.png'] then
       station_only = true
       staition = station + 0.1 * powerStationNum
+      only_need = {'Bskill_man_spd%26power2.png'}
     end
     if all['Bskill_man_spd%26power1.png'] then
       station_only = true
       staition = station + 0.05 * powerStationNum
+      only_need = {'Bskill_man_spd%26power1.png'}
     end
     if all['Bskill_man_skill_spd.png'] then
       -- 水月，标准化技能数量
@@ -562,7 +592,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     end
     if debug_mode then log(429, icon, icons, base, station) end
 
-    return base
+    return base, only_need
   end
 
   -- 过滤心情小于阈值的干员
@@ -574,14 +604,16 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
   operatorIcon = map(function(x) return {x[1], x[2]} end, operator)
 
   -- 遍历全部组合
-  local best
+  local best = {}
   local best_score = -1
+  local best_only_need = {}
   for _, c in pairs(table.combination(range(1, #operator), maxOperator)) do
     -- if table.equal(c, {1, 2, 3}) then debug_mode=true end
-    local s = score(table.index(operatorIcon, c))
+    local s, only_need = score(table.index(operatorIcon, c))
     if s > best_score then
       best = c
       best_score = s
+      best_only_need = only_need
     end
     -- log(401, c, s)
     -- if table.equal(c, {1, 2, 3}) then exit() end
@@ -589,29 +621,32 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
   best = table.index(operator, best)
 
   -- 特殊处理，白板干员用白板
-  for _, v in pairs(best) do
-    if v[1]:startsWith("Bskill_man_spd%26power") or
-      v[2]:startsWith("Bskill_man_spd%26power") then
-      best = {v}
-      break
-    end
+  if #best_only_need > 0 then
+    best = table.filter(best, function(v)
+      return #table.intersect(best_only_need, {v[1], v[2]}) > 0
+    end)
   end
-
   return best, best_score
 end
 
 stationIconMask = {}
+stationIconCenterMask = {}
 w, h = 36, 36
 for i = 1, h do
   for j = 1, w do
-    if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 18.5 ^ 2 then
+    if true then
       table.insert(stationIconMask, {i, j})
+      -- log(613,i,j)
+    end
+    if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 17 ^ 2 then
+      table.insert(stationIconCenterMask, {i, j})
     end
   end
 end
+-- exit()
 
 gg = function(x1, y1, x2, y2, pngdata)
-  s = ''
+  local s = ''
   local w, h, color = getScreenPixel(x1, y1, x2, y2)
   local i, j, b, g, r
   local data = {}
@@ -631,44 +666,71 @@ gg = function(x1, y1, x2, y2, pngdata)
   end
   -- log(s)
   -- exit()
-  local best_score = 200000
+  --
+  local best_score = 75
+  local threshold = 50
   local best = nil
-  local score
+  local score = 0
+  local scoreBase = 0
+  local pointScore = 0
+  local flatPoint = 0
   local abs = math.abs
+
+  local flatScoreTable = {}
+  local flatScore = 0
+  for i = 1, #stationIconMask - 36 do
+    flatScore = abs(data[i * 3 - 2] - data[(i + 1) * 3 - 2]) +
+                  abs(data[i * 3 - 1] - data[(i + 1) * 3 - 1]) +
+                  abs(data[i * 3] - data[(i + 1) * 3]) +
+                  abs(data[i * 3 - 2] - data[(i + 36) * 3 - 2]) +
+                  abs(data[i * 3 - 1] - data[(i + 36) * 3 - 1]) +
+                  abs(data[i * 3] - data[(i + 36) * 3])
+    table.insert(flatScoreTable, 1 / (1 + flatScore))
+    scoreBase = scoreBase + flatScoreTable[#flatScoreTable]
+  end
+
+  -- local tmp = ''
   for k, v in pairs(pngdata) do
+    -- tmp = ''
     score = 0
-    for i = 1, #stationIconMask * 3 do
-      score = score + abs(data[i] - v[i])
-      if score > best_score then break end
+    for i = 1, #stationIconMask do
+      pointScore = abs(data[i * 3 - 2] - v[i * 3 - 2]) +
+                     abs(data[i * 3 - 1] - v[i * 3 - 1]) +
+                     abs(data[i * 3] - v[i * 3])
+      score = score + pointScore * flatScoreTable[i]
+      -- if i % 36 == 1 then tmp = tmp .. '\n' end
+      -- if pointScore > 200 then
+      --   tmp = tmp .. '1'
+      -- else
+      --   tmp = tmp .. ' '
+      -- end
+      if score / scoreBase > best_score then break end
     end
+    score = score / scoreBase
+
+    -- if k == 'Bskill_tra_long1.png' then log(662, score, tmp) end
+    -- if k == 'Bskill_tra_flow_gc1.png' then log(663, score, tmp) end
+    --
+    -- if k == 'Bskill_tra_texas1.png' then log(662, score, tmp) end
+    -- if k == 'Bskill_tra_Lappland2.png' then log(663, score, tmp) end
+    -- exit()
+
     if best_score > score then
       best_score = score
       best = k
     end
   end
   log(2208, best_score, best, x1, y1, x2, y2)
+  -- exit()
   return best
 end
 
--- 是否是贸易站，商品类别
-chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
-                          powerStationNum, dormitoryCapacity, dormitoryLevelSum,
-                          goldStationNum)
-  log("trading", trading)
-  log("goodType", goodType)
-  log("stationLevel", stationLevel)
-  log("tradingStationNum", tradingStationNum)
-  log("powerStationNum", powerStationNum)
-  log("dormitoryCapacity", dormitoryCapacity)
-  log("dormitoryLevelSum", dormitoryLevelSum)
-  log("goldStationNum", goldStationNum)
-  -- exit()
-  -- ==> 滑动获取所有技能
-
-  -- 读取图标图像，300个36x36的png
+initPngdata = function()
+  -- 读取图标图像，300个36x36的png，可能比较耗时
   if not tradingPngdata then
     manufacturingPngdata = {}
     tradingPngdata = {}
+
     local s = ''
     for _, v in pairs(skillpng) do
       local pngdata
@@ -694,7 +756,27 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
       end
     end
   end
-  log('pngdata', #manufacturingPngdata['Bskill_man_exp2.png'])
+  if not manufacturingPngdata['Bskill_man_exp2.png'] then
+    stop("基建图标数据异常")
+  end
+end
+
+-- 是否是贸易站，商品类别
+chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
+                          powerStationNum, dormitoryCapacity, dormitoryLevelSum,
+                          goldStationNum)
+  log("trading", trading)
+  log("goodType", goodType)
+  log("stationLevel", stationLevel)
+  log("tradingStationNum", tradingStationNum)
+  log("powerStationNum", powerStationNum)
+  log("dormitoryCapacity", dormitoryCapacity)
+  log("dormitoryLevelSum", dormitoryLevelSum)
+  log("goldStationNum", goldStationNum)
+
+  initPngdata()
+  -- exit()
+  -- ==> 滑动获取所有技能
 
   local maxSwipTimes = 5
   local operator = {}
@@ -725,7 +807,8 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   else
     best, best_score = tradingStationOperatorBest(operator, dormitoryCapacity,
                                                   dormitoryLevelSum,
-                                                  goldStationNum, stationLevel)
+                                                  goldStationNum, goodType,
+                                                  stationLevel)
   end
 
   sleep(max(0, 500 - (time() - start_time)))

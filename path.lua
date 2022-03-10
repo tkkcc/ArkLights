@@ -906,12 +906,15 @@ end
 path.制造换班 = function(trading)
   -- if not debug then return end
   local station_color = trading and "#33CCFF" or "#FFCC00"
-  local goodType
+  local type
+  local good
   local good2type = {
     经验站 = "作战记录",
     赤金站 = "贵金属",
     源石站 = "源石",
     芯片站 = "芯片",
+    开采协力 = "源石",
+    龙门商法 = "贵金属",
   }
 
   local f
@@ -939,43 +942,81 @@ path.制造换班 = function(trading)
 
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
 
-    -- 制造站需要确认产品类型，贸易不需要
+    -- 制造站需要确认产品类型
     if not trading then
-      -- 收起进驻信息
-      if not wait(function()
-        if findOne("进驻信息") and not disappear("进驻信息", .5) then
-          return true
-        end
-        if findOne("进驻信息选中") then
-          tap("进驻信息选中")
-          disappear("进驻信息选中")
-        end
-      end, 5) then return end
+
+      wait(function()
+        good = findAny({"经验站", "赤金站", "源石站", "芯片站"})
+        if good then return true end
+        tap("贸易站进度")
+      end, 5)
+
+      -- -- 收起进驻信息
+      -- if not wait(function()
+      --   if findOne("进驻信息") and not disappear("进驻信息", 1) then
+      --     return true
+      --   end
+      --   if findOne("进驻信息选中") then
+      --     tap("进驻信息选中")
+      --     disappear("进驻信息选中")
+      --   end
+      -- end, 10) then return end
 
       -- 确认类型
-      goodType = findAny({"经验站", "赤金站", "源石站", "芯片站"})
       -- 计算赤金站数量，用于贸易站技能计算
-      if goodType == "赤金站" then goldStationNum = goldStationNum + 1 end
-      log(854, goodType)
-      if not goodType then
+      if good == "赤金站" then goldStationNum = goldStationNum + 1 end
+      log(854, good)
+      if not good then
         log("not support", i)
         return
       end
-      goodType = good2type[goodType]
-      log(524, goodType)
+      type = good2type[good]
+      log(524, type)
+
+      -- 制造站进入干员列表
+      if not wait(function()
+        if findOne("确认蓝") then return true end
+        tap("设施列表第二个干员")
+      end, 5) then return end
+
+      -- -- 制造站进入干员列表
+      -- if not wait(function()
+      --   if findOne("确认蓝") then return true end
+      --   if findOne("进驻信息选中") and
+      --     not disappear("进驻信息选中", .5) then
+      --     tap("进驻第一人左")
+      --   elseif findOne("进驻信息") then
+      --     tap("进驻信息")
+      --     disappear("进驻信息", .5)
+      --   end
+      -- end, 5) then return end
+
     end
 
-    -- 进入干员列表
-    if not wait(function()
-      if findOne("确认蓝") then return true end
-      if findOne("进驻信息选中") and
-        not disappear("进驻信息选中", .5) then
-        tap("进驻第一人左")
-      elseif findOne("进驻信息") then
-        tap("进驻信息")
-        disappear("进驻信息", .5)
+    -- 贸易站需要确认产品类型
+    if trading then
+      wait(function()
+        good = findAny({"龙门商法", "开采协力"})
+        if good then return true end
+        tap("贸易站进度")
+      end, 5)
+
+      -- 确认类型
+      log(855, good)
+      if not good then
+        log("not support", i)
+        return
       end
-    end, 5) then return end
+      type = good2type[good]
+      log(525, type)
+
+      -- 贸易站进入干员列表
+      if not wait(function()
+        if findOne("确认蓝") then return true end
+        tap("设施列表第一个干员")
+      end, 5) then return end
+
+    end
 
     -- TODO 下面这段稳定吗
     -- if not wait(function()
@@ -995,56 +1036,58 @@ path.制造换班 = function(trading)
     --   end
     -- end, 5) then return end
 
-    -- 筛选出无进驻技能排序
+    log("使用默认筛选")
+    -- -- 筛选出无进驻技能排序
+    -- if not wait(function()
+    --   if findOne("筛选取消") then return true end
+    --   tap("筛选")
+    -- end, 5) then return end
+    --
+    -- if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
+    -- if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
+    --   return
+    -- end
+    --
+    -- if not findOne("筛选未进驻选中") then
+    --   if not wait(function()
+    --     if findOne("筛选未进驻选中") then return true end
+    --     tap("筛选未进驻选中")
+    --     appear("筛选未进驻选中", .5)
+    --   end, 5) then return end
+    -- end
+    --
+    -- if prefer_skill and not findOne("筛选技能降序") then
+    --   if not wait(function()
+    --     if findOne("筛选技能降序") then return true end
+    --     tap("筛选技能降序")
+    --     appear("筛选技能降序", .5)
+    --   end, 5) then return end
+    -- end
+    --
+    -- if not wait(function()
+    --   if not findOne("筛选取消") then return true end
+    --   tap("筛选确认")
+    -- end, 5) then return end
+
     if not wait(function()
-      if findOne("筛选取消") then return true end
-      tap("筛选")
-    end, 5) then return end
-
-    if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
-    if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
-      return
-    end
-
-    if not findOne("筛选未进驻选中") then
-      if not wait(function()
-        if findOne("筛选未进驻选中") then return true end
-        tap("筛选未进驻选中")
-        appear("筛选未进驻选中", .5)
-      end, 5) then return end
-    end
-
-    if prefer_skill and not findOne("筛选技能降序") then
-      if not wait(function()
-        if findOne("筛选技能降序") then return true end
-        tap("筛选技能降序")
-        appear("筛选技能降序", .5)
-      end, 5) then return end
-    end
-
-    if not wait(function()
-      if not findOne("筛选取消") then return true end
-      tap("筛选确认")
-    end, 5) then return end
-
-    if not wait(function()
-      -- and findOne("筛选横线") and
-      -- findOne("筛选")
       if findOne("干员未选中") and findOne("第一干员未选中") then
         return true
       end
       tap("清空选择")
-    end, 5) then return end
+    end, 5) then
+      log(1037)
+      return
+    end
 
-    chooseOperator(trading, goodType, 3, tradingStationNum, powerStationNum,
+    chooseOperator(trading, type, 3, tradingStationNum, powerStationNum,
                    dormitoryCapacity, dormitoryLevelSum, goldStationNum)
 
     if not wait(function()
+      tap("确认蓝")
       if findAny({
         "隐藏", "进驻信息", "进驻信息选中",
-        "正在提交反馈至神经",
+        "正在提交反馈至神经", good,
       }) then return true end
-      tap("确认蓝")
     end, 5) then return end
   end
   -- 找到所有制造站
@@ -1243,14 +1286,15 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
-  if not disable_dorm_shift then path.宿舍换班() end
-  if prefer_speed == 1 then
-    path.基建信息获取()
-    if not disable_manu_shift then path.制造换班() end
-    path.贸易换班()
-  end
-  if not disable_overview_shift then path.总览换班() end
+  if dorm_shift then path.宿舍换班() end
+  path.基建信息获取()
+  if manu_shift then path.制造换班() end
+  if trading_shift then path.贸易换班() end
+  if meet_shift then path.会客厅换班() end
+  if overview_shift then path.总览换班() end
 end
+
+path.会客厅换班 = function() end
 
 path.制造加速 = function()
   path.跳转("基建")

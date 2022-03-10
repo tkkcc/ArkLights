@@ -705,6 +705,7 @@ findAny = function(x) return appear(x, 0, 0) end
 
 findOnes = function(x, confidence)
   confidence = confidence or default_findcolor_confidence
+  log(rfg[x],first_color[x],point[x])
   return findMultiColorAll(rfg[x][1], rfg[x][2], rfg[x][3], rfg[x][4],
                            first_color[x], point[x], 0, confidence) or {}
 end
@@ -927,6 +928,7 @@ swipo = function(left, nodelay)
   log(JsonEncode(finger))
   gesture(finger)
   sleep(duration + (nodelay and 0 or delay))
+  return nodelay and delay or 0
 end
 
 -- swip for fight
@@ -1710,9 +1712,19 @@ make_account_ui = function(layout, prefix)
   addTextView(layout, "次石头")
 
   newRow(layout)
-  addTextView(layout, "换班模式")
-  ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
-                   -2, -2, true)
+  addTextView(layout, "换班设施")
+  -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
+  --                  -2, -2, true)
+  -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
+  --                  -2, -2, true)
+
+  ui.addCheckBox(layout, prefix .. "dorm_shift", "宿", true)
+  ui.addCheckBox(layout, prefix .. "manu_shift", "制", false)
+  ui.addCheckBox(layout, prefix .. "trading_shift", "贸", false)
+  ui.addCheckBox(layout, prefix .. "meet_shift", "会", false)
+  ui.addCheckBox(layout, prefix .. "overview_shift", "总", true)
+
+  ui.setEnable(prefix .. "meet_shift", false)
 
   newRow(layout)
   addTextView(layout, "信用多买")
@@ -2132,20 +2144,21 @@ A：
 法2. 作战设置填“上一次”，然后手动刷一次活动关再启动。
 法3. 在活动关代理指挥中启动脚本，脚本将优先重复刷当前关。
 
-Q：换班产率太低？
-A：“极速”换班以最快放满干员为目标，不考虑干员技能。“高产”换班增加对制造与贸易的特殊处理，根据各干员基建技能效果穷举计算出单站最优组合，但有如下限制：
-0. 已进驻（即使满心情）、或心情低于12的干员不会选。
+Q：换班产率低？
+A：“制”、“贸”换班会根据已有基建技能效果穷举计算单站最优组合，有以下限制：
+0. 未识别贸易站类别。
+0. 不处理发电站、会客厅、办公室、控制中枢。
+0. 忽略心情低于12的干员。
 1. 忽略其他站技能加成（如迷迭香、焰尾、森蚺），忽略“意识协议”技能效果。
 2. 假定宿舍数量为4。假定所有设施均为满级。假定每次换班间隔8小时。
 3. 部分技能效果采用近似估计。
-4. 部分设备翻页滑动可能不灵，请反馈。
-5. 除上述限制外，效率不如手换或其他脚本，请反馈。
+9. 除上述限制外，如果有换错情况，请录屏反馈。
 
-Q：换班漏换干员？
-A：请加群反馈。
+Q：换班漏换？
+A：请录屏反馈。
 
 Q：换班换了低心情干员？
-A：一般是低心情干员过多。用脚本每8小时换一次，一段时间后不会出现。
+A：请录屏反馈。
 
 Q：自动招募怎么用？
 A：勾选“公招刷新”任务，启动。设置中“其他”表示非保底标签，“车456”表示保底小车与456星。
@@ -2652,6 +2665,8 @@ scale = function(x, mode)
     return math.round(x * minscale)
   elseif mode == 'max' then
     return math.round(x * maxscale)
+  elseif type(mode) == 'number' then
+    return math.round(x * mode)
   end
 end
 
@@ -2796,615 +2811,24 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
-  unZip('/sdcard/skill.zip', '/sdcard/skill')
 
-  -- exit()
-  -- touchMove(0,23,13)
-  -- touchDown(0)
-  -- sleep(200)
-  -- touchUp(0)
   ssleep(1)
+  log(findOnes("第一干员卡片"))
+  -- tap("制造站进度")
+  ssleep(1)
+  exit()
+
+  local operator = {}
+  initPngdata()
+  -- discover(operator, tradingPngdata, 1)
+  discover(operator, manufacturingPngdata, 1)
+
+  log(operator)
+  exit()
   swipo(true)
   for i = 1, 10 do swipo() end
   ssleep(1)
-  exit()
-  -- log()
-  -- log(ocr("第一层作战"))
-  -- point.t={27,148,245,183}
-  for _, v in pairs(point.信用交易所列表) do
-    local x, y = point[v]:match("(%d+)|(%d+)")
-    -- log(point[v],x,y)
-    -- exit()
-    x = str2int(x, 0)
-    y = str2int(y, 0)
-    point.t = {x - scale(105), y, x + scale(105), y + scale(46)}
-    log(ocr('t'))
-  end
-  -- tap("不期而遇第三选项")
-  -- tap("进入")
-  ssleep(1)
-  exit()
-  log(findOne("单选确认框"))
-  -- tap(point["面板设置"])
-  -- tap("放弃行动")
-  -- tap("右确认")
-  -- tap("右")
-  -- log(findOne("进入界面"))
-  ssleep(1)
-  exit()
-  -- tap("不期而遇第三选项")
-  -- log(findOne("查看谢幕表"))
-  -- log(1, findOne("指挥分队"))
-  -- log(2, findOne("指挥分队确认"))
 
-  if not wait(function()
-    if findOne("编队") then return true end
-    tap("进入古堡")
-  end, 100) then return end
-  exit()
-
-  for col = 1, 2 do
-    local unexpect
-    if findOne("第一层不期而遇" .. col .. "入口列表1") then
-      unexpect = {
-        "第一层不期而遇" .. col .. "列表1",
-        "第一层不期而遇" .. col .. "列表3",
-        "第一层不期而遇" .. col .. "列表5",
-      }
-    elseif findOne("第一层不期而遇" .. col .. "入口列表2") then
-      unexpect = {
-        "第一层不期而遇" .. col .. "列表2",
-        "第一层不期而遇" .. col .. "列表4",
-      }
-    else
-      unexpect = {"第一层不期而遇" .. col .. "列表3"}
-    end
-    for k, v in pairs(unexpect) do
-      unexpect[k] = {
-        text = findOne(v) and "不期而遇" or '作战',
-        l = point[v][1],
-        t = point[v][2],
-      }
-    end
-    _G["unexpect" .. col .. "ocr"] = unexpect
-  end
-
-  log(unexpect1ocr)
-  log(unexpect2ocr)
-  exit()
-
-  log(findOne("收藏品"), findOne("源石锭"), findOne("不要了"))
-  exit()
-  -- log(findOne("当前进度列表6"))
-  -- log(point['每周报酬合成玉'])
-  -- log(findOne("战略返回"))
-  -- point.r={1187,289,1231,310}
-  -- point.r={1077,203,1265,533}
-  -- point.r={597,220,815,520}
-  -- point.r={605,212,807,520}
-  -- point.r={691,211,853,517}
-  -- log(ocr("r"))
-
-  -- log(ocr("第一层作战"))
-  -- log(findOne(""))
-  p = point.第一层不期而遇1列表
-  log(map(function(x) return point[x] end, p))
-  log(map(function(x) return findOne(x) end, p))
-  p = point.第一层不期而遇2列表
-  log(map(function(x) return point[x] end, p))
-  log(map(function(x) return findOne(x) end, p))
-
-  exit()
-  -- exec("su root sh -c ' " .. package .. "'")
-  while true do
-    -- tap("右右确认")
-    -- tap("战略确认")
-    -- log(findOne(findOne("不要了")))
-    -- log(findOne("确认招募"))
-    -- log(findOne("战略帮助"))
-    -- -- if not findOne("确认招募") and findOne("战略帮助") then stop(1) end
-    -- if findOne("确认招募") and findOne("战略帮助") then stop(1) end
-    -- peaceExit()
-    if not findOne("战略帮助") then peaceExit() end
-    -- if not findOne("战略返回") then stop(1) end
-  end
-  log(findOne("第一层从下方来"))
-  exit()
-  --
-  swipzl("left")
-  ocr("第一层不期而遇2", scale(60))
-  swipzl("right")
-  ocr("第一层不期而遇1", scale(60))
-  -- while true do
-  --   local x = ocr("第一层不期而遇1", scale(60))
-  --   if #x ~= 1 then log(x) end
-  -- end
-  --
-  exit()
-  swipzl("left")
-  -- ssleep(1)
-  local unexpect2ocr = {}
-  -- point.第一层不期而遇2 = {191,182,461,560}
-  -- point.第一层不期而遇2 = {191,182,461,560}
-  --
-  -- point.第一层不期而遇2 = {173,219,467,531}
-  -- point.第一层不期而遇2 = {180,182,461,560}
-
-  -- point.第一层不期而遇2 = {173, 219, 470 , 516}
-  wait(function()
-    if #ocr("第一层不期而遇2") ~= 3 then
-      toast(1)
-      exit()
-    end
-  end, 5)
-
-  swipzl("right")
-  -- point.第一层不期而遇1 = {1048, 219, 1345 , 516}
-  wait(function()
-    if #ocr("第一层不期而遇1") ~= 2 then
-      toast(1)
-      exit()
-    end
-  end, 5)
-  wait(function()
-    if #ocr("第一层作战1") ~= 1 then
-      toast(1)
-      exit()
-    end
-  end, 5)
-
-  exit()
-  -- end, 5)
-  swipzl("right")
-  -- local unexpect2ocr = {}
-  wait(function() if #ocr("第一层不期而遇1") < 3 then stop(1) end end, 5)
-  exit()
-
-  -- log(getScreen())
-  log(point["常规行动1"])
-  log(point["常规行动2"])
-  log(findOne("常规行动1"))
-  log(findOne("常规行动2"))
-  log(findOne("常规行动"))
-  log(point["返回"])
-  log(findOne("返回"))
-  log(findOne("主页"))
-  disappear("任务有列表3", 1000)
-  -- tap("进入主题")
-  -- tap("第一层下一个")
-  exit()
-
-  ssleep(1)
-
-  local id = createHUD()
-  showHUD(id, "HelloWorld!", 12, "0xffff0000", "0xffffffff", 0, 100, 0, 228, 32) -- 显示HUD内容
-  sleep(2000)
-  showHUD(id, "HelloWorld!", 12, "0xffff0000", "msgbox_click.png", 0, 100, 0,
-          228, 32) -- 变更显示的HUD内容
-  sleep(5000)
-  hideHUD(id) -- 隐藏HUD
-  sleep(3000)
-
-  -- while true do
-  --
-  --   playAudio('/system/media/audio/ui/Effect_Tick.ogg')
-  -- end
-
-  -- log(getSdkVersion())
-  -- log(getApkVerInt())
-  -- log(getInstalledApps())
-  -- log(findOne("返回3"))
-  -- tap("面板作战")
-  -- tap("返回")
-  --   if findOne("暂停中") then
-  --   tap("开包skip")
-  --   disappear("暂停中")
-  -- end
-  -- log(findOne("game"))
-  -- log(findOne("限时开放许可"))
-  -- log(point["面板赠送一次"])
-  -- log(findOne("面板赠送一次"))
-
-  -- log(findOne("主页"))
-  -- tap("开包skip")
-  -- tap("开包skip")
-  -- tap("跳过剧情")
-  -- ssleep(.5)
-  -- tap("跳过剧情确认")
-  -- log(findOne("获得物资"))
-  -- log(findOne("签到返回黄"))
-  -- swip("HD-2")
-  exit()
-  -- log(point.技能ready)
-  log(findOne("返回确认界面"))
-  exit()
-
-  local p = findOne("技能亮")
-  local skill_times = 0
-  if p and skill_times < zl_skill_times then
-    skill_times = skill_times + 1
-    tap({p[1], p[2] + scale(200)})
-    appear("技能ready", 1)
-    wait(function()
-      tap("开技能")
-      if not findOne("技能ready") then return true end
-    end)
-  end
-  --
-  -- if p and skill_times < zl_skill_times then
-  --   skill_times = skill_times + 1
-  --   tap({p[1], p[2] + scale(200)})
-  --   ssleep(.5)
-  --   tap("开技能")
-  -- end
-  -- log(point.聘用候选人列表2)
-  -- log(findOne("聘用候选人列表2"))
-  -- findTap("源石锭")
-  -- tap_interval = 0
-  -- tap({1586,scale(790)})
-  -- tap({1586, scale(810)})
-  -- ssleep(.1)
-  -- tap({1586, scale(810)})
-  ssleep(1)
-  -- "1586|1074|A3A3A3"
-  exit()
-  password = '11111111'
-  if not wait(function()
-    tap("账号左侧")
-    tap("密码")
-    if disappear("手机验证码登录") then return true end
-  end, 10) then return end
-  if not appear('inputbox') then return end
-  ssleep(1) -- 等待输入法弹出
-  -- if debug_mode then toast(password) end
-  input("inputbox", password)
-  ssleep(.5) -- 等待输入法弹出
-  tap('okbutton')
-  appear("手机验证码登录")
-  -- log(findOne("获得物资"))
-  -- log(point["获得物资"])
-  -- tap("中右确认")
-  exit()
-  fight1 = {text = '与虫为伴'}
-  fight1 = {text = '礼炮小队'}
-  deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
-                                         fight1.text) and 2 or 4)
-  local pagedownzl = function()
-    local flipd = 150
-    local flips = 50
-    local duration = flipd + flips + 500
-    -- "669|144|212121"
-    local x1 = scale(670)
-    local x2 = scale(1838)
-    local y1 = scale(300)
-    local y2 = screen.height - scale(300)
-    local y3 = scale(400)
-    local paths = {
-      {point = {{x1, y1}, {x1, y2}}, duration = duration},
-      {point = {{x2, y1}, {x2, y3}}, duration = flipd, start = flips},
-    }
-    -- sleep(100)
-    gesture(paths)
-    sleep(duration + 50)
-    -- 可能还是需要按下
-    -- tap("入驻干员右侧")
-    -- 不用的话，大分辨率还是有可能出现错过加号
-    -- sleep(100)
-  end
-  pagedownzl()
-
-  -- while true do
-  --   username = "13771571732"
-  --   password = "franix!!!"
-  --   path.退出账号()
-  --   path.跳转("首页")
-  -- end
-  -- path.fallback.活动签到返回()
-  -- swip("HD-1")
-  -- swipzl('card')
-  -- input("bilibili_username_inputbox", "112")
-  -- log(findOne("我知道了"))
-  -- log(exec("ime list"))
-  -- log(exec("ime list -s"))
-  -- local inputmethod = getPackageName() .. [[/com.nx.assist.InputText]]
-  -- log(exec([[ime enable ]] .. inputmethod .. [[;ime set ]] .. inputmethod ..
-  --            [[;ime disable ]] .. inputmethod))
-  -- log(exec([[ime enable ]] .. inputmethod .. [[;ime set ]] .. inputmethod))
-  -- ..
-  --          [[;ime disable ]] .. inputmethod))
-  -- log(exec("settings get secure default_input_method"))
-  -- ssleep(1)
-  -- log(findOne("bilibili_username_inputbox"))
-  --
-  -- log(findOne("bilibili_password_inputbox"))
-  -- log(findOne("bilibili_login"))
-  -- -- tap({10, 10})
-
-  -- log(expand_number_config("1-11   100 1-1 0 -1 1-"))
-  exit()
-  -- tap("指挥分队")
-  findTap("指挥分队确认")
-  -- log(findOne("指挥分队"))
-  -- log(findOne("剿灭说明"))
-  exit()
-
-  -- swip
-  -- swipzl('left')
-  -- swipzl('right')
-  -- exit()
-
-  fight1 = {text = '与虫为伴'}
-  fight1 = {text = '礼炮小队'}
-  deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
-                                         fight1.text) and 2 or 4)
-  -- log(findOne("确认招募"))
-  -- log(findOne("偏执的"))
-  -- local fight1ocr = ocr("第一层作战1")
-  -- local fight1ocr = ocr("第一层作战2")
-  local fight1ocr = ocr("第一层不期而遇2")
-  -- local fight1ocr = ocr("第一层不期而遇1")
-  log(fight1ocr)
-  exit()
-  -- log(findOne("诡意行商投资"))
-  if not appear("诡意行商投资", 5) then return end
-  if not wait(function()
-    if findOne("诡意行商投币") then return true end
-    tap("诡意行商投资")
-  end) then return end
-  if not wait(function()
-    if findOne("诡意行商投资入口") then return true end
-    tap("诡意行商投币")
-  end) then return end
-  if not wait(function()
-    if not findOne("诡意行商投资入口") then return true end
-    tap("诡意行商确认投资")
-  end, 30) then return end
-  -- if not appear("诡意行商投资", 5) then return end
-  -- tap("战略确认")
-  exit()
-
-  if not wait(function()
-    if not findOne("诡意行商投资入口") then return true end
-    tap("诡意行商确认投资")
-  end, 30) then return end
-  exit()
-
-  if not wait(function()
-    if not findOne("常规行动") then return true end
-    -- tap("继续探索")
-  end, 5) then stop(122) end
-  exit()
-  tap("收取所有邮件")
-  -- tap("邮件收取")
-  log(point.面板)
-  log(findOne("面板"))
-  -- log(findOne("返回确认界面"))
-  -- log(findOne("活动签到返回"))
-  -- log(findOne("线索传递"))
-  -- log(findOne("本次线索交流活动"))
-  -- log(findOne("返回"))
-  -- log(findOne(""))
-  ssleep(10)
-
-  -- local swipd = function()
-  --   local flipd = 150
-  --   local flips = 50
-  --   local duration = flipd + flips + 200
-  --   local x1 = screen.width - scale(720 - 500)
-  --   local x2 = x1 - scale(100)
-  --   local y1 = scale(150)
-  --   local y2 = screen.height - scale(150)
-  --   local paths = {
-  --     {point = {{x1, y1}, {0, y1}}, duration = duration},
-  --     {point = {{x1, y2}, {x2, y2}}, duration = flipd, start = flips},
-  --   }
-  --   gesture(paths)
-  --   sleep(duration+50)
-  -- end
-  -- log(point["公开招募箭头"])
-  -- log(findOne("公开招募"))
-  -- log(findOne("公开招募箭头"))
-  -- tap({796,503})
-
-  -- log(point["今日参与交流已达上限"])
-  -- log(point["返回确认"])
-  -- log(point["是否确认离开基建"])
-  -- log(point["是否返回好友列表"])
-  -- log(point["是否退出游戏"])
-
-  -- log(point["今日参与交流已达上限"])
-  -- log(point["信用交易所横线"])
-  -- log(findOne("返回确认界面"))
-  -- log(findOne("是否确认离开基建"))
-  -- log(findOne("是否返回好友列表"))
-  -- log(findOne("是否退出游戏"))
-
-  -- testManufacturingStationOperatorBest()
-  exit()
-
-  log(findOne("返回"))
-  -- log(findOne("活动公告返回"))
-  -- log(findOne("返回3"))
-  -- log(findOne("返回4"))
-  -- while true do if findOne("活动公告返回") then stop(2229) end end
-  -- log(table.combination(range(1, 10), 3))
-  -- log(ans)
-  exit()
-  log(ans)
-  ssleep(1)
-  while true do if not appear("怒号光明", 0.5) then stop(1) end end
-  exit()
-  input("bilibili_username_inputbox", '11111111111')
-  -- log(findOne('inputbox'))
-  -- log(#findOne('inputbox').text)
-  exit()
-
-  keepCapture()
-  -- skillimg = {}
-  -- skillpng = {"Bskill_ws_evolve3.png"}
-  local mask = {}
-  w, h = 36, 36
-  for i = 1, h do
-    for j = 1, w do
-      if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 18.5 ^ 2 then
-        table.insert(mask, {i, j})
-      end
-    end
-  end
-  pngdata = {}
-  local s = ''
-  for _, v in pairs(skillpng) do
-    local _, _, color = getImage('/sdcard/png_noalpha_dim/' .. v)
-    pngdata[v] = {}
-    for _, m in pairs(mask) do
-      i, j = m[1], m[2]
-      b, g, r = colorToRGB(color[(w - i - 1) * w + j])
-      table.extend(pngdata[v], {r, g, b})
-      if nil and v == 'Bskill_man_exp2.png' then
-        -- if v == 'Bskill_ws_evolve2.png' then
-        r = string.format('%X', r):padStart(2, '0')
-        g = string.format('%X', g):padStart(2, '0')
-        b = string.format('%X', b):padStart(2, '0')
-        s = s .. i .. '|' .. j .. '|' .. r .. g .. b .. ','
-      end
-    end
-  end
-  -- log("1s:sub(1,#s)", s:sub(1, #s))
-
-  -- gg = function(x1, y1, x2, y2)
-  --   s = ''
-  --   local w, h, color = getScreenPixel(x1, y1, x2, y2)
-  --   local i, j, b, g, r
-  --   local data = {}
-  --   for _, m in pairs(mask) do
-  --     i, j = m[1], m[2]
-  --     b, g, r = colorToRGB(color[(i - 1) * w + j])
-  --     table.extend(data, {r, g, b})
-  --
-  --     if nil then
-  --       r = string.format('%X', r):padStart(2, '0')
-  --       g = string.format('%X', g):padStart(2, '0')
-  --       b = string.format('%X', b):padStart(2, '0')
-  --       s = s .. i .. '|' .. j .. '|' .. r .. g .. b .. ','
-  --     end
-  --   end
-  --   -- log(s)
-  --   -- exit()
-  --   local best_score = 100000
-  --   local best = nil
-  --   local score
-  --   local abs = math.abs
-  --   for k, v in pairs(pngdata) do
-  --     score = 0
-  --     for i = 1, #mask * 3 do
-  --       score = score + abs(data[i] - v[i])
-  --       if score > best_score then break end
-  --     end
-  --     if best_score > score then
-  --       best_score = score
-  --       best = k
-  --     end
-  --   end
-  --   log(2208, best_score, best)
-  --   return best
-  -- end
-
-  discover()
-  exit()
-  pic = table.join(skillpng, "|")
-  ret, x, y = findPicEx(0, 0, 0, 0, pic, 0.95)
-  log(ret, x, y)
-  log(getWorkPath())
-  exit()
-  -- pic='2级.png|Bskill_ctrl_cost.png'
-  -- log(pic)
-  log(23)
-  keepCapture()
-  -- for i = 1, 24 do ret, x, y = findPicEx(709, 263, 709 + w+1, 263 + h+1, pic, 0.95) end
-  -- for i = 1, 24 do ret, x, y = findPic(709, 263, 709 + w+1, 263 + h+1, pic) end
-  for i = 1, 24 do ret, x, y = findPic(0, 0, 0, 0, pic) end
-  -- for i = 1, 24 do ret, x, y = findPic(709, 263, 709 + w+1, 263 + h+1, pic) end
-  -- for i = 1, 24 do ret, x, y = findPicEx(0,0,0,0, pic, 0.95) end
-  -- for i = 1, 24 do ret, x, y = findImage(709, 263, 709 + w, 263 + h, pic, 0.95) end
-  -- for i = 1, 24 do ret, x, y = findImage(0,0,0,0, pic, 0.95) end
-  releaseCapture()
-  log(24)
-
-  log(ret, x, y)
-  -- ret = findPicAllPoint(0,0,screen.width-1,screen.height-1,'Bskill_ctrl_cost.png',0.1)
-  -- log(ret)
-  -- ret,x,y = findImage(0,0,0,0,'Bskill_ctrl_cost.png',"000000",0.7)
-  -- log(ret,x,y)
-  -- ret,x,y = findPicEx(0,0,0,0,'Bskill_ctrl_cost.png',0.7)
-  -- log(ret,x,y)
-  exit()
-  log(point["第一干员未选中"])
-  log(findOne("第一干员未选中"))
-  ssleep(1)
-  exit()
-  -- openLog()
-
-  clickPoint(0, 0)
-  clickPoint(1, 1)
-  clickPoint(20, scale(123))
-  exit()
-
-  require("skill")
-  log(time())
-  log(#skill)
-  local border_height = math.round(
-                          (379 - 1080 // 2) * minscale + screen.height / 2)
-  local skill_height1 = math.round(
-                          (397 - 1080 // 2) * minscale + screen.height / 2)
-  local skill_height2 = math.round(
-                          (817 - 1080 // 2) * minscale + screen.height / 2)
-  local color = {
-    math.round(600 * minscale), border_height, screen.width, border_height + 5,
-    "663,253,#88888A|663,255,#88888A|665,255,#88888A|661,253,#FFFFFF|661,255,#FFFFFF|659,255,#FFFFFF",
-    95,
-  }
-  log(color)
-  local borders = findColors(color)
-  if not borders then return end
-  -- keepScreen(false)
-  -- keepScreen(true)
-  for _, border in pairs(borders) do
-    log('border', border)
-    local skill_top_left = {
-      {border.x + math.round(5 * minscale), skill_height1},
-      {border.y + math.round(47 * minscale), skill_height1},
-    }
-    local best_score = 0
-    local best_skill = 1
-    local valid_score_threshold = 0
-    for k, v in pairs(skill) do
-      log(81, k)
-      local rgb = v[4]
-      local alpha = v[5]
-      local score = 0
-      local predict_score = 0
-      for i = 1, 36 * 36 do
-        -- log(82, i)
-        -- log(83, rgb[i])
-        -- log(84, alpha[i])
-        score = score +
-                  (compareColor(skill_top_left[1][1] + i // 36 + 1,
-                                skill_top_left[1][2] + i % 36, rgb[i],
-                                95 * alpha[i] // 255) and 1 or 0)
-        predict_score = score + 36 * 36 - i
-        if predict_score < best_score or predict_score < valid_score_threshold then
-          break
-        end
-      end
-      if score > best_score and score > valid_score_threshold then
-        best_score = score
-        brest_skill = k
-      end
-      log(v[3], score, skill[best_skill][3])
-    end
-    log(skill[best_skill][3], best_score)
-    exit()
-  end
   exit()
 end
 
@@ -3428,7 +2852,8 @@ check_root_mode = function()
 end
 
 update_state_from_ui = function()
-  prefer_skill = true
+  -- 总览换班就按工作状态了，保证心情高
+  -- prefer_skill = true
   drug_times = 0
   max_drug_times = str2int(max_drug_times, 0)
   stone_times = 0
