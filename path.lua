@@ -807,11 +807,34 @@ path.宿舍换班 = function()
       tap("清空选择")
     end, 5) then return end
 
+    local operator
+    if shift_prefer_speed == 0 then
+      -- 选后5个
+      operator = map(function(x) return "干员选择列表" .. x end,
+                     range(6, 10))
+    else
+      -- 根据心情阈值选择
+      operator = {}
+      discover(operator, {}, 1, true)
+      log(818, operator, shift_min_mood)
+      operator = table.filter(operator,
+                              function(x) return x[3] < shift_min_mood end)
+      -- log(819,operator)
+      operator = map(function(x) return x[4] end, operator)
+
+      operator = table.slice(table.extend(operator, map(
+                                            function(x)
+          return "干员选择列表" .. x
+        end, range(1, 5))), 1, 5)
+
+      log(820, operator)
+    end
+
     if not wait(function()
       if not findOne("干员未选中") then return true end
-      -- 慢机仍会漏换
+      -- 慢机仍会漏换， miui13也是
       ssleep(0.1)
-      tapAll(map(function(i) return "干员选择列表" .. i end, range(6, 10)))
+      tapAll(operator)
       disappear("干员未选中", 2)
     end, 5) then return end
 
@@ -947,9 +970,10 @@ path.制造换班 = function(trading)
 
       wait(function()
         good = findAny({"经验站", "赤金站", "源石站", "芯片站"})
-        if good then return true end
+        if good and not disappear(good, .5) then return true end
         tap("贸易站进度")
       end, 5)
+      good = good or "经验站"
 
       -- -- 收起进驻信息
       -- if not wait(function()
@@ -997,9 +1021,10 @@ path.制造换班 = function(trading)
     if trading then
       wait(function()
         good = findAny({"龙门商法", "开采协力"})
-        if good then return true end
+        if good and not disappear(good, .5) then return true end
         tap("贸易站进度")
       end, 5)
+      good = good or "龙门商法"
 
       -- 确认类型
       log(855, good)
@@ -1286,12 +1311,16 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
-  if dorm_shift then path.宿舍换班() end
-  path.基建信息获取()
-  if manu_shift then path.制造换班() end
-  if trading_shift then path.贸易换班() end
-  if meet_shift then path.会客厅换班() end
-  if overview_shift then path.总览换班() end
+  if not disable_dorm_shift then path.宿舍换班() end
+
+  if shift_prefer_speed ~= 0 then
+    path.基建信息获取()
+    if not disable_manu_shift then path.制造换班() end
+    if not disable_trading_shift then path.贸易换班() end
+    if not disable_meet_shift then path.会客厅换班() end
+  end
+
+  if not disable_overview_shift then path.总览换班() end
 end
 
 path.会客厅换班 = function() end

@@ -92,7 +92,7 @@ fetchSkillIcon = function()
   return restartScript()
 end
 
-discover = still_wrapper(function(operators, pngdata, pageid)
+discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
   -- 异步滑动
   -- local delay = swipo(false, true)
   -- local start_time = time()
@@ -122,28 +122,25 @@ discover = still_wrapper(function(operators, pngdata, pageid)
     local icon2 = {
       v[1] + scale(70), v[2] + scale(18), v[1] + scale(123), v[2] + scale(70),
     }
+    local png = ''
+    local png2 = ''
+    if not mood_only then
+      png = gg(icon1[1], icon1[2], icon1[3], icon1[4], pngdata)
+      -- 已到结尾，返回
+      if not png then return true end
+      png2 = 'empty2.png'
+      operator = skillpng2operator[png]
+      if #operator == 1 then
 
-    local png = gg(icon1[1], icon1[2], icon1[3], icon1[4], pngdata)
-    -- 已到结尾，返回
-    if not png then return true end
-
-    local png2 = 'empty2.png'
-    -- png = 'empty1.png'
-    operator = skillpng2operator[png]
-    if #operator == 1 then
-
-    else
-      png2 = gg(icon2[1], icon2[2], icon2[3], icon2[4], pngdata) or png2
-      if png2 ~= 'empty2.png' then
-        operator2 = skillpng2operator[png2]
-        operator = table.intersect(operator, operator2)
+      else
+        png2 = gg(icon2[1], icon2[2], icon2[3], icon2[4], pngdata) or png2
+        if png2 ~= 'empty2.png' and not disable_log then
+          operator2 = skillpng2operator[png2]
+          operator = table.intersect(operator, operator2)
+        end
       end
     end
 
-    -- TODO
-    -- if #operator < #skillpng2operator['empty2.png'] then log(operator) end
-
-    -- exit()
     -- 心情判断
     local mood = 0
     -- log(v[1])
@@ -381,7 +378,7 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
   log(354, #operator, maxOperator)
   for _, c in pairs(table.combination(range(1, #operator), maxOperator)) do
     local s, only_need = score(table.index(operatorIcon, c))
-    log(401, table.index(operator, c), s)
+    -- log(401, table.index(operator, c), s)
     if s > best_score then
       best = c
       best_score = s
@@ -467,7 +464,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     -- 应用独立技能效果
     for _, icon in pairs(table.flatten(icons)) do
       if debug_mode then log(427, icon, icons, base, station) end
-      all[icon] = 1
+      all[icon] = (all[icon] or 0) + 1
       -- log(266, icon, goodType, base)
       if icon == 'Bskill_man_exp3.png' then
         if goodType == '作战记录' then base = base + 0.35 end
@@ -563,21 +560,25 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
       -- 槐虎
       base = base + min(0.4, base // 0.05 * 0.05)
     end
+
+    -- 发电站数
     if all['Bskill_man_spd%26power3.png'] then
       station_only = true
-      staition = station + 0.15 * powerStationNum
-      only_need = {'Bskill_man_spd%26power3.png'}
+      staition = station + 0.15 * powerStationNum *
+                   all['Bskill_man_spd%26power3.png']
+      table.extend(only_need, {'Bskill_man_spd%26power3.png'})
     end
-    -- 需要优先，发电站数
     if all['Bskill_man_spd%26power2.png'] then
       station_only = true
-      staition = station + 0.1 * powerStationNum
-      only_need = {'Bskill_man_spd%26power2.png'}
+      staition = station + 0.1 * powerStationNum *
+                   all['Bskill_man_spd%26power2.png']
+      table.extend(only_need, {'Bskill_man_spd%26power2.png'})
     end
     if all['Bskill_man_spd%26power1.png'] then
       station_only = true
-      staition = station + 0.05 * powerStationNum
-      only_need = {'Bskill_man_spd%26power1.png'}
+      staition = station + 0.05 * powerStationNum *
+                   all['Bskill_man_spd%26power1.png']
+      table.extend(only_need, {'Bskill_man_spd%26power1.png'})
     end
     if all['Bskill_man_skill_spd.png'] then
       -- 水月，标准化技能数量
@@ -823,7 +824,8 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
       swipo()
       pageid = pageid + 1
     end
-    tap(operator[i][4])
+    local p = operator[i][4]
+    tap({p[1] + scale(106), p[2]})
     sleep(50)
   end
   swipo(true)

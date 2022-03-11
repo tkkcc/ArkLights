@@ -200,6 +200,7 @@ clip = function(x, minimum, maximum) return min(max(x, minimum), maximum) end
 
 -- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
 string.trim = function(s)
+
   s = s or ''
   return s:match '^()%s*$' and '' or s:match '^%s*(.*%S)'
 end
@@ -705,7 +706,7 @@ findAny = function(x) return appear(x, 0, 0) end
 
 findOnes = function(x, confidence)
   confidence = confidence or default_findcolor_confidence
-  log(rfg[x],first_color[x],point[x])
+  log(rfg[x], first_color[x], point[x])
   return findMultiColorAll(rfg[x][1], rfg[x][2], rfg[x][3], rfg[x][4],
                            first_color[x], point[x], 0, confidence) or {}
 end
@@ -1563,18 +1564,23 @@ end
 
 tapAll = function(ks)
   log("tapAll", ks)
+  if #ks == 0 then return end
   -- 0 还是漏第一个
   -- 试试100 还是会漏第一个，这是界面看上去已经是完全可用状态了
   local duration = 1
   if tapall_duration > 0 then duration = tapall_duration end
 
   local finger = {}
-  ks = shallowCopy(ks)
   for i, k in pairs(ks) do
-    table.insert(finger,
-                 {point = {{point[k][1], point[k][2]}}, duration = duration})
+    if type(k) == 'string' then k = point[k] end
+    table.insert(finger, {point = {{k[1], k[2]}}, duration = duration})
   end
-  gesture(finger)
+  log('tapall', finger)
+  if not disable_simultaneous_tap then
+    gesture(finger)
+  else
+    for _, v in pairs(finger) do tap(v.point[1]) end
+  end
   sleep(duration + 50)
 end
 
@@ -1712,19 +1718,26 @@ make_account_ui = function(layout, prefix)
   addTextView(layout, "次石头")
 
   newRow(layout)
-  addTextView(layout, "换班设施")
+  addTextView(layout, "换班模式")
   -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
   --                  -2, -2, true)
+  ui.addRadioGroup(layout, prefix .. "shift_prefer_speed", {"极速", "高产"},
+                   0, -2, -2, true)
+  addTextView(layout, "心情阈值")
+  ui.addEditText(layout, prefix .. 'shift_min_mood', "12")
+  -- ui.setEnable(prefix .. "shift_prefer_speed", false)
+  -- ui.setEnable(prefix .. "shift_min_mood", false)
+
   -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
   --                  -2, -2, true)
 
-  ui.addCheckBox(layout, prefix .. "dorm_shift", "宿", true)
-  ui.addCheckBox(layout, prefix .. "manu_shift", "制", false)
-  ui.addCheckBox(layout, prefix .. "trading_shift", "贸", false)
-  ui.addCheckBox(layout, prefix .. "meet_shift", "会", false)
-  ui.addCheckBox(layout, prefix .. "overview_shift", "总", true)
+  -- ui.addCheckBox(layout, prefix .. "dorm_shift", "宿", true)
+  -- ui.addCheckBox(layout, prefix .. "manu_shift", "制", false)
+  -- ui.addCheckBox(layout, prefix .. "trading_shift", "贸", false)
+  -- ui.addCheckBox(layout, prefix .. "meet_shift", "会", false)
+  -- ui.addCheckBox(layout, prefix .. "overview_shift", "总", true)
 
-  ui.setEnable(prefix .. "meet_shift", false)
+  -- ui.setEnable(prefix .. "meet_shift", false)
 
   newRow(layout)
   addTextView(layout, "信用多买")
@@ -2145,20 +2158,13 @@ A：
 法3. 在活动关代理指挥中启动脚本，脚本将优先重复刷当前关。
 
 Q：换班产率低？
-A：“制”、“贸”换班会根据已有基建技能效果穷举计算单站最优组合，有以下限制：
-0. 未识别贸易站类别。
-0. 不处理发电站、会客厅、办公室、控制中枢。
-0. 忽略心情低于12的干员。
-1. 忽略其他站技能加成（如迷迭香、焰尾、森蚺），忽略“意识协议”技能效果。
-2. 假定宿舍数量为4。假定所有设施均为满级。假定每次换班间隔8小时。
-3. 部分技能效果采用近似估计。
-9. 除上述限制外，如果有换错情况，请录屏反馈。
-
-Q：换班漏换？
-A：请录屏反馈。
-
-Q：换班换了低心情干员？
-A：请录屏反馈。
+A：“高产”换班根据已有基建技能效果穷举计算单站最优组合，有以下限制：
+0. 只考虑制造贸易站收益。
+0. 只考虑当前站最优，并非同类站总和最优。
+1. 忽略其他站技能效果（迷迭香、焰尾、森蚺），忽略“意识协议”技能（水月）效果。
+2. 假定宿舍数量为4。假定所有设施均为满级。
+3. 部分技能效果采用近似估计，且假定每次换班间隔8小时。
+9. 有问题录屏反馈。
 
 Q：自动招募怎么用？
 A：勾选“公招刷新”任务，启动。设置中“其他”表示非保底标签，“车456”表示保底小车与456星。
@@ -2208,7 +2214,6 @@ A：
 2. 检查脚本主界面底部注意事项。
 3. 重启设备。
 4. 如果使用不同于物理设备的分辨率，需在“调试设置”中指定分辨率。
-5. 部分系统不兼容脚本的多点触控，如miui13，导致基建换班漏人。本人只在红米K40miui12.5上测试。
 9. 通过vmos使用、换设备、换脚本。
 
 Q：游戏在小窗/后台/熄屏时支持吗？
@@ -2343,9 +2348,9 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "beta_mode", "使用beta更新源", false)
-  -- addTextView(layout, "多点点击时长(miui13换班不上人)")
-  -- ui.addEditText(layout, "tapall_duration", "")
-  --
+
+  addTextView(layout, "禁用多点同步点击")
+  ui.addEditText(layout, "disable_simultaneous_tap", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "diable_oom_score_adj",
@@ -2811,9 +2816,12 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
+  -- log(shift_prefer_speed)
+  -- exit()
 
   ssleep(1)
-  log(findOnes("第一干员卡片"))
+  log(findOne("赤金站"))
+  -- log(findOnes("第一干员卡片"))
   -- tap("制造站进度")
   ssleep(1)
   exit()
@@ -2852,7 +2860,9 @@ check_root_mode = function()
 end
 
 update_state_from_ui = function()
-  -- 总览换班就按工作状态了，保证心情高
+  shift_min_mood = str2int(shift_min_mood, 12)
+
+  -- 总览换班就按工作状态了，保证高心情
   -- prefer_skill = true
   drug_times = 0
   max_drug_times = str2int(max_drug_times, 0)
