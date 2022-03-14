@@ -305,15 +305,16 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
 
     -- 雪雉
     if all['Bskill_tra_spd_variable22.png'] then
-      base = base + min(0.35, base // 0.05 * 0.05)
+      base = base + min(0.35, base // 0.05 * 0.05) *
+               all['Bskill_tra_spd_variable22.png']
     end
 
     -- 图耶
     if all['Bskill_tra_flow_gs2.png'] then
-      base = base + 0.05 + (gold // 2) * 0.15
+      base = base + 0.05 + (gold // 2) * 0.15 * all['Bskill_tra_flow_gs2.png']
     end
     if all['Bskill_tra_flow_gs1.png'] then
-      base = base + 0.05 + (gold // 4) * 0.15
+      base = base + 0.05 + (gold // 4) * 0.15 * all['Bskill_tra_flow_gs1.png']
     end
 
     -- 孑 
@@ -547,42 +548,44 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
       -- 泡泡
       for _, s in pairs(storage) do
         if s > 0 and s <= 16 then
-          base = base + s * 0.01
+          base = base + s * 0.01 * all['Bskill_man_spd_variable31.png']
         elseif s > 16 then
-          base = base + s * 0.03
+          base = base + s * 0.03 * all['Bskill_man_spd_variable31.png']
         end
       end
     elseif all['Bskill_man_spd_variable11.png'] then
       -- 红云
-      base = base + max(table.sum(storage), 0) * 0.02
+      base = base + max(table.sum(storage), 0) * 0.02 *
+               all['Bskill_man_spd_variable11.png']
     end
     if all['Bskill_man_spd_variable21.png'] then
       -- 槐虎
-      base = base + min(0.4, base // 0.05 * 0.05)
+      base = base + min(0.4, base // 0.05 * 0.05) *
+               all['Bskill_man_spd_variable21.png']
     end
 
     -- 发电站数
     if all['Bskill_man_spd%26power3.png'] then
       station_only = true
-      staition = station + 0.15 * powerStationNum *
+      station = station + 0.15 * powerStationNum *
                    all['Bskill_man_spd%26power3.png']
       table.extend(only_need, {'Bskill_man_spd%26power3.png'})
     end
     if all['Bskill_man_spd%26power2.png'] then
       station_only = true
-      staition = station + 0.1 * powerStationNum *
+      station = station + 0.1 * powerStationNum *
                    all['Bskill_man_spd%26power2.png']
       table.extend(only_need, {'Bskill_man_spd%26power2.png'})
     end
     if all['Bskill_man_spd%26power1.png'] then
       station_only = true
-      staition = station + 0.05 * powerStationNum *
+      station = station + 0.05 * powerStationNum *
                    all['Bskill_man_spd%26power1.png']
       table.extend(only_need, {'Bskill_man_spd%26power1.png'})
     end
     if all['Bskill_man_skill_spd.png'] then
       -- 水月，标准化技能数量
-      base = base + standard * 0.05
+      base = base + standard * 0.05 * all['Bskill_man_skill_spd.png']
     end
     if debug_mode then log(428.5, icon, icons, base, station, storage) end
 
@@ -774,6 +777,7 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   log("dormitoryCapacity", dormitoryCapacity)
   log("dormitoryLevelSum", dormitoryLevelSum)
   log("goldStationNum", goldStationNum)
+  -- exit()
 
   initPngdata()
   -- exit()
@@ -828,6 +832,6 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
     tap({p[1] + scale(106), p[2]})
     sleep(50)
   end
-  swipo(true)
+  swipo(true, true)
   -- exit()
 end

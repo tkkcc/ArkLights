@@ -808,7 +808,7 @@ path.宿舍换班 = function()
     end, 5) then return end
 
     local operator
-    if shift_prefer_speed == 0 then
+    if shift_prefer_speed ~= 1 then
       -- 选后5个
       operator = map(function(x) return "干员选择列表" .. x end,
                      range(6, 10))
@@ -821,22 +821,85 @@ path.宿舍换班 = function()
                               function(x) return x[3] < shift_min_mood end)
       -- log(819,operator)
       operator = map(function(x) return x[4] end, operator)
+      operator = table.slice(operator, 1, 5)
 
-      operator = table.slice(table.extend(operator, map(
-                                            function(x)
-          return "干员选择列表" .. x
-        end, range(1, 5))), 1, 5)
+      -- operator = table.slice(table.extend(operator, map(
+      --                                       function(x)
+      --     return "干员选择列表" .. x
+      --   end, range(1, 5))), 1, 5)
 
       log(820, operator)
     end
 
-    if not wait(function()
+    if #operator > 0 and not wait(function()
       if not findOne("干员未选中") then return true end
       -- 慢机仍会漏换， miui13也是
       ssleep(0.1)
       tapAll(operator)
       disappear("干员未选中", 2)
     end, 5) then return end
+
+    log(842, #operator)
+    -- 把未进驻的非满心情干员放进去
+    if #operator < 5 then
+
+      -- 进入筛选界面
+      if not wait(function()
+        if findOne("筛选取消") then return true end
+        tap("筛选")
+      end, 5) then return end
+
+      if not appear({"筛选未进驻选中", "筛选未进驻"}) then
+        return
+      end
+
+      if not findOne("筛选未进驻选中") then
+        if not wait(function()
+          if findOne("筛选未进驻选中") then return true end
+          tap("筛选未进驻选中")
+          appear("筛选未进驻选中", .5)
+        end, 5) then return end
+      end
+
+      if not wait(function()
+        if not findOne("筛选取消") then return true end
+        tap("筛选确认")
+      end, 5) then return end
+
+      if not wait(function()
+        if findOne("干员未选中") and findOne("第一干员未选中") then
+          return true
+        end
+        tap("清空选择")
+      end, 5) then return end
+
+      -- 选择后续干员
+      operator = map(function(x) return "干员选择列表" .. x end,
+                     range(1, 5))
+      ssleep(0.1)
+      tapAll(operator)
+
+      -- 进入筛选界面
+      if not wait(function()
+        if findOne("筛选取消") then return true end
+        tap("筛选")
+      end, 5) then return end
+
+      if not appear({"筛选未进驻选中", "筛选未进驻"}) then
+        return
+      end
+      if not findOne("筛选未进驻") then
+        if not wait(function()
+          if findOne("筛选未进驻") then return true end
+          tap("筛选未进驻")
+          appear("筛选未进驻", .5)
+        end, 5) then return end
+      end
+      if not wait(function()
+        if not findOne("筛选取消") then return true end
+        tap("筛选确认")
+      end, 5) then return end
+    end
 
     if not wait(function()
       if findAny({
@@ -845,8 +908,9 @@ path.宿舍换班 = function()
       }) then return true end
       tap("确认蓝")
     end, 10) then return end
+
   end
-  if not no_dorm then for i = 1, 4 do f(i) end end
+  for i = 1, #dormitoryLevel do f(i) end
 end
 
 -- 各站数量与等级，直接全局变量
@@ -878,7 +942,19 @@ path.基建信息获取 = function()
   keepCapture()
   f = function(i)
     local x, y = table.unpack(point["基建列表" .. i])
+    local station, stationLevel
     for type, color in pairs(type2color) do
+      if type == "制造站" then
+        station = manufacturingStation
+        stationLevel = manufacturingStationLevel
+      elseif type == "贸易站" then
+        station = tradingStation
+        stationLevel = tradingStationLevel
+      elseif type == "发电站" then
+        station = powerStation
+        stationLevel = powerStationLevel
+      end
+
       -- 检测kernel，因为可能被条纹挡住
       if (compareColor(x, y, color, default_findcolor_confidence) or
         compareColor(x - scale(5), y - scale(10), color,
@@ -889,14 +965,26 @@ path.基建信息获取 = function()
                      default_findcolor_confidence) or
         compareColor(x - scale(5), y - scale(10), color,
                      default_findcolor_confidence)) then
+        table.insert(station, {x, y})
+        table.insert(stationLevel, 3)
 
-        if type == "制造站" then
-          table.insert(manufacturingStation, {x, y})
-        elseif type == "贸易站" then
-          table.insert(tradingStation, {x, y})
-        elseif type == "发电站" then
-          table.insert(powerStation, {x, y})
+        for j = 0, 2 do
+          local x, y = table.unpack(point["基建等级列表" .. i * 3 - j])
+          -- log(973,x,y)
+          if (compareColor(x, y, color, default_findcolor_confidence) or
+            compareColor(x - scale(1), y - scale(3), color,
+                         default_findcolor_confidence) or
+            compareColor(x - scale(1), y + scale(3), color,
+                         default_findcolor_confidence) or
+            compareColor(x + scale(1), y + scale(3), color,
+                         default_findcolor_confidence) or
+            compareColor(x - scale(1), y - scale(3), color,
+                         default_findcolor_confidence)) then
+            stationLevel[#stationLevel] = 3 - j
+            break
+          end
         end
+
         break
       end
     end
@@ -904,22 +992,40 @@ path.基建信息获取 = function()
 
   for i = 1, 9 do f(i) end
 
-  -- 假设了4个满级宿舍
-  dormitoryStation = map(function(x) return point[x] end, point.宿舍列表)
-  log(dormitoryStation)
-  dormitoryLevel = map(function() return 5 end, dormitoryStation)
-  dormitoryNum = #dormitoryStation
+  f = function(i)
+    local color = '#FFFFFF'
+    local stationLevel
+    stationLevel = dormitoryLevel
+    for j = 0, 5 do
+      local x, y = table.unpack(point["宿舍等级列表" .. i * 5 - j])
+      if (compareColor(x, y, color, default_findcolor_confidence) or
+        compareColor(x - scale(1), y - scale(3), color,
+                     default_findcolor_confidence) or
+        compareColor(x - scale(1), y + scale(3), color,
+                     default_findcolor_confidence) or
+        compareColor(x + scale(1), y + scale(3), color,
+                     default_findcolor_confidence) or
+        compareColor(x - scale(1), y - scale(3), color,
+                     default_findcolor_confidence)) then
+        table.insert(stationLevel, 5 - j)
+        break
+      end
+    end
+  end
+
+  for i = 1, 4 do f(i) end
+
+  dormitoryNum = #dormitoryLevel
   dormitoryCapacity = dormitoryNum * 5
   dormitoryLevelSum = table.sum(dormitoryLevel)
 
-  -- 假定了满级设施
-  powerStationLevel = map(function() return 3 end, powerStation)
+  -- powerStationLevel = map(function() return 3 end, powerStation)
   powerStationNum = #powerStation
 
-  tradingStationLevel = map(function() return 3 end, tradingStation)
+  -- tradingStationLevel = map(function() return 3 end, tradingStation)
   tradingStationNum = #tradingStation
 
-  manufacturingStationLevel = map(function() return 3 end, manufacturingStation)
+  -- manufacturingStationLevel = map(function() return 3 end, manufacturingStation)
   manufacturingStationNum = #manufacturingStation
 
   releaseCapture()
@@ -941,26 +1047,29 @@ path.制造换班 = function(trading)
   }
 
   local f
-  f = function(i)
-
+  f = function(i, station, stationLevel)
     path.跳转("基建")
-    local x, y = table.unpack(point["基建列表" .. i])
-    -- 检测kernel，因为可能被条纹挡住
-    if not (compareColor(x, y, station_color, default_findcolor_confidence) or
-      compareColor(x - 5, y - 10, station_color, default_findcolor_confidence) or
-      compareColor(x - 5, y + 10, station_color, default_findcolor_confidence) or
-      compareColor(x + 5, y + 10, station_color, default_findcolor_confidence) or
-      compareColor(x - 5, y - 10, station_color, default_findcolor_confidence)) then
-      log("skip", i)
-      return
-    end
+    -- local x, y = table.unpack(point["基建列表" .. i])
+    -- -- 检测kernel，因为可能被条纹挡住
+    -- if not (compareColor(x, y, station_color, default_findcolor_confidence) or
+    --   compareColor(x - scale(5), y - scale(10), station_color,
+    --                default_findcolor_confidence) or
+    --   compareColor(x - scale(5), y + scale(10), station_color,
+    --                default_findcolor_confidence) or
+    --   compareColor(x + scale(5), y + scale(10), station_color,
+    --                default_findcolor_confidence) or
+    --   compareColor(x - scale(5), y - scale(10), station_color,
+    --                default_findcolor_confidence)) then
+    --   log("skip", i)
+    --   return
+    -- end
 
     -- 进入制造站
     if not wait(function()
       if not findOne("进驻总览") or not findOne("缩放结束") then
         return true
       end
-      tap({x, y})
+      tap(station)
     end) then return end
 
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
@@ -969,11 +1078,13 @@ path.制造换班 = function(trading)
     if not trading then
 
       wait(function()
-        good = findAny({"经验站", "赤金站", "源石站", "芯片站"})
-        if good and not disappear(good, .5) then return true end
+        if findAny({"制造站设施列表1", "未进驻设施列表1"}) then
+          return true
+        end
         tap("贸易站进度")
       end, 5)
-      good = good or "经验站"
+
+      good = findAny({"赤金站", "源石站", "芯片站", "经验站"})
 
       -- -- 收起进驻信息
       -- if not wait(function()
@@ -996,6 +1107,12 @@ path.制造换班 = function(trading)
       end
       type = good2type[good]
       log(524, type)
+      if not disappear("制造站补货通知", 5) then return end
+      -- 源石站补货
+      if good == "源石站" then
+        tap("制造站最多")
+        appearTap("制造站执行更改", 0.5)
+      end
 
       -- 制造站进入干员列表
       if not wait(function()
@@ -1019,12 +1136,15 @@ path.制造换班 = function(trading)
 
     -- 贸易站需要确认产品类型
     if trading then
+
       wait(function()
-        good = findAny({"龙门商法", "开采协力"})
-        if good and not disappear(good, .5) then return true end
+        if findAny({"贸易站设施列表1", "未进驻设施列表1"}) then
+          return true
+        end
         tap("贸易站进度")
       end, 5)
-      good = good or "龙门商法"
+
+      good = findAny({"龙门商法", "开采协力"}) or "龙门商法"
 
       -- 确认类型
       log(855, good)
@@ -1034,6 +1154,7 @@ path.制造换班 = function(trading)
       end
       type = good2type[good]
       log(525, type)
+      if not disappear("制造站补货通知", 5) then return end
 
       -- 贸易站进入干员列表
       if not wait(function()
@@ -1094,30 +1215,44 @@ path.制造换班 = function(trading)
     --   tap("筛选确认")
     -- end, 5) then return end
 
+    local start_time = time()
     if not wait(function()
       if findOne("干员未选中") and findOne("第一干员未选中") then
         return true
+      end
+      if time() - start_time > 1000 then
+        tap("干员选择列表1")
+        start_time = time()
       end
       tap("清空选择")
     end, 5) then
       log(1037)
       return
     end
+    log(1217, tradingStationLevel, manufacturingStationLevel, powerStationLevel,
+        dormitoryLevel)
 
-    chooseOperator(trading, type, 3, tradingStationNum, powerStationNum,
-                   dormitoryCapacity, dormitoryLevelSum, goldStationNum)
+    chooseOperator(trading, type, stationLevel, tradingStationNum,
+                   powerStationNum, dormitoryCapacity, dormitoryLevelSum,
+                   goldStationNum)
 
-    if not wait(function()
+    wait(function()
       tap("确认蓝")
       if findAny({
-        "隐藏", "进驻信息", "进驻信息选中",
-        "正在提交反馈至神经", good,
+        "制造站设施列表1", "贸易站设施列表1", "隐藏",
+        "进驻信息", "进驻信息选中", "正在提交反馈至神经",
+        good,
       }) then return true end
-    end, 5) then return end
+    end, 5)
   end
+
   -- 找到所有制造站
-  for i = 1, 9 do f(i) end
+  local station = trading and tradingStation or manufacturingStation
+  local stationLevel = trading and tradingStationLevel or
+                         manufacturingStationLevel
+  for i = 1, #station do f(i, station[i], stationLevel[i]) end
 end
+
 path.贸易换班 = function() return path.制造换班(true) end
 
 path.总览换班 = function()
@@ -1311,10 +1446,10 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
+  path.基建信息获取()
   if not disable_dorm_shift then path.宿舍换班() end
 
-  if shift_prefer_speed ~= 0 then
-    path.基建信息获取()
+  if shift_prefer_speed == 1 then
     if not disable_manu_shift then path.制造换班() end
     if not disable_trading_shift then path.贸易换班() end
     if not disable_meet_shift then path.会客厅换班() end
@@ -2951,7 +3086,6 @@ path.指定换班 = function()
           type = "发"
         end
       end, 2) then return end
-
     elseif i == 10 then
       type = "控"
     elseif i <= 14 then

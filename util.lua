@@ -1725,6 +1725,7 @@ make_account_ui = function(layout, prefix)
                    0, -2, -2, true)
   addTextView(layout, "心情阈值")
   ui.addEditText(layout, prefix .. 'shift_min_mood', "12")
+
   -- ui.setEnable(prefix .. "shift_prefer_speed", false)
   -- ui.setEnable(prefix .. "shift_min_mood", false)
 
@@ -1776,10 +1777,10 @@ show_multi_account_ui = function()
   ui.addCheckBox(layout, layout .. '_enable', "启用账号", false)
   ui.addEditText(layout, layout .. "_choice", "", -1)
   newRow(layout)
-  ui.addCheckBox(layout, "multi_account_end_closeotherapp",
-                 "切号前关别服", true)
-  ui.addCheckBox(layout, "multi_account_end_closeapp", "切号前关本服",
-                 true)
+
+  addTextView(layout, "切号前关闭")
+  ui.addCheckBox(layout, "multi_account_end_closeotherapp", "其他服", true)
+  ui.addCheckBox(layout, "multi_account_end_closeapp", "当前服", false)
   newRow(layout)
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
@@ -2159,12 +2160,19 @@ A：
 
 Q：换班产率低？
 A：“高产”换班根据已有基建技能效果穷举计算单站最优组合，有以下限制：
-0. 只考虑制造贸易站收益。
-0. 只考虑当前站最优，并非同类站总和最优。
+0. 只考虑制造站贸易站收益。只考虑当前站最优，并非同类站总和最优。
 1. 忽略其他站技能效果（迷迭香、焰尾、森蚺），忽略“意识协议”技能（水月）效果。
-2. 假定宿舍数量为4。假定所有设施均为满级。
 3. 部分技能效果采用近似估计，且假定每次换班间隔8小时。
-9. 有问题录屏反馈。
+9. 有问题反馈下。
+
+Q：怎么加速第n个制造站？
+A：只能加速第一个。自己手动交换下两个制造站的物品。
+
+Q：怎么加速贸易站？
+A：不行。
+
+Q：搓玉自动补货？
+A：用“高产”换班。
 
 Q：自动招募怎么用？
 A：勾选“公招刷新”任务，启动。设置中“其他”表示非保底标签，“车456”表示保底小车与456星。
@@ -2289,16 +2297,11 @@ Q：限时活动是什么？
 A：限时签到活动 + 每日赠送寻访
 
 Q：信用交易所尽量买/不买指定商品？
-A：“信用多/少买” 填 “碳 家 加急 招”等关键字。填了速度会变慢。
+A：“信用多/少买” 填 “碳 家 急 招”等关键字。填了速度会变慢。
 
 Q：怎么备份、恢复、快速修改设置？
 A：所有设置均明文保存在固定目录，日志开头几行有打印目录。
 
-Q：怎么加速第n个制造站？
-A：只能加速第一个。手动用无人机交换下两个制造站的物品。
-
-Q：怎么加速贸易站？
-A：不行。
 ]])
 
   --   newRow(layout)
@@ -2820,7 +2823,9 @@ predebug_hook = function()
   -- exit()
 
   ssleep(1)
-  log(findOne("赤金站"))
+  log(point["制造站补货通知"])
+  log(findOne("制造站补货通知"))
+  -- log(findOne("赤金站"))
   -- log(findOnes("第一干员卡片"))
   -- tap("制造站进度")
   ssleep(1)
