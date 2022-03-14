@@ -2,18 +2,18 @@
 
 明日方舟全托管脚本，适配16:9及以上分辨率，等待耗时极低。
 
-<!-- ![](./cover.jpg) -->
-
 [视频演示](https://www.bilibili.com/video/BV1LM4y1F7kA)
 [每日任务速通最速记录35.25s](https://www.bilibili.com/video/BV1eQ4y1C7Ch)
 [7时21分速刷999源石锭](https://www.youtube.com/watch?v=PFBHJk7uk28)
+
+本项目使用GPL协议，请遵循[修改开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLRequireSourcePostedPublic)与[商用开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLCommercially)要求。
 
 ## 特点
 
 1. 支持明日方舟官服与B服。
 1. 支持真机、云手机、模拟器及虚拟机（安卓7至11，DPI>=320，分辨率>=720x1280，长宽比>=16:9）。
 1. 支持多账号、定时任务、亮屏解锁、自适应基建换班、完成后通知QQ等。
-1. 极低等待耗时，快过手操。全托管，高鲁棒。免root，热更新。
+1. 极低等待耗时，快过手操。全托管，高鲁棒。免root，热更新，免费开源。
 1. 支持集成战略刷投资，最速记录7时21分刷999源石锭，平均每小时135个。
 1. 不统计掉落，不支持无人机加速贸易站，不检测代理失误。
 
@@ -24,6 +24,7 @@
 ## 开发
 
 开发参考[懒人精灵IDE内文档](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)
+
 
 ## 对比
 
@@ -67,7 +68,7 @@
       <td>完成度高，按键精灵实现，支持迷迭香等跨站换班，支持抄作业，群号909610797</td>
    </tr>
    <tr>
-   <td><a href="https://www.aistool.com/">月明辅助</a></td>
+   <td><a href="https://www.aistool.com/">秋秋(原月明)辅助</a></td>
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>&#10006;</td>
@@ -76,7 +77,7 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高，细节设置多，老版用飞天助手实现，群号912397682</td>
+      <td>完成度高，细节设置多，老版用飞天助手实现，新版未公布，群号912397682</td>
    </tr>
    <tr>
    <td><a href="https://www.bilibili.com/video/BV1ML411x7gz">星火方舟</a></td>
