@@ -2352,8 +2352,8 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "beta_mode", "使用beta更新源", false)
 
-  addTextView(layout, "禁用多点同步点击")
-  ui.addEditText(layout, "disable_simultaneous_tap", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_simultaneous_tap","禁用多点同步点击", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "diable_oom_score_adj",

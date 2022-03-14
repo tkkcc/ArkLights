@@ -41,12 +41,18 @@ path.base = {
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
       -- if debug_mode then toast(username) end
-      input("inputbox", username)
       -- ssleep(.5) -- 等待输入法弹出
-      tap("okbutton")
-      -- appear("手机验证码登录")
-      disappear("inputbox")
+      if not wait(function()
+        input("inputbox", username)
+        tap("okbutton")
+        -- appear("手机验证码登录")
+        if findOne("手机验证码登录") and not findOne("okbutton") then
+          return true
+        end
+      end, 3) then return end
     end
+    if not appear("手机验证码登录", 1) then return end
+
     if #password > 0 then
       -- if debug_mode then toast(password) end
       if not wait(function()
@@ -58,14 +64,19 @@ path.base = {
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
       -- if debug_mode then toast(password) end
-      input("inputbox", password)
       -- ssleep(.5) -- 等待输入法弹出
-      tap('okbutton')
-      disappear("inputbox")
+      if not wait(function()
+        input("inputbox", password)
+        tap("okbutton")
+        -- appear("手机验证码登录")
+        if findOne("手机验证码登录") and not findOne("okbutton") then
+          return true
+        end
+      end, 3) then return end
       -- appear("手机验证码登录")
     end
 
-    if not appear("手机验证码登录") then return end
+    if not appear("手机验证码登录", 1) then return end
 
     -- local login_error_times = 0
     wait(function()
@@ -1918,10 +1929,13 @@ path.信用购买 = function()
   -- 按优先级排
   if type(low_priority_goods) == 'string' and type(high_priority_goods) ==
     'string' and (#low_priority_goods > 0 or #high_priority_goods > 0) then
+    keepCapture()
     local first_want = {}
     local last_want = {}
     local low_goods = low_priority_goods:filterSplit()
     local high_goods = high_priority_goods:filterSplit()
+    log("low_goods", low_goods)
+    log("high_goods", high_goods)
     for i, v in pairs(point.信用交易所列表) do
       local x, y = point[v]:match("(%d+)|(%d+)")
       x = str2int(x, 0)
@@ -1938,10 +1952,13 @@ path.信用购买 = function()
     end
     order = table.extend(first_want, order)
     table.extend(order, last_want)
+    releaseCapture()
   else
     order = range(1, 10)
   end
+
   log(1635, "信用物品排序", order)
+  -- exit()
   for _, i in pairs(order) do if f(i) then return end end
 end
 
