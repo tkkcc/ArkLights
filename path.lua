@@ -921,7 +921,7 @@ path.宿舍换班 = function()
     end, 10) then return end
 
   end
-  for i = 1, #dormitoryLevel do f(i) end
+  for i = 1, 4 do f(i) end
 end
 
 -- 各站数量与等级，直接全局变量
@@ -1040,6 +1040,9 @@ path.基建信息获取 = function()
   manufacturingStationNum = #manufacturingStation
 
   releaseCapture()
+
+  log(1216, tradingStationLevel, manufacturingStationLevel, powerStationLevel,
+      dormitoryLevel)
 end
 
 -- trading 是否是贸易站
@@ -1457,8 +1460,8 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
-  path.基建信息获取()
   if not disable_dorm_shift then path.宿舍换班() end
+  path.基建信息获取()
 
   if shift_prefer_speed == 1 then
     if not disable_manu_shift then path.制造换班() end

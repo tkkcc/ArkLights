@@ -568,19 +568,19 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     if all['Bskill_man_spd%26power3.png'] then
       station_only = true
       station = station + 0.15 * powerStationNum *
-                   all['Bskill_man_spd%26power3.png']
+                  all['Bskill_man_spd%26power3.png']
       table.extend(only_need, {'Bskill_man_spd%26power3.png'})
     end
     if all['Bskill_man_spd%26power2.png'] then
       station_only = true
       station = station + 0.1 * powerStationNum *
-                   all['Bskill_man_spd%26power2.png']
+                  all['Bskill_man_spd%26power2.png']
       table.extend(only_need, {'Bskill_man_spd%26power2.png'})
     end
     if all['Bskill_man_spd%26power1.png'] then
       station_only = true
       station = station + 0.05 * powerStationNum *
-                   all['Bskill_man_spd%26power1.png']
+                  all['Bskill_man_spd%26power1.png']
       table.extend(only_need, {'Bskill_man_spd%26power1.png'})
     end
     if all['Bskill_man_skill_spd.png'] then
@@ -591,6 +591,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
 
     if station_only then
       base = station
+      table.extend(only_need, {'Bskill_man_spd%26trade.png'})
     else
       base = base + station
     end

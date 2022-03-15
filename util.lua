@@ -2353,7 +2353,8 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "beta_mode", "使用beta更新源", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "disable_simultaneous_tap","禁用多点同步点击", false)
+  ui.addCheckBox(layout, "disable_simultaneous_tap", "禁用多点同步点击",
+                 false)
 
   newRow(layout)
   ui.addCheckBox(layout, "diable_oom_score_adj",
@@ -2823,6 +2824,14 @@ predebug_hook = function()
   -- exit()
 
   ssleep(1)
+  swipu("HD-8")
+  ssleep(1)
+  exit()
+  path.基建信息获取()
+
+  log(1217, tradingStationLevel, manufacturingStationLevel, powerStationLevel,
+      dormitoryLevel)
+  exit()
   log(point["制造站补货通知"])
   log(findOne("制造站补货通知"))
   -- log(findOne("赤金站"))
@@ -2901,7 +2910,7 @@ update_state_from_ui = function()
       fight[k] = extrajianpin2name[v]
     end
     -- log(2729, v)
-    if table.find({'活动', "WR", "IW"}, startsWithX(v)) then
+    if table.find({'活动', "GA", "WR", "IW"}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       fight[k] = "HD-" .. (idx or '')
       -- log(2731, v, idx)
@@ -2909,7 +2918,7 @@ update_state_from_ui = function()
   end
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
-  hd_open_time_end = parse_time("202202080400")
+  hd_open_time_end = parse_time("202203290400")
   all_open_time_start = parse_time("202202241600")
   all_open_time_end = parse_time("202203100400")
   update_open_time()
