@@ -8,7 +8,10 @@ path = {}
 -- wait_game_up 有必要做B服界面跳转吗：没有。做了之后，退出账号难实现
 
 path.base = {
-  面板 = true,
+  面板 = function()
+    login_error_times = 0
+    return true
+  end,
   下载资源确认 = "下载资源确认",
   资源下载确定 = "资源下载确定",
   start黄框 = function()
@@ -43,10 +46,10 @@ path.base = {
       -- if debug_mode then toast(username) end
       -- ssleep(.5) -- 等待输入法弹出
       if not wait(function()
-        input("inputbox", username)
+        wait(function() input("inputbox", username) end, 1)
         tap("okbutton")
         -- appear("手机验证码登录")
-        if findOne("手机验证码登录") and not findOne("okbutton") then
+        if appear("手机验证码登录", 1) and not findOne("okbutton") then
           return true
         end
       end, 3) then return end
@@ -66,10 +69,10 @@ path.base = {
       -- if debug_mode then toast(password) end
       -- ssleep(.5) -- 等待输入法弹出
       if not wait(function()
-        input("inputbox", password)
+        wait(function() input("inputbox", password) end, 1)
         tap("okbutton")
         -- appear("手机验证码登录")
-        if findOne("手机验证码登录") and not findOne("okbutton") then
+        if appear("手机验证码登录", 1) and not findOne("okbutton") then
           return true
         end
       end, 3) then return end
@@ -81,25 +84,21 @@ path.base = {
     -- local login_error_times = 0
     wait(function()
       tap("登录")
-      local p = appear({
-        "captcha2", "用户名或密码错误", "密码不能为空",
-        "单选确认框",
-      }, 2)
-      if p then
-        if p:startsWith("captcha") then wait_game_up() end
-
+      local p = appear({"captcha", "密码不能为空", "单选确认框"}, 2)
+      log(p)
+      if p == 'captcha' then
+        trySolveCapture()
+        appear("单选确认框")
+      end
+      if p == "密码不能为空" or p == "单选确认框" then
         return true
-        -- login_error_times = (login_error_times or 0) + 1
-        -- if login_error_times > 10 then stop("登录失败34", true) end
-        -- return true
       end
     end, 4)
     if findTap("单选确认框") then
+      log("login_error_times", login_error_times)
       login_error_times = (login_error_times or 0) + 1
-    else
-      login_error_times = 0
     end
-    if login_error_times > 10 then stop("单选确认框") end
+    if login_error_times > 2 then stop("单选确认框，密码错误？") end
   end),
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then
@@ -177,6 +176,7 @@ path.base = {
     end
   end,
   bilibili_framelayout_only = function() auto(path.bilibili_login) end,
+  bilibili_account_switch = function() auto(path.bilibili_login) end,
 }
 
 path.bilibili_login = {

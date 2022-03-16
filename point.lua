@@ -24,6 +24,10 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  captcha_area = {652, 150, 1255, 591},
+  captcha_left_area = {576, 150, 670, 591},
+  captcha_area_btn = {642, 712},
+  bilibili_account_switch = "1416|88|4FBDEA,1602|42|FFFFFF,1593|150|FFFFFF,286|82|FFFFFF",
   制造站最多 = "1446|307|404040",
   制造站执行更改 = "1420|847|00A5EF",
   贸易站设施列表 = {"127|319|00B1FF"},
@@ -82,13 +86,15 @@ point = {
   感谢典点击领取 = "1377|716|F6B900",
   -- 活动导航1 = "166|188|C3F4FC,199|164|313A52",
   -- 活动导航2 = "1520|877|FFE1A9",
-  活动导航1 ="1183|196|F0DFCF",
+  活动导航1 = "1183|196|F0DFCF",
   活动导航2 = "1677|708|C39A50",
-  captcha = {id = 'com.hypergryph.arknights:id/gt3_wait_tv2'},
-  captcha2 = {
-    class = "android.webkit.WebView",
-    package = "com.hypergryph.arknights",
-  },
+  -- captcha = {id = 'com.hypergryph.arknights:id/gt3_wait_tv2'},
+  -- captcha2 = {
+  --   class = "android.webkit.WebView",
+  --   package = "com.hypergryph.arknights",
+  -- },
+  -- captcha = "604|721|00D266,612|721|F9F9F9,594|721|F9F9F9",
+  captcha = "604|721|66D200,612|721|F9F9F9,594|721|F9F9F9",
   -- 技能ready = "1181|687|CBEC47,1191|697|FFFFFF,1203|708|CBEC47",
   -- 技能ready = "1192|699|FFFFFF,1314|691|CBEC47,1180|689|CBEC47",
   -- 技能ready = "1192|699|FFFFFF,1314|691|CBEC47,1180|689|CBEC47,1182|710|CBEC47",
@@ -1052,6 +1058,11 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  captcha_area = "center_center",
+  captcha_left_area = "center_center",
+  captcha_area_btn = "center_center",
+  captcha = "center_center",
+  bilibili_account_switch = "center_top",
   制造站最多 = "right_center",
   制造站执行更改 = "right_center",
   制造站补货通知 = "right_top",

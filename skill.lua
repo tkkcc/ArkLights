@@ -96,20 +96,33 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
   -- 异步滑动
   -- local delay = swipo(false, true)
   -- local start_time = time()
+  -- local w, h, color = getScreenPixel(table.unpack(point.第一干员卡片范围))
 
-  local corner = findOnes("第一干员卡片")
-  corner = table.filter(corner, function(v) return v.x < scale(1590) end)
+  local prewhite = 0
+  local y = scale(380)
+  local corner = {}
+  for x = scale(600), scale(1590) do
+    if cmpColor(x, y, 'FFFFFF', default_findcolor_confidence) == 1 then
+      prewhite = prewhite + 1
+    elseif prewhite > scale(8) and
+      cmpColor(x, y, '898989', default_findcolor_confidence) == 1 then
+      prewhite=0
+      table.insert(corner,x)
+    end
+  end
+  log(113, #corner)
+
   local card = {}
   if #corner == 0 then
     log("基建换班找不到卡片")
     return
   end
   local prex = -math.huge
-  for _, v in pairs(corner) do
-    if v.x - prex > scale(207) then
-      prex = v.x
-      table.insert(card, {v.x, v.y})
-      table.insert(card, {v.x, scale(801)})
+  for _, x in pairs(corner) do
+    if x - prex > scale(207) then
+      prex = x
+      table.insert(card, {x, scale(379)})
+      table.insert(card, {x, scale(801)})
     end
   end
 

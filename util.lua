@@ -1288,7 +1288,7 @@ appear = function(target, timeout, interval, disappear)
   if not (type(target) == 'table' and #target > 0) then target = {target} end
   return wait(function()
     for _, v in pairs(target) do
-      -- log(type(v), #v, v, findNode(v))
+      -- log(1291, type(v), #v, v, findNode(v))
       if disappear then
         if type(v) == "function" and not v() then
           return v
@@ -1314,6 +1314,23 @@ disappear = function(target, timeout, interval)
   return appear(target, timeout, interval, true)
 end
 
+trySolveCapture = function()
+  if not findOne("captcha") then return end
+  solveCapture()
+  if not appear("game", 5) then
+    local msg =
+      "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
+    toast(msg)
+    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+                            table.join(qqmessage, ' ') .. msg, QQ)
+    if not appear("game", 120) then
+      back()
+      if not appear("game", 5) then closeapp(appid) end
+      stop("验证码", true)
+    end
+  end
+end
+
 wait_game_up = function(retry)
   if disable_game_up_check then return end
   local prev = disable_game_up_check
@@ -1323,31 +1340,17 @@ wait_game_up = function(retry)
     return
   end
   retry = retry or 0
-  -- if retry == 4 then
-  --   home()
-  --   ssleep(2)
-  -- end
   if retry == 2 then closeapp(appid) end
   if retry >= 4 then stop("不能启动游戏") end
+
   open(appid)
   oom_score_adj()
   screenon()
   request_game_permission()
-  local p = appear(
-              {"game", "keyguard_indication", "keyguard_input", "captcha2"}, 5)
-
-  if p and p:startsWith("captcha") then
-    local msg =
-      "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
-    toast(msg)
-    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                            table.join(qqmessage, ' ') .. msg, QQ)
-    if not disappear("captcha2", 120) then
-      back()
-      if not disappear("captcha2", 5) then closeapp(appid) end
-      stop("验证码", true)
-    end
-  end
+  local p = appear({"game", "keyguard_indication", "keyguard_input", "captcha"},
+                   5)
+  log(1211)
+  trySolveCapture()
   log(1212)
   checkScreenLock()
   log(1213)
@@ -1781,6 +1784,11 @@ show_multi_account_ui = function()
   addTextView(layout, "切号前关闭")
   ui.addCheckBox(layout, "multi_account_end_closeotherapp", "其他服", true)
   ui.addCheckBox(layout, "multi_account_end_closeapp", "当前服", false)
+
+  -- newRow(layout)
+  -- addTextView(layout, "单号最大登录次数")
+  -- ui.addEditText(layout, "max_login_times", "")
+
   newRow(layout)
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
@@ -2163,7 +2171,8 @@ A：“高产”换班根据已有基建技能效果穷举计算单站最优组�
 0. 只考虑制造站贸易站收益。只考虑当前站最优，并非同类站总和最优。
 1. 忽略其他站技能效果（迷迭香、焰尾、森蚺），忽略“意识协议”技能（水月）效果。
 3. 部分技能效果采用近似估计，且假定每次换班间隔8小时。
-9. 有问题反馈下。
+9. 检查各站效率加成正常，手换下看看会不会更高，有问题反馈。
+
 
 Q：怎么加速第n个制造站？
 A：只能加速第一个。自己手动交换下两个制造站的物品。
@@ -2199,7 +2208,7 @@ Q：通知QQ无效？
 A：一是分辨率过高导致截图超过10M被服务端拒绝，二是机器人仍然无法向你发消息，可以加反馈群，机器人能以“群临时会话”方式向你发消息。
 
 Q：QQ通知没图片？
-A：QQ每日发图总数量有上限。目前找不到更好的推送服务。
+A：QQ每日发图总量有上限，到下午就发不了图。目前找不到更好的推送服务。
 
 Q：定时任务无效？
 A：任务完成后，如果设了定时，脚本会等到下个定时点再做。不按“仅定时”或“启动并定时”无效。注意系统时区是不是东八区。
@@ -2257,8 +2266,8 @@ A：先看左下角图标有无绿边，有绿边先按音量加停止脚本，�
 Q：手指点屏幕没反应？
 A：脚本运行中极难点击，先按音量加停止脚本。或狂按红色停止按钮。
 
-Q：账号被抢登/抢占会怎么样？
-A：重登后执行后续任务。调试设置中可设最大登录次数为2，则被抢登或掉线一次时跳过(多号)或等10分钟(单号)，仅官服有效。
+Q：账号被抢登/抢占或掉线会怎么样？
+A：重登后执行后续任务。调试设置中可设“单号最大登录次数”为2，则被抢登或掉线1次时跳过(多号)或等10分钟(单号)。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
 
 Q：脚本什么原理？
 A：脚本通过无障碍录屏方式获取屏幕，判断状态，执行相应的操作，即所谓的图色脚本。
@@ -2273,7 +2282,7 @@ Q：脚本需要游戏在什么界面时启动？
 A：几乎所有。
 
 Q：登陆出现滑动验证码？
-A：一段时间内多次登陆时出现。正在接入解法。
+A：一段时间内多次登陆时出现。官服会自动解，B服不会。
 
 Q：无限循环启动/无限重启/24小时刷/无等待？
 A：定时任务写“+0:00”。
@@ -2824,8 +2833,17 @@ predebug_hook = function()
   -- exit()
 
   ssleep(1)
-  swipu("HD-8")
-  ssleep(1)
+  disable_game_up_check = 1
+  solveCapture()
+
+  -- log(findOne("captcha"))
+  exit()
+
+  log(1)
+  local p = appear({"game", "keyguard_indication", "keyguard_input", "captcha"},
+                   5)
+  log(p)
+  -- log(findOne("captcha2"))
   exit()
   path.基建信息获取()
 
@@ -3283,6 +3301,138 @@ oom_score_adj = function()
   exec("su root sh -c '" .. cmd .. "'")
   -- log("oom_score_adj:" .. get(package) .. get(package .. ":acc") ..
   --       get(package .. ":remote"))
+end
+
+solveCapture = function()
+  log("solve")
+
+  keepCapture()
+
+  local w, h, color
+  local i, j, b, g, r
+  local best, best_score, best_left, best_right
+  local data
+  local maxgrad
+  local diff1, diff2, y1, y2, y3
+  w, h, color = getScreenPixel(table.unpack(point.captcha_area))
+  data = {}
+  for i = 1, #color do
+    b, g, r = colorToRGB(color[i])
+    table.extend(data, {r, g, b})
+  end
+
+  maxgrad = {}
+  for i = w + 1, #color do
+    y1 = (0.299 * data[i * 3 - 2] + 0.587 * data[i * 3 - 1] + 0.114 *
+           data[i * 3])
+    y2 =
+      (0.299 * data[(i - 2) * 3 - 2] + 0.587 * data[(i - 2) * 3 - 1] + 0.114 *
+        data[(i - 2) * 3])
+    y3 =
+      (0.299 * data[(i - w) * 3 - 2] + 0.587 * data[(i - w) * 3 - 1] + 0.114 *
+        data[(i - w) * 3])
+    diff1 = y1 - y2
+    diff2 = y1 - y3
+    maxgrad[i % w] = (maxgrad[i % w] or 0) + max(0, diff1) /
+                       (1 + math.abs(diff2))
+  end
+
+  -- local best = {}
+  -- for i = 4, #maxgrad do
+  --   table.insert(best, {maxgrad[i], i + point.captcha_area[1]})
+  -- end
+  -- table.sort(best, function(a, b) return a[1] > b[1] end)
+  -- log(table.slice(best, 1, 10))
+  -- exit()
+
+  best = 1
+  best_score = 0
+  for i = 4, #maxgrad do
+    if best_score < maxgrad[i] then
+      best_score = maxgrad[i]
+      best = i
+    end
+  end
+
+  best_right = best + point.captcha_area[1]
+
+  w, h, color = getScreenPixel(table.unpack(point.captcha_left_area))
+  data = {}
+  for i = 1, #color do
+    b, g, r = colorToRGB(color[i])
+    table.extend(data, {r, g, b})
+  end
+  maxgrad = {}
+  for i = w + 1, #color do
+    y1 = (0.299 * data[i * 3 - 2] + 0.587 * data[i * 3 - 1] + 0.114 *
+           data[i * 3])
+    y2 =
+      (0.299 * data[(i - 2) * 3 - 2] + 0.587 * data[(i - 2) * 3 - 1] + 0.114 *
+        data[(i - 2) * 3])
+    y3 =
+      (0.299 * data[(i - w) * 3 - 2] + 0.587 * data[(i - w) * 3 - 1] + 0.114 *
+        data[(i - w) * 3])
+    diff1 = y1 - y2
+    diff2 = y1 - y3
+    maxgrad[i % w] = (maxgrad[i % w] or 0) + max(0, -diff1) /
+                       (1 + math.abs(diff2))
+  end
+
+  -- local best = {}
+  -- for i = 4, #maxgrad do
+  --   table.insert(best, {maxgrad[i], i + point.captcha_area[1]})
+  -- end
+  -- table.sort(best, function(a, b) return a[1] > b[1] end)
+  -- log(table.slice(best,1,10))
+  -- exit()
+
+  best = 1
+  best_score = 0
+  for i = 4, #maxgrad do
+    if best_score < maxgrad[i] then
+      best_score = maxgrad[i]
+      best = i
+    end
+  end
+
+  best_left = best + point.captcha_left_area[1]
+  log(3399,best_left,best_right)
+  -- exit()
+
+  -- log(table.slice(best, 1, 10))
+  -- exit()
+  -- log(w, h, best, best_score, best + point.captcha_area[1])
+
+  -- for i = 1, #maxgrad do log(i, maxgrad[i]) end
+  -- log(point.captcha_area)
+  --
+  local distance = best_right - best_left
+  local sx, sy
+  sx = point.captcha_area_btn[1]
+  sy = point.captcha_area_btn[2]
+  local duration = 500
+  local finger = {
+    point = {
+      {sx, sy}, {sx + distance, sy},
+      {sx + distance + scale(10), sy - scale(100)},
+      {sx + distance + scale(10), sy},
+      {sx + distance + scale(10), sy - scale(100)},
+      {sx + distance + scale(10), sy},
+      {sx + distance - scale(10), sy - scale(100)},
+      {sx + distance - scale(10), sy},
+      {sx + distance - scale(10), sy - scale(100)},
+      {sx + distance - scale(10), sy}, {sx + distance, sy - scale(100)},
+      {sx + distance, sy}, {sx + distance, sy - scale(100)},
+      {sx + distance, sy}, {sx + distance, sy - scale(100)},
+      {sx + distance, sy},
+    },
+    duration = duration,
+  }
+  log(finger.point[1], finger.point[#finger.point])
+  gesture(finger)
+  sleep(duration + 50)
+
+  releaseCapture()
 end
 
 -- post_util_hook
