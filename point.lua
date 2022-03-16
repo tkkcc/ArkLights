@@ -89,12 +89,12 @@ point = {
   活动导航1 = "1183|196|F0DFCF",
   活动导航2 = "1677|708|C39A50",
   -- captcha = {id = 'com.hypergryph.arknights:id/gt3_wait_tv2'},
-  -- captcha2 = {
-  --   class = "android.webkit.WebView",
-  --   package = "com.hypergryph.arknights",
-  -- },
+  captcha = {
+    class = "android.webkit.WebView",
+    package = "com.hypergryph.arknights",
+  },
   -- captcha = "604|721|00D266,612|721|F9F9F9,594|721|F9F9F9",
-  captcha = "604|721|66D200,612|721|F9F9F9,594|721|F9F9F9",
+  -- captcha = "604|721|66D200,612|721|F9F9F9,594|721|F9F9F9",
   -- 技能ready = "1181|687|CBEC47,1191|697|FFFFFF,1203|708|CBEC47",
   -- 技能ready = "1192|699|FFFFFF,1314|691|CBEC47,1180|689|CBEC47",
   -- 技能ready = "1192|699|FFFFFF,1314|691|CBEC47,1180|689|CBEC47,1182|710|CBEC47",

@@ -1745,9 +1745,9 @@ make_account_ui = function(layout, prefix)
 
   newRow(layout)
   addTextView(layout, "信用多买")
-  ui.addEditText(layout, "high_priority_goods", "")
+  ui.addEditText(layout, prefix .. "high_priority_goods", "")
   addTextView(layout, "信用少买")
-  ui.addEditText(layout, "low_priority_goods", "")
+  ui.addEditText(layout, prefix .. "low_priority_goods", "")
 
   newRow(layout)
   addTextView(layout, "自动招募")
@@ -1925,10 +1925,12 @@ hotUpdate = function()
   local md5url = url .. '.md5'
   local path = getWorkPath() .. '/newscript.lr'
   local md5path = path .. '.md5'
+  log(1)
   if downloadFile(md5url, md5path) == -1 then
     toast("下载校验数据失败")
     return
   end
+  log(2)
   io.input(md5path)
   local expectmd5 = io.read() or '1'
   io.close()
@@ -1936,6 +1938,7 @@ hotUpdate = function()
     toast("已经是最新版")
     return
   end
+  log(3, expectmd5, loadConfig("lr_md5", "2"))
   if downloadFile(url, path) == -1 then
     toast("下载最新脚本失败")
     return
@@ -1945,8 +1948,11 @@ hotUpdate = function()
     return
   end
 
+  log(4, expectmd5)
   installLrPkg(path)
   saveConfig("lr_md5", expectmd5)
+  sleep(1000)
+  log(5, expectmd5, loadConfig("lr_md5", "2"))
   -- toast("已更新至最新")
   return restartScript()
 end
@@ -2836,6 +2842,7 @@ predebug_hook = function()
   disable_game_up_check = 1
   solveCapture()
 
+  -- log(point["captcha"])
   -- log(findOne("captcha"))
   exit()
 
@@ -3306,7 +3313,17 @@ end
 solveCapture = function()
   log("solve")
 
+  ssleep(1)
   keepCapture()
+  local node = findOne("captcha")
+  local left, top = node.bounds.l, node.bounds.t
+  point.captcha_area = {
+    left + scale(240), top + scale(40), left + scale(789), top + scale(481),
+  }
+  point.captcha_left_area = {
+    left + scale(105), top + scale(40), left + scale(196), top + scale(481),
+  }
+  point.captcha_area_btn = {left + scale(114), top + scale(609)}
 
   local w, h, color
   local i, j, b, g, r
@@ -3343,6 +3360,7 @@ solveCapture = function()
   -- end
   -- table.sort(best, function(a, b) return a[1] > b[1] end)
   -- log(table.slice(best, 1, 10))
+  -- log(point.captcha_area)
   -- exit()
 
   best = 1
@@ -3396,7 +3414,7 @@ solveCapture = function()
   end
 
   best_left = best + point.captcha_left_area[1]
-  log(3399,best_left,best_right)
+  log(3399, best_left, best_right)
   -- exit()
 
   -- log(table.slice(best, 1, 10))
