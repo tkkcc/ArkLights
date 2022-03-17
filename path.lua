@@ -716,7 +716,7 @@ end
 path.副手换人 = function()
   -- toast("副手换人还没修，等5秒提示消失")
   -- ssleep(5)
-  if 1 then return end
+  -- if 1 then return end
   path.跳转("基建")
 
   if not wait(function()
@@ -733,25 +733,18 @@ path.副手换人 = function()
 
   for i = 1, 5 do
     if not wait(function()
-      if findOne("副手确认蓝") then return true end
       tap("基建副手列表" .. i)
+      if findOne("副手确认蓝") then return true end
     end, 5) then return end
 
-    if not findOne("干员未选中") then
-      tap("干员选择列表1")
-      if not appear("干员未选中") then return end
-    end
-    local state = sample("信赖")
-    tap("信赖")
-    log("state", state)
-    disappear(state)
-    state = sample("信赖")
-    tap("信赖")
-    disappear(state)
     if not wait(function()
-      if not findOne("干员未选中") then return true end
-      tap("干员选择列表" .. i)
-      disappear("干员未选中", 2)
+      tap("干员选择列表7")
+      if appear("副手第七干员选中", 1) then return true end
+    end, 5) then return end
+
+    if not wait(function()
+      tap("干员选择列表" .. (i + 1))
+      if disappear("副手第七干员选中", 1) then return true end
     end, 5) then return end
 
     if not wait(function()
@@ -760,7 +753,6 @@ path.副手换人 = function()
       end
       tap("副手确认蓝")
     end, 5) then return end
-
   end
 end
 
@@ -845,7 +837,7 @@ path.宿舍换班 = function()
     if #operator > 0 and not wait(function()
       if not findOne("干员未选中") then return true end
       -- 慢机仍会漏换， miui13也是
-      ssleep(0.1)
+      ssleep(0.25)
       tapAll(operator)
       disappear("干员未选中", 2)
     end, 5) then return end
@@ -887,7 +879,7 @@ path.宿舍换班 = function()
       -- 选择后续干员
       operator = map(function(x) return "干员选择列表" .. x end,
                      range(1, 5))
-      ssleep(0.1)
+      ssleep(0.25)
       tapAll(operator)
 
       -- 进入筛选界面
@@ -1197,6 +1189,7 @@ path.制造换班 = function(trading)
     -- end, 5) then return end
 
     log("使用默认筛选")
+
     -- -- 筛选出无进驻技能排序
     -- if not wait(function()
     --   if findOne("筛选取消") then return true end
@@ -1366,7 +1359,7 @@ path.总览换班 = function()
             return true
           end
         end, 5) then return end
-        ssleep(0.5)
+        ssleep(0.25)
         tapAll(map(function(j) return "干员选择列表" .. j end,
                    range(2 * limit, limit + 1, -1)))
         if not wait(function()
@@ -1426,7 +1419,7 @@ path.总览换班 = function()
       if not findOne("干员未选中") then return true end
 
       -- 不得不等，不然不按序
-      ssleep(0.1)
+      ssleep(0.25)
       tapAll(map(function(j) return "干员选择列表" .. j end,
                  range(1, limit)))
       disappear("干员未选中", 2)
@@ -3352,7 +3345,7 @@ path.前瞻投资 = function()
       if first_time_see_first_card == 0 then
         first_time_see_first_card = time()
       end
-      if time() - first_time_see_first_card > 3000 then
+      if time() - first_time_see_first_card > 2000 then
         tap("指挥分队")
         appear("指挥分队确认", 1)
         ssleep(.5)

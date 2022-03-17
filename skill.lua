@@ -99,22 +99,24 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
   -- local w, h, color = getScreenPixel(table.unpack(point.第一干员卡片范围))
 
   local prewhite = 0
-  local y = scale(380)
+  -- TODO 是这个导致卡片没识别到吗
+  local y = scale(383)
   local corner = {}
   for x = scale(600), scale(1590) do
     if cmpColor(x, y, 'FFFFFF', default_findcolor_confidence) == 1 then
       prewhite = prewhite + 1
-    elseif prewhite > scale(8) and
+    elseif prewhite > scale(5) and
       cmpColor(x, y, '898989', default_findcolor_confidence) == 1 then
-      prewhite=0
-      table.insert(corner,x)
+      prewhite = 0
+      table.insert(corner, x)
     end
   end
   log(113, #corner)
 
   local card = {}
   if #corner == 0 then
-    log("基建换班找不到卡片")
+    toast("基建换班找不到卡片，请反馈开发者")
+    ssleep(5)
     return
   end
   local prex = -math.huge
@@ -126,7 +128,7 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     end
   end
 
-  log(card)
+  log(114, card)
   for idx, v in pairs(card) do
     -- 技能判断
     local icon1 = {
@@ -140,7 +142,10 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     if not mood_only then
       png = gg(icon1[1], icon1[2], icon1[3], icon1[4], pngdata)
       -- 已到结尾，返回
-      if not png then return true end
+      if not png then
+        log("page end", icon1, idx, v)
+        return true
+      end
       png2 = 'empty2.png'
       operator = skillpng2operator[png]
       if #operator == 1 then
@@ -476,7 +481,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     -- log(table.flatten(icons))
 
     -- 应用独立技能效果
-    for _, icon in pairs(table.flatten(icons)) do
+    for idx, icon in pairs(table.flatten(icons)) do
       if debug_mode then log(427, icon, icons, base, station) end
       all[icon] = (all[icon] or 0) + 1
       -- log(266, icon, goodType, base)
@@ -508,10 +513,12 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
       elseif icon == 'Bskill_man_spd2.png' then
         base = base + 0.25
       elseif icon == 'Bskill_man_limit%26cost3.png' then
-        table.insert(storage, 16)
+        storage[idx // 3] = (storage[idx // 3] or 0) + 16
+        -- table.insert(storage, 16)
       elseif icon == 'Bskill_man_spd%26limit%26cost3.png' then
         base = base + 0.25
-        table.insert(storage, -12)
+        storage[idx // 3] = (storage[idx // 3] or 0) - 12
+        -- table.insert(storage, -12)
       elseif icon == 'Bskill_man_spd_add1.png' then
         -- 8小时平均收益 ((0.2+0.24)/2*5+0.25*3)/8
         base = base + 0.23125
@@ -522,27 +529,40 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
         base = base + 0.15
       elseif icon == 'Bskill_man_spd%26limit3.png' then
         base = base + 0.1
-        table.insert(storage, 10)
+        storage[idx // 3] = (storage[idx // 3] or 0) + 10
+        -- table.insert(storage, 10)
       elseif icon == 'Bskill_man_spd%26limit1.png' then
         base = base + 0.1
-        table.insert(storage, 6)
+        -- table.insert(storage, 6)
+        storage[idx // 3] = (storage[idx // 3] or 0) + 6
       elseif icon == 'Bskill_man_spd%26limit%26cost2.png' then
         base = base - 0.05
-        table.insert(storage, 19)
+        -- table.insert(storage, 19)
+        storage[idx // 3] = (storage[idx // 3] or 0) + 19
       elseif icon == 'Bskill_man_spd%26limit%26cost1.png' then
         base = base - 0.05
-        table.insert(storage, 16)
+        -- table.insert(storage, 16)
+        storage[idx // 3] = (storage[idx // 3] or 0) + 16
       elseif icon == 'Bskill_man_spd%26limit%26cost4.png' then
         base = base - 0.2
-        table.insert(storage, 17)
+        -- table.insert(storage, 17)
+        storage[idx // 3] = (storage[idx // 3] or 0) + 17
       elseif icon == 'Bskill_man_exp%26limit2.png' then
-        if goodType == '作战记录' then table.insert(storage, 15) end
+        if goodType == '作战记录' then
+          -- table.insert(storage, 15)
+          storage[idx // 3] = (storage[idx // 3] or 0) + 15
+        end
       elseif icon == 'Bskill_man_exp%26limit1.png' then
-        if goodType == '作战记录' then table.insert(storage, 12) end
+        if goodType == '作战记录' then
+          -- table.insert(storage, 12) 
+          storage[idx // 3] = (storage[idx // 3] or 0) + 12
+        end
       elseif icon == 'Bskill_man_limit%26cost2.png' then
-        table.insert(storage, 10)
+        -- table.insert(storage, 10)
+        storage[idx // 3] = (storage[idx // 3] or 0) + 10
       elseif icon == 'Bskill_man_limit%26cost1.png' then
-        table.insert(storage, 8)
+        -- table.insert(storage, 8)
+        storage[idx // 3] = (storage[idx // 3] or 0) + 8
       elseif icon == 'Bskill_man_exp%26cost.png' then
         -- Vlog 心情消耗不考虑
       elseif icon == 'Bskill_man_originium2.png' then
@@ -685,13 +705,13 @@ gg = function(x1, y1, x2, y2, pngdata)
   -- log(s)
   -- exit()
   --
-  local best_score = 75
-  local threshold = 50
+  local best_score = 100
+  -- local threshold = 100
   local best = nil
   local score = 0
   local scoreBase = 0
   local pointScore = 0
-  local flatPoint = 0
+  -- local flatPoint = 0
   local abs = math.abs
 
   local flatScoreTable = {}
@@ -797,7 +817,7 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   -- exit()
   -- ==> 滑动获取所有技能
 
-  local maxSwipTimes = 5
+  local maxSwipTimes = 10
   local operator = {}
   for i = 1, maxSwipTimes do
     if discover(operator,

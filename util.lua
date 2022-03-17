@@ -2840,7 +2840,20 @@ predebug_hook = function()
 
   ssleep(1)
   disable_game_up_check = 1
-  solveCapture()
+  -- log(findOne("确认蓝"))
+  -- log(findOne("第一干员未选中"))
+  log(findOne("干员未选中"))
+  -- log(point.指挥分队)
+  -- log(findOne("指挥分队"))
+  exit()
+  local operator = {}
+  initPngdata()
+  discover(operator, tradingPngdata, 1)
+  -- discover(operator, manufacturingPngdata, 1)
+
+  log(operator)
+  exit()
+  -- solveCapture()
 
   -- log(point["captcha"])
   -- log(findOne("captcha"))
@@ -2865,13 +2878,6 @@ predebug_hook = function()
   ssleep(1)
   exit()
 
-  local operator = {}
-  initPngdata()
-  -- discover(operator, tradingPngdata, 1)
-  discover(operator, manufacturingPngdata, 1)
-
-  log(operator)
-  exit()
   swipo(true)
   for i = 1, 10 do swipo() end
   ssleep(1)
