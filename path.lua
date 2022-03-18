@@ -1239,6 +1239,7 @@ path.制造换班 = function(trading)
     log(1217, tradingStationLevel, manufacturingStationLevel, powerStationLevel,
         dormitoryLevel)
 
+    ssleep(1)
     chooseOperator(trading, type, stationLevel, tradingStationNum,
                    powerStationNum, dormitoryCapacity, dormitoryLevelSum,
                    goldStationNum)
@@ -3346,7 +3347,7 @@ path.前瞻投资 = function()
         first_time_see_first_card = time()
       end
       if time() - first_time_see_first_card > 2000 then
-        tap("指挥分队")
+        tap("指挥分队1")
         appear("指挥分队确认", 1)
         ssleep(.5)
         tap("指挥分队确认")

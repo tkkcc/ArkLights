@@ -482,6 +482,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
 
     -- 应用独立技能效果
     for idx, icon in pairs(table.flatten(icons)) do
+      operatoridx = (idx + 1) // 2
       if debug_mode then log(427, icon, icons, base, station) end
       all[icon] = (all[icon] or 0) + 1
       -- log(266, icon, goodType, base)
@@ -513,11 +514,11 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
       elseif icon == 'Bskill_man_spd2.png' then
         base = base + 0.25
       elseif icon == 'Bskill_man_limit%26cost3.png' then
-        storage[idx // 3] = (storage[idx // 3] or 0) + 16
+        storage[operatoridx] = (storage[operatoridx] or 0) + 16
         -- table.insert(storage, 16)
       elseif icon == 'Bskill_man_spd%26limit%26cost3.png' then
         base = base + 0.25
-        storage[idx // 3] = (storage[idx // 3] or 0) - 12
+        storage[operatoridx] = (storage[operatoridx] or 0) - 12
         -- table.insert(storage, -12)
       elseif icon == 'Bskill_man_spd_add1.png' then
         -- 8小时平均收益 ((0.2+0.24)/2*5+0.25*3)/8
@@ -529,40 +530,40 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
         base = base + 0.15
       elseif icon == 'Bskill_man_spd%26limit3.png' then
         base = base + 0.1
-        storage[idx // 3] = (storage[idx // 3] or 0) + 10
+        storage[operatoridx] = (storage[operatoridx] or 0) + 10
         -- table.insert(storage, 10)
       elseif icon == 'Bskill_man_spd%26limit1.png' then
         base = base + 0.1
         -- table.insert(storage, 6)
-        storage[idx // 3] = (storage[idx // 3] or 0) + 6
+        storage[operatoridx] = (storage[operatoridx] or 0) + 6
       elseif icon == 'Bskill_man_spd%26limit%26cost2.png' then
         base = base - 0.05
         -- table.insert(storage, 19)
-        storage[idx // 3] = (storage[idx // 3] or 0) + 19
+        storage[operatoridx] = (storage[operatoridx] or 0) + 19
       elseif icon == 'Bskill_man_spd%26limit%26cost1.png' then
         base = base - 0.05
         -- table.insert(storage, 16)
-        storage[idx // 3] = (storage[idx // 3] or 0) + 16
+        storage[operatoridx] = (storage[operatoridx] or 0) + 16
       elseif icon == 'Bskill_man_spd%26limit%26cost4.png' then
         base = base - 0.2
         -- table.insert(storage, 17)
-        storage[idx // 3] = (storage[idx // 3] or 0) + 17
+        storage[operatoridx] = (storage[operatoridx] or 0) + 17
       elseif icon == 'Bskill_man_exp%26limit2.png' then
         if goodType == '作战记录' then
           -- table.insert(storage, 15)
-          storage[idx // 3] = (storage[idx // 3] or 0) + 15
+          storage[operatoridx] = (storage[operatoridx] or 0) + 15
         end
       elseif icon == 'Bskill_man_exp%26limit1.png' then
         if goodType == '作战记录' then
           -- table.insert(storage, 12) 
-          storage[idx // 3] = (storage[idx // 3] or 0) + 12
+          storage[operatoridx] = (storage[operatoridx] or 0) + 12
         end
       elseif icon == 'Bskill_man_limit%26cost2.png' then
         -- table.insert(storage, 10)
-        storage[idx // 3] = (storage[idx // 3] or 0) + 10
+        storage[operatoridx] = (storage[operatoridx] or 0) + 10
       elseif icon == 'Bskill_man_limit%26cost1.png' then
         -- table.insert(storage, 8)
-        storage[idx // 3] = (storage[idx // 3] or 0) + 8
+        storage[operatoridx] = (storage[operatoridx] or 0) + 8
       elseif icon == 'Bskill_man_exp%26cost.png' then
         -- Vlog 心情消耗不考虑
       elseif icon == 'Bskill_man_originium2.png' then

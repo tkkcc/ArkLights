@@ -1725,7 +1725,7 @@ make_account_ui = function(layout, prefix)
   -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
   --                  -2, -2, true)
   ui.addRadioGroup(layout, prefix .. "shift_prefer_speed", {"极速", "高产"},
-                   0, -2, -2, true)
+                   1, -2, -2, true)
   addTextView(layout, "心情阈值")
   ui.addEditText(layout, prefix .. 'shift_min_mood', "12")
 
@@ -2217,7 +2217,14 @@ Q：QQ通知没图片？
 A：QQ每日发图总量有上限，到下午就发不了图。目前找不到更好的推送服务。
 
 Q：定时任务无效？
-A：任务完成后，如果设了定时，脚本会等到下个定时点再做。不按“仅定时”或“启动并定时”无效。注意系统时区是不是东八区。
+A：任务完成后，如果设了定时，脚本会等到下个定时点重启。不按“仅定时”或“启动并定时”无效。注意系统时区是不是东八区。
+
+Q：定时任务与刷源石锭冲突吗？
+A：刷源石锭是永不完成的任务，不受定时影响。
+
+Q：定时任务与刷源石锭冲突吗？
+A：刷源石锭是永不完成的任务，不受定时影响。
+
 
 Q：脚本有没有记忆？
 A：没有，每次运行完全独立，不依赖之前运行结果。
