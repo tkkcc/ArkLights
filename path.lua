@@ -2136,6 +2136,27 @@ path.开始游戏 = function(x, disable_ptrs_check)
       end
     end, 10) then return end
     return path.开始游戏(x)
+  elseif stone_times < max_stone_times and state == "药剂恢复理智取消" then
+    tap("源石恢复理智")
+    state = "源石恢复理智取消"
+    if not appear({state, '源石恢复理智不足'}) then
+      log(2143)
+      return
+    end
+    if findOne('源石恢复理智不足') then
+      log(2144)
+      return
+    end
+
+    stone_times = stone_times + 1
+    if not wait(function()
+      if findOne("开始行动") then return true end
+      if findOne(state) then
+        tap("药剂恢复理智确认")
+        disappear(state, 10)
+      end
+    end, 10) then return end
+    return path.开始游戏(x)
   elseif state == "源石恢复理智取消" or state ==
     "药剂恢复理智取消" or state == '源石恢复理智不足' then
     zero_san = true
@@ -3887,6 +3908,23 @@ path.前瞻投资 = function()
   fight2.l = max(point.第一层下一个[1], fight2.l)
   tap({fight2.l, fight2.t})
   if not appear("进入界面") then return end
+
+  local check_goods = function()
+    if type(zl_need_goods) ~= 'string' or #zl_need_goods:trim() == 0 then
+      return
+    end
+    local need_goods = zl_need_goods:filterSplit()
+    local goods1 = table.join(map(function(x) return x.text end,
+                                  ocr("战略第一行商品范围")))
+    local goods2 = table.join(map(function(x) return x.text end,
+                                  ocr("战略第二行商品范围")))
+    local goods = table.join({goods1, goods2})
+    if goods:includes(need_goods) then
+      stop("已遇到所需商品" .. goods, false)
+    end
+    log("未找到商品", goods, need_goods)
+  end
+
   local goto_next_level = function()
     if not zl_more_experience then return end
     -- 去第二层
@@ -3904,7 +3942,13 @@ path.前瞻投资 = function()
     -- if not findOne("战略帮助") then return true end
     if findOne("诡意行商投资") then return true end
     tap("进入")
-  end, 3) then return goto_next_level() end
+  end, 3) then
+    -- check_goods()
+    goto_next_level()
+    return
+  end
+  -- check_goods()
+
   -- if not appear("诡意行商投资", 1) then return goto_next_level() end
   if not wait(function()
     if findOne("诡意行商投币") then return true end
