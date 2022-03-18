@@ -967,8 +967,8 @@ zoom = function(retry)
   if findOne("正在提交反馈至神经") then retry = 0 end
 
   -- 2x2 pixel zoom
-  local duration = 50
-  local delay = 150
+  local duration = 150
+  local delay = 500
   local finger
   -- if debug then
   --   -- duration = 1000
@@ -992,7 +992,8 @@ zoom = function(retry)
     }
   end
   gesture(finger)
-  sleep(duration + delay)
+  sleep(duration + 50)
+  appear("缩放结束", delay)
 
   -- local start_time = time()
   -- if appear("缩放结束", (duration + 50) / 1000) then
@@ -1579,12 +1580,12 @@ tapAll = function(ks)
     table.insert(finger, {point = {{k[1], k[2]}}, duration = duration})
   end
   log('tapall', finger)
-  if not disable_simultaneous_tap then
+  if enable_simultaneous_tap then
     gesture(finger)
+    sleep(duration + 50)
   else
     for _, v in pairs(finger) do tap(v.point[1]) end
   end
-  sleep(duration + 50)
 end
 
 -- event queue
@@ -2352,9 +2353,9 @@ show_debug_ui = function()
   addTextView(layout, "x")
   ui.addEditText(layout, "force_height", [[]])
 
-  newRow(layout)
-  addTextView(layout, "多点点击时长(宿舍换班选不上人)")
-  ui.addEditText(layout, "tapall_duration", "")
+  -- newRow(layout)
+  -- addTextView(layout, "多点点击时长(宿舍换班选不上人)")
+  -- ui.addEditText(layout, "tapall_duration", "")
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
 
   newRow(layout)
@@ -2363,23 +2364,23 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "enable_simultaneous_tap", "启用多点同步点击",
+                 false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "diable_oom_score_adj",
+                 "禁用设置oom_score_adj为-1000", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "beta_mode", "使用调试更新源", false)
+
+  newRow(layout)
   ui.addCheckBox(layout, "debug_disable_log", "关日志", false)
   ui.addCheckBox(layout, "debug_mode", "开调试", false)
   addTextView(layout, "点击")
   ui.addEditText(layout, "tap_interval", "")
   addTextView(layout, "找色")
   ui.addEditText(layout, "findOne_interval", "")
-
-  newRow(layout)
-  ui.addCheckBox(layout, "beta_mode", "使用beta更新源", false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "disable_simultaneous_tap", "禁用多点同步点击",
-                 false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "diable_oom_score_adj",
-                 "禁用设置oom_score_adj为-1000", false)
 
   newRow(layout)
   ui.addEditText(layout, "before_account_hook", "-- before_account_hook")
@@ -2850,6 +2851,10 @@ predebug_hook = function()
 
   ssleep(1)
   disable_game_up_check = 1
+  tap("账号登录返回")
+  ssleep(1)
+  exit()
+
   zl_need_goods = "1"
   local check_goods = function()
     if type(zl_need_goods) ~= 'string' or #zl_need_goods:trim() == 0 then

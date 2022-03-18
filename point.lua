@@ -24,6 +24,7 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  账号登录返回  ="147|204|A2A2A2",
 
   战略第一行商品范围 = {607, 126, 1815, 196},
   战略第二行商品范围 = {610, 460, 1824, 505},

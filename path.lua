@@ -3248,7 +3248,18 @@ path.前瞻投资 = function()
   -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）
   if zl_disable_game_up_check then disable_game_up_check = true end
   -- 3.6.0发现当节点获取失效时，点击、找色其实都出问题了
-  --
+  path.base.账号登录 = function()
+    if not wait(function()
+      tap("账号登录返回")
+      if disappear("账号登录") then return true end
+    end, 10) then stop("登录需要密码") end
+  end
+  path.base.手机验证码登录 = function()
+    if not wait(function()
+      tap("账号登录返回")
+      if disappear("手机验证码登录") then return true end
+    end, 10) then stop("登录需要密码") end
+  end
 
   local in_fight_return = ''
   local restart = function()
