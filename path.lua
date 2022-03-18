@@ -743,6 +743,23 @@ path.副手换人 = function()
     end, 5) then return end
 
     if not wait(function()
+      if not findOne("副手确认蓝") and findOne("基建副手简报") then
+        return true
+      end
+      tap("副手确认蓝")
+    end, 5) then return end
+
+    if not wait(function()
+      tap("基建副手列表" .. i)
+      if findOne("副手确认蓝") then return true end
+    end, 5) then return end
+
+    if not wait(function()
+      tap("干员选择列表7")
+      if appear("副手第七干员选中", 1) then return true end
+    end, 5) then return end
+
+    if not wait(function()
       tap("干员选择列表" .. (i + 1))
       if disappear("副手第七干员选中", 1) then return true end
     end, 5) then return end

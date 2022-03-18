@@ -2939,6 +2939,7 @@ end
 
 update_state_from_ui = function()
   shift_min_mood = str2int(shift_min_mood, 12)
+  if shift_min_mood <= 0 or shift_min_mood >= 24 then shift_min_mood = 12 end
 
   -- 总览换班就按工作状态了，保证高心情
   -- prefer_skill = true

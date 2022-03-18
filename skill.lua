@@ -383,7 +383,7 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
   end
 
   -- 过滤心情小于阈值的干员
-  local minAllowedMood = 12
+  local minAllowedMood = shift_min_mood
   if disable_shift_mood then minAllowedMood = -1 end
   operator = table.filter(operator,
                           function(x) return x[3] >= minAllowedMood end)
@@ -635,7 +635,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
   end
 
   -- 过滤心情小于阈值的干员
-  local minAllowedMood = 12
+  local minAllowedMood = shift_min_mood
   if disable_shift_mood then minAllowedMood = -1 end
   operator = table.filter(operator,
                           function(x) return x[3] >= minAllowedMood end)
