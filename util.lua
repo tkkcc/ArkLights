@@ -967,7 +967,7 @@ zoom = function(retry)
   if findOne("正在提交反馈至神经") then retry = 0 end
 
   -- 2x2 pixel zoom
-  local duration = 150
+  local duration = 50
   local delay = 500
   local finger
   -- if debug then
@@ -982,18 +982,24 @@ zoom = function(retry)
   if retry % 2 == 0 then
     -- 华为云缩放bug
     finger = {
-      {point = {{5, 5}}, duration = duration},
-      {point = {{0, 0}, {5, 5}}, duration = duration},
+      {point = {{5, 0}}, duration = duration},
+      {point = {{0, 0}, {5, 0}}, duration = duration},
     }
   else
     finger = {
       {point = {{0, 0}}, duration = duration},
-      {point = {{5, 5}, {0, 0}}, duration = duration},
+      {point = {{0, 5}, {0, 0}}, duration = duration},
     }
   end
+-- local w =screen.width//2
+--   local h=screen.height//2
+--     finger = {
+--       {point = {{w-5,h-5}}, duration = duration},
+--       {point = {{w+5,h+5}, {w-5,h-5}}, duration = duration},
+--     }
   gesture(finger)
   sleep(duration + 50)
-  appear("缩放结束", delay)
+  appear("缩放结束", 0.5)
 
   -- local start_time = time()
   -- if appear("缩放结束", (duration + 50) / 1000) then
