@@ -1070,7 +1070,9 @@ run = function(...)
     if type(arg[1]) == "table" then arg = arg[1] end
   end
   qqmessage = {' '}
-  if account_idx ~= nil then
+  if qqnotify_quiet then
+    table.extend(qqmessage, {devicenote and devicenote or getDevice(), usernote})
+  elseif account_idx ~= nil then
     table.extend(qqmessage, {
       devicenote and devicenote or getDevice(), "账号" .. account_idx,
       server == 0 and "官服" or "B服", username, usernote,
@@ -2373,6 +2375,7 @@ show_debug_ui = function()
   addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
 
+
   newRow(layout)
   addTextView(layout, "强制分辨率")
   ui.addEditText(layout, "force_width", [[]])
@@ -2383,6 +2386,7 @@ show_debug_ui = function()
   -- addTextView(layout, "多点点击时长(宿舍换班选不上人)")
   -- ui.addEditText(layout, "tapall_duration", "")
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
+  
 
   newRow(layout)
   ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
@@ -2390,19 +2394,24 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_quiet", "QQ通知只显示备注", false)
+
+  newRow(layout)
   ui.addCheckBox(layout, "enable_simultaneous_tap", "启用多点同步点击",
                  false)
 
   newRow(layout)
   ui.addCheckBox(layout, "diable_oom_score_adj",
-                 "禁用设置oom_score_adj为-1000", false)
+                 "禁用oom_score_adj设置", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "beta_mode", "使用调试更新源", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "debug_disable_log", "关日志", false)
-  ui.addCheckBox(layout, "debug_mode", "开调试", false)
+  ui.addCheckBox(layout, "debug_disable_log", "关闭日志", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "debug_mode", "测试模式", false)
+  newRow(layout)
   addTextView(layout, "点击")
   ui.addEditText(layout, "tap_interval", "")
   addTextView(layout, "找色")
