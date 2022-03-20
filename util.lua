@@ -631,7 +631,7 @@ stop = function(msg, try_next_account)
   disable_log = false -- 强制开启日志
   toast(msg)
   captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                          table.join(qqmessage, ' ') .. msg, QQ)
+                          table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
   home()
   ssleep(2)
   if try_next_account then restart_next_account() end
@@ -970,6 +970,7 @@ zoom = function(retry)
   local duration = 50
   local delay = 500
   local finger
+
   -- if debug then
   --   -- duration = 1000
   --   -- delay = 1000
@@ -979,11 +980,16 @@ zoom = function(retry)
   --   }
   -- end
 
+  -- 特殊兼容 华为云 miui13
   if retry % 2 == 0 then
-    -- 华为云缩放bug
     finger = {
       {point = {{5, 0}}, duration = duration},
       {point = {{0, 0}, {5, 0}}, duration = duration},
+    }
+  elseif retry % 3 == 0 then
+    finger = {
+      {point = {{5, 5}}, duration = duration},
+      {point = {{0, 0}, {5, 5}}, duration = duration},
     }
   else
     finger = {
@@ -991,12 +997,12 @@ zoom = function(retry)
       {point = {{0, 5}, {0, 0}}, duration = duration},
     }
   end
--- local w =screen.width//2
---   local h=screen.height//2
---     finger = {
---       {point = {{w-5,h-5}}, duration = duration},
---       {point = {{w+5,h+5}, {w-5,h-5}}, duration = duration},
---     }
+  -- local w =screen.width//2
+  --   local h=screen.height//2
+  --     finger = {
+  --       {point = {{w-5,h-5}}, duration = duration},
+  --       {point = {{w+5,h+5}, {w-5,h-5}}, duration = duration},
+  --     }
   gesture(finger)
   sleep(duration + 50)
   appear("缩放结束", 0.5)
@@ -1066,8 +1072,13 @@ run = function(...)
   qqmessage = {' '}
   if account_idx ~= nil then
     table.extend(qqmessage, {
-      getDevice(), "账号" .. account_idx, server == 0 and "官服" or "B服",
-      username,
+      devicenote and devicenote or getDevice(), "账号" .. account_idx,
+      server == 0 and "官服" or "B服", username, usernote,
+    })
+  else
+    table.extend(qqmessage, {
+      devicenote and devicenote or getDevice(),
+      server == 0 and "官服" or "B服",
     })
   end
   init_state()
@@ -1903,10 +1914,12 @@ notifyqq = function(image, info, to, sync)
   image = image or ''
   info = info or ''
   to = to or ''
-  local id = lock:add()
   local param = "image=" .. encodeUrl(image) .. "&info=" .. encodeUrl(info) ..
                   "&to=" .. encodeUrl(to)
   log('notify qq', info, to)
+  if #to < 5 then return end
+
+  local id = lock:add()
   asynHttpPost(function(res, code)
     -- log("notifyqq response", res, code)
     lock:remove(id)
@@ -2019,6 +2032,7 @@ show_main_ui = function()
   newRow(layout)
   addTextView(layout, "完成后通知QQ")
   ui.addEditText(layout, "QQ", "")
+
   addButton(layout, layout .. "jump_qq_btn", "需加机器人好友",
             make_jump_ui_command(layout, nil, 'jump_qq()'))
 
@@ -2180,6 +2194,9 @@ A：
 Q：作战有没有状态/记忆？
 A：没有，脚本每次运行完全独立。
 
+Q：作战出现非三星代理是否跳过？
+A：连续出现三次后当前关无效，会跳过。
+
 Q：换班产率低？
 A：“高产”换班根据已有基建技能效果穷举计算单站最优组合，有以下限制：
 0. 只考虑制造站贸易站收益。只考虑当前站最优，并非同类站总和最优。
@@ -2212,7 +2229,7 @@ Q：线索满了给谁？
 A：优先给缺线索且今日登录的好友。
 
 Q：信用交易所尽量买/不买指定商品？
-A：“信用多/少买” 填 “碳 家 急 招”等关键字。
+A：“信用多/少买” 填关键字（如“碳 家 急 招”）。
 
 Q：限时活动是什么？
 A：限时签到、限时抽签、赠送寻访。
@@ -2224,13 +2241,16 @@ Q：QQ通知有什么用？
 A：任务完成后，机器人将把首页截图与可招募标签发给QQ。一般与 定时任务+云手机/模拟器/备用机 配合使用，这样平时只需检查聊天记录，无需接触游戏。
 
 Q：QQ通知怎么用？
-A：用自己QQ加机器人QQ为好友（机器人无需同意），将自己QQ填入脚本横线处，然后启动。
-
-Q：QQ通知无效？
-A：加反馈群，机器人将以“群临时会话”方式发消息。
+A：用自己QQ加机器人QQ为好友（机器人会自动同意），将自己QQ填入脚本横线处，然后启动。
 
 Q：QQ通知没图片？
-A：QQ每日发图总量有上限，到下午就发不了图。目前找不到更好的推送服务。
+A：QQ每日发图总量有上限。可以创建群聊，邀请机器人（机器人会自动同意），将群号填入脚本横线处。
+
+Q：QQ通知的设备名怎么设置？
+A：QQ号后加“#设备名”，如“1234 #雷电云5”
+
+Q：QQ通知的账号备注怎么设置？
+A：账号后加“#备注”，如“1234 #点点1”
 
 Q：定时任务无效？
 A：任务完成后，如果设了定时，脚本会等到下个定时点重启。不按“仅定时”或“启动并定时”无效。注意系统时区是不是东八区。
@@ -2857,6 +2877,9 @@ predebug_hook = function()
 
   ssleep(1)
   disable_game_up_check = 1
+  while true do
+    if findOne("行动结束") and findOne("零星代理") then log(2) end
+  end
   tap("账号登录返回")
   ssleep(1)
   exit()

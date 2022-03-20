@@ -112,7 +112,15 @@ path.base = {
 
     -- this calllback only works for 主线、资源、剿灭
     local unfinished
+
+    local first_time_see_zero_star
+    local zero_star
     if not wait(function()
+      if findOne("行动结束") and findOne("零星代理") then
+        first_time_see_zero_star = first_time_see_zero_star or time()
+        if time() - first_time_see_zero_star > 1000 then zero_star = true end
+      end
+
       if findOne("开始行动") and findOne("代理指挥开") then
         log(59)
         return true
@@ -128,6 +136,13 @@ path.base = {
     end, 60) then return end
 
     if unfinished then return path.base.接管作战() end
+
+    log("代理结束", cur_fight, "失败次数", fight_failed_times[cur_fight])
+    log(139, first_time_see_zero_star,zero_star)
+    if zero_star then
+      log("代理失败返回首页")
+      return path.跳转("首页")
+    end
 
     log(89, repeat_fight_mode)
     if repeat_fight_mode then return path.开始游戏('') end
@@ -1263,11 +1278,9 @@ path.制造换班 = function(trading)
 
     wait(function()
       tap("确认蓝")
-      if findAny({
-        "制造站设施列表1", "贸易站设施列表1", "隐藏",
-        "进驻信息", "进驻信息选中", "正在提交反馈至神经",
-        good,
-      }) then return true end
+      if findAny({"制造站设施列表1", "贸易站设施列表1"}) then
+        return true
+      end
     end, 5)
   end
 
@@ -3781,14 +3794,17 @@ path.前瞻投资 = function()
     end
     if findOne("生命值") then last_time_see_life = time() end
     -- 超过3秒没看到生命值
-    if time() - last_time_see_life > 5000 then return true end
+    if time() - last_time_see_life > 5000 then
+      tap("战略确认")
+      return true
+    end
     tap("开始行动")
     local p = findOne("技能亮")
     if p and skill_times < zl_skill_times then
       skill_times = skill_times + 1
       tap({p[1], p[2] + scale(200)})
-      appear("技能ready",5)
-    ssleep(0.5)
+      appear("技能ready", 5)
+      ssleep(0.5)
       wait(function()
         tap("开技能")
         if not findOne("技能ready") then return true end
