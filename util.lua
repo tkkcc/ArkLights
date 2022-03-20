@@ -1340,7 +1340,7 @@ trySolveCapture = function()
       "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
     toast(msg)
     captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                            table.join(qqmessage, ' ') .. msg, QQ)
+                            table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
     if not appear("game", 120) then
       back()
       if not appear("game", 5) then closeapp(appid) end
@@ -2033,7 +2033,7 @@ show_main_ui = function()
   addTextView(layout, "完成后通知QQ")
   ui.addEditText(layout, "QQ", "")
 
-  addButton(layout, layout .. "jump_qq_btn", "需加机器人好友",
+  addButton(layout, layout .. "jump_qq_btn", "加机器人好友",
             make_jump_ui_command(layout, nil, 'jump_qq()'))
 
   newRow(layout)
@@ -2194,8 +2194,8 @@ A：
 Q：作战有没有状态/记忆？
 A：没有，脚本每次运行完全独立。
 
-Q：作战出现非三星代理是否跳过？
-A：连续出现三次后当前关无效，会跳过。
+Q：作战出现非三星代理/代理失误时是否跳过？
+A：连续出现三次后当前关无效，会跳过。每次出现时会通知QQ。
 
 Q：换班产率低？
 A：“高产”换班根据已有基建技能效果穷举计算单站最优组合，有以下限制：
@@ -2241,16 +2241,16 @@ Q：QQ通知有什么用？
 A：任务完成后，机器人将把首页截图与可招募标签发给QQ。一般与 定时任务+云手机/模拟器/备用机 配合使用，这样平时只需检查聊天记录，无需接触游戏。
 
 Q：QQ通知怎么用？
-A：用自己QQ加机器人QQ为好友（机器人会自动同意），将自己QQ填入脚本横线处，然后启动。
+A：用自己QQ加机器人QQ（605597237）为好友（机器人会自动同意），将自己QQ填入脚本横线处，然后启动。
 
 Q：QQ通知没图片？
 A：QQ每日发图总量有上限。可以创建群聊，邀请机器人（机器人会自动同意），将群号填入脚本横线处。
 
 Q：QQ通知的设备名怎么设置？
-A：QQ号后加“#设备名”，如“1234 #雷电云5”
+A：QQ号后加“#设备名”，如“1009619697#雷电云5”
 
 Q：QQ通知的账号备注怎么设置？
-A：账号后加“#备注”，如“1234 #点点1”
+A：账号后加“#备注”，如“13888888888#点点1”
 
 Q：定时任务无效？
 A：任务完成后，如果设了定时，脚本会等到下个定时点重启。不按“仅定时”或“启动并定时”无效。注意系统时区是不是东八区。

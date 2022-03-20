@@ -138,9 +138,13 @@ path.base = {
     if unfinished then return path.base.接管作战() end
 
     log("代理结束", cur_fight, "失败次数", fight_failed_times[cur_fight])
-    log(139, first_time_see_zero_star,zero_star)
+    log(139, first_time_see_zero_star, zero_star)
     if zero_star then
       log("代理失败返回首页")
+
+      captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+                              table.join(qqmessage, ' ') .. " " .. cur_fight ..
+                              "代理失败", QQ)
       return path.跳转("首页")
     end
 
