@@ -981,15 +981,16 @@ zoom = function(retry)
   -- end
 
   -- 特殊兼容 华为云 miui13
-  if retry % 2 == 0 then
+  if retry % 3 == 1 then
     finger = {
       {point = {{5, 0}}, duration = duration},
       {point = {{0, 0}, {5, 0}}, duration = duration},
     }
   elseif retry % 3 == 0 then
+    duration = 150
     finger = {
-      {point = {{5, 5}}, duration = duration},
-      {point = {{0, 0}, {5, 5}}, duration = duration},
+      {point = {{0, 0}}, duration = duration},
+      {point = {{5, 5}, {0, 0}}, duration = duration},
     }
   else
     finger = {
@@ -1767,7 +1768,7 @@ make_account_ui = function(layout, prefix)
   addTextView(layout, "信用多买")
   ui.addEditText(layout, prefix .. "high_priority_goods", "")
   addTextView(layout, "信用少买")
-  ui.addEditText(layout, prefix .. "low_priority_goods", "")
+  ui.addEditText(layout, prefix .. "low_priority_goods", "碳")
 
   newRow(layout)
   addTextView(layout, "自动招募")
@@ -1947,12 +1948,10 @@ hotUpdate = function()
   local md5url = url .. '.md5'
   local path = getWorkPath() .. '/newscript.lr'
   local md5path = path .. '.md5'
-  log(1)
   if downloadFile(md5url, md5path) == -1 then
     toast("下载校验数据失败")
     return
   end
-  log(2)
   io.input(md5path)
   local expectmd5 = io.read() or '1'
   io.close()
@@ -1960,7 +1959,7 @@ hotUpdate = function()
     toast("已经是最新版")
     return
   end
-  log(3, expectmd5, loadConfig("lr_md5", "2"))
+  -- log(3, expectmd5, loadConfig("lr_md5", "2"))
   if downloadFile(url, path) == -1 then
     toast("下载最新脚本失败")
     return
@@ -1969,13 +1968,11 @@ hotUpdate = function()
     toast("脚本校验失败")
     return
   end
-
-  log(4, expectmd5)
   installLrPkg(path)
   saveConfig("lr_md5", expectmd5)
   sleep(1000)
-  log(5, expectmd5, loadConfig("lr_md5", "2"))
-  -- toast("已更新至最新")
+  -- log(5, expectmd5, loadConfig("lr_md5", "2"))
+  log("已更新至最新")
   return restartScript()
 end
 
@@ -2375,7 +2372,6 @@ show_debug_ui = function()
   addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
 
-
   newRow(layout)
   addTextView(layout, "强制分辨率")
   ui.addEditText(layout, "force_width", [[]])
@@ -2386,7 +2382,6 @@ show_debug_ui = function()
   -- addTextView(layout, "多点点击时长(宿舍换班选不上人)")
   -- ui.addEditText(layout, "tapall_duration", "")
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
-  
 
   newRow(layout)
   ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
@@ -2401,8 +2396,8 @@ show_debug_ui = function()
                  false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "diable_oom_score_adj",
-                 "禁用oom_score_adj设置", false)
+  ui.addCheckBox(layout, "diable_oom_score_adj", "禁用oom_score_adj设置",
+                 false)
 
   newRow(layout)
   ui.addCheckBox(layout, "beta_mode", "使用调试更新源", false)
