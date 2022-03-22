@@ -981,16 +981,10 @@ zoom = function(retry)
   -- end
 
   -- 特殊兼容 华为云 miui13
-  if retry % 3 == 1 then
+  if retry % 2 == 0 then
     finger = {
       {point = {{5, 0}}, duration = duration},
       {point = {{0, 0}, {5, 0}}, duration = duration},
-    }
-  elseif retry % 3 == 0 then
-    duration = 150
-    finger = {
-      {point = {{0, 0}}, duration = duration},
-      {point = {{5, 5}, {0, 0}}, duration = duration},
     }
   else
     finger = {
@@ -1773,7 +1767,7 @@ make_account_ui = function(layout, prefix)
   newRow(layout)
   addTextView(layout, "自动招募")
   ui.addCheckBox(layout, prefix .. "auto_recruit0", "其他", false)
-  ui.addCheckBox(layout, prefix .. "auto_recruit1", "车", true)
+  ui.addCheckBox(layout, prefix .. "auto_recruit1", "车", false)
   ui.addCheckBox(layout, prefix .. "auto_recruit4", "4", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit5", "5", false)
   ui.addCheckBox(layout, prefix .. "auto_recruit6", "6", false)
@@ -2197,11 +2191,11 @@ Q：作战出现非三星代理/代理失误时是否跳过？
 A：连续出现三次后当前关无效，会跳过。每次出现时会通知QQ。
 
 Q：换班产率低？
-A：“高产”换班根据已有基建技能效果穷举计算单站最优组合，有以下限制：
+A：“高产”换班根据 当前实际可用基建技能 穷举所有干员组合，计算每个组合8小时平均加成，选择最高加成组合，有以下限制：
 0. 只考虑制造站贸易站收益。只考虑当前站最优，并非同类站总和最优。
 1. 忽略其他站技能效果（迷迭香、焰尾、森蚺），忽略“意识协议”技能（水月）效果。
 3. 部分技能效果采用近似估计，且假定每次换班间隔8小时。
-9. 检查各站效率加成正常，手换下看看会不会更高，有问题反馈下。
+9. 检查各站效率加成正常，动手换下看看会不会更高，有问题反馈下。
 
 Q：怎么加速第n个制造站？
 A：只能加速第一个。自己手动交换下两个制造站的物品。

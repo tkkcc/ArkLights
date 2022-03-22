@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 {
+  root=$(dirname "$0")
   init() {
     declare -A serial
     # serial=([k40]=df7592c8 [l]=localhost:5555 [z9]=z9:5555 [z9v]=z9:5667 )
@@ -38,6 +39,10 @@
   }
   beta() {
     release 'script.lr.beta'
+  }
+  extract() {
+    unzip arknights-hg-1751.apk -d arknights
+    ./extract.py arknights/assets/AB/Android arknights_extract
   }
   release() {
     local lr=${1:-script.lr}
@@ -142,7 +147,7 @@
     mkdir -p "$dst"
     mogrify -path "$dst" -alpha remove -alpha off -background '#3D3D3D' "$src"/'*.png'
   }
-  fetchicon() {
+  fetchbuildingskill() {
     local a="prts.wiki/images/5/5f/Bskill_ctrl_p_spd.png
 prts.wiki/images/2/2e/Bskill_ctrl_token_p_spd.png
 prts.wiki/images/8/85/Bskill_ctrl_p_bot.png
@@ -480,6 +485,17 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     zip release/skill.zip -q -r -j png_noalpha
     local md5=$(md5sum release/skill.zip | cut -d' ' -f1)
     echo $md5 >release/skill.zip.md5
+  }
+  buildingskill(){
+    local png=$root/arknights_extract/assets/torappu/dynamicassets/arts/building/skills/'bskill*.png'
+    rm -rf png_noalpha
+    mkdir png_noalpha
+    noalpha $png png_noalpha
+    find png_noalpha -not -name 'bskill_*' -delete
+    touch png_noalpha/.nomedia
+    zip skill.zip -q -r -j png_noalpha
+    local md5=$(md5sum skill.zip | cut -d' ' -f1)
+    echo $md5 >skill.zip.md5
   }
   "$@"
   wait
