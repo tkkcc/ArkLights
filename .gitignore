@@ -6,3 +6,5 @@
 *.mp4
 *.ove
 *.ogg
+/extract.py
+/*/
