@@ -2471,7 +2471,7 @@ show_extra_ui = function()
   ui.addEditText(layout, layout .. "_recruit_important_tag", [[]])
   newRow(layout)
   addTextView(layout,
-              [[用于刷黄绿票，或刷出指定标签。使用加急券在第一个公招位反复执行“公招刷新”，沿用脚本主页的“自动招募”设置。“自动招募”只勾“其他”时，刷到保底就会停；只勾“其他”、“车”、“4”时，刷到资深才会停。在此基础上如果想刷到“削弱”或“支援”就停，则“保留标签”填“削弱 支援”。5秒内没识别出标签也会出现反复进入退出，遇到可以反馈下。]])
+              [[用于刷黄绿票，或刷出指定标签。使用加急券在第一个公招位反复执行“公招刷新”，沿用脚本主页的“自动招募”设置。“自动招募”只勾“其他”时，刷出保底标签就停；只勾“其他”、“4”时，刷出保底小车、保底5星、资深就停；其余同理。如果想刷到指定标签就停，则“保留标签”填期望标签（例如填“削弱 快速复活”）。]])
 
   newRow(layout)
   addButton(layout, layout .. "_speedrun", "每日任务速通（别用）",
@@ -2875,6 +2875,11 @@ predebug_hook = function()
 
   ssleep(1)
   disable_game_up_check = 1
+  tap("开始行动")
+  log(point["返回确认界面"])
+  log(findOne("返回确认界面"))
+  exit()
+
   while true do
     if findOne("行动结束") and findOne("零星代理") then log(2) end
   end
@@ -3118,7 +3123,10 @@ consoleInit = function()
   console.clearLog()
   console.setPos(round(screen.height * 0.05), round(screen.height * 0.05),
                  round(screen.height * 0.9), round(screen.height * 0.9))
-  console.setTitle("日志")
+  local screen = getScreen()
+  local resolution = screen.width .. 'x' .. screen.height
+  console.setTitle(resolution)
+
   console.show()
   console.dismiss()
 end

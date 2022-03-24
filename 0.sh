@@ -102,7 +102,7 @@
     mkdir -p $dst
     while IFS= read -r -d '' f; do
       iconv -f UTF-8 -t GB18030 "$f" -o "$dst/$f"
-    done < <(find . -type f -name '*.lua' -printf '%P\0')
+    done < <(find . -maxdepth 1 -type f -name '*.lua'  -printf '%P\0')
     dst="$dst_dir"/界面
     mkdir -p $dst
     while IFS= read -r -d '' f; do

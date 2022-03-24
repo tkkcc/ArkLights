@@ -32,7 +32,8 @@ path.base = {
   手机验证码登录 = disable_game_up_check_wrapper(function()
     if appid ~= oppid then return end
     if not username or #username == 0 or not password or #password == 0 then
-      stop("账号或密码为空")
+      -- 单账号直接停，多账号跳过
+      stop("账号或密码为空", account_idx and true or false)
     end
     if #username > 0 then
       if not wait(function()
@@ -102,12 +103,12 @@ path.base = {
   end),
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then
-      stop("正在释放神经递质")
+      stop("正在释放神经递质超1小时")
     end
   end,
   接管作战 = function()
-    if not disappear("接管作战", 24 * 60 * 60, 1) then
-      stop("接管作战")
+    if not disappear("接管作战", 8 * 60 * 60, 1) then
+      stop("接管作战超8小时")
     end
 
     -- this calllback only works for 主线、资源、剿灭
@@ -125,12 +126,24 @@ path.base = {
         log(59)
         return true
       end
+
       if findOne("接管作战") then
         unfinished = true
         return true
       end
+
       -- 战斗记录未同步
       if findOne("返回确认界面") then tap("左取消") end
+
+      -- 掉线
+      if findAny({
+        "开始唤醒", "bilibili_account_switch", "面板",
+        "手机验证码登录",
+      }) then
+        log(60)
+        return true
+      end
+
       tap("开始行动")
       appear({"开始行动", "接管作战"}, 1)
     end, 60) then return end
@@ -3282,18 +3295,19 @@ path.前瞻投资 = function()
   -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）
   if zl_disable_game_up_check then disable_game_up_check = true end
   -- 3.6.0发现当节点获取失效时，点击、找色其实都出问题了
-  path.base.账号登录 = function()
-    if not wait(function()
-      tap("账号登录返回")
-      if disappear("账号登录") then return true end
-    end, 10) then stop("登录需要密码") end
-  end
-  path.base.手机验证码登录 = function()
-    if not wait(function()
-      tap("账号登录返回")
-      if disappear("手机验证码登录") then return true end
-    end, 10) then stop("登录需要密码") end
-  end
+  --
+  -- path.base.账号登录 = function()
+  --   if not wait(function()
+  --     tap("账号登录返回")
+  --     if disappear("账号登录") then return true end
+  --   end, 10) then stop("登录需要密码", false) end
+  -- end
+  -- path.base.手机验证码登录 = function()
+  --   if not wait(function()
+  --     tap("账号登录返回")
+  --     if disappear("手机验证码登录") then return true end
+  --   end, 10) then stop("登录需要密码", false) end
+  -- end
 
   local in_fight_return = ''
   local restart = function()
