@@ -1898,7 +1898,7 @@ show_multi_account_ui = function()
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
   addTextView(layout,
-              [[“启用账号”填“2”表示跑第2个号，填“8 4 2”表示依次跑第8第4第2个号，填“2-10”表示从第2跑到第10，填“1-10 1-10”表示前10个号跑两轮。账密为空则不做账号退出。]])
+              [[“启用账号”填数字“2 4”表示跑第2第4两个号，填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。账密为空时不做账号退出。抢登处理看必读。]])
 
   newRow(layout, layout .. "_save_row", "center")
   ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
@@ -2971,6 +2971,12 @@ predebug_hook = function()
 
   ssleep(1)
   disable_game_up_check = 1
+  point.r = {759, 124, 888, 214}
+  log(ocr('r'))
+  exit()
+
+  log(expand_number_config("10-1,1-3, 5-10"))
+  exit()
   appear("bilibili_change2")
   log(findOne('bilibili_framelayout_only'))
   exit()
@@ -3432,7 +3438,8 @@ expand_number_config = function(x, minimum, maximum)
     if v:find('-') then
       local s = str2int(v:sub(1, v:find('-') - 1), 1)
       local e = str2int(v:sub(v:find('-') + 1), maximum)
-      for i = s, e do table.insert(y, i) end
+      local d = e < s and -1 or 1
+      for i = s, e, d do table.insert(y, i) end
     else
       table.insert(y, str2int(v, 0))
     end
