@@ -137,7 +137,7 @@ path.base = {
 
       -- 掉线
       if findAny({
-        "开始唤醒", "bilibili_account_switch", "面板",
+        "开始唤醒", "bilibili_framelayout_only", "面板",
         "手机验证码登录",
       }) then
         log(60)
@@ -209,7 +209,7 @@ path.base = {
     end
   end,
   bilibili_framelayout_only = function() auto(path.bilibili_login) end,
-  bilibili_account_switch = function() auto(path.bilibili_login) end,
+  -- bilibili_account_switch = function() auto(path.bilibili_login) end,
 }
 
 path.bilibili_login = {
@@ -361,9 +361,10 @@ path.fallback = {
   返回确认2 = "右确认",
   返回确认3 = function()
     wait(function()
-      if findAny({"面板", "开始唤醒", "活动公告返回"}) then
-        return true
-      end
+      if findAny({
+        "面板", "开始唤醒", "bilibili_framelayout_only",
+        "活动公告返回",
+      }) then return true end
       tap("左取消")
     end, 5)
   end,
@@ -497,9 +498,10 @@ path.邮件收取 = function()
   wait(function()
     local timeout = min(2, (time() - start_time) / 1000 * 2 / 10)
     -- local timeout = 0
-    if appear({"开始唤醒", "账号登录", "返回确认3"}, timeout) then
-      return true
-    end
+    if appear({
+      "开始唤醒", "账号登录", "返回确认3",
+      "bilibili_framelayout_only",
+    }, timeout) then return true end
     back()
   end, 30)
 end
@@ -3386,7 +3388,7 @@ path.前瞻投资 = function()
         -- 第一次数据更新处理
         if findAny({
           "面板", "活动公告返回", "签到返回", "签到返回黄",
-          "开始唤醒",
+          "开始唤醒", "bilibili_framelayout_only",
         }) then
           jumpout = true
           return true
@@ -3403,7 +3405,7 @@ path.前瞻投资 = function()
       -- 第一次数据更新处理
       if findAny({
         "面板", "活动公告返回", "签到返回", "签到返回黄",
-        "开始唤醒",
+        "开始唤醒", "bilibili_framelayout_only",
       }) then
         jumpout = true
         return true
@@ -3420,7 +3422,7 @@ path.前瞻投资 = function()
     -- 第二次数据更新处理
     if findAny({
       "面板", "活动公告返回", "签到返回", "签到返回黄",
-      "开始唤醒",
+      "开始唤醒", "bilibili_framelayout_only",
     }) then
       jumpout = true
       return true
@@ -3780,6 +3782,7 @@ path.前瞻投资 = function()
       if findAny({
         "战略返回", "面板", "活动公告返回", "签到返回",
         "签到返回黄", "开始唤醒", "常规行动",
+        "bilibili_framelayout_only",
       }) then return true end
       tap("战略确认")
     end, 60)

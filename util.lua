@@ -2962,7 +2962,6 @@ test_fight_hook = function()
 end
 
 predebug_hook = function()
-  if 1 then return end
   if not predebug then return end
   tap_interval = -1
   findOne_interval = -1
@@ -2972,6 +2971,9 @@ predebug_hook = function()
 
   ssleep(1)
   disable_game_up_check = 1
+  appear("bilibili_change2")
+  log(findOne('bilibili_framelayout_only'))
+  exit()
   while true do
     if not findOne("bilibili_account_switch") then
       toast(2972)
