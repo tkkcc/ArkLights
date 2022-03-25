@@ -141,7 +141,7 @@ path.base = {
         "手机验证码登录",
       }) then
         log(60)
-        return true
+        return path.跳转("首页")
       end
 
       tap("开始行动")
@@ -158,6 +158,7 @@ path.base = {
       captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
                               table.join(qqmessage, ' ') .. " " .. cur_fight ..
                               "代理失败", QQ)
+      log(161)
       return path.跳转("首页")
     end
 
@@ -243,7 +244,7 @@ path.bilibili_login = {
   end,
   bilibili_oneclicklogin = function()
     tap("bilibili_oneclicklogin")
-    appear("bilibili_ok", 5)
+    appear({"bilibili_ok", "bilibili_change2"}, 5)
   end,
   bilibili_ok = function()
     tap("bilibili_ok")
@@ -254,6 +255,15 @@ path.bilibili_login = {
     appear("bilibili_phone_inputbox")
   end,
   bilibili_change2 = function()
+    if debug_mode then
+      if appear("bilibili_account_switch") then
+        toast(259)
+      else
+        toast(258)
+      end
+      exit()
+    end
+
     check_login_frequency()
     disappear(bilibili_change2, 10)
   end,
@@ -730,6 +740,7 @@ end
 
 -- 对于单个用户的不同任务
 update_state = function()
+  cur_fight = ''
   fight_failed_times = {}
   zero_san = false
   login_error_times = 0
@@ -2083,7 +2094,11 @@ jianpin2name = {
   -- DQSLJW = "大骑士领郊外",
   -- FQKQ = "废弃矿区",
 }
-extrajianpin2name = {SYC = "上一次"}
+extrajianpin2name = {
+  SYC = "上一次",
+  长期委托 = "长期委托1",
+  CQWT = "长期委托1",
+}
 
 path.开始游戏 = function(x, disable_ptrs_check)
   log("开始游戏", fight_tick, x)

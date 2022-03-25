@@ -214,7 +214,7 @@ end
 string.map = function(str, map)
   local ans = ''
   for character in string.gmatch(str, "([%z\1-\127\194-\244][\128-\191]*)") do
-    -- print(character)
+    -- print(217, character)
     if map[character] == nil then
       ans = ans .. character
     else
@@ -231,24 +231,114 @@ string.split = function(str, sep)
   return t
 end
 
-string.filterSplit = function(str, extra_map)
-  str = string.map(str, update({
+-- 全角转半角
+string.commonmap = function(str, extra_map)
+  return string.map(str, update({
+    ["　"] = " ",
+    ["１"] = "1",
+    ["２"] = "2",
+    ["３"] = "3",
+    ["４"] = "4",
+    ["５"] = "5",
+    ["６"] = "6",
+    ["７"] = '7',
+    ["８"] = '8',
+    ["９"] = '9',
+    ["０"] = '0',
+
+    ["Ａ"] = 'a',
+    ["Ｂ"] = 'b',
+    ["Ｃ"] = 'c',
+    ["Ｄ"] = 'd',
+    ["Ｅ"] = 'e',
+    ["Ｆ"] = 'f',
+    ["Ｇ"] = 'g',
+    ["Ｈ"] = 'h',
+    ["Ｉ"] = 'i',
+    ["Ｊ"] = 'j',
+    ["Ｋ"] = 'k',
+    ["Ｌ"] = 'l',
+    ["Ｍ"] = 'm',
+    ["Ｎ"] = 'n',
+    ["Ｏ"] = 'o',
+    ["Ｐ"] = 'p',
+    ["Ｑ"] = 'q',
+    ["Ｒ"] = 'r',
+    ["Ｓ"] = 's',
+    ["Ｔ"] = 't',
+    ["Ｕ"] = 'u',
+    ["Ｖ"] = 'v',
+    ["Ｗ"] = 'w',
+    ["Ｘ"] = 'x',
+    ["Ｙ"] = 'y',
+    ["Ｚ"] = 'z',
+
+    ["ａ"] = 'a',
+    ["ｂ"] = 'b',
+    ["ｃ"] = 'c',
+    ["ｄ"] = 'd',
+    ["ｅ"] = 'e',
+    ["ｆ"] = 'f',
+    ["ｇ"] = 'g',
+    ["ｈ"] = 'h',
+    ["ｉ"] = 'i',
+    ["ｊ"] = 'j',
+    ["ｋ"] = 'k',
+    ["ｌ"] = 'l',
+    ["ｍ"] = 'm',
+    ["ｎ"] = 'n',
+    ["ｏ"] = 'o',
+    ["ｐ"] = 'p',
+    ["ｑ"] = 'q',
+    ["ｒ"] = 'r',
+    ["ｓ"] = 's',
+    ["ｔ"] = 't',
+    ["ｕ"] = 'u',
+    ["ｖ"] = 'v',
+    ["ｗ"] = 'w',
+    ["ｘ"] = 'x',
+    ["ｙ"] = 'y',
+    ["ｚ"] = 'z',
+
     [";"] = " ",
     ['"'] = " ",
     ["'"] = " ",
     ["；"] = " ",
+    ["："] = ":",
+    [":"] = ":",
     [","] = " ",
     ["_"] = "-",
     ["－"] = "-",
+    ["＿"] = "-",
     ["、"] = " ",
     ["，"] = " ",
     ["|"] = " ",
-    ["@"] = " ",
-    ["#"] = " ",
+    ["@"] = "@",
+    ["#"] = "#",
     ["\n"] = " ",
     ["\t"] = " ",
+
+    ["！"] = "!",
+    ["＠"] = "@",
+    ["＃"] = "#",
+    ["＄"] = " ",
+    ["％"] = " ",
+    ["＾"] = " ",
+    ["＆"] = " ",
+    ["＊"] = "*",
+    ["（"] = " ",
+    ["）"] = " ",
+    ["￥"] = " ",
+    ["…"] = " ",
+    ["×"] = "x",
+    ["—"] = "-",
+    ["＋"] = "+",
   }, extra_map or {}))
-  return string.split(str)
+
+end
+
+string.filterSplit = function(str, extra_map)
+  return string.split(string.commonmap(str, extra_map))
 end
 
 string.startsWith = function(str, prefix)
@@ -1762,7 +1852,7 @@ make_account_ui = function(layout, prefix)
   addTextView(layout, "信用多买")
   ui.addEditText(layout, prefix .. "high_priority_goods", "")
   addTextView(layout, "信用少买")
-  ui.addEditText(layout, prefix .. "low_priority_goods", "碳")
+  ui.addEditText(layout, prefix .. "low_priority_goods", "")
 
   newRow(layout)
   addTextView(layout, "自动招募")
@@ -2167,7 +2257,7 @@ Q：刷上一次？
 A：勾选“轮次作战”，作战设置填“上一次”，启动
 
 Q：刷n次作战？
-A：作战设置中用“break”表示退出轮次作战，比如“1-7*5 break”
+A：作战设置中用“break”表示退出轮次作战，比如“1-7*5 break 当期委托x5”
 
 Q：只打过老剿灭？
 A：勾选“轮次作战”，作战设置里填“长期委托X”（X按每个号的情况来，如“长期委托1”），启动
@@ -2267,7 +2357,7 @@ Q：多号密码错误会怎么处理？
 A：官服登录出验证码/B服登录失败时会暂时跳过该账号，可配合QQ通知使用。
 
 Q：账号被抢登/抢占或掉线会怎么样？
-A：重登后执行后续任务。调试设置中可设“单号最大登录次数”为2，则被抢登或掉线1次时跳过(多号)或等10分钟(单号)。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
+A：重登后执行后续任务。调试设置中可设“单号最大登录次数”为2，则被抢登或掉线达到1次后跳过(多号)或等10分钟(单号)，（单号或无帐密多号，且游戏处于登录后界面则需达到2次）。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
 
 Q：登陆出现滑动验证码？
 A：一段时间内多次登陆时出现。官服会自动解，B服不会。
@@ -2292,10 +2382,10 @@ A：
 
 Q：手机上完全没反应？
 A：
-1. 检查“模拟器没反应”问题答案。
+1. 检查上一问题答案。
 2. 检查脚本主界面底部注意事项。
-3. 重启设备。
-4. 如果使用不同于物理设备的分辨率，需在“调试设置”中指定分辨率。
+3. 如果系统使用不同于物理设备的分辨率，需在“调试设置”中指定分辨率。
+4. 重启一次设备。
 9. 通过vmos使用、换设备、换脚本。
 
 Q：手机小窗/后台/熄屏时支持吗？
@@ -2314,10 +2404,10 @@ Q：突然没反应？
 A：卡随机界面，参考下一问题答案。卡同一界面，反馈下。
 
 Q：突然出现“停止运行”、悬浮按钮消失、悬浮按钮位置改变？
-A：被系统杀了。调整系统设置、给足权限、换设备。
+A：被系统杀了。调整系统设置、给足权限、换设备、换脚本。
 
 Q：突然没反应且悬浮按钮无绿边？
-A：说明脚本正常停止或出现代码错误，如感觉有问题就反馈下。
+A：说明脚本正常停止或出现代码错误，感觉有问题反馈下。
 
 Q：脚本无法停止/手指点屏幕没反应？
 A：脚本运行中极难点击，先按音量加停止脚本。或快速按红色停止按钮。
@@ -2378,6 +2468,9 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "enable_native_tap", "使用原生点击方式", false)
+
+  newRow(layout)
   ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
   newRow(layout)
   ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
@@ -2403,9 +2496,12 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "点击")
   ui.addEditText(layout, "tap_interval", "")
+  newRow(layout)
   addTextView(layout, "找色")
   ui.addEditText(layout, "findOne_interval", "")
 
+  newRow(layout)
+  ui.addEditText(layout, "after_require_hook", "-- after_require_hook")
   newRow(layout)
   ui.addEditText(layout, "before_account_hook", "-- before_account_hook")
 
@@ -2866,6 +2962,7 @@ test_fight_hook = function()
 end
 
 predebug_hook = function()
+  if 1 then return end
   if not predebug then return end
   tap_interval = -1
   findOne_interval = -1
@@ -2875,6 +2972,56 @@ predebug_hook = function()
 
   ssleep(1)
   disable_game_up_check = 1
+  while true do
+    if not findOne("bilibili_account_switch") then
+      toast(2972)
+      exit()
+    end
+  end
+  exit()
+
+  extra_map = {["："] = ":"}
+  x = update({
+    [";"] = " ",
+    ['"'] = " ",
+    ["'"] = " ",
+    ["；"] = " ",
+    [","] = " ",
+    ["_"] = "-",
+    ["－"] = "-",
+    ["、"] = " ",
+    ["，"] = " ",
+    ["|"] = " ",
+    ["@"] = " ",
+    ["#"] = " ",
+    ["\n"] = " ",
+    ["\t"] = " ",
+    ["！"] = " ",
+    ["＠"] = " ",
+    ["＃"] = " ",
+    ["＄"] = " ",
+    ["％"] = " ",
+    ["＾"] = " ",
+    ["＆"] = " ",
+    ["＊"] = " ",
+    ["（"] = " ",
+    ["）"] = " ",
+    ["￥"] = " ",
+    ["…"] = " ",
+    ["×"] = " ",
+    ["—"] = " ",
+    ["＋"] = " ",
+
+    ["ｘ"] = " ",
+  }, extra_map or {})
+  log(x)
+  log(x['：'])
+  -- tap({1178,654})
+  -- tap("确认蓝")
+  ssleep(1)
+
+  exit()
+
   tap("开始行动")
   log(point["返回确认界面"])
   log(findOne("返回确认界面"))
@@ -3077,7 +3224,7 @@ check_crontab = function()
     restartScript()
   end
 
-  local config = string.filterSplit(crontab_text, {"：", ":"})
+  local config = string.filterSplit(crontab_text)
   local candidate = {}
   if #config == 0 then return end
   local current = os.time()
@@ -3532,3 +3679,4 @@ end
 loadUIConfig({"debug"})
 force_width = str2int(force_width, 0)
 force_height = str2int(force_height, 0)
+if enable_native_tap then clickPoint = _tap end
