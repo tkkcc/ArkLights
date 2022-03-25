@@ -2221,6 +2221,50 @@ path.开始游戏 = function(x, disable_ptrs_check)
       end
     end, 10) then return end
     return path.开始游戏(x)
+  elseif state == "药剂恢复理智取消" and enable_drug_24hour then
+    if not findTap("理智药清空选择") then
+      log("2226")
+      zero_san = true
+      tap("药剂恢复理智取消")
+      return
+    end
+
+    local deadline = {}
+    wait(function()
+      deadline = ocr("理智药到期时间范围")
+      if table.any(deadline,
+                   function(x) return x.text:includes({"天", "时"}) end) then
+        return true
+      end
+    end, 5)
+
+    log(2238, deadline)
+    -- deadline = table.filter(deadline,
+    --                         function(x) return x.text:endsWith("时") end)
+    deadline = table.filter(deadline,
+                            function(x) return x.text:endsWith("时") end)
+    log(2239, deadline)
+    if #deadline == 0 then
+      zero_san = true
+      tap("药剂恢复理智取消")
+      return
+    end
+
+    -- 理智小样为10, 最大理智关卡为35，5次应该足够
+    deadline = map(function(x) return {x.r, scale(409)} end, deadline)
+    for _, v in pairs(deadline) do for i = 1, 5 do tap(v) end end
+    log(2240, deadline)
+    exit()
+
+    if not wait(function()
+      if findOne("开始行动") then return true end
+      if findOne(state) then
+        tap("药剂恢复理智确认")
+        disappear(state, 10)
+      end
+    end, 10) then return end
+
+    return path.开始游戏(x)
   elseif state == "源石恢复理智取消" or state ==
     "药剂恢复理智取消" or state == '源石恢复理智不足' then
     zero_san = true

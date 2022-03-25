@@ -24,6 +24,8 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  理智药清空选择 = "1680|621|2F2F2F",
+  理智药到期时间范围 = {961, 517, 1866, 556},
   零星代理 = "265|771|565656,379|771|565656,496|771|565656",
   账号登录返回 = "147|204|A2A2A2",
 
@@ -1073,6 +1075,8 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  理智药清空选择 = "center_center",
+  理智药到期时间范围 = "center_center",
   战略第一行商品范围 = "center_center",
   战略第二行商品范围 = "center_center",
   captcha_area = "center_center",

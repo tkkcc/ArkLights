@@ -1674,7 +1674,7 @@ tapAll = function(ks)
   log("tapAll", ks)
   if #ks == 0 then return end
   -- 0 还是漏第一个
-  -- 试试100 还是会漏第一个，这是界面看上去已经是完全可用状态了
+  -- 试试100 还是会漏第一个，即使界面看上去已经是完全可用状态了
   local duration = 1
   if tapall_duration > 0 then duration = tapall_duration end
 
@@ -2970,9 +2970,16 @@ predebug_hook = function()
   -- exit()
 
   ssleep(1)
+
+  -- disable_log = 1
   disable_game_up_check = 1
-  point.r = {759, 124, 888, 214}
-  log(ocr('r'))
+  tapall_duration = 0
+  enable_simultaneous_tap=1
+  for i = 1, 1 do tapAll({{574, 130},{574, 131},{574, 132}}) end
+  ssleep(1)
+  -- point.r = {759, 124, 888, 214}
+  -- point.r = {665,340,1241,370}
+  -- log(ocr('理智药到期时间范围'))
   exit()
 
   log(expand_number_config("10-1,1-3, 5-10"))

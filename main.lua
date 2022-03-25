@@ -1,4 +1,5 @@
 -- predebug = true
+-- enable_drug_24hour = true
 -- prefer_speed = true
 -- always_enable_log = true
 -- enable_shift_log = true
@@ -48,7 +49,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.03.25 21:38"
+release_date = "2022.03.25 23:49"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -77,7 +78,6 @@ showUI()
 loadUIConfig()
 restart_mode_hook()
 
-
 findOne_interval = str2int(findOne_interval, -1)
 tap_interval = str2int(tap_interval, -1)
 zl_restart_interval = str2int(zl_restart_interval, math.huge)
@@ -103,8 +103,8 @@ if not crontab_enable_only and not extra_mode and multi_account_enable then
   for idx, i in pairs(multi_account_choice) do
     multi_account_choice_idx = idx
     account_idx = i
-    username = (_G["username" .. i] or ''):commonmap():trim()
-    password = (_G["password" .. i] or ''):commonmap():trim()
+    username = (_G["username" .. i] or ''):map({["＃"] = "#"}):trim()
+    password = (_G["password" .. i] or ''):trim()
     server = _G["server" .. i] or 0
     usernote = ''
     apply_multi_account_setting(i)
@@ -120,7 +120,7 @@ if not crontab_enable_only and not extra_mode and multi_account_enable then
       usernote = username:sub(username:find('#') + 1, #username):trim()
       username = username:sub(1, username:find('#') - 1):trim()
     end
-    log({username,usernote})
+    log({username, usernote})
 
     if #username > 0 and #password > 0 then
       table.insert(job, 1, "退出账号")
@@ -161,4 +161,3 @@ load(after_all_hook or '')()
 ssleep(.5)
 console.dismiss()
 peaceExit()
-
