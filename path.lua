@@ -158,6 +158,8 @@ path.base = {
       captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
                               table.join(qqmessage, ' ') .. " " .. cur_fight ..
                               "代理失败", QQ)
+      -- 一次代理失败直接认为无效：不行，因为可能是掉线造成的失败
+      -- fight_failed_times[cur_fight] = 3
       log(161)
       return path.跳转("首页")
     end
@@ -2221,9 +2223,11 @@ path.开始游戏 = function(x, disable_ptrs_check)
       end
     end, 10) then return end
     return path.开始游戏(x)
-  elseif state == "药剂恢复理智取消" and enable_drug_24hour then
-    if not findTap("理智药清空选择") then
-      log("2226")
+  elseif state == "药剂恢复理智取消" then
+
+    if (disable_drug_48hour and disable_drug_24hour) or
+      not findTap("理智药清空选择") then
+      log("2226", disable_drug_24hour, disable_drug_48hour)
       zero_san = true
       tap("药剂恢复理智取消")
       return
@@ -2239,10 +2243,20 @@ path.开始游戏 = function(x, disable_ptrs_check)
     end, 5)
 
     log(2238, deadline)
-    -- deadline = table.filter(deadline,
-    --                         function(x) return x.text:endsWith("时") end)
-    deadline = table.filter(deadline,
-                            function(x) return x.text:endsWith("时") end)
+    local deadline_48hour = table.filter(deadline, function(x)
+      return x.text == "1天" or x.text:endsWith("时")
+    end)
+
+    local deadline_24hour = table.filter(deadline, function(x)
+      return x.text:endsWith("时")
+    end)
+
+    if disable_drug_48hour then
+      deadline = deadline_24hour
+    else
+      deadline = deadline_48hour
+    end
+
     log(2239, deadline)
     if #deadline == 0 then
       zero_san = true
@@ -2252,9 +2266,8 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
     -- 理智小样为10, 最大理智关卡为35，5次应该足够
     deadline = map(function(x) return {x.r, scale(409)} end, deadline)
-    for _, v in pairs(deadline) do for i = 1, 5 do tap(v) end end
+    for _, v in pairs(deadline) do for i = 1, 1 do tap(v) end end
     log(2240, deadline)
-    exit()
 
     if not wait(function()
       if findOne("开始行动") then return true end
@@ -2263,6 +2276,9 @@ path.开始游戏 = function(x, disable_ptrs_check)
         disappear(state, 10)
       end
     end, 10) then return end
+
+    -- -- 可能出现吃多次才能满足当前关卡，失败次数要减
+    -- fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) - 1
 
     return path.开始游戏(x)
   elseif state == "源石恢复理智取消" or state ==

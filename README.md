@@ -69,14 +69,14 @@
    <tr>
    <td><a href="https://www.aistool.com/">秋秋辅助</a></td>
       <td>&#10006;</td>
-      <td>&#10006;</td>
+      <td>&#10004;</td>
       <td>&#10006;</td>
       <td>1280x720</td>
       <td>官服B服日服</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>原月明辅助，完成度高，细节设置多，老版用飞天助手，新版用懒人精灵，群号912397682</td>
+      <td>原月明辅助，完成度高，细节设置多，懒人精灵实现，群号912397682</td>
    </tr>
    <tr>
    <td><a href="https://www.bilibili.com/video/BV1ML411x7gz">星火方舟</a></td>
@@ -100,7 +100,7 @@
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>&#10004;</td>
-      <td>用户量大，兼容性强，autojs实现，群号1087079756</td>
+      <td>用户量大，兼容性高，autojs实现，群号1087079756</td>
    </tr>
    <tr>
    <td><a href="https://github.com/AgainstEntropy/PRTS">PRTS</a></td>

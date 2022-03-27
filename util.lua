@@ -1422,6 +1422,9 @@ end
 trySolveCapture = function()
   if not findOne("captcha") then return end
   solveCapture()
+  -- 第二次重试
+  if not disappear("captcha", 5) then solveCapture() end
+  -- 手工给2分钟
   if not appear("game", 5) then
     local msg =
       "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
@@ -1446,7 +1449,7 @@ wait_game_up = function(retry)
   end
   retry = retry or 0
   if retry == 2 then closeapp(appid) end
-  if retry >= 4 then stop("不能启动游戏") end
+  if retry >= 4 then stop("无法启动游戏", false) end
 
   open(appid)
   oom_score_adj()
@@ -1820,7 +1823,7 @@ make_account_ui = function(layout, prefix)
 
   newRow(layout)
   addTextView(layout, "最多吃")
-  ui.addEditText(layout, prefix .. 'max_drug_times', "9999")
+  ui.addEditText(layout, prefix .. 'max_drug_times', "0")
   addTextView(layout, "次药和")
   ui.addEditText(layout, prefix .. 'max_stone_times', "0")
   addTextView(layout, "次石头")
@@ -2278,7 +2281,10 @@ Q：作战有没有状态/记忆？
 A：没有，脚本每次运行完全独立。
 
 Q：作战出现非三星代理/代理失误时是否跳过？
-A：连续出现三次后当前关无效，会跳过。每次出现时会通知QQ。
+A：连续三次后跳过当前关，且每次出现时通知QQ。
+
+Q：自动吃快到期理智药？
+A：默认自动吃48小时到期理智药（无论次数设置为多少），可在调试设置中关闭。
 
 Q：换班产率低？
 A：“高产”换班根据 当前实际可用基建技能 穷举所有干员组合，计算每个组合8小时平均加成，选择最高加成组合，有以下限制：
@@ -2286,6 +2292,9 @@ A：“高产”换班根据 当前实际可用基建技能 穷举所有干员�
 1. 忽略其他站技能效果（迷迭香、焰尾、森蚺），忽略“意识协议”技能（水月）效果。
 3. 部分技能效果采用近似估计，且假定每次换班间隔8小时。
 9. 检查各站效率加成正常，动手换下看看会不会更高，有问题反馈下。
+
+Q：心情阈值是什么？
+A：高产换班时使用，低于阈值可下班，高于阈值可上班。范围[1,23]。
 
 Q：怎么加速第n个制造站？
 A：只能加速第一个。自己手动交换下两个制造站的物品。
@@ -2351,13 +2360,13 @@ Q：脚本需要游戏在什么界面时启动？
 A：几乎所有。
 
 Q：单号密码错误会怎么处理？
-A：等待10分钟后重试，可配合QQ通知使用。
+A：等待1小时后重试，可配合QQ通知使用。
 
 Q：多号密码错误会怎么处理？
 A：官服登录出验证码/B服登录失败时会暂时跳过该账号，可配合QQ通知使用。
 
 Q：账号被抢登/抢占或掉线会怎么样？
-A：重登后执行后续任务。调试设置中可设“单号最大登录次数”为2，则被抢登或掉线达到1次后跳过(多号)或等10分钟(单号)，（单号或无帐密多号，且游戏处于登录后界面则需达到2次）。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
+A：重登后执行后续任务。调试设置中可设“单号最大登录次数”为2，则被抢登或掉线达到1次后跳过(多号)或等1小时(单号)，（单号或无帐密多号，且游戏处于登录后界面则需达到2次）。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
 
 Q：登陆出现滑动验证码？
 A：一段时间内多次登陆时出现。官服会自动解，B服不会。
@@ -2468,10 +2477,14 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "enable_native_tap", "使用原生点击方式", false)
+  ui.addCheckBox(layout, "disable_drug_24hour", "禁用自动吃24时到期理智药", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_drug_48hour", "禁用自动吃48时到期理智药", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
+
   newRow(layout)
   ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
 
@@ -2974,11 +2987,27 @@ predebug_hook = function()
   -- disable_log = 1
   disable_game_up_check = 1
   tapall_duration = 0
-  enable_simultaneous_tap=1
-  for i = 1, 1 do tapAll({{574, 130},{574, 131},{574, 132}}) end
-  ssleep(1)
+  enable_simultaneous_tap = 1
+
+  -- log(
+  -- for i = 1, 1 do tapAll({{574, 130},{574, 131},{574, 132}}) end
+  -- ssleep(1)
   -- point.r = {759, 124, 888, 214}
   -- point.r = {665,340,1241,370}
+  -- point.r = {633,350,925,368}
+  -- point.r = {593,350,1280,368}
+  -- point.r = {661,349,954+1,419}
+  -- point.r = {704,334,778,381}
+  point.r = {704, 334, 1241, 381}
+  -- point.r = {676, 333, 1241, 397}
+  -- point.r = {659, 333, 1243, 381}
+  -- point.r = {659, 233, 1243, 442}
+  while true do
+    log(ocr('r'))
+    ssleep(1)
+    -- log(ocr('理智药到期时间范围'))
+
+  end
   -- log(ocr('理智药到期时间范围'))
   exit()
 
@@ -3483,13 +3512,13 @@ restart_mode = function(mode)
 end
 
 restart_next_account = function()
-  -- 肉鸽中尝试重启脚本
+  -- 肉鸽中直接重启脚本
   if extra_mode then restart_mode(extra_mode) end
 
   -- 只在多账号模式启用跳过账号
   if not account_idx then
-    toast("等待10分钟后")
-    ssleep(600) -- 10分钟后重启脚本
+    toast("等待1小时")
+    wait(function() ssleep(1) end, 3600)
     saveConfig("hideUIOnce", "true")
     restartScript()
   end
@@ -3554,6 +3583,10 @@ solveCapture = function()
   ssleep(1)
   keepCapture()
   local node = findOne("captcha")
+  if not node then
+    log('3576 not found captcha')
+    return
+  end
   local left, top = node.bounds.l, node.bounds.t
   point.captcha_area = {
     left + scale(240), top + scale(40), left + scale(789), top + scale(481),
