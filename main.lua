@@ -49,7 +49,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.03.27 20:02"
+release_date = "2022.03.28  1:43"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -97,8 +97,10 @@ end
 load(before_account_hook or '')()
 
 transfer_global_variable("multi_account_user1", "multi_account_user0")
+
 -- 多帐号模式
-if not crontab_enable_only and not extra_mode and multi_account_enable then
+if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
+  multi_account_enable then
   multi_account_choice = expand_number_config(multi_account_choice)
   for idx, i in pairs(multi_account_choice) do
     multi_account_choice_idx = idx
@@ -114,14 +116,13 @@ if not crontab_enable_only and not extra_mode and multi_account_enable then
     end
     if multi_account_end_closeapp then closeapp(appid) end
 
-    log(account_idx, username, password)
-
+    log(account_idx, username, '*****'..password:sub(#password, #password))
     if username:find("#") then
       usernote = username:sub(username:find('#') + 1, #username):trim()
       username = username:sub(1, username:find('#') - 1):trim()
     end
     log({username, usernote})
-
+    if extra_mode then job = {extra_mode} end
     if #username > 0 and #password > 0 then
       table.insert(job, 1, "退出账号")
     end
@@ -132,8 +133,7 @@ elseif not crontab_enable_only then
   transfer_global_variable("multi_account_user0")
   update_state_from_ui()
   test_fight_hook()
-  extra_mode_hook()
-  -- if debug_mode then stop("你勾选了测试模式") end
+  if extra_mode then job = {extra_mode} end
   run(job)
 end
 

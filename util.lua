@@ -2220,7 +2220,10 @@ show_help_ui = function()
   newRow(layout)
   addTextView(layout, [[
 源码与其他脚本：github.com/tkkcc/arknights
-好用给个star，有问题加群反馈1009619697]])
+好用的话在上面github链接里登录后点下star
+有问题加群反馈1009619697
+国内主页：gitee.com/bilabila/arknights
+]])
 
   newRow(layout)
   ui.addButton(layout, layout .. "_stop", "返回")
@@ -2283,7 +2286,7 @@ A：没有，脚本每次运行完全独立。
 Q：作战出现非三星代理/代理失误时是否跳过？
 A：连续三次后跳过当前关，且每次出现时通知QQ。
 
-Q：自动吃快到期理智药？
+Q：设置不吃药但还是吃了/自动吃到期理智药？
 A：默认自动吃48小时到期理智药（无论次数设置为多少），可在调试设置中关闭。
 
 Q：换班产率低？
@@ -2442,6 +2445,9 @@ A：正常，模拟器设置里如果有“强制锁定横屏”可以开。
 Q：脚本什么原理？
 A：脚本通过无障碍录屏方式获取屏幕，判断状态，执行相应的操作，即所谓的图色脚本。
 
+Q：收活动任务奖励、清空活动商店？
+A：见“其他功能”
+
 ]])
 
   --   newRow(layout)
@@ -2465,22 +2471,18 @@ show_debug_ui = function()
   addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
 
-  newRow(layout)
-  addTextView(layout, "强制分辨率")
-  ui.addEditText(layout, "force_width", [[]])
-  addTextView(layout, "x")
-  ui.addEditText(layout, "force_height", [[]])
-
   -- newRow(layout)
   -- addTextView(layout, "多点点击时长(宿舍换班选不上人)")
   -- ui.addEditText(layout, "tapall_duration", "")
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "disable_drug_24hour", "禁用自动吃24时到期理智药", false)
+  ui.addCheckBox(layout, "disable_drug_24hour",
+                 "禁用自动吃24时到期理智药", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "disable_drug_48hour", "禁用自动吃48时到期理智药", false)
+  ui.addCheckBox(layout, "disable_drug_48hour",
+                 "禁用自动吃48时到期理智药", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
@@ -2506,6 +2508,13 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "debug_disable_log", "关闭日志", false)
   newRow(layout)
   ui.addCheckBox(layout, "debug_mode", "测试模式", false)
+
+  newRow(layout)
+  addTextView(layout, "强制分辨率")
+  ui.addEditText(layout, "force_width", [[]])
+  addTextView(layout, "x")
+  ui.addEditText(layout, "force_height", [[]])
+
   newRow(layout)
   addTextView(layout, "点击")
   ui.addEditText(layout, "tap_interval", "")
@@ -2583,9 +2592,18 @@ show_extra_ui = function()
               [[用于刷黄绿票，或刷出指定标签。使用加急券在第一个公招位反复执行“公招刷新”，沿用脚本主页的“自动招募”设置。“自动招募”只勾“其他”时，刷出保底标签就停；只勾“其他”、“4”时，刷出保底小车、保底5星、资深就停；其余同理。如果想刷到指定标签就停，则“保留标签”填期望标签（例如填“削弱 快速复活”）。]])
 
   newRow(layout)
+  addButton(layout, layout .. "_hd_shop", "活动任务与商店",
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='活动任务与商店';lock:remove(main_ui_lock)"))
+  addButton(layout, layout .. "_hd_shop_multi", "活动任务与商店多号",
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
+
+  newRow(layout)
   addButton(layout, layout .. "_speedrun", "每日任务速通（别用）",
             make_jump_ui_command(layout, nil,
                                  "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
+
   -- ui.setOnClick(layout .. "_speedrun", )
   -- addButton(layout, layout .. "jump_qq_btn", "需加机器人好友",
   --           make_jump_ui_command(layout, nil, 'jump_qq()'))
@@ -2988,7 +3006,15 @@ predebug_hook = function()
   disable_game_up_check = 1
   tapall_duration = 0
   enable_simultaneous_tap = 1
+  log(findOne("活动商店支付"))
+  exit()
+  -- tap("收取信用有")
+  tap("开包skip")
+  ssleep(1)
+  exit()
+  local p, f, g
 
+  exit()
   -- log(
   -- for i = 1, 1 do tapAll({{574, 130},{574, 131},{574, 132}}) end
   -- ssleep(1)
@@ -3356,13 +3382,13 @@ setControlBar = function()
   setControlBarPosNew(0, 1)
 end
 
-extra_mode_hook = function()
-
-  if extra_mode then
-    run(extra_mode)
-    exit()
-  end
-end
+-- extra_mode_hook = function()
+--
+--   if extra_mode then
+--     run(extra_mode)
+--     exit()
+--   end
+-- end
 
 ocr = function(r, max_height)
   -- releaseCapture()
@@ -3499,27 +3525,39 @@ captcha_solver = function() end
 
 forever = function(f, ...) while true do f(...) end end
 
-restart_mode = function(mode)
+save_extra_mode = function(mode, multi)
   if not mode then return end
-  saveConfig("restart_mode_hook", "extra_mode=[[" .. mode .. "]]")
-  saveConfig("hideUIOnce", "true")
-  -- TODO：这里把速通放到前台会不会有助于防止被杀（genymotion 安卓10）
-  -- 结果：没用
-  -- open(getPackageName())
-  -- toast("5秒前台，防止别杀")
-  -- ssleep(5)
-  restartScript()
+  saveConfig("restart_mode_hook",
+             loadConfig('restart_mode_hook', '') .. ";extra_mode=[[" .. mode ..
+               "]];extra_mode_multi=" .. (multi and 'true' or 'false'))
 end
+
+-- restart_mode = function(mode, multi)
+--   if not mode then return end
+--   saveConfig("restart_mode_hook",
+--              "extra_mode=[[" .. mode .. "]];extra_mode_multi=" ..
+--                (multi and 'true' or 'false'))
+--   saveConfig("hideUIOnce", "true")
+--   -- TODO：这里把速通放到前台会不会有助于防止被杀（genymotion 安卓10）
+--   -- 结果：没用
+--   -- open(getPackageName())
+--   -- toast("5秒前台，防止别杀")
+--   -- ssleep(5)
+--   restartScript()
+-- end
 
 restart_next_account = function()
   -- 肉鸽中直接重启脚本
-  if extra_mode then restart_mode(extra_mode) end
+  -- if extra_mode then restart_mode(extra_mode, extra_mode_multi) end
 
   -- 只在多账号模式启用跳过账号
   if not account_idx then
-    toast("等待1小时")
-    wait(function() ssleep(1) end, 3600)
+    if not extra_mode then
+      toast("等待1小时")
+      wait(function() ssleep(1) end, 3600)
+    end
     saveConfig("hideUIOnce", "true")
+    save_extra_mode(extra_mode, extra_mode_multi)
     restartScript()
   end
 
@@ -3537,16 +3575,22 @@ restart_next_account = function()
 
   log(3323, multi_account_choice, multi_account_choice_idx, account_idx)
 
-  saveConfig("restart_mode_hook", "multi_account_choice=[[" ..
+  saveConfig("restart_mode_hook",
+             loadConfig("restart_mode_hook", '') .. ";multi_account_choice=[[" ..
                table.join(multi_account_choice, ' ') .. "]]")
   log(3324, loadConfig("restart_mode_hook", ''))
   saveConfig("hideUIOnce", "true")
+  save_extra_mode(extra_mode, extra_mode_multi)
+  log(3325, loadConfig("restart_mode_hook", ''))
   restartScript()
 end
 
 restart_mode_hook = function()
-  load(loadConfig("restart_mode_hook", ''))()
+  -- load(loadConfig("restart_mode_hook", ''))()
+  -- saveConfig("restart_mode_hook", '')
+  local f = loadConfig("restart_mode_hook", '')
   saveConfig("restart_mode_hook", '')
+  load(f)()
 end
 
 check_login_frequency = function()

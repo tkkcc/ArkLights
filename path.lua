@@ -99,7 +99,7 @@ path.base = {
       log("login_error_times", login_error_times)
       login_error_times = (login_error_times or 0) + 1
     end
-    if login_error_times > 2 then stop("单选确认框，密码错误？") end
+    if login_error_times > 0 then stop("单选确认框，密码错误？") end
   end),
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then
@@ -2716,6 +2716,144 @@ path.活动 = function(x)
   path.开始游戏(x)
 end
 
+path.活动任务与商店 = function()
+  local t = parse_time()
+  if t >= hd_open_time_end then
+    clean_hdfight()
+    return
+  end
+  path.跳转("首页")
+  tap("面板作战活动上")
+  wait(function()
+    if findOne("活动导航1") then return true end
+    if findOne("跳过剧情") then
+      tap("跳过剧情")
+      ssleep(.5)
+      tap("跳过剧情确认")
+    end
+  end, 10)
+
+  -- if not wait(function()
+  --   tap("活动任务")
+  --   if not findOne("活动导航1") then return true end
+  -- end, 5) then return end
+
+  local g
+  local success_once
+
+  if not wait(function()
+    tap("活动任务")
+    if not findOne("活动导航1") then return true end
+  end, 5) then return end
+
+  local got = false
+  wait(function()
+    if findOne("活动任务一键领取") then return true end
+    tap("活动任务一键领取")
+    if not appear("主页", 1) or findOne("正在提交反馈至神经") then
+      got = true
+      return true
+    end
+  end, 5)
+
+  if got then
+    disappear("正在提交反馈至神经", 60)
+    disappear("主页", 5)
+    if not wait(function()
+      tap("开包skip")
+      if findAny({
+        "主页", "单选确认框", "开始唤醒",
+        "bilibili_framelayout_only", "面板",
+      }) then return true end
+    end, 10) then return end
+  end
+
+  if not findOne("主页") then return path.活动任务与商店() end
+  captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+                          table.join(qqmessage, ' ') .. " " ..
+                          "活动任务领取", QQ)
+  tap("返回")
+  if not appear("活动导航1") then return end
+
+  g = function()
+    if not wait(function()
+      if findOne("活动商店横线") then return true end
+      tap("开包skip")
+      tap("收取信用有")
+    end, 2) then return end
+
+    log(832)
+
+    point.活动商店剩余范围 = {
+      1, scale(312), screen.width - 5, screen.height - 5,
+    }
+
+    local p1 = table.findv(ocr("活动商店剩余范围"),
+                           function(x) return x.text:startsWith("剩余") end)
+    if p1 then p1 = {p1.l, p1.t} end
+    local p2 = findAny(point.活动商店列表)
+    if not p1 and not p2 then return end
+
+    tap("活动商店列表" .. 1)
+    tap(p1)
+    tap(p2)
+
+    if not disappear("活动商店横线") then return end
+    if not appear("活动商店支付") then return end
+
+    if not wait(function()
+      tap("活动商店支付")
+      if not appear("活动商店支付", 1) or
+        findOne("正在提交反馈至神经") then return true end
+      -- tap("活动商店最多")
+    end, 2) then return end
+
+    disappear("正在提交反馈至神经", 60)
+    disappear("主页", 5)
+    if not wait(function()
+      tap("开包skip")
+      tap("收取信用有")
+      if findAny({
+        "活动商店横线", "开始唤醒", "单选确认框",
+        "bilibili_framelayout_only", "面板",
+      }) then return true end
+    end, 10) then return end
+    if findOne("活动商店横线") then success_once = true end
+    return true
+  end
+
+  for i = 1, 4 do
+    if not wait(function()
+      if not findOne("活动导航1") then return true end
+      tap("活动商店")
+    end, 2) then return end
+    if not appear("活动商店横线", 5) then break end
+
+    success_once = false
+    while true do if not g() then break end end
+
+    -- 一个商品都没买到
+    if success_once == false then
+      captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
+                              table.join(qqmessage, ' ') .. " " ..
+                              "活动奖励领取", QQ)
+      break
+    end
+
+    -- 掉线
+    if findAny({
+      "开始唤醒", "bilibili_framelayout_only", "面板", "单选确认框",
+    }) then return path.活动与商店() end
+
+    if not wait(function()
+      tap("收取信用有")
+      tap("开包skip")
+      if findOne("活动商店横线") then tap("返回") end
+      if findOne("活动导航1") then return true end
+    end, 5) then return end
+  end
+end
+
 path["1-11"] = function()
   local x = "1-11"
   if not findOne("开始行动") then return end
@@ -3394,7 +3532,10 @@ path.前瞻投资 = function()
     oom_score_adj()
     -- 关闭游戏然后重启脚本
     if restart_game_check(zl_restart_interval) then
-      restart_mode("前瞻投资")
+      saveConfig("hideUIOnce", "true")
+      save_extra_mode(extra_mode, extra_mode_multi)
+      log(3326, loadConfig("restart_mode_hook", ''))
+      restartScript()
     end
   end
   local jumpout
