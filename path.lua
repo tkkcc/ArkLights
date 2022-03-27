@@ -2768,7 +2768,7 @@ path.活动任务与商店 = function()
     end, 10) then return end
   end
 
-  if not findOne("主页") then return path.活动任务与商店() end
+  if not appear("主页", 1) then return path.活动任务与商店() end
   captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
                           table.join(qqmessage, ' ') .. " " ..
                           "活动任务领取", QQ)
@@ -2788,7 +2788,16 @@ path.活动任务与商店 = function()
       1, scale(312), screen.width - 5, screen.height - 5,
     }
 
-    local p1 = table.findv(ocr("活动商店剩余范围"),
+    -- “剩余” 左上角优先
+    local left = ocr("活动商店剩余范围")
+    table.sort(left, function(a, b)
+      if a.l == b.l then
+        return a.t < b.t
+      else
+        return a.l < b.l
+      end
+    end)
+    local p1 = table.findv(left,
                            function(x) return x.text:startsWith("剩余") end)
     if p1 then p1 = {p1.l, p1.t} end
     local p2 = findAny(point.活动商店列表)
@@ -2802,10 +2811,10 @@ path.活动任务与商店 = function()
     if not appear("活动商店支付") then return end
 
     if not wait(function()
+      tap("活动商店最多")
       tap("活动商店支付")
       if not appear("活动商店支付", 1) or
         findOne("正在提交反馈至神经") then return true end
-      -- tap("活动商店最多")
     end, 2) then return end
 
     disappear("正在提交反馈至神经", 60)
