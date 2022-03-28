@@ -409,6 +409,7 @@ table.flatten = function(t)
   return ans
 end
 
+
 table.remove_duplicate = function(t)
   local ans = {}
   local visited = {}
@@ -522,6 +523,16 @@ end
 table.extend = function(t, e)
   for k, v in pairs(e) do table.insert(t, v) end
   return t
+end
+
+table.cat = function(t)
+  local ans = {}
+  for _, v in pairs(t) do
+    for _, n in pairs(v) do
+      table.insert(ans,n)
+    end
+  end
+  return ans
 end
 
 --  in = {
@@ -1425,15 +1436,15 @@ trySolveCapture = function()
   -- 第二次重试
   if not disappear("captcha", 5) then solveCapture() end
   -- 手工给2分钟
-  if not appear("game", 5) then
+  if not appear("realgame", 5) then
     local msg =
       "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
     toast(msg)
     captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
                             table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
-    if not appear("game", 120) then
+    if not appear("realgame", 120) then
       back()
-      if not appear("game", 5) then closeapp(appid) end
+      if not appear("realgame", 5) then closeapp(appid) end
       stop("验证码", true)
     end
   end
@@ -2372,7 +2383,7 @@ Q：账号被抢登/抢占或掉线会怎么样？
 A：重登后执行后续任务。调试设置中可设“单号最大登录次数”为2，则被抢登或掉线达到1次后跳过(多号)或等1小时(单号)，（单号或无帐密多号，且游戏处于登录后界面则需达到2次）。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
 
 Q：登陆出现滑动验证码？
-A：一段时间内多次登陆时出现。官服会自动解，B服不会。
+A：一段时间内多次登陆时出现，会自动解。
 
 Q：怎么备份、恢复、快速修改设置？
 A：日志开头会打印设置文件路径，可直接修改。
@@ -3001,12 +3012,31 @@ predebug_hook = function()
   -- log(shift_prefer_speed)
   -- exit()
 
-  ssleep(1)
+  disable_game_up_check = 1
+  -- ssleep(1)
+  while true do
+    log(3007)
+    -- if findOne("captcha") then
+    if findOne("信用不足") then
+    -- if findOne("bilibili_framelayout_only") then
+    -- if findOne("game") then
+      log(3008)
+      exit()
+    end
+  end
+  -- ssleep(1)
+  -- exit()
 
   -- disable_log = 1
   disable_game_up_check = 1
   tapall_duration = 0
   enable_simultaneous_tap = 1
+  while true do
+    point.r = {scale(1), 306, screen.width+100, 335}
+    log(#ocr('r'))
+  end
+  exit()
+
   log(findOne("活动商店支付"))
   exit()
   -- tap("收取信用有")

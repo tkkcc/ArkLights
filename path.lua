@@ -215,6 +215,7 @@ path.base = {
 }
 
 path.bilibili_login = {
+  captcha = function() trySolveCapture() end,
   bgame = true,
   bilibili_license_ok = function() tap("bilibili_license_ok") end,
   bilibili_phone_inputbox = function()
@@ -243,6 +244,7 @@ path.bilibili_login = {
     end
     tap("bilibili_login")
     if not disappear("bilibili_login", 5) then stop("登录失败35", true) end
+    appear({"bilibili_change2", "captcha"})
   end,
   bilibili_oneclicklogin = function()
     tap("bilibili_oneclicklogin")
@@ -265,9 +267,9 @@ path.bilibili_login = {
       end
       exit()
     end
-
     check_login_frequency()
-    disappear(bilibili_change2, 10)
+    disappear("bilibili_change2", 10)
+    log(271)
   end,
 }
 
@@ -2784,12 +2786,12 @@ path.活动任务与商店 = function()
 
     log(832)
 
-    point.活动商店剩余范围 = {
-      1, scale(312), screen.width - 5, screen.height - 5,
-    }
-
     -- “剩余” 左上角优先
-    local left = ocr("活动商店剩余范围")
+    local left = table.cat(map(function(x)
+      point.r = {scale(1), scale(x), screen.width - scale(1), scale(x + 50)}
+      return ocr('r')
+    end, {459, 699, 939}))
+
     table.sort(left, function(a, b)
       if math.abs(a.l - b.l) < scale(10) then
         return a.t < b.t
@@ -2797,8 +2799,8 @@ path.活动任务与商店 = function()
         return a.l < b.l
       end
     end)
+    log(left)
     -- TODO 实际这个剩余范围只需要三行
-    -- TODO B服滑动验证码检测
     local p1 = table.findv(left,
                            function(x) return x.text:startsWith("剩余") end)
     if p1 then p1 = {p1.l, p1.t} end

@@ -25,7 +25,7 @@ bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
   -- 活动商店剩余范围 = {2, scale(312)},
-  活动商店横线 = "463|300|313232,463|306|E3E3E3",
+  活动商店横线 = "939|300|313232,940|306|E3E3E3",
   -- 活动商店剩余范围 = {1, 312, screen.width, 1080 - 1},
   理智药清空选择 = "1680|621|2F2F2F",
   -- 理智药到期时间范围 = {961, 517, 1866, 556},
@@ -114,10 +114,16 @@ point = {
     "1654|421|FFFFFF", "1654|663|FFFFFF", "1654|903|FFFFFF",
   },
   -- captcha = {id = 'com.hypergryph.arknights:id/gt3_wait_tv2'},
-  captcha = {
-    class = "android.webkit.WebView",
-    package = "com.hypergryph.arknights",
-  },
+  -- captcha = {
+  --   class = "android.webkit.WebView",
+  --   package = "com.hypergryph.arknights",
+  -- },
+  captcha = function()
+    if findOne({id = 'captcha', package = appid}) then
+      return findOne({class = "android.webkit.WebView", package = appid})
+    end
+  end,
+
   -- captcha = "604|721|00D266,612|721|F9F9F9,594|721|F9F9F9",
   -- captcha = "604|721|66D200,612|721|F9F9F9,594|721|F9F9F9",
   -- 技能ready = "1181|687|CBEC47,1191|697|FFFFFF,1203|708|CBEC47",
@@ -286,6 +292,7 @@ point = {
     class = "android.widget.FrameLayout",
     package = "com.hypergryph.arknights.bilibili",
   },
+  realgame = function() return findOne(appid == oppid and "ogame" or "bgame") end,
   game = function()
     return findOne(appid == oppid and "ogame" or "bilibili_framelayout")
   end,
@@ -1092,6 +1099,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+活动商店横线 = "center_center",
   活动商店最多 = "center_center",
   活动商店支付 = "center_center",
   理智药清空选择 = "center_center",
