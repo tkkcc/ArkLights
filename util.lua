@@ -2494,6 +2494,8 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "qqnotify_quiet", "QQ通知只显示备注", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "enable_native_tap", "启用原生点击方式", false)
+  newRow(layout)
   ui.addCheckBox(layout, "enable_simultaneous_tap", "启用多点同步点击",
                  false)
 
@@ -2505,7 +2507,7 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "beta_mode", "使用调试更新源", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "debug_disable_log", "关闭日志", false)
+  ui.addCheckBox(layout, "debug_disable_log", "禁用日志", false)
   newRow(layout)
   ui.addCheckBox(layout, "debug_mode", "测试模式", false)
 
@@ -2516,17 +2518,16 @@ show_debug_ui = function()
   ui.addEditText(layout, "force_height", [[]])
 
   newRow(layout)
-  addTextView(layout, "点击")
+  addTextView(layout, "点击间隔")
   ui.addEditText(layout, "tap_interval", "")
   newRow(layout)
-  addTextView(layout, "找色")
+  addTextView(layout, "找色间隔")
   ui.addEditText(layout, "findOne_interval", "")
 
   newRow(layout)
   ui.addEditText(layout, "after_require_hook", "-- after_require_hook")
   newRow(layout)
   ui.addEditText(layout, "before_account_hook", "-- before_account_hook")
-
   newRow(layout)
   ui.addEditText(layout, "after_all_hook", "-- after_all_hook")
 

@@ -2791,12 +2791,14 @@ path.活动任务与商店 = function()
     -- “剩余” 左上角优先
     local left = ocr("活动商店剩余范围")
     table.sort(left, function(a, b)
-      if a.l == b.l then
+      if math.abs(a.l - b.l) < scale(10) then
         return a.t < b.t
       else
         return a.l < b.l
       end
     end)
+    -- TODO 实际这个剩余范围只需要三行
+    -- TODO B服滑动验证码检测
     local p1 = table.findv(left,
                            function(x) return x.text:startsWith("剩余") end)
     if p1 then p1 = {p1.l, p1.t} end
@@ -2815,7 +2817,10 @@ path.活动任务与商店 = function()
       tap("活动商店支付")
       if not appear("活动商店支付", 1) or
         findOne("正在提交反馈至神经") then return true end
-    end, 2) then return end
+    end, 2) then
+      success_once = false
+      return
+    end
 
     disappear("正在提交反馈至神经", 60)
     disappear("主页", 5)
