@@ -2711,29 +2711,37 @@ path.活动 = function(x)
     tap("活动导航2")
     if not findOne("活动导航1") then return true end
   end, 5) then return end
-  ssleep(1)
+  ssleep(2)
   swip(x)
   tap("作战列表" .. x)
   appear("开始行动")
   path.开始游戏(x)
 end
 
-path.活动任务与商店 = function()
-  local t = parse_time()
-  if t >= hd_open_time_end then
-    clean_hdfight()
-    return
+path.活动2任务与商店 = function()
+  for k, _ in pairs(point) do
+    if k:startsWith("活动2") then
+      local rk = k:sub(1, 6) .. k:sub(8)
+      point[rk] = point[k]
+      rfl[rk] = rfl[k]
+    end
   end
+  return path.活动任务与商店()
+end
+
+path.活动任务与商店 = function()
+  path.跳转("邮件")
   path.跳转("首页")
-  tap("面板作战活动上")
-  wait(function()
+  tap("活动面板")
+  log(274)
+  if not wait(function()
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then
       tap("跳过剧情")
       ssleep(.5)
       tap("跳过剧情确认")
     end
-  end, 10)
+  end, 10) then return end
 
   -- if not wait(function()
   --   tap("活动任务")
@@ -2745,7 +2753,7 @@ path.活动任务与商店 = function()
 
   if not wait(function()
     tap("活动任务")
-    if not findOne("活动导航1") then return true end
+    if disappear("活动导航1", 1) then return true end
   end, 5) then return end
 
   local got = false
@@ -2763,11 +2771,14 @@ path.活动任务与商店 = function()
     disappear("主页", 5)
     if not wait(function()
       tap("开包skip")
-      if findAny({
+      tap("活动任务一键领取")
+      local p = findAny({
         "主页", "单选确认框", "开始唤醒",
         "bilibili_framelayout_only", "面板",
-      }) then return true end
-    end, 10) then return end
+      })
+      log(2779, p)
+      if p then return true end
+    end, 15) then return end
   end
 
   if not appear("主页", 1) then return path.活动任务与商店() end

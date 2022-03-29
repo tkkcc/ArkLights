@@ -2305,7 +2305,7 @@ A：“高产”换班根据 当前实际可用基建技能 穷举所有干员�
 0. 只考虑制造站贸易站收益。只考虑当前站最优，并非同类站总和最优。
 1. 忽略其他站技能效果（迷迭香、焰尾、森蚺），忽略“意识协议”技能（水月）效果。
 3. 部分技能效果采用近似估计，且假定每次换班间隔8小时。
-9. 检查各站效率加成正常，动手换下看看会不会更高，有问题反馈下。
+9. 检查各站效率加成，动手换下看看会不会更高，有问题反馈下。
 
 Q：心情阈值是什么？
 A：高产换班时使用，低于阈值可下班，高于阈值可上班。范围[1,23]。
@@ -2604,12 +2604,23 @@ show_extra_ui = function()
               [[用于刷黄绿票，或刷出指定标签。使用加急券在第一个公招位反复执行“公招刷新”，沿用脚本主页的“自动招募”设置。“自动招募”只勾“其他”时，刷出保底标签就停；只勾“其他”、“4”时，刷出保底小车、保底5星、资深就停；其余同理。如果想刷到指定标签就停，则“保留标签”填期望标签（例如填“削弱 快速复活”）。]])
 
   newRow(layout)
-  addButton(layout, layout .. "_hd_shop", "活动任务与商店",
+  addButton(layout, layout .. "_hd2_shop", "遗尘漫步任务与商店",
             make_jump_ui_command(layout, nil,
                                  "extra_mode='活动任务与商店';lock:remove(main_ui_lock)"))
-  addButton(layout, layout .. "_hd_shop_multi", "活动任务与商店多号",
+
+  addButton(layout, layout .. "_hd2_shop_multi", "遗尘漫步任务与商店多号",
             make_jump_ui_command(layout, nil,
                                  "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
+
+  newRow(layout)
+  addButton(layout, layout .. "_hd3_shop", "吾导先路任务与商店",
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='活动2任务与商店';lock:remove(main_ui_lock)"))
+
+  addButton(layout, layout .. "_hd3_shop_multi", "吾导先路任务与商店多号",
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='活动2任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
+
 
   newRow(layout)
   addButton(layout, layout .. "_speedrun", "每日任务速通（别用）",
@@ -3012,7 +3023,11 @@ predebug_hook = function()
   -- log(shift_prefer_speed)
   -- exit()
 
+
   disable_game_up_check = 1
+  ssleep(1)
+  swipu('HD-8')
+  exit()
   -- ssleep(1)
   while true do
     log(3007)
@@ -3255,7 +3270,7 @@ update_state_from_ui = function()
       fight[k] = extrajianpin2name[v]
     end
     -- log(2729, v)
-    if table.find({'活动', "GA", "WR", "IW"}, startsWithX(v)) then
+    if table.find({'活动', "GA", "WR", "IW","WD"}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       fight[k] = "HD-" .. (idx or '')
       -- log(2731, v, idx)
@@ -3263,7 +3278,7 @@ update_state_from_ui = function()
   end
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
-  hd_open_time_end = parse_time("202203290400")
+  hd_open_time_end = parse_time("202204120400")
   all_open_time_start = parse_time("202202241600")
   all_open_time_end = parse_time("202203100400")
   update_open_time()
