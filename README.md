@@ -2,7 +2,7 @@
 
 明日方舟全托管脚本，适配16:9及以上分辨率，等待耗时极低。
 
-[视频演示](https://www.bilibili.com/video/BV1LM4y1F7kA)
+[老版视频演示](https://www.bilibili.com/video/BV1LM4y1F7kA)
 [每日任务速通最速记录35.25s](https://www.bilibili.com/video/BV1eQ4y1C7Ch)
 [7时21分速刷999源石锭](https://www.youtube.com/watch?v=PFBHJk7uk28)
 
@@ -23,7 +23,7 @@
 
 ## 开发
 
-参考[懒人精灵IDE内文档](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)
+参考[懒人精灵](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)IDE内文档
 
 ## 对比
 
@@ -64,12 +64,12 @@
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高，按键精灵实现，支持迷迭香等跨站换班体系，自动推图/抄作业(活动、剿灭、悖论、肉鸽)，自动打肉鸽，群号909610797</td>
+      <td>完成度高，按键精灵实现，支持迷迭香等跨站换班体系，自动推图/抄作业，自动打肉鸽，群号909610797</td>
    </tr>
    <tr>
    <td><a href="https://www.aistool.com/">秋秋辅助</a></td>
       <td>&#10006;</td>
-      <td>&#10004;</td>
+      <td>&#10006;</td>
       <td>&#10006;</td>
       <td>1280x720</td>
       <td>官服B服日服</td>
@@ -165,7 +165,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10006;</td>
-      <td>python实现，能自动找最少材料或按材料需求刷，有战利品统计，群号757689154</td>
+      <td>python实现，战利品统计，自动找最少材料或按材料需求刷，群号757689154</td>
    </tr>
    <tr>
    <td><a href="https://github.com/MistEO/MeoAssistantArknights">MeoAssistantArknights</a></td>
@@ -177,7 +177,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>C++实现，完成度高，自适应换班，自动打肉鸽。群号672372860</td>
+      <td>C++实现，完成度高，战利品统计，自适应换班，自动推图/抄作业，自动打肉鸽，群号672372860</td>
    </tr>
    <tr>
    <td><a href="https://github.com/Konano/arknights-mower">arknights-mower</a></td>
@@ -213,7 +213,7 @@
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>java实现，大更新时自动下载安装</td>
+      <td>java实现，游戏大更新时自动下载安装</td>
    </tr>
    <tr>
    <td><a href="https://github.com/zqh531500317/arknight-script">arknight-script</a></td>

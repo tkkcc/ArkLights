@@ -2758,13 +2758,13 @@ path.活动任务与商店 = function()
 
   local got = false
   wait(function()
-    if findOne("活动任务一键领取") then return true end
+    -- if findOne("活动任务一键领取") then return true end
     tap("活动任务一键领取")
     if not appear("主页", 1) or findOne("正在提交反馈至神经") then
       got = true
       return true
     end
-  end, 5)
+  end, 2)
 
   if got then
     disappear("正在提交反馈至神经", 60)
