@@ -70,21 +70,24 @@ fetchSkillIcon = function()
   local md5path = path .. '.md5'
   if downloadFile(md5url, md5path) == -1 then
     toast("下载基建图标校验数据失败")
+    ssleep(3)
     return
   end
-  io.input(md5path)
-  local expectmd5 = io.read() or '1'
-  io.close()
+  local f = io.open(md5path, 'r')
+  local expectmd5 = f:read() or '1'
+  f:close()
   if expectmd5 == loadConfig("skill_md5", "2") then
     toast("已经是最新版基建图标")
     return
   end
   if downloadFile(url, path) == -1 then
     toast("下载最新基建图标失败")
+    ssleep(3)
     return
   end
   if fileMD5(path) ~= expectmd5 then
     toast("基建图标校验失败")
+    ssleep(3)
     return
   end
   unZip(path, extract_path)

@@ -126,6 +126,7 @@ if not zero_wait_click then clickPoint = tap end
 getDir = getWorkPath
 base64 = getFileBase64
 putClipboard = writePasteboard
+getClipboard = readPasteboard
 _toast = toast
 toast = function(x)
   _toast(x)
@@ -409,7 +410,6 @@ table.flatten = function(t)
   return ans
 end
 
-
 table.remove_duplicate = function(t)
   local ans = {}
   local visited = {}
@@ -527,11 +527,7 @@ end
 
 table.cat = function(t)
   local ans = {}
-  for _, v in pairs(t) do
-    for _, n in pairs(v) do
-      table.insert(ans,n)
-    end
-  end
+  for _, v in pairs(t) do for _, n in pairs(v) do table.insert(ans, n) end end
   return ans
 end
 
@@ -1729,7 +1725,8 @@ lock = Lock:new()
 
 captureqqimagedeliver = function(info, to)
   if not to then return end
-  io.open(getWorkPath() .. '/.nomedia', 'w')
+  local f = io.open(getWorkPath() .. '/.nomedia', 'w')
+  f:close()
   local img = getWorkPath() .. "/tmp.jpg"
   snapShot(img)
   notifyqq(base64(img), tostring(info), tostring(to))
@@ -1895,11 +1892,22 @@ show_multi_account_ui = function()
   ui.newLayout(layout, ui_page_width, -2)
   ui.setTitleText(layout, "多账号")
 
+  newRow(layout, layout .. "_save_row", "center")
+  ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
+  ui.setBackground(layout .. "_start", ui_submit_color)
+  ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
+
+  addButton(layout, layout .. "_toclipboard", "导出至剪切板",
+            make_jump_ui_command(layout, "main", "multi_account_config_export()"))
+
+  addButton(layout, layout .. "_fromclipboard", "从剪切板导入",
+            make_jump_ui_command(layout, "main", "multi_account_config_import()"))
+
   newRow(layout)
   ui.addCheckBox(layout, layout .. '_enable', "启用账号", false)
   ui.addEditText(layout, layout .. "_choice", "", -1)
-  newRow(layout)
 
+  newRow(layout)
   addTextView(layout, "切号前关闭")
   ui.addCheckBox(layout, "multi_account_end_closeotherapp", "其他服", true)
   ui.addCheckBox(layout, "multi_account_end_closeapp", "当前服", false)
@@ -1913,11 +1921,6 @@ show_multi_account_ui = function()
   -- newRow(layout)
   addTextView(layout,
               [[“启用账号”填数字“2 4”表示跑第2第4两个号，填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。账密为空时不做账号退出。抢登处理看必读。]])
-
-  newRow(layout, layout .. "_save_row", "center")
-  ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
-  ui.setBackground(layout .. "_start", ui_submit_color)
-  ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
 
   newRow(layout, "center")
   for i = 1, num do
@@ -1995,6 +1998,93 @@ show_multi_account_ui = function()
   ui.show(layout, false)
 end
 
+multi_account_config_export = function()
+  local layout = "multi_account"
+  local config = getUIConfigPath(layout)
+  if fileExist(config) then
+    log("load", config)
+    local f = io.open(config, 'r')
+    local content = f:read() or '{}'
+    f:close()
+    putClipboard(content)
+    toast("多账号设置已复制" .. #content)
+  else
+    toast("多账号设置不存在")
+  end
+end
+
+parse_simple_config = function(data)
+  data = data or ''
+  local layout = 'multi_account'
+  local config = getUIConfigPath(layout)
+  local cur = {}
+  local status
+  if fileExist(config) then
+    -- log("load", config)
+    -- log(20)
+    local f = io.open(config, 'r')
+    -- log(21)
+    local content = f:read() or '{}'
+    -- log(22, #content)
+    f:close()
+    -- log(22.1)
+    status, cur = pcall(JsonDecode, content)
+    cur = cur or {}
+    -- log(23, status)
+  end
+
+  local i = multi_account_num
+  while i > 0 do
+    if type(cur["username" .. i]) == 'string' and #cur["username" .. i] > 0 or
+      type(cur["password" .. i]) == 'string' and #cur["password" .. i] > 0 then
+      break
+    end
+    i = i - 1
+  end
+  i = i + 1
+  if i > multi_account_num then i = 1 end
+  log('good index', i)
+
+  -- log(2041, data)
+  for _, v in pairs(data:split('\n')) do
+    v = v:trim():split(' ')
+    if #v >= 2 and not v[1]:startsWith('#') then
+      local username = v[1]
+      local password = v[2]
+      local server = 0
+      if type(v[3]) == 'string' and string.upper(v[3]:sub(1, 1)) == 'B' then
+        server = 1
+      end
+      log(i, v)
+      update(cur, {
+        ['username' .. i] = username,
+        ['password' .. i] = password,
+        ['server' .. i] = server,
+      }, true)
+      i = i + 1
+    end
+  end
+  return JsonEncode(cur)
+end
+
+multi_account_config_import = function()
+  local layout = "multi_account"
+  local config = getUIConfigPath(layout)
+  local data = getClipboard()
+  local status, result = pcall(JsonDecode, data)
+  log("剪贴板数据：" .. data)
+  if not data or #data == 0 then stop('剪贴板无数据', false) end
+  if not status then data = parse_simple_config(data) end
+  if not data or #data == 0 then
+    stop("从剪贴板导入失败：" .. result, false)
+  end
+
+  local f = io.open(config, 'w')
+  f:write(data)
+  f:close()
+  toast("多账号设置已导入" .. #data)
+end
+
 transfer_global_variable = function(prefix, save_prefix)
   local stem
   -- 存在了几个月的BUG：遍历key的过程中修改key
@@ -2048,11 +2138,12 @@ hotUpdate = function()
   local md5path = path .. '.md5'
   if downloadFile(md5url, md5path) == -1 then
     toast("下载校验数据失败")
+    ssleep(3)
     return
   end
-  io.input(md5path)
-  local expectmd5 = io.read() or '1'
-  io.close()
+  local f = io.open(md5path, 'r')
+  local expectmd5 = f:read() or '1'
+  f:close()
   if expectmd5 == loadConfig("lr_md5", "2") then
     toast("已经是最新版")
     return
@@ -2060,10 +2151,12 @@ hotUpdate = function()
   -- log(3, expectmd5, loadConfig("lr_md5", "2"))
   if downloadFile(url, path) == -1 then
     toast("下载最新脚本失败")
+    ssleep(3)
     return
   end
   if fileMD5(path) ~= expectmd5 then
     toast("脚本校验失败")
+    ssleep(3)
     return
   end
   installLrPkg(path)
@@ -2467,6 +2560,14 @@ A：脚本通过无障碍录屏方式获取屏幕，判断状态，执行相应�
 Q：收活动任务奖励、清空活动商店？
 A：见“其他功能”
 
+Q：导入多账号？
+A：除了可以导入脚本导出的详细设置外，还可以导入如下简单格式
+10000000000 tttttttt (羽毛精一)
+# 12222222222 1234567890
+17777777777 acccccccc 羽毛精一
+ #1333333333 666666666666 B服
+17222222222 a111111111 b
+导入简单格式时会在最后一个已设置账号后追加。但如果第30个账号已填，则从第1个账号开始覆盖。
 ]])
 
   --   newRow(layout)
@@ -2616,7 +2717,8 @@ show_extra_ui = function()
             make_jump_ui_command(layout, nil,
                                  "extra_mode='活动任务与商店';lock:remove(main_ui_lock)"))
 
-  addButton(layout, layout .. "_hd2_shop_multi", "遗尘漫步任务与商店多号",
+  addButton(layout, layout .. "_hd2_shop_multi",
+            "遗尘漫步任务与商店多号",
             make_jump_ui_command(layout, nil,
                                  "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
 
@@ -2625,10 +2727,10 @@ show_extra_ui = function()
             make_jump_ui_command(layout, nil,
                                  "extra_mode='活动2任务与商店';lock:remove(main_ui_lock)"))
 
-  addButton(layout, layout .. "_hd3_shop_multi", "吾导先路任务与商店多号",
+  addButton(layout, layout .. "_hd3_shop_multi",
+            "吾导先路任务与商店多号",
             make_jump_ui_command(layout, nil,
                                  "extra_mode='活动2任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
-
 
   newRow(layout)
   addButton(layout, layout .. "_speedrun", "每日任务速通（别用）",
@@ -2825,7 +2927,7 @@ end
 assignGlobalVariable = function(t)
   for k, v in pairs(t) do
     if string.find(k, "dual") then log(k, v, type(v)) end
-    if _G[k] then log("_G[k] exist", k, v) end
+    -- if _G[k] then log("_G[k] exist", k, v) end
     _G[k] = v
   end
 end
@@ -2841,9 +2943,9 @@ loadUIConfig = function(layouts)
     local config = getUIConfigPath(layout)
     if fileExist(config) then
       log("load", config)
-      io.input(config)
-      local content = io.read() or '{}'
-      io.close()
+      local f = io.open(config, 'r')
+      local content = f:read() or '{}'
+      f:close()
       assignGlobalVariable(JsonDecode(content) or {})
     end
   end
@@ -3031,9 +3133,10 @@ predebug_hook = function()
   -- log(shift_prefer_speed)
   -- exit()
 
-
   disable_game_up_check = 1
   ssleep(1)
+  multi_account_config_import()
+  exit()
   swipu('HD-8')
   exit()
   -- ssleep(1)
@@ -3041,8 +3144,8 @@ predebug_hook = function()
     log(3007)
     -- if findOne("captcha") then
     if findOne("信用不足") then
-    -- if findOne("bilibili_framelayout_only") then
-    -- if findOne("game") then
+      -- if findOne("bilibili_framelayout_only") then
+      -- if findOne("game") then
       log(3008)
       exit()
     end
@@ -3055,7 +3158,7 @@ predebug_hook = function()
   tapall_duration = 0
   enable_simultaneous_tap = 1
   while true do
-    point.r = {scale(1), 306, screen.width+100, 335}
+    point.r = {scale(1), 306, screen.width + 100, 335}
     log(#ocr('r'))
   end
   exit()
@@ -3237,7 +3340,7 @@ check_root_mode = function()
   -- log(exec("/system/xbin/su -h"))
   -- log(exec("/system/xbin/su -h 2>&1"))
   -- log(exec("id"))
-  log("root_mode", root_mode)
+  log("root_mode", root_mode and 'true' or 'false')
 end
 
 update_state_from_ui = function()
@@ -3278,7 +3381,7 @@ update_state_from_ui = function()
       fight[k] = extrajianpin2name[v]
     end
     -- log(2729, v)
-    if table.find({'活动', "GA", "WR", "IW","WD"}, startsWithX(v)) then
+    if table.find({'活动', "GA", "WR", "IW", "WD"}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       fight[k] = "HD-" .. (idx or '')
       -- log(2731, v, idx)
