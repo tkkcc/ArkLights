@@ -118,8 +118,7 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
 
   local card = {}
   if #corner == 0 then
-    toast("基建换班找不到卡片，请反馈开发者")
-    ssleep(5)
+    log("基建换班找不到卡片")
     return
   end
   local prex = -math.huge
@@ -144,7 +143,9 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     local png = ''
     local png2 = ''
     if not mood_only then
-      png = gg(icon1[1], icon1[2], icon1[3], icon1[4], pngdata) or 'empty1.png'
+      png =
+        findBuildingSkill(icon1[1], icon1[2], icon1[3], icon1[4], pngdata) or
+          'empty1.png'
       -- 已到结尾，返回
       if png == 'empty1.png' then
         empty1_num = empty1_num + 1
@@ -159,7 +160,9 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
       if #operator == 1 then
 
       else
-        png2 = gg(icon2[1], icon2[2], icon2[3], icon2[4], pngdata) or png2
+        png2 =
+          findBuildingSkill(icon2[1], icon2[2], icon2[3], icon2[4], pngdata) or
+            png2
         if png2 ~= 'empty2.png' and not disable_log then
           operator2 = skillpng2operator[png2]
           operator = table.intersect(operator, operator2)
@@ -693,7 +696,7 @@ for i = 1, h do
 end
 -- exit()
 
-gg = function(x1, y1, x2, y2, pngdata)
+findBuildingSkill = function(x1, y1, x2, y2, pngdata)
   local s = ''
   local w, h, color = getScreenPixel(x1, y1, x2, y2)
   local i, j, b, g, r
@@ -823,7 +826,11 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   log("goldStationNum", goldStationNum)
   -- exit()
 
+  local start_time = time()
   initPngdata()
+  -- 至少等一秒
+  sleep(max(0, 1000 - (time() - start_time)))
+
   -- exit()
   -- ==> 滑动获取所有技能
 
@@ -846,7 +853,7 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   end
   swipo(true, true)
 
-  local start_time = time()
+  start_time = time()
 
   log(671, operator)
   -- exit()

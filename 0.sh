@@ -42,7 +42,7 @@
   }
   extract() {
     unzip arknights-hg-1751.apk -d arknights
-    ./extract.py arknights/assets/AB/Android arknights_extract
+    ./extract.py unpack
   }
   release() {
     local lr=${1:-script.lr}
@@ -102,7 +102,7 @@
     mkdir -p $dst
     while IFS= read -r -d '' f; do
       iconv -f UTF-8 -t GB18030 "$f" -o "$dst/$f"
-    done < <(find . -maxdepth 1 -type f -name '*.lua'  -printf '%P\0')
+    done < <(find . -maxdepth 1 -type f -name '*.lua' -printf '%P\0')
     dst="$dst_dir"/界面
     mkdir -p $dst
     while IFS= read -r -d '' f; do
@@ -146,6 +146,16 @@
     local dst=${2:-png_noalpha}
     mkdir -p "$dst"
     mogrify -path "$dst" -alpha remove -alpha off -background '#3D3D3D' "$src"/'*.png'
+  }
+  noalphaavatar() {
+    # make noalpha version of avatar icon
+    local src=${1:-'arknights_extract/assets/torappu/dynamicassets/arts/charavatars'}
+    local dst=${2:-png_noalpha}
+    mkdir -p "$dst"
+    set -x
+    for x in $src/'char_*' $src/skins/'char_*.png' $src/elite/'char_*.png'; do
+      mogrify -path "$dst" -alpha remove -alpha off -background '#FFFFFF' -resize 36x36 "$x"
+    done
   }
   fetchbuildingskill() {
     local a="prts.wiki/images/5/5f/Bskill_ctrl_p_spd.png
@@ -486,7 +496,7 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     local md5=$(md5sum release/skill.zip | cut -d' ' -f1)
     echo $md5 >release/skill.zip.md5
   }
-  buildingskill(){
+  buildingskill() {
     local png=$root/arknights_extract/assets/torappu/dynamicassets/arts/building/skills/'bskill*.png'
     rm -rf png_noalpha
     mkdir png_noalpha

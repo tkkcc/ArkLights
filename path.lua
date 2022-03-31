@@ -240,11 +240,15 @@ path.bilibili_login = {
       tap("返回")
     end, 5)
     if username and #username > 0 and password and #password > 0 then
-      input("bilibili_username_inputbox", username)
-      input("bilibili_password_inputbox", password)
+      wait(function() input("bilibili_username_inputbox", username) end, 1)
+      wait(function() input("bilibili_password_inputbox", password) end, 1)
+      -- input("bilibili_username_inputbox", username)
+      -- input("bilibili_password_inputbox", password)
     end
     tap("bilibili_login")
     if not disappear("bilibili_login", 5) then stop("登录失败35", true) end
+    -- 小米
+    appearTap({text = "存储"}, 1)
     appear({"bilibili_change2", "captcha"})
   end,
   bilibili_oneclicklogin = function()
@@ -1306,7 +1310,6 @@ path.制造换班 = function(trading)
     log(1217, tradingStationLevel, manufacturingStationLevel, powerStationLevel,
         dormitoryLevel)
 
-    ssleep(1)
     chooseOperator(trading, type, stationLevel, tradingStationNum,
                    powerStationNum, dormitoryCapacity, dormitoryLevelSum,
                    goldStationNum)

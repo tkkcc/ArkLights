@@ -7,7 +7,7 @@ import json
 import io
 
 
-def unpack_all_assets(source_folder: str, destination_folder: str):
+def unpack(source_folder="arknights", destination_folder="arknights_extract"):
     for root, dirs, files in os.walk(source_folder):
         for file_name in files:
             file_path = os.path.join(root, file_name)
@@ -113,6 +113,15 @@ def test():
 
     ans = "\n".join("".join(x) for x in reversed(ans))
     print(ans)
+
+def avator2operator(src='ArknightsGameData/zh_CN/gamedata/excel/character_table.json'):
+    data = json.loads(open(src).read())
+    return json.dumps({k:data[k]['name'] for k in data},ensure_ascii=False)
+
+    
+
+    
+
 
 
 if __name__ == "__main__":

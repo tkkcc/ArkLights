@@ -3149,8 +3149,23 @@ predebug_hook = function()
 
   disable_game_up_check = 1
   ssleep(1)
-  multi_account_config_export()
+  chooseOperatorBeforeFight()
+  -- point.r = {1, 1, screen.width, screen.height}
+  -- scale(504)
+  -- -- log(ocr('r'))
+  -- pngdata = {}
+  -- operators = {}
+  -- discoverInFight(operators, pngdata, 1)
   exit()
+
+  -- local x = scale(1000)
+  -- local y = scale(533)
+  -- tap({x, y})
+  -- ssleep(1)
+  -- exit()
+  -- swipo()
+  -- -- multi_account_config_export()
+  -- exit()
   swipo(true)
   for i = 1, 10 do swipo() end
   ssleep(1)
