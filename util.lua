@@ -2001,11 +2001,21 @@ end
 multi_account_config_export = function()
   local layout = "multi_account"
   local config = getUIConfigPath(layout)
+  local status
   if fileExist(config) then
     log("load", config)
     local f = io.open(config, 'r')
     local content = f:read() or '{}'
     f:close()
+    status, content = pcall(JsonDecode, content)
+    if status then
+      content = table.filterKV(content, function(k, v)
+        if #k == 32 and not k:find('_') then return false end
+        return true
+      end)
+      content = JsonEncode(content)
+    end
+
     putClipboard(content)
     toast("多账号设置已复制" .. #content)
   else
@@ -2071,7 +2081,8 @@ multi_account_config_import = function()
   local layout = "multi_account"
   local config = getUIConfigPath(layout)
   local data = getClipboard()
-  local status, result = pcall(JsonDecode, data)
+  local status, result
+  status, result = pcall(JsonDecode, data)
   log("剪贴板数据：" .. data)
   if not data or #data == 0 then stop('剪贴板无数据', false) end
   if not status then data = parse_simple_config(data) end
@@ -2418,6 +2429,9 @@ Q：怎么加速贸易站？
 A：不行。另外加速贸易收益低，缺钱可以多打CE-5。
 
 Q：搓玉自动补货？
+A：用“高产”换班。
+
+Q：芯片结束换经验？
 A：用“高产”换班。
 
 Q：自动招募怎么用？
@@ -3135,7 +3149,25 @@ predebug_hook = function()
 
   disable_game_up_check = 1
   ssleep(1)
-  multi_account_config_import()
+  multi_account_config_export()
+  exit()
+  swipo(true)
+  for i = 1, 10 do swipo() end
+  ssleep(1)
+  exit()
+
+  local first_time_see_zero_star
+  local zero_star
+  while true do
+    -- tap("开始行动")
+    if findOne("行动结束") and findOne("零星代理") then
+      first_time_see_zero_star = first_time_see_zero_star or time()
+      log(time() - first_time_see_zero_star)
+    end
+  end
+  exit()
+
+  -- multi_account_config_import()
   exit()
   swipu('HD-8')
   exit()

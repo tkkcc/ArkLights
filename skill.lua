@@ -132,6 +132,7 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
   end
 
   log(114, card)
+  local empty1_num = 0
   for idx, v in pairs(card) do
     -- 技能判断
     local icon1 = {
@@ -143,11 +144,15 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     local png = ''
     local png2 = ''
     if not mood_only then
-      png = gg(icon1[1], icon1[2], icon1[3], icon1[4], pngdata)
+      png = gg(icon1[1], icon1[2], icon1[3], icon1[4], pngdata) or 'empty1.png'
       -- 已到结尾，返回
-      if not png then
-        log("page end", icon1, idx, v)
-        return true
+      if png == 'empty1.png' then
+        empty1_num = empty1_num + 1
+        -- 第一页有可能有多个
+        if pageid > 1 or pageid == 1 and empty1_num > 3 then
+          log("page end", icon1, idx, v)
+          return true
+        end
       end
       png2 = 'empty2.png'
       operator = skillpng2operator[png]
@@ -210,6 +215,7 @@ end
 skillpng2operator['empty1.png'] = table.remove_duplicate(table.flatten(
                                                            skillpng2operator))
 skillpng2operator['empty2.png'] = skillpng2operator['empty1.png']
+skillpng2operator['empty1.png'] = {}
 
 -- 贸易站干员选择
 -- operator: 列表，每个元素包含两个技能图标
@@ -830,10 +836,16 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
     end
     log(operator)
     -- exit()
-    swipo()
+    -- 三次重试
+    local state = sample("干员第一个")
+    for j = 1, 3 do
+      log("842尝试翻页", j)
+      swipo()
+      if not findOne(state) then break end
+    end
   end
-
   swipo(true, true)
+
   local start_time = time()
 
   log(671, operator)
@@ -853,7 +865,6 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
                                                   goldStationNum, goodType,
                                                   stationLevel)
   end
-
   sleep(max(0, 500 - (time() - start_time)))
 
   -- 选择干员
@@ -863,7 +874,12 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   for i = 1, #operator do
     log(i, operator[i])
     while operator[i][5] > pageid do
-      swipo()
+      local state = sample("干员第一个")
+      for j = 1, 3 do
+        log("844尝试翻页", j)
+        swipo()
+        if not findOne(state) then break end
+      end
       pageid = pageid + 1
     end
     local p = operator[i][4]

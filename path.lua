@@ -119,7 +119,8 @@ path.base = {
     if not wait(function()
       if findOne("行动结束") and findOne("零星代理") then
         first_time_see_zero_star = first_time_see_zero_star or time()
-        if time() - first_time_see_zero_star > 1000 then zero_star = true end
+        -- 实测560秒，给两倍
+        if time() - first_time_see_zero_star > 1200 then zero_star = true end
       end
 
       if findOne("开始行动") and findOne("代理指挥开") then
@@ -1146,6 +1147,7 @@ path.制造换班 = function(trading)
 
     if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
 
+    local chip2book_needed = false
     -- 制造站需要确认产品类型
     if not trading then
 
@@ -1157,6 +1159,10 @@ path.制造换班 = function(trading)
       end, 5)
 
       good = findAny({"赤金站", "源石站", "芯片站", "经验站"})
+      if good == '芯片站' and findOne("芯片站已完成") then
+        good = "经验站"
+        chip2book_needed = true
+      end
 
       -- -- 收起进驻信息
       -- if not wait(function()
@@ -1180,11 +1186,6 @@ path.制造换班 = function(trading)
       type = good2type[good]
       log(524, type)
       if not disappear("制造站补货通知", 5) then return end
-      -- 源石站补货
-      if good == "源石站" then
-        tap("制造站最多")
-        appearTap("制造站执行更改", 0.5)
-      end
 
       -- 制造站进入干员列表
       if not wait(function()
@@ -1316,6 +1317,46 @@ path.制造换班 = function(trading)
         return true
       end
     end, 5)
+
+    -- 源石站补货
+    if good == "源石站" then
+      wait(function()
+        tap("制造站最多")
+        if findOne("制造站执行更改") then return true end
+      end, 2)
+      tap("制造站执行更改")
+    end
+
+    -- 芯片换经验
+    if chip2book_needed then
+      local chip2book = function()
+        if not wait(function()
+          tap("芯片站")
+          if not findOne("制造站设施列表1") then return true end
+        end, 2) then return end
+        if not wait(function()
+          tap("芯片站选经验")
+          if findOne("制造站执行更改") then return true end
+        end, 2) then return end
+        if not wait(function()
+          tap("制造站最多")
+          tap("制造站执行更改")
+          if not findOne("制造站设施列表1") then return true end
+        end, 5) then return end
+        if not wait(function()
+          tap("右确认")
+          if appear({
+            "制造站设施列表1", "单选确认框",
+            "正在提交反馈至神经",
+          }, 1) then
+            disappear("正在提交反馈至神经", network_timeout)
+            return true
+          end
+        end, 5) then return end
+        return true
+      end
+      chip2book()
+    end
   end
 
   -- 找到所有制造站
@@ -2078,7 +2119,7 @@ path.轮次作战 = function()
 
     path[get_fight_type(cur_fight)](cur_fight)
 
-    -- 导航失败3次就删除
+    -- 导航/代理失败3次就删除
     fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
     if fight_failed_times[cur_fight] > 2 then clean_fight(cur_fight) end
   end
@@ -2767,7 +2808,7 @@ path.活动任务与商店 = function()
   end, 2)
 
   if got then
-    disappear("正在提交反馈至神经", 60)
+    disappear("正在提交反馈至神经", network_timeout)
     disappear("主页", 5)
     if not wait(function()
       tap("开包skip")
@@ -2835,7 +2876,7 @@ path.活动任务与商店 = function()
       return
     end
 
-    disappear("正在提交反馈至神经", 60)
+    disappear("正在提交反馈至神经", network_timeout)
     disappear("主页", 5)
     if not wait(function()
       tap("开包skip")
@@ -2998,7 +3039,7 @@ path.访问好友 = function()
   end, 10) then return end -- 无好友或网络超时10秒
   log(2256)
   if speedrun then
-    disappear("正在提交反馈至神经", 20)
+    disappear("正在提交反馈至神经", network_timeout)
     appear("主页", 5)
     return
   end
@@ -3007,7 +3048,7 @@ path.访问好友 = function()
     if not disable_communication_check and
       findOne("今日参与交流已达上限") then
       log("今日参与交流已达上限")
-      disappear("正在提交反馈至神经", 20)
+      disappear("正在提交反馈至神经", network_timeout)
       appear("主页", 5)
       communication_enough = true
       return true
@@ -3980,7 +4021,7 @@ path.前瞻投资 = function()
     tap("确认招募")
     if not findOne("快捷编队") then return true end
     -- 出现过在这儿卡死的
-    if not disappear("正在提交反馈至神经", 10) then
+    if not disappear("正在提交反馈至神经", network_timeout) then
       closeapp(appid)
       return true
     end

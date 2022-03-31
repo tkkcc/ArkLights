@@ -8,3 +8,6 @@
 *.ogg
 /extract.py
 /*/
+*.psd
+*.zip
+tmp*
