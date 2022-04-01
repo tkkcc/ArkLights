@@ -2125,7 +2125,7 @@ notifyqq = function(image, info, to, sync)
   asynHttpPost(function(res, code)
     -- log("notifyqq response", res, code)
     lock:remove(id)
-  end, "http://82.156.198.12:49875", param)
+  end, qqimagedeliver, param)
   if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
@@ -2606,10 +2606,20 @@ show_debug_ui = function()
   addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
 
+  newRow(layout)
+  addTextView(layout, "QQ通知服务")
+  ui.addEditText(layout, "qqimagedeliver", "")
+
+
+
   -- newRow(layout)
   -- addTextView(layout, "多点点击时长(宿舍换班选不上人)")
   -- ui.addEditText(layout, "tapall_duration", "")
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_hotupdate",
+                 "禁用自动更新", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "disable_drug_24hour",
@@ -3150,13 +3160,18 @@ predebug_hook = function()
 
   disable_game_up_check = 1
   ssleep(1)
-  chooseOperatorBeforeFight()
+  -- tap({45,263})
+  -- tap({45,68})
+  -- tap("主页列表首页")
+  -- log(findOne("断罪"))
+  -- chooseOperatorBeforeFight()
   -- point.r = {1, 1, screen.width, screen.height}
   -- scale(504)
   -- -- log(ocr('r'))
   -- pngdata = {}
   -- operators = {}
   -- discoverInFight(operators, pngdata, 1)
+
   exit()
 
   -- local x = scale(1000)

@@ -21,9 +21,32 @@
 
 下载[明日方舟速通](https://wwa.lanzoui.com/b010qimmf)（密码0000）
 
+
 ## 开发
 
 参考[懒人精灵](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)IDE内文档
+
+<details>
+<summary>自建QQ通知服务</summary>
+
+
+脚本已内置多号分流通知服务，具体看必读。想提高稳定性与安全性可自建。
+
+在一个有公网IP的服务器，安装[pnpm](https://pnpm.io/zh/installation)后安装服务
+```
+pnpm i -g qqimagedeliver
+```
+用闲置QQ号登录服务
+```
+qqimagedeliver --username=12345 # 先扫码登录
+qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
+qqimagedeliver --username="12345 6789" --password="abcde fghij" --maxtry=2 # 可多号分流
+```
+将服务IP与端口(默认49875)填入脚本调试设置中
+```
+http://82.156.198.12:49875
+```
+</details>
 
 ## 对比
 

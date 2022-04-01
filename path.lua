@@ -99,7 +99,8 @@ path.base = {
       log("login_error_times", login_error_times)
       login_error_times = (login_error_times or 0) + 1
     end
-    if login_error_times > 0 then stop("单选确认框，密码错误？") end
+    -- 两次，第一次可能是数据更新
+    if login_error_times > 1 then stop("单选确认框，密码错误？") end
   end),
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 60 * 60, 1) then
@@ -306,6 +307,18 @@ path.fallback = {
     tap("战略返回")
     appear("常规行动", 2)
   end,
+  断罪返回 = function()
+    tap("断罪返回")
+    disappear("断罪返回")
+  end,
+  断罪 = function()
+    if appear("跳过剧情") then
+      tap("跳过剧情")
+      ssleep(1)
+      tap("跳过剧情确认")
+    end
+  end,
+
   签到返回黄 = function() return path.fallback.签到返回() end,
   签到返回 = function()
     local x
@@ -317,7 +330,7 @@ path.fallback = {
       local timeout = min(2, (time() - start_time) / 1000 * 2 / 10)
       log(237, timeout)
       -- timeout = 0
-      x = appear({"返回确认", "返回确认3"}, timeout)
+      x = appear({"返回确认", "返回确认3", "断罪"}, timeout)
       -- disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
       if x then return true end
       back()

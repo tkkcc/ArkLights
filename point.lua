@@ -24,6 +24,8 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  断罪返回 = "1851|66|BFBFBF,1834|66|595959,1851|85|595959,1878|66|595959",
+  断罪 = "193|564|202020,147|558|484040",
   干员第一个采样列表 = {{661, 199}, {715, 244}, {769, 325}},
   活动商店支付 = "1356|850|B3CA1B",
   活动商店横线 = "379|228|B1CA1C",
@@ -1108,7 +1110,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
-
+  断罪 = "center_center",
   面板活动 = "right_center",
   活动商店支付 = "center_center",
   活动商店 = 'center_center',
@@ -1287,6 +1289,7 @@ center = {
 
   确定抽取 = "center_center",
   干员解锁进度 = "center_bottom",
+  断罪返回 = "center_center",
   活动签到返回 = "center_center",
   抽签返回 = "center_center",
   感谢庆典返回 = "center_center",
