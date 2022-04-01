@@ -114,14 +114,21 @@ def test():
     ans = "\n".join("".join(x) for x in reversed(ans))
     print(ans)
 
-def avator2operator(src='ArknightsGameData/zh_CN/gamedata/excel/character_table.json'):
+
+def avator2operator(src="ArknightsGameData/zh_CN/gamedata/excel/character_table.json"):
     data = json.loads(open(src).read())
-    return json.dumps({k:data[k]['name'] for k in data},ensure_ascii=False)
+    png = Path("png_noalpha").glob("char_*")
+    ans = {}
+    for p in png:
+        # print("p",p)
+        try: 
+            o = next(k for k in data if p.stem.startswith(k))
+            ans[str(p.stem)] = data[o]['name']
+        except Exception:
+            print("not found",p)
 
-    
 
-    
-
+    return json.dumps(ans, ensure_ascii=False)
 
 
 if __name__ == "__main__":

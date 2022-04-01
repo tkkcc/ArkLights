@@ -1277,7 +1277,7 @@ deploy = function(x1, x2, y2, d)
   d = d or 2
   d = ({{0, -1}, {1, 0}, {0, 1}, {-1, 0}})[d]
   d = {d[1] * 500, d[2] * 500}
-  local dragd = 500
+  local dragd = zl_enable_slow_drag and 1500 or 500
   local dird = 200
   local delay = 150 -- 有人卡这儿？
   local x3 = x2 - scale(5)
@@ -1353,6 +1353,10 @@ deploy = function(x1, x2, y2, d)
       start = dragd + delay,
     },
   }
+  if zl_enable_tap_before_drag then 
+    tap({x1, y1})
+    ssleep(.5)
+  end
   gesture(finger)
   sleep(dragd + delay + dird + delay)
   log("deploy", finger)
@@ -2610,7 +2614,14 @@ show_debug_ui = function()
   addTextView(layout, "QQ通知服务")
   ui.addEditText(layout, "qqimagedeliver", "")
 
-
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "zl_enable_slow_drag", "前瞻投资长部署时间",
+  --                false)
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_enable_tap_before_drag",
+                 "前瞻投资部署前点击", false)
 
   -- newRow(layout)
   -- addTextView(layout, "多点点击时长(宿舍换班选不上人)")
@@ -2618,8 +2629,7 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "disable_hotupdate",
-                 "禁用自动更新", false)
+  ui.addCheckBox(layout, "disable_hotupdate", "禁用自动更新", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "disable_drug_24hour",
@@ -3159,12 +3169,8 @@ predebug_hook = function()
   -- exit()
 
   disable_game_up_check = 1
-  ssleep(1)
-  -- tap({45,263})
-  -- tap({45,68})
-  -- tap("主页列表首页")
-  -- log(findOne("断罪"))
-  -- chooseOperatorBeforeFight()
+  chooseOperatorBeforeFight()
+  exit()
   -- point.r = {1, 1, screen.width, screen.height}
   -- scale(504)
   -- -- log(ocr('r'))
