@@ -2234,8 +2234,8 @@ show_main_ui = function()
   addTextView(layout, "完成后通知QQ")
   ui.addEditText(layout, "QQ", "")
 
-  addButton(layout, layout .. "jump_qq_btn", "加机器人好友",
-            make_jump_ui_command(layout, nil, 'jump_qq()'))
+  -- addButton(layout, layout .. "jump_qq_btn", "加机器人好友",
+  --           make_jump_ui_command(layout, nil, 'jump_qq()'))
 
   newRow(layout)
   addTextView(layout, "完成后")
@@ -2462,7 +2462,8 @@ Q：QQ通知有什么用？
 A：任务完成后，机器人将把首页截图与可招募标签发给QQ。一般与 定时任务+云手机/模拟器/备用机 配合使用，这样平时只需检查聊天记录，无需接触游戏。
 
 Q：QQ通知怎么用？
-A：用自己QQ加机器人QQ（605597237）为好友（机器人会自动同意），将自己QQ填入脚本横线处，然后启动。
+A：用自己QQ加机器人QQ为好友（机器人会自动同意），将自己QQ填入脚本横线处，然后启动。
+机器人QQ：605597237(被封),2476685186(新号容易被封),1514678048(新号容易被封)
 
 Q：QQ通知没图片？
 A：QQ每日发图总量有上限。可以创建群聊，邀请机器人（机器人会自动同意），将群号填入脚本横线处。如果拉不进可以先拉群友，再让群友帮忙拉。

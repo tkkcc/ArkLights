@@ -1,4 +1,4 @@
-predebug = true
+-- predebug = true
 -- enable_drug_24hour = true
 -- prefer_speed = true
 -- always_enable_log = true
@@ -49,7 +49,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.03.31 22:43"
+release_date = "2022.04.01 16:47"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -66,6 +66,8 @@ require('skill')
 require("fight")
 
 load(after_require_hook or '')()
+point.面板活动 = point.面板活动2
+rfl.面板活动 = rfl.面板活动2
 
 showControlBar(true)
 setEventCallback()

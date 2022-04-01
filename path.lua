@@ -2742,7 +2742,7 @@ path.活动 = function(x)
     return
   end
   path.跳转("首页")
-  tap("面板作战活动上")
+  tap("面板活动")
   wait(function()
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then
@@ -2763,6 +2763,7 @@ path.活动 = function(x)
 end
 
 path.活动2任务与商店 = function()
+
   for k, _ in pairs(point) do
     if k:startsWith("活动2") then
       local rk = k:sub(1, 6) .. k:sub(8)
@@ -2770,13 +2771,17 @@ path.活动2任务与商店 = function()
       rfl[rk] = rfl[k]
     end
   end
+
+  point.面板活动 = point.面板活动2
+  rfl.面板活动 = rfl.面板活动2
+
   return path.活动任务与商店()
 end
 
 path.活动任务与商店 = function()
   path.跳转("邮件")
   path.跳转("首页")
-  tap("活动面板")
+  tap("面板活动")
   log(274)
   if not wait(function()
     if findOne("活动导航1") then return true end
