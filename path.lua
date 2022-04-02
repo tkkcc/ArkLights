@@ -117,7 +117,10 @@ path.base = {
 
     local first_time_see_zero_star
     local zero_star
+    local see_end
+    local unexpect_return
     if not wait(function()
+      if findOne("行动结束") then see_end = true end
       if findOne("行动结束") and findOne("零星代理") then
         first_time_see_zero_star = first_time_see_zero_star or time()
         -- 实测560秒，给两倍
@@ -135,7 +138,10 @@ path.base = {
       end
 
       -- 战斗记录未同步
-      if findOne("返回确认界面") then tap("左取消") end
+      if findOne("返回确认界面") then
+        tap("左取消")
+        unexpect_return = true
+      end
 
       -- 掉线
       if findAny({
@@ -154,7 +160,7 @@ path.base = {
 
     log("代理结束", cur_fight, "失败次数", fight_failed_times[cur_fight])
     log(139, first_time_see_zero_star, zero_star)
-    if zero_star then
+    if zero_star or not see_end then
       log("代理失败返回首页")
 
       captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
@@ -2756,14 +2762,14 @@ path.活动 = function(x)
   end
   path.跳转("首页")
   tap("面板活动")
-  wait(function()
+  if not wait(function()
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then
       tap("跳过剧情")
       ssleep(.5)
       tap("跳过剧情确认")
     end
-  end, 10)
+  end, 10) then return end
   if not wait(function()
     tap("活动导航2")
     if not findOne("活动导航1") then return true end

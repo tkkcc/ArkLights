@@ -2611,7 +2611,7 @@ show_debug_ui = function()
   ui.addEditText(layout, "max_login_times", "")
 
   newRow(layout)
-  addTextView(layout, "QQ通知服务")
+  addTextView(layout, "QQ通知服务地址")
   ui.addEditText(layout, "qqimagedeliver", "")
 
   newRow(layout)
@@ -2621,7 +2621,11 @@ show_debug_ui = function()
   --                false)
   newRow(layout)
   ui.addCheckBox(layout, "zl_enable_tap_before_drag",
-                 "前瞻投资部署前点击", false)
+                 "前瞻投资部署前点一下", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
+
 
   -- newRow(layout)
   -- addTextView(layout, "多点点击时长(宿舍换班选不上人)")
@@ -2675,6 +2679,7 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "点击间隔")
   ui.addEditText(layout, "tap_interval", "")
+
   newRow(layout)
   addTextView(layout, "找色间隔")
   ui.addEditText(layout, "findOne_interval", "")
@@ -3169,6 +3174,9 @@ predebug_hook = function()
   -- exit()
 
   disable_game_up_check = 1
+  -- ssleep(1)
+  -- tap("主页列表首页")
+  -- ssleep(1)
   chooseOperatorBeforeFight()
   exit()
   -- point.r = {1, 1, screen.width, screen.height}

@@ -22,13 +22,14 @@ discoverBeforeFight = still_wrapper(function(operators, pngdata, pageid)
   for _, x in pairs(corner) do
     if x - prex > scale(207) then
       prex = x
-      table.insert(card, {x, scale(143)})
-      table.insert(card, {x, scale(559)})
+      table.insert(card, {x - scale(6), scale(129)})
+      table.insert(card, {x - scale(6), scale(553)})
     end
   end
 
   log(114, card)
-  card = {card[3]}
+  -- card = {card[3]}
+  card = {card[7]}
   for idx, v in pairs(card) do
     -- 头像判断
     -- local y
@@ -47,7 +48,8 @@ discoverBeforeFight = still_wrapper(function(operators, pngdata, pageid)
     -- y = 556 -- 0.035
     -- -- y = 565 -- 0.033
     -- -- y = 570 -- 0.039
-    local icon1 = {v[1], v[2], v[1] + scale(180), v[2] + scale(180)}
+    local icon1 = {v[1], v[2], v[1] + scale(192), v[2] + scale(192)}
+    log("icon1", icon1)
     local png =
       findAvatar(icon1[1], icon1[2], icon1[3], icon1[4], avatarPngdata) or
         'empty1.png'
@@ -62,7 +64,7 @@ avatar2operator = JsonDecode([[
 avatarpng = table.keys(avatar2operator)
 
 avatarIconMask = {}
-avatarIconCenterMask = {}
+avatarIconCenterList = {}
 w, h = 36, 36
 for i = 1, h do
   for j = 1, w do
@@ -70,11 +72,12 @@ for i = 1, h do
       table.insert(avatarIconMask, {i, j})
       -- log(613,i,j)
     end
-    if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 17 ^ 2 then
-      table.insert(avatarIconCenterMask, {i, j})
+    if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 10 ^ 2 then
+      table.insert(avatarIconCenterList, j + (i - 1) * 36)
     end
   end
 end
+-- log(avatarIconCenterList)
 -- exit()
 
 findAvatar = function(x1, y1, x2, y2, pngdata)
@@ -82,20 +85,22 @@ findAvatar = function(x1, y1, x2, y2, pngdata)
   local w, h, color = getScreenPixel(x1, y1, x2, y2)
   local i, j, b, g, r
   local data = {}
-  -- log(x1, y1, x2, y2)
+  log(87, x1, y1, x2, y2, w, h, #color, #avatarIconMask)
   for _, m in pairs(avatarIconMask) do
     i, j = m[1], m[2]
     -- b, g, r = colorToRGB(color[(i - 1) * w + j])
-    b, g, r = colorToRGB(color[scale((i - 1) * 5) * w + scale(j * 5)])
+    b, g, r = colorToRGB(color[math.round((i - 1) * scale(192) / 36) * w +
+                           math.round(j * scale(192) / 36)])
     table.extend(data, {r, g, b})
 
-    if nil then
+    if 1 then
       r = string.format('%X', r):padStart(2, '0')
       g = string.format('%X', g):padStart(2, '0')
       b = string.format('%X', b):padStart(2, '0')
       s = s .. i .. '|' .. j .. '|' .. r .. g .. b .. ','
     end
   end
+  -- log(103, #data)
   -- log(s)
   -- exit()
   --
@@ -111,13 +116,14 @@ findAvatar = function(x1, y1, x2, y2, pngdata)
 
   local flatScoreTable = {}
   local flatScore = 0
-  for i = 1, #avatarIconMask - 36 do
+  for _, i in pairs(avatarIconCenterList) do
     flatScore = abs(data[i * 3 - 2] - data[(i + 1) * 3 - 2]) +
                   abs(data[i * 3 - 1] - data[(i + 1) * 3 - 1]) +
                   abs(data[i * 3] - data[(i + 1) * 3]) +
                   abs(data[i * 3 - 2] - data[(i + 36) * 3 - 2]) +
                   abs(data[i * 3 - 1] - data[(i + 36) * 3 - 1]) +
                   abs(data[i * 3] - data[(i + 36) * 3])
+    flatScore = 0
     table.insert(flatScoreTable, 1 / (1 + flatScore))
     scoreBase = scoreBase + flatScoreTable[#flatScoreTable]
   end
@@ -128,43 +134,46 @@ findAvatar = function(x1, y1, x2, y2, pngdata)
     tmp = ''
     score = 0
     white_num = 0
-    for i = 1, #avatarIconMask do
+    for idx, i in pairs(avatarIconCenterList) do
+      -- log(137, k, #v, i, score)
       if v[i * 3 - 2] == 255 and v[i * 3 - 1] == 255 and v[i * 3] == 255 then
         pointScore = 0
         white_num = white_num + 1
       else
+        -- log(142)
         pointScore = abs(data[i * 3 - 2] - v[i * 3 - 2]) +
                        abs(data[i * 3 - 1] - v[i * 3 - 1]) +
                        abs(data[i * 3] - v[i * 3])
       end
 
-      score = score + pointScore * flatScoreTable[i]
+      score = score + pointScore * flatScoreTable[idx]
       if i % 36 == 1 then tmp = tmp .. '\n' end
       if pointScore > 200 then
         tmp = tmp .. '1'
       else
         tmp = tmp .. ' '
       end
-      if score / (36 * 36 - white_num) / scoreBase > best_score then break end
+      -- if score / (36 * 36 - white_num) / scoreBase > best_score then break end
     end
-    score = score / (36 * 36 - white_num) / scoreBase
+    score = score / (#avatarIconCenterList - white_num) / scoreBase
 
     -- if k == 'char_293_thorns_2' then log(662, score, tmp) end
-    if k == 'char_1014_nearl2' then log(662, score, tmp) end
+    -- if k == 'char_1014_nearl2' then log(662, score, tmp) end
     -- if k == 'Bskill_tra_flow_gc1.png' then log(663, score, tmp) end
+    -- if k == 'char_350_surtr_2' then log(663, score, white_num, tmp) end
     --
     -- if k == 'Bskill_tra_texas1.png' then log(662, score, tmp) end
     -- if k == 'Bskill_tra_Lappland2.png' then log(663, score, tmp) end
+    if k == 'char_264_f12yin_2' then log(663, score, white_num, tmp) end
     -- exit()
 
     if best_score > score then
       best_score = score
       best = k
+      best_w = white_num
     end
   end
-  log(2208, best_score, best, x1, y1, x2, y2)
-  log(avatar2operator[best])
-  -- exit()
+  log(2208, best_score, best, avatar2operator[best])
   return best
 end
 
