@@ -1,4 +1,4 @@
------------  how to generate skill.lua
+-----------  how to download skill image
 -----------  first open https://prts.wiki/w/%E5%90%8E%E5%8B%A4%E6%8A%80%E8%83%BD%E4%B8%80%E8%A7%88, open console
 -----------  then paste the following code, copy result and paste into skill.lua
 -- let dex2hex = (x)=>{
@@ -59,6 +59,8 @@
 -- // ans+='}'
 -- console.log(ans)
 -- // console.log(JSON.stringify(ans))
+-- TODO 改为从解包文件获取而非prts
+
 fetchSkillIcon = function()
   toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
@@ -198,7 +200,7 @@ end)
 skillpng = table.remove_duplicate(table.keys(skillpng2operator))
 -- table.insert(skillpng, "empty2.png")
 
--- 扩充干员等级， TODO
+-- 扩充干员等级
 for k, v in pairs(skillpng2operator) do
   local extra = {}
   for _, o in pairs(v) do

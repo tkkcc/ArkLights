@@ -1,4 +1,4 @@
-predebug = true
+-- predebug = true
 -- enable_drug_24hour = true
 -- prefer_speed = true
 -- always_enable_log = true
@@ -19,6 +19,7 @@ predebug = true
 -- unsafe_tap = true
 -- zl_disable_fight_drop = true
 zl_disable_log = true
+zl_enable_tap_before_drag = true
 zero_wait_click = true
 check_after_tap = true
 crontab_enable = true
@@ -49,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.04.02 22:32"
+release_date = "2022.04.06 16:04"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -101,6 +102,7 @@ if #((qqimagedeliver or ''):trim()) == 0 then
   qqimagedeliver = "http://82.156.198.12:49875"
 end
 if zl_enable_log then zl_disable_log = false end
+no_extra_job = {}
 
 load(before_account_hook or '')()
 
@@ -130,7 +132,11 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
       username = username:sub(1, username:find('#') - 1):trim()
     end
     log({username, usernote})
-    if extra_mode then job = {extra_mode} end
+    if extra_mode then
+      no_extra_job = job
+      job = {extra_mode}
+
+    end
     if #username > 0 and #password > 0 then
       table.insert(job, 1, "退出账号")
     end
@@ -141,7 +147,10 @@ elseif not crontab_enable_only then
   transfer_global_variable("multi_account_user0")
   update_state_from_ui()
   test_fight_hook()
-  if extra_mode then job = {extra_mode} end
+  if extra_mode then
+    no_extra_job = job
+    job = {extra_mode}
+  end
   run(job)
 end
 

@@ -1277,7 +1277,7 @@ deploy = function(x1, x2, y2, d)
   d = d or 2
   d = ({{0, -1}, {1, 0}, {0, 1}, {-1, 0}})[d]
   d = {d[1] * 500, d[2] * 500}
-  local dragd = zl_enable_slow_drag and 1500 or 500
+  local dragd = 500
   local dird = 200
   local delay = 150 -- 有人卡这儿？
   local x3 = x2 - scale(5)
@@ -1353,10 +1353,10 @@ deploy = function(x1, x2, y2, d)
       start = dragd + delay,
     },
   }
-  if zl_enable_tap_before_drag then 
-    tap({x1, y1})
-    ssleep(.5)
-  end
+  -- if 1 or zl_enable_tap_before_drag then 
+  --   tap({x1, y1})
+  --   ssleep(.5)
+  -- end
   gesture(finger)
   sleep(dragd + delay + dird + delay)
   log("deploy", finger)
@@ -1867,7 +1867,7 @@ make_account_ui = function(layout, prefix)
   addTextView(layout, "信用多买")
   ui.addEditText(layout, prefix .. "high_priority_goods", "")
   addTextView(layout, "信用少买")
-  ui.addEditText(layout, prefix .. "low_priority_goods", "")
+  ui.addEditText(layout, prefix .. "low_priority_goods", "碳")
 
   newRow(layout)
   addTextView(layout, "自动招募")
@@ -1901,11 +1901,14 @@ show_multi_account_ui = function()
   ui.setBackground(layout .. "_start", ui_submit_color)
   ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
 
-  addButton(layout, layout .. "_toclipboard", "导出至剪切板",
-            make_jump_ui_command(layout, "main", "multi_account_config_export()"))
-
-  addButton(layout, layout .. "_fromclipboard", "从剪切板导入",
-            make_jump_ui_command(layout, "main", "multi_account_config_import()"))
+  newRow(layout)
+  addButton(layout, randomString(32), "导出帐密", make_jump_ui_command(
+              layout, "main", "multi_account_config_export(1)"))
+  addButton(layout, randomString(32), "导出全部", make_jump_ui_command(
+              layout, "main", "multi_account_config_export()"))
+  addButton(layout, randomString(32), "导入", make_jump_ui_command(layout,
+                                                                     "main",
+                                                                     "multi_account_config_import()"))
 
   newRow(layout)
   ui.addCheckBox(layout, layout .. '_enable', "启用账号", false)
@@ -2002,7 +2005,7 @@ show_multi_account_ui = function()
   ui.show(layout, false)
 end
 
-multi_account_config_export = function()
+multi_account_config_export = function(simple)
   local layout = "multi_account"
   local config = getUIConfigPath(layout)
   local status
@@ -2018,6 +2021,22 @@ multi_account_config_export = function()
         return true
       end)
       content = JsonEncode(content)
+    end
+    if simple then
+      content = JsonDecode(content)
+      local account = ''
+      for i = 1, multi_account_num do
+        local username = content['username' .. i]
+        local password = content['password' .. i]
+        local server = content['server' .. i]
+        if type(username) == 'string' and #username > 0 and type(password) ==
+          'string' and #password > 0 then
+          account = account .. username .. ' ' .. password .. ' ' ..
+                      (server == 1 and 'B服' or '官服') .. '\n'
+        end
+      end
+      log(account)
+      content = account
     end
 
     putClipboard(content)
@@ -2058,6 +2077,7 @@ parse_simple_config = function(data)
   i = i + 1
   if i > multi_account_num then i = 1 end
   log('good index', i)
+  local startidx = i
 
   -- log(2041, data)
   for _, v in pairs(data:split('\n')) do
@@ -2078,18 +2098,19 @@ parse_simple_config = function(data)
       i = i + 1
     end
   end
-  return JsonEncode(cur)
+  local endidx = i - 1
+  return JsonEncode(cur), startidx, endidx
 end
 
 multi_account_config_import = function()
   local layout = "multi_account"
   local config = getUIConfigPath(layout)
   local data = getClipboard()
-  local status, result
+  local status, result, startidx, endidx
   status, result = pcall(JsonDecode, data)
   log("剪贴板数据：" .. data)
   if not data or #data == 0 then stop('剪贴板无数据', false) end
-  if not status then data = parse_simple_config(data) end
+  if not status then data, startidx, endidx = parse_simple_config(data) end
   if not data or #data == 0 then
     stop("从剪贴板导入失败：" .. result, false)
   end
@@ -2097,7 +2118,14 @@ multi_account_config_import = function()
   local f = io.open(config, 'w')
   f:write(data)
   f:close()
-  toast("多账号设置已导入" .. #data)
+  -- if startidx then
+  --   toast("多账号设置已导入为账号" .. startidx .. "至账号" ..
+  --           endidx)
+  --   ssleep(1)
+  -- else
+  --   toast("多账号设置已导入")
+  --   ssleep(1)
+  -- end
 end
 
 transfer_global_variable = function(prefix, save_prefix)
@@ -2339,7 +2367,7 @@ show_help_ui = function()
   newRow(layout)
   addTextView(layout, [[
 源码与其他脚本：github.com/tkkcc/arknights
-好用的话再在上面github链接里登录后点下star
+好用的话在上面github链接里登录后点下star
 有问题加群反馈1009619697
 国内主页：gitee.com/bilabila/arknights
 ]])
@@ -2364,10 +2392,10 @@ Q：怎么用？
 A：脚本主界面上方为“任务开始前的设置”，中间为“需要执行的任务”，下方为“任务完成后的设置”，底部为“更多功能”。勾选任务，然后点启动。
 
 Q：怎么刷关卡？
-A：勾选“轮次作战”任务，修改“作战”设置，启动。关卡将依次执行，跳过无效关，到最后一关后再从第一关开始开始。
+A：勾选“轮次作战”任务，修改“作战”设置，启动。关卡将依次执行，跳过无效关，到最后一关后再从第一关开始。
 
 Q：作战设置格式？
-A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 活动6*99 CA-5*1 9-10 上一次x0”，表示5次剿灭+99次活动+1次CA-5+1次9-10。
+A：每个关卡名用常见分隔符隔开，关卡名后可用*或x加数字表示重复，中文可替换为首字母简拼，大小写混输。平时建议填剿灭+活动+常规，例如填“当期委托*5 活动6*99 CA-5 9-10 上一次x0”，表示5次剿灭+99次活动+1次CA-5+1次9-10。
 
 Q：合成玉满了还会继续刷吗？
 A：不会，任何作战开始前（包括上一次）都会判断合成玉是否已满，已满则所有剿灭无效。
@@ -2384,14 +2412,14 @@ A：勾选“轮次作战”，作战设置填“上一次”，启动
 Q：刷n次作战？
 A：作战设置中用“break”表示退出轮次作战，比如“1-7*5 break 当期委托x5”
 
-Q：只打过老剿灭？
-A：勾选“轮次作战”，作战设置里填“长期委托X”（X按每个号的情况来，如“长期委托1”），启动
+Q：只打过老剿灭/怎么打切尔诺伯格/龙门市区/龙门外环？
+A：勾选“轮次作战”，作战设置里填“长期委托X”（X按每个号的情况来，如“长期委托1”），启动。长期委托全打过的，可以用关卡名。
 
 Q：DQWT、CQWT1、LMSQ、HD、SYC是什么意思？
 A：当期委托、长期委托1、龙门市区、活动、上一次的首字母简拼（小写效果一样）
 
 Q：当期委托是什么意思？
-A：最新剿灭
+A：最新剿灭。
 
 Q：刷活动？
 A：
@@ -2403,7 +2431,7 @@ Q：作战有没有状态/记忆？
 A：没有，脚本每次运行完全独立。
 
 Q：作战出现非三星代理/代理失误时是否跳过？
-A：连续三次后跳过当前关，且每次出现时通知QQ。
+A：出现时通知QQ，连续出现三次跳过当前关。
 
 Q：设置不吃药但还是吃了/自动吃到期理智药？
 A：默认自动吃48小时到期理智药（无论次数设置为多少），可在调试设置中关闭。
@@ -2413,7 +2441,7 @@ A：“高产”换班根据 当前实际可用基建技能 穷举所有干员�
 0. 只考虑制造站贸易站收益。只考虑当前站最优，并非同类站总和最优。
 1. 忽略其他站技能效果（迷迭香、焰尾、森蚺），忽略“意识协议”技能（水月）效果。
 3. 部分技能效果采用近似估计，且假定每次换班间隔8小时。
-9. 检查各站效率加成，动手换下看看会不会更高，有问题反馈下。
+9. 检查各站效率加成，动手换下看看会不会更高，有问题最好录屏反馈。
 
 一些正确的效率比较：
 1. 德拉空2 > 德拉能2（4个5级宿舍），德拉孑12 > 德拉能2（3级贸易）
@@ -2421,7 +2449,7 @@ A：“高产”换班根据 当前实际可用基建技能 穷举所有干员�
 1. 泡泡+火神+断罪1/熊猫2/砾1 > 泡泡+火神+贝娜
 
 Q：高产换班需要精英化特定干员、满级设施吗？
-A：不用，脚本根据实际的 设施数量、设施等级、产物类型、干员技能 来计算组合。不套用固定组合。
+A：不用，脚本根据实际的 设施数量、设施等级、产物类型、干员技能 来计算，不套用固定组合。
 
 Q：心情阈值是什么？
 A：高产换班时使用，低于阈值可下班，高于阈值可上班。范围[1,23]。建议用默认值12，8小时换一次可实现16/8轮班制。
@@ -2430,7 +2458,7 @@ Q：怎么加速第n个制造站？
 A：只能加速第一个。可以自己手动交换下两个制造站的产品。
 
 Q：怎么加速贸易站？
-A：不行。另外加速贸易收益低，缺钱可以多打CE-5。
+A：不行。另外加速贸易收益低，缺钱可打CE-5。
 
 Q：搓玉自动补货？
 A：用“高产”换班。
@@ -2467,10 +2495,11 @@ A：任务完成后，机器人将把首页截图与可招募标签发给QQ。�
 
 Q：QQ通知怎么用？
 A：用自己QQ加机器人QQ为好友（机器人会自动同意），将自己QQ填入脚本横线处，然后启动。
-机器人QQ：605597237(被封),2476685186(新号容易被封),1514678048(新号容易被封)
+机器人QQ：605597237(多次被封),2476685186(新号),1514678048(新号)。
+想自建服务的看github教程，想无偿贡献闲置QQ的可以私聊开发者。
 
-Q：QQ通知没图片？
-A：QQ每日发图总量有上限。可以创建群聊，邀请机器人（机器人会自动同意），将群号填入脚本横线处。如果拉不进可以先拉群友，再让群友帮忙拉。
+Q：QQ通知有消息没图片/怎么向群里发通知？
+A：QQ每日私聊发图数量有上限。可创建群聊，邀请机器人（机器人会自动同意），将群号填入脚本横线处。如果拉不进可以先拉群友，再让群友帮忙拉。
 
 Q：QQ通知的设备名怎么设置？
 A：QQ号后加“#设备名”，如“1009619697#雷电云5”
@@ -2506,7 +2535,7 @@ Q：登陆出现滑动验证码？
 A：一段时间内多次登陆时出现，会自动解。
 
 Q：怎么备份、恢复、快速修改设置？
-A：日志开头会打印设置文件路径，可直接修改。
+A：多账号设置可一键导入导出。另外日志开头会打印设置文件路径，可直接操作文件。
 
 Q：怎么一键重启脚本？
 A：悬浮按钮组中最上方那个。
@@ -2519,7 +2548,7 @@ A：有root时能自动开无障碍、关闭游戏、亮屏熄屏、捕捉用户
 
 Q：模拟器上完全没反应？
 A：
-1. 脚本适用于雷电、逍遥、夜神(很卡)、蓝叠4(要开高级图形引擎)、蓝叠5(要开进阶模式图形引擎)、mumu9（启动时存在横竖屏切换闪烁，启动后不影响）、genymotion 10 9 8 7、vmos、redroid10、Android Emulator。不适用于mumu安卓6、红手指安卓6、redroid 8 9 11 12。
+1. 脚本适用于雷电、逍遥、夜神、蓝叠4(要开高级图形引擎)、蓝叠5(要开进阶模式图形引擎)、mumu9（启动时存在横竖屏切换闪烁，启动后不影响）、genymotion 10 9 8 7、vmos、redroid10、Android Emulator。不适用于mumu安卓6、红手指安卓6、redroid 8 9 11 12。
 2. 脚本要求安卓>=7，分辨率>=1280x720，长宽比>=16:9。
 3. 切换渲染引擎（DirectX与OpenGL）后再尝试一次。本人逍遥只能用OpenGL。
 
@@ -2535,7 +2564,7 @@ Q：手机小窗/后台/熄屏时支持吗？
 A：不支持，除非通过vmos使用。
 
 Q：vmos是什么？
-A：vmos（虚拟大师）是手机上的模拟器/虚拟机。类似还有光速虚拟机。
+A：vmos（虚拟大师）是手机上的模拟器/虚拟机。类似还有光速虚拟机、51虚拟机。
 
 Q：云手机上完全没反应？
 A：红手指安卓6不支持，让客服升到8。移动云不支持。其他反馈下。
@@ -2552,8 +2581,8 @@ A：被系统杀了。调整系统设置、给足权限、换设备、换脚本�
 Q：突然没反应且悬浮按钮无绿边？
 A：说明脚本正常停止或出现代码错误，感觉有问题反馈下。
 
-Q：脚本无法停止/手指点屏幕没反应？
-A：脚本运行中极难点击，先按音量加停止脚本。或快速按红色停止按钮。
+Q：脚本怎么停止/手指点击屏幕没反应？
+A：脚本运行中极难点击，先按“音量加”停止脚本。或快速按红色停止按钮。或先按home键，再按停止按钮。
 
 Q：日志关不掉？
 A：先看左下角图标有无绿边，有绿边先停止脚本。日志右上角有关闭按钮。
@@ -2581,12 +2610,11 @@ A：见“其他功能”
 
 Q：导入多账号？
 A：除了可以导入脚本导出的详细设置外，还可以导入如下简单格式
-10000000000 tttttttt (羽毛精一)
-# 12222222222 1234567890
-17777777777 acccccccc 羽毛精一
- #1333333333 666666666666 B服
-17222222222 a111111111 b
-导入简单格式时会在最后一个已设置账号后追加。但如果第30个账号已填，则从第1个账号开始覆盖。
+100000 tttt
+13333 66666 B服
+导入简单格式时会追加而非覆盖。但如果第30个账号已填，则从第1个账号开始覆盖。
+
+
 ]])
 
   --   newRow(layout)
@@ -2611,7 +2639,7 @@ show_debug_ui = function()
   ui.addEditText(layout, "max_login_times", "")
 
   newRow(layout)
-  addTextView(layout, "QQ通知服务地址")
+  addTextView(layout, "自建QQ通知服务(教程见github)")
   ui.addEditText(layout, "qqimagedeliver", "")
 
   newRow(layout)
@@ -2619,13 +2647,12 @@ show_debug_ui = function()
   -- newRow(layout)
   -- ui.addCheckBox(layout, "zl_enable_slow_drag", "前瞻投资长部署时间",
   --                false)
-  newRow(layout)
-  ui.addCheckBox(layout, "zl_enable_tap_before_drag",
-                 "前瞻投资部署前点一下", false)
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "zl_enable_tap_before_drag",
+  --                "前瞻投资部署前点一下", false)
 
-  newRow(layout)
-  ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
-
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
 
   -- newRow(layout)
   -- addTextView(layout, "多点点击时长(宿舍换班选不上人)")
@@ -2725,6 +2752,12 @@ show_extra_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
   ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
+  ui.addCheckBox(layout, "zl_no_waste", "每8小时做日常", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_accept_mg", "可打敏感", false)
+  ui.addCheckBox(layout, "zl_accept_yx", "可打臆想", false)
+  ui.addCheckBox(layout, "zl_accept_sc", "可打生存", false)
 
   -- addTextView(layout, [[商品需求]])
   -- ui.addEditText(layout, "zl_need_goods", [[]])
@@ -2736,7 +2769,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现两次以上作战或红色异常时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议720x1280。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，可换用其他设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。]])
+              [[用于刷投资以提高集成战略起点。出现多次作战或有效幻觉时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议1280x720。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，应换设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。如果需要蜡烛，应选普通难度，或者用明日再肝(还鸽)与MAA。如果需要推图，应该用明日再肝(还鸽)与MAA，有概率打过第三层boss。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -3176,8 +3209,65 @@ predebug_hook = function()
   disable_game_up_check = 1
   -- ssleep(1)
   -- tap("主页列表首页")
-  -- ssleep(1)
-  chooseOperatorBeforeFight()
+  ssleep(1)
+  local restart = function()
+    log(in_fight_return)
+    exit()
+  end
+
+  if findOne("偏执的") then
+    local all = {
+      "迷茫的", "盲目的", "暴怒的", "孤独的", "偏执的",
+      "敏感的", "臆想的", "生存的", "谨慎的",
+    }
+    -- local accept = {"孤独的", "偏执的", "谨慎的"}
+    local accept = {"孤独的", "偏执的", "谨慎的"}
+
+    -- local danger_accept = {
+    --   "敏感的", "臆想的", "生存的",
+    -- }
+
+    if zl_accept_mg then table.insert(accept, "敏感的") end
+    if zl_accept_yx then table.insert(accept, "臆想的") end
+    if zl_accept_sc then table.insert(accept, "生存的") end
+
+    local cur = {}
+    if not wait(function()
+      cur = ocr("幻觉范围")
+      if table.all(cur, function(x) return table.includes(all, x.text) end) then
+        return true
+      end
+    end, 5) then
+      in_fight_return = "幻觉重试：" ..
+                          table.join(map(function(x) return x.text end, cur))
+      return restart()
+    end
+    for _,c in pairs(cur) do
+      if not table.includes(accept, c.text) then
+        in_fight_return = "幻觉重试：" ..
+                            table.join(map(function(x) return x.text end, cur))
+        return restart()
+      end
+
+    end
+
+  end
+  exit()
+  -- point.r= {615,18,706,44}
+  point.r = {738, 25, 1255, 66}
+
+  while true do
+    ssleep(1)
+    local p = ocr("r")
+    log(p)
+  end
+  exit()
+
+  for i = 1, 10 do if findOne("当前进度列表" .. i) then log(i) end end
+  log("---")
+  for i = 1, 10 do if findOne("按下当前进度列表" .. i) then log(i) end end
+  -- chooseOperatorBeforeFight()
+
   exit()
   -- point.r = {1, 1, screen.width, screen.height}
   -- scale(504)

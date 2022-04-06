@@ -78,7 +78,7 @@ http://82.156.198.12:49875
       <td>完成度高，懒人精灵实现，速度远超其他脚本，自适应换班，群号1009619697</td>
    </tr>
    <tr>
-   <td><a href="https://github.com/Lancarus/Liver-Arknights-Tomorrow">明日再肝</a></td>
+   <td><a href="https://github.com/Lancarus/Liver-Arknights-Tomorrow">明日再肝(还鸽)</a></td>
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10006;</td>
@@ -87,7 +87,7 @@ http://82.156.198.12:49875
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高，按键精灵实现，支持迷迭香等跨站换班体系，自动推图/抄作业，自动打肉鸽，群号909610797</td>
+      <td>完成度高，按键精灵实现，支持迷迭香等跨站换班体系，自动推图/抄作业，自动打肉鸽，群号684479866、909610797</td>
    </tr>
    <tr>
    <td><a href="https://www.aistool.com/">秋秋辅助</a></td>

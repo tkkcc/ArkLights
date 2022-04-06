@@ -119,6 +119,8 @@ path.base = {
     local zero_star
     local see_end
     local unexpect_return
+    local home
+
     if not wait(function()
       if findOne("行动结束") then see_end = true end
       if findOne("行动结束") and findOne("零星代理") then
@@ -148,6 +150,7 @@ path.base = {
         "开始唤醒", "bilibili_framelayout_only", "面板",
         "手机验证码登录",
       }) then
+        home = true
         log(60)
         return path.跳转("首页")
       end
@@ -158,6 +161,7 @@ path.base = {
 
     if unfinished then return path.base.接管作战() end
 
+    log("回到首页")
     log("代理结束", cur_fight, "失败次数", fight_failed_times[cur_fight])
     log(139, first_time_see_zero_star, zero_star)
     if zero_star or not see_end then
@@ -165,7 +169,8 @@ path.base = {
 
       captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
                               table.join(qqmessage, ' ') .. " " .. cur_fight ..
-                              "代理失败", QQ)
+                              "代理失败" ..
+                              (home and "(掉线或抢登)" or ''), QQ)
       -- 一次代理失败直接认为无效：不行，因为可能是掉线造成的失败
       -- fight_failed_times[cur_fight] = 3
       log(161)
@@ -942,7 +947,7 @@ path.宿舍换班 = function()
         tap("筛选")
       end, 5) then return end
 
-      if not appear({"筛选未进驻选中", "筛选未进驻"}) then
+      if not appear({"筛选未进驻选中", "筛选未进驻"}, 5) then
         return
       end
 
@@ -978,14 +983,14 @@ path.宿舍换班 = function()
         tap("筛选")
       end, 5) then return end
 
-      if not appear({"筛选未进驻选中", "筛选未进驻"}) then
+      if not appear({"筛选未进驻选中", "筛选未进驻"}, 5) then
         return
       end
       if not findOne("筛选未进驻") then
         if not wait(function()
           if findOne("筛选未进驻") then return true end
           tap("筛选未进驻")
-          appear("筛选未进驻", .5)
+          appear("筛选未进驻", 1)
         end, 5) then return end
       end
       if not wait(function()
@@ -1295,7 +1300,7 @@ path.制造换班 = function(trading)
     --   if not wait(function()
     --     if findOne("筛选未进驻选中") then return true end
     --     tap("筛选未进驻选中")
-    --     appear("筛选未进驻选中", .5)
+    --     appear("筛选未进驻选中", 1)
     --   end, 5) then return end
     -- end
     --
@@ -1303,7 +1308,7 @@ path.制造换班 = function(trading)
     --   if not wait(function()
     --     if findOne("筛选技能降序") then return true end
     --     tap("筛选技能降序")
-    --     appear("筛选技能降序", .5)
+    --     appear("筛选技能降序", 1)
     --   end, 5) then return end
     -- end
     --
@@ -1506,10 +1511,11 @@ path.总览换班 = function()
       tap("筛选")
     end, 5) then return end
 
-    if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
-    if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
+    if not appear({"筛选未进驻选中", "筛选未进驻"}, 5) then
       return
     end
+    if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"},
+                  5) then return end
 
     if not findOne("筛选未进驻选中") then
       if not wait(function()
@@ -1523,7 +1529,7 @@ path.总览换班 = function()
       if not wait(function()
         if findOne("筛选技能降序") then return true end
         tap("筛选技能降序")
-        appear("筛选技能降序", .5)
+        appear("筛选技能降序", 1)
       end, 5) then return end
     end
 
@@ -3227,9 +3233,13 @@ path.公招刷新 = function()
         local tag4 = table.filter(tag5, function(rule)
           return table.all(rule[1], function(m) return tags[m] end)
         end)
+        -- 有噪点，得等
+        local can_refresh = appear({
+          "公开招募标签刷新蓝", "公开招募标签刷新灰",
+        }) == "公开招募标签刷新蓝"
 
         -- 如果勾选非保底，且不能刷新时，也招
-        if auto_recruit0 and not findOne("公开招募标签刷新蓝") then
+        if auto_recruit0 and not can_refresh then
           table.extend(tag4, tag0)
         end
 
@@ -3237,7 +3247,8 @@ path.公招刷新 = function()
         -- toast(JsonEncode(tags))
 
         if #tag4 == 0 or skip then
-          if not skip and findTap("公开招募标签刷新蓝") then
+          if not skip and can_refresh then
+            tap("公开招募标签刷新蓝")
             if not disappear("公开招募时间减", 10) then return end
             if not wait(function()
               if findOne("公开招募时间减") then return true end
@@ -3532,16 +3543,17 @@ path.指定换班 = function()
       tap("筛选")
     end, 5) then return end
 
-    if not appear({"筛选未进驻选中", "筛选未进驻"}) then return end
-    if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"}) then
+    if not appear({"筛选未进驻选中", "筛选未进驻"}, 5) then
       return
     end
+    if not appear({"筛选技能降序", "筛选技能", "筛选技能升序"},
+                  5) then return end
 
     if not findOne("筛选未进驻") then
       if not wait(function()
         if findOne("筛选未进驻") then return true end
         tap("筛选未进驻")
-        appear("筛选未进驻", .5)
+        appear("筛选未进驻", 1)
       end, 5) then return end
     end
 
@@ -3549,7 +3561,7 @@ path.指定换班 = function()
       if not wait(function()
         if findOne("筛选技能降序") then return true end
         tap("筛选技能降序")
-        appear("筛选技能降序", .5)
+        appear("筛选技能降序", 1)
       end, 5) then return end
     end
 
@@ -3593,7 +3605,12 @@ path.退出账号 = function()
         tap("右右确认")
       end, 1)
     end,
-    开始唤醒 = "账号管理",
+    --  开始唤醒 = "账号管理",
+    开始唤醒 = function()
+      check_login_frequency()
+      tap("账号管理")
+      disappear("开始唤醒")
+    end,
     bilibili_username_inputbox = true,
     手机验证码登录 = true,
   }, nil, true), path.fallback)
@@ -3619,12 +3636,28 @@ path.前瞻投资 = function()
   --   end, 10) then stop("登录需要密码", false) end
   -- end
 
+  if not wait(function()
+    if not findOne("凋零残响") then return true end
+    tap("战略确认")
+  end, 15) then return end
+
+  -- 每8小时做日常
+  if zl_no_waste then
+    if not zl_no_waste_last_time or time() - zl_no_waste_last_time > 8 * 3600 *
+      1000 then
+      zl_no_waste_last_time = time()
+      run(no_extra_job)
+    end
+  end
+
   local in_fight_return = ''
   local restart = function()
     log(in_fight_return)
+
     toast(in_fight_return or '重开')
     ssleep(3)
     oom_score_adj()
+
     -- 关闭游戏然后重启脚本
     if restart_game_check(zl_restart_interval) then
       saveConfig("hideUIOnce", "true")
@@ -3632,6 +3665,7 @@ path.前瞻投资 = function()
       log(3326, loadConfig("restart_mode_hook", ''))
       restartScript()
     end
+
   end
   local jumpout
   if findOne("战略返回") then path.fallback.战略返回() end
@@ -3901,10 +3935,41 @@ path.前瞻投资 = function()
     return restart()
   end
 
-  -- 红色标签直接放弃
+  -- 幻觉直接放弃
   if findOne("偏执的") then
-    in_fight_return = "红色异常重试"
-    return restart()
+    local all = {
+      "迷茫的", "盲目的", "暴怒的", "孤独的", "偏执的",
+      "敏感的", "臆想的", "生存的", "谨慎的",
+    }
+    local accept = {"孤独的", "偏执的", "谨慎的"}
+
+    -- local danger_accept = {
+    --   "敏感的", "臆想的", "生存的",
+    -- }
+
+    if zl_accept_mg then table.insert(accept, "敏感的") end
+    if zl_accept_yx then table.insert(accept, "臆想的") end
+    if zl_accept_sc then table.insert(accept, "生存的") end
+
+    local cur = {}
+    if not wait(function()
+      cur = ocr("幻觉范围")
+      if table.all(cur, function(x) return table.includes(all, x.text) end) then
+        return true
+      end
+    end, 5) then
+      in_fight_return = "未知幻觉重试：" ..
+                          table.join(map(function(x) return x.text end, cur))
+      return restart()
+    end
+    for _, c in pairs(cur) do
+      if not table.includes(accept, c.text) then
+        in_fight_return = "幻觉重试：" ..
+                            table.join(map(function(x) return x.text end, cur))
+        return restart()
+      end
+    end
+
   end
 
   -- 再看不期而遇
@@ -4103,6 +4168,8 @@ path.前瞻投资 = function()
   -- 重复拖拽
   wait(function()
     log(4105)
+    tap("干员费用够列表1")
+    disappear("干员费用够列表1", 0.5)
     -- 部署 拖拽当前第一个干员至部署位dst，方向朝左或右
     deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
                                            fight1.text) and 2 or 4)
@@ -4121,7 +4188,7 @@ path.前瞻投资 = function()
   appear("生命值")
 
   log(4110)
-  -- 超时作战不对劲 超15分钟
+  -- 超时作战不对劲 超5分钟
   local last_time_see_life = time()
   local skill_times = 0
   if not wait(function()
@@ -4148,9 +4215,11 @@ path.前瞻投资 = function()
         if not findOne("技能ready") then return true end
       end)
     end
-  end, 900) then return closeapp(appid) end
+  end, 300) then return closeapp(appid) end
 
-  if not appear("战略返回", 10) then return end
+  appear({"战略返回", "凋零残想"}, 30)
+  if findOne("凋零残想") then return end
+  if not findOne("战略返回") then return end
 
   local drop_page = false
   if not wait(function()
