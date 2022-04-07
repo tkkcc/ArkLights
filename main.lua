@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.04.07 19:32"
+release_date = "2022.04.08  1:57"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -111,6 +111,18 @@ transfer_global_variable("multi_account_user1", "multi_account_user0")
 -- 多帐号模式
 if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
   multi_account_enable then
+
+  -- 分隔临时设置
+  multi_account_choice = multi_account_choice:commonmap()
+  local p = multi_account_choice:find('#')
+  if p then
+    multi_account_config_remove_once_choice()
+    multi_account_choice =
+      multi_account_choice:sub(p + 1, #multi_account_choice)
+  end
+  log(123, multi_account_choice)
+
+  saveConfig("continue_account", '')
   multi_account_choice = expand_number_config(multi_account_choice)
   for idx, i in pairs(multi_account_choice) do
     multi_account_choice_idx = idx
@@ -140,8 +152,11 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
     if #username > 0 and #password > 0 then
       table.insert(job, 1, "退出账号")
     end
+    saveConfig("continue_account",
+               table.join(table.slice(multi_account_choice, idx), ' '))
     run(job)
   end
+  saveConfig("continue_account", '')
 elseif not crontab_enable_only then
   -- 单帐号模式
   transfer_global_variable("multi_account_user0")

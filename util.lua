@@ -1914,6 +1914,14 @@ show_multi_account_ui = function()
   ui.addCheckBox(layout, layout .. '_enable', "启用账号", false)
   ui.addEditText(layout, layout .. "_choice", "", -1)
 
+  continue_account = loadConfig("continue_account", '')
+  if #continue_account > 0 then
+    continue_account = shrink_number_config(continue_account)
+    continue_account_btn = randomString(32)
+    addButton(layout, continue_account_btn, "继续账号" .. continue_account,
+              "ui.setVisiblity(continue_account_btn,3);ui.setText('multi_account_choice', ui.getText('multi_account_choice') .. ' # '.. continue_account);saveConfig('continue_account','');")
+  end
+
   newRow(layout)
   addTextView(layout, "切号前关闭")
   ui.addCheckBox(layout, "multi_account_end_closeotherapp", "其他服", true)
@@ -1927,7 +1935,7 @@ show_multi_account_ui = function()
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
   addTextView(layout,
-              [[“启用账号”填数字“2 4”表示跑第2第4两个号，填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。账密为空时不做账号退出。抢登处理看必读。]])
+              [[“启用账号”填数字“2 4”表示跑第2第4两个号，填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。临时账号写在#号后，填“1-10 # 5-10”表示跑前10个号，但本次启动只跑第5到第10个。账密为空时不做账号退出。抢登处理看必读。]])
 
   newRow(layout, "center")
   for i = 1, num do
@@ -1995,7 +2003,16 @@ show_multi_account_ui = function()
   end
 
   ui.loadProfile(getUIConfigPath(layout))
+  -- log(ui.getText('multi_account_choice'))
   multi_account_inherit_render(1, num)
+
+  if #continue_account > 0 then
+    if equal_number_config(ui.getText('multi_account_choice') or '',
+                           continue_account) then
+      ui.setVisiblity(continue_account_btn, 3)
+    end
+  end
+
   ui.show(layout, false)
 end
 
@@ -2120,6 +2137,27 @@ multi_account_config_import = function()
   --   toast("多账号设置已导入")
   --   ssleep(1)
   -- end
+end
+
+multi_account_config_remove_once_choice = function()
+  local layout = "multi_account"
+  local config = getUIConfigPath(layout)
+  if not fileExist(config) then return end
+  local f = io.open(config, 'r')
+  local content = f:read() or '{}'
+  f:close()
+  local status, cur
+  status, cur = pcall(JsonDecode, content)
+  if not status then return end
+  cur = cur or {}
+  local choice = cur[layout .. "_choice"] or ''
+  choice = choice:commonmap()
+  if not choice:find('#') then return end
+  cur[layout .. "_choice"] = choice:sub(1, choice:find('#') - 1):trim()
+  cur = JsonEncode(cur)
+  f = io.open(config, 'w')
+  f:write(cur)
+  f:close()
 end
 
 transfer_global_variable = function(prefix, save_prefix)
@@ -3825,6 +3863,24 @@ expand_number_config = function(x, minimum, maximum)
     end
   end
   return y
+end
+
+equal_number_config = function(a, b)
+  a = expand_number_config(a)
+  b = expand_number_config(b)
+  return table.equal(a, b)
+end
+
+-- list to string annotation
+shrink_number_config = function(x)
+  -- local ans = ''
+  -- x = x:split(' ')
+  -- local s = ''
+  -- local e = ''
+  -- for _, i in pairs(x) do
+  --   if x[
+  -- end
+  return x
 end
 
 restart_game_check_last_time = time()
