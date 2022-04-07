@@ -304,7 +304,7 @@ http://82.156.198.12:49875
       <td nowrap colspan=2><b>备注&#12288;&#12288;&#12288;&#12288;&#12288;&#12288;<b></td>
    </tr>
    <tr>
-   <td><a href="https://github.com/closure-studio/arknights-offline-frontend">可露希尔工作室</a></td>
+   <td><a href="https://github.com/closure-studio">可露希尔工作室</a></td>
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
@@ -313,7 +313,7 @@ http://82.156.198.12:49875
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>招人，请联系563255057</td>
+      <td>arknights.host即将上线</td>
    </tr>
 </table>
 

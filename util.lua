@@ -1981,17 +1981,11 @@ show_multi_account_ui = function()
       local btn = "multi_account_inherit_toggle" .. i
       local gid = "multi_account_user_row" .. i
 
-      -- fallback老版
-      if ui.getText(btn) == "切换为继承设置" then
-        ui.setText(btn, "独立设置")
-      elseif ui.getText(btn) == "切换为独立设置" then
-        ui.setText(btn, "默认设置")
-      end
-
       if ui.getText(btn) == "默认设置" then
         ui.setRowVisibleByGid(layout, gid, 8)
         -- ui.setSpinner("multi_account_inherit_spinner" .. i, all_inherit_choice,
         --               0)
+        -- 异格
       else
         ui.setRowVisibleByGid(layout, gid, 0)
         -- TODO 这里“独立”的大小和“默认”有区别
@@ -2026,7 +2020,7 @@ multi_account_config_export = function(simple)
       content = JsonDecode(content)
       local account = ''
       for i = 1, multi_account_num do
-        local username = content['username' .. i]
+        local username = content['username' .. i]:map({[' '] = ''})
         local password = content['password' .. i]
         local server = content['server' .. i]
         if type(username) == 'string' and #username > 0 and type(password) ==
@@ -2548,7 +2542,7 @@ A：有root时能自动开无障碍、关闭游戏、亮屏熄屏、捕捉用户
 
 Q：模拟器上完全没反应？
 A：
-1. 脚本适用于雷电、逍遥、夜神、蓝叠4(要开高级图形引擎)、蓝叠5(要开进阶模式图形引擎)、mumu9（启动时存在横竖屏切换闪烁，启动后不影响）、genymotion 10 9 8 7、vmos、redroid10、Android Emulator。不适用于mumu安卓6、红手指安卓6、redroid 8 9 11 12。
+1. 脚本适用于雷电、逍遥、蓝叠4(要开高级/兼容图形引擎)、蓝叠5(要开进阶/兼容模式图形引擎)、mumu9星云版（启动时存在横竖屏切换闪烁，启动后不影响）、genymotion 10 9 8 7、vmos、redroid10、Android Emulator。不适用于 夜神(截屏与不兼容)、mumu安卓6、红手指安卓6、redroid 8 9 11 12。
 2. 脚本要求安卓>=7，分辨率>=1280x720，长宽比>=16:9。
 3. 切换渲染引擎（DirectX与OpenGL）后再尝试一次。本人逍遥只能用OpenGL。
 
@@ -3242,7 +3236,7 @@ predebug_hook = function()
                           table.join(map(function(x) return x.text end, cur))
       return restart()
     end
-    for _,c in pairs(cur) do
+    for _, c in pairs(cur) do
       if not table.includes(accept, c.text) then
         in_fight_return = "幻觉重试：" ..
                             table.join(map(function(x) return x.text end, cur))
@@ -3876,10 +3870,10 @@ restart_next_account = function()
 
   -- 只在多账号模式启用跳过账号
   if not account_idx then
-    if not extra_mode then
-      toast("等待1小时")
-      wait(function() ssleep(1) end, 3600)
-    end
+    -- if not extra_mode then
+    toast("等待1小时")
+    wait(function() ssleep(1) end, 3600)
+    -- end
     saveConfig("hideUIOnce", "true")
     save_extra_mode(extra_mode, extra_mode_multi)
     restartScript()

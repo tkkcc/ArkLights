@@ -60,7 +60,6 @@
 -- console.log(ans)
 -- // console.log(JSON.stringify(ans))
 -- TODO 改为从解包文件获取而非prts
-
 fetchSkillIcon = function()
   toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
@@ -187,6 +186,19 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
       end
     end
     log(129, idx, operator, mood)
+
+    -- -- 异格处理
+    -- log(v[1],v[2])
+    -- exit()
+    -- local yg1 = {v[1] + scale(49), v[2] + scale(93)}
+    -- local yg2 = {v[1] + scale(49), v[2] + scale(93)}
+    -- local yg = false
+    -- yg1 = getPixelColor(yg1)
+    -- yg2 = getPixelColor(yg2)
+    -- if yg1 == yg2 and ygstation[yg1] then
+    --   log("异格干员")
+    --   yg = true
+    -- else
     table.insert(operators, {png, png2, mood, icon1, pageid})
   end
   -- sleep(max(0, delay - (time() - start_time)))

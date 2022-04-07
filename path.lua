@@ -522,8 +522,8 @@ path.邮件收取 = function()
   path.跳转("邮件")
   local state = sample("邮件提示")
   if not wait(function()
-    if not findOne(state) then return true end
     tap("收取所有邮件")
+    if not findOne(state) then return true end
   end, 10) then return end
 
   -- 卡在邮件的获取
