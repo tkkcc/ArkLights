@@ -378,6 +378,7 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
         base = 0.45 + 0.01
       else
         -- 参考 https://bbs.nga.cn/read.php?tid=25965441&rand=365
+        -- 即使柏喙/卡夫卡等价白板，也倾向于选，因为其他地方也不怎么用
         if all['Bskill_tra_wt%26cost2.png'] and all['Bskill_tra_long2.png'] then
           only_need = {
             'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost2.png',
@@ -394,14 +395,20 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
           only_need = {'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost2.png'}
           base = 0.9218
         elseif all['Bskill_tra_long2.png'] then
-          only_need = {'Bskill_tra_vodfox.png', 'Bskill_tra_long2.png'}
-          base = 1.4734
+          only_need = {
+            'Bskill_tra_vodfox.png', 'Bskill_tra_long2.png',
+            'Bskill_tra_wt%26cost1.png',
+          }
+          base = 1.4734 + 0.001 * all['Bskill_tra_wt%26cost1.png']
         elseif all['Bskill_tra_long1.png'] then
-          only_need = {'Bskill_tra_vodfox.png', 'Bskill_tra_long1.png'}
-          base = 1.1927
+          only_need = {
+            'Bskill_tra_vodfox.png', 'Bskill_tra_long1.png',
+            'Bskill_tra_wt%26cost1.png',
+          }
+          base = 1.1927 + 0.001 * all['Bskill_tra_wt%26cost1.png']
         else
-          only_need = {'Bskill_tra_vodfox.png'}
-          base = 0.9120
+          only_need = {'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost1.png'}
+          base = 0.9120 + 0.001 * all['Bskill_tra_wt%26cost1.png']
         end
       end
     end
