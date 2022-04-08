@@ -2296,50 +2296,47 @@ path.开始游戏 = function(x, disable_ptrs_check)
     return path.开始游戏(x)
   elseif state == "药剂恢复理智取消" then
 
-    if (disable_drug_48hour and disable_drug_24hour) or
-      not findTap("理智药清空选择") then
-      log("2226", disable_drug_24hour, disable_drug_48hour)
-      zero_san = true
-      tap("药剂恢复理智取消")
-      return
-    end
+    -- if (disable_drug_48hour and disable_drug_24hour) or
+    --   not findTap("理智药清空选择") then
+    --   log("2226", disable_drug_24hour, disable_drug_48hour)
+    --   zero_san = true
+    --   tap("药剂恢复理智取消")
+    --   return
+    -- end
+    tap("理智药清空选择")
 
     local deadline = {}
     wait(function()
       deadline = ocr("理智药到期时间范围")
-      if table.any(deadline,
-                   function(x) return x.text:includes({"天", "时"}) end) then
+      if #deadline == 1 and deadline[1].text:includes({"天", "时"}) then
         return true
       end
     end, 5)
-
-    log(2238, deadline)
-    local deadline_48hour = table.filter(deadline, function(x)
-      return x.text == "1天" or x.text:endsWith("时")
+    deadline = deadline[1] or {text = ''}
+    log(2317, deadline)
+    local idx = table.findv(range(2, 7), function(i)
+      return deadline.text == (i - 1) .. '天'
     end)
-
-    local deadline_24hour = table.filter(deadline, function(x)
-      return x.text:endsWith("时")
-    end)
-
-    if disable_drug_48hour then
-      deadline = deadline_24hour
-    else
-      deadline = deadline_48hour
-    end
-
-    log(2239, deadline)
-    if #deadline == 0 then
+    if deadline.text:endsWith("时") then idx = 1 end
+    idx = idx or 0
+    log(2318, idx)
+    local max_times = _G['max_drug_times_' .. idx .. 'day']
+    local times = _G['drug_times_' .. idx .. 'day']
+    if not max_times or times >= max_times then
+      log(2326, idx, times, max_times)
       zero_san = true
       tap("药剂恢复理智取消")
       return
     end
 
     -- 理智小样为10, 最大理智关卡为35，5次应该足够
-    deadline = map(function(x) return {x.r, scale(409)} end, deadline)
-    for _, v in pairs(deadline) do for i = 1, 1 do tap(v) end end
-    log(2240, deadline)
+    -- deadline = map(function(x) return {x.r, scale(409)} end, deadline)
+    -- for _, v in pairs(deadline) do for i = 1, 1 do tap(v) end end
+    -- log(2240, deadline)
+    tap({deadline.l, scale(409)})
 
+    _G['drug_times_' .. idx .. 'day'] = times + 1
+    log(drug_times_3day,max_drug_times_3day)
     if not wait(function()
       if findOne("开始行动") then return true end
       if findOne(state) then
@@ -2806,9 +2803,10 @@ end
 path.活动任务与商店 = function()
   path.跳转("邮件")
   path.跳转("首页")
-  tap("面板活动")
-  log(274)
+  tap("面板作战")
+
   if not wait(function()
+    tap("作战主页列表1")
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then
       tap("跳过剧情")

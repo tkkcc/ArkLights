@@ -2003,7 +2003,6 @@ show_multi_account_ui = function()
   end
 
   ui.loadProfile(getUIConfigPath(layout))
-  -- log(ui.getText('multi_account_choice'))
   multi_account_inherit_render(1, num)
 
   if #continue_account > 0 then
@@ -2327,10 +2326,10 @@ show_main_ui = function()
   local max_checkbox_one_row = 3
   local buttons = {
     {
-      layout .. "multi_account", "多账号",
+      randomString(32), "多账号",
       make_jump_ui_command(layout, 'multi_account'),
     }, {
-      layout .. "screenon", "亮屏解锁",
+      randomString(32), "亮屏解锁",
       make_jump_ui_command(layout, 'gesture_capture'),
     }, -- {
     --   layout .. "crontab", "定时执行",
@@ -2344,13 +2343,13 @@ show_main_ui = function()
     --   layout .. "qqgroup", "反馈群",
     --   make_jump_ui_command(layout, nil, "jump_qqgroup()"),
     -- },
-    {layout .. "_extra", "其他功能", make_jump_ui_command(layout, "extra")},
-    {layout .. "_help", "必读", make_jump_ui_command(layout, "help")},
+    {randomString(32), "其他功能", make_jump_ui_command(layout, "extra")},
+    {randomString(32), "必读", make_jump_ui_command(layout, "help")},
     {
-      layout .. "_stop", "退出",
+      randomString(32), "退出",
       make_jump_ui_command(layout, nil, "peaceExit()"),
     },
-    {layout .. "_debug", "调试设置", make_jump_ui_command(layout, "debug")},
+    {randomString(32), "高级设置", make_jump_ui_command(layout, "debug")},
     -- {
     --   layout .. "demo", "视频演示",
     --   make_jump_ui_command(layout, nil, "jump_bilibili()"),
@@ -2466,7 +2465,7 @@ Q：作战出现非三星代理/代理失误时是否跳过？
 A：出现时通知QQ，连续出现三次跳过当前关。
 
 Q：设置不吃药但还是吃了/自动吃到期理智药？
-A：默认自动吃48小时到期理智药（无论次数设置为多少），可在调试设置中关闭。
+A：默认自动吃48小时到期理智药（无论次数设置为多少），可在高级设置中关闭。
 
 Q：换班产率低？
 A：“高产”换班根据 当前实际可用基建技能 穷举所有干员组合，计算每个组合8小时平均加成，选择最高加成组合，有以下限制：
@@ -2527,7 +2526,7 @@ A：任务完成后，机器人将把首页截图与可招募标签发给QQ。�
 
 Q：QQ通知怎么用？
 A：用自己QQ加机器人QQ为好友（机器人会自动同意），将自己QQ填入脚本横线处，然后启动。
-机器人QQ：605597237(多次被封),2476685186(新号),1514678048(新号)。
+机器人QQ：2476685186,1514678048,2952153374。(建议全加或全拉进群)
 想自建服务的看github教程，想无偿贡献闲置QQ的可以私聊开发者。
 
 Q：QQ通知有消息没图片/怎么向群里发通知？
@@ -2561,7 +2560,7 @@ Q：多号密码错误会怎么处理？
 A：官服登录出验证码/B服登录失败时会暂时跳过该账号，可配合QQ通知使用。
 
 Q：账号被抢登/抢占或掉线会怎么样？
-A：重登后执行后续任务。调试设置中可设“单号最大登录次数”为2，第一次切号登录算一次，之后被抢登或掉线再次登录是第二次，看到会跳过(多号)或等1小时(单号)，（单号或无帐密多号，且游戏处于登录后界面则 可能 需要被抢登或掉线2次，因为 不一定有 第一次登录）。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
+A：重登后执行后续任务。高级设置中可设“单号最大登录次数”为2，第一次切号登录算一次，之后被抢登或掉线再次登录是第二次，看到会跳过(多号)或等1小时(单号)，（单号或无帐密多号，且游戏处于登录后界面则 可能 需要被抢登或掉线2次，因为 不一定有 第一次登录）。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
 
 Q：登陆出现滑动验证码？
 A：一段时间内多次登陆时出现，会自动解。
@@ -2588,7 +2587,7 @@ Q：手机上完全没反应？
 A：
 1. 检查上一问题答案。
 2. 检查脚本主界面底部注意事项。
-3. 如果系统使用不同于物理设备的分辨率，需在“调试设置”中指定分辨率。
+3. 如果系统使用不同于物理设备的分辨率，需在“高级设置”中指定分辨率。
 4. 重启一次设备。
 9. 通过vmos使用、换设备、换脚本。
 
@@ -2659,7 +2658,7 @@ end
 show_debug_ui = function()
   local layout = "debug"
   ui.newLayout(layout, ui_page_width, -2)
-  ui.setTitleText(layout, "调试设置")
+  ui.setTitleText(layout, "高级设置")
 
   newRow(layout)
   ui.addButton(layout, layout .. "_stop", "返回")
@@ -2670,12 +2669,6 @@ show_debug_ui = function()
   addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
 
-  newRow(layout)
-  addTextView(layout, "自建QQ通知服务(教程见github)")
-  ui.addEditText(layout, "qqimagedeliver", "")
-
-  newRow(layout)
-  ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
   -- newRow(layout)
   -- ui.addCheckBox(layout, "zl_enable_slow_drag", "前瞻投资长部署时间",
   --                false)
@@ -2691,25 +2684,39 @@ show_debug_ui = function()
   -- ui.addEditText(layout, "tapall_duration", "")
   -- ui.addCheckBox(layout, "tapall_usetap", "多点点击模式", false)
 
+  --
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "disable_drug_24hour",
+  --                "禁用自动吃24时到期理智药", false)
+  --
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "disable_drug_48hour",
+  --                "禁用自动吃48时到期理智药", false)
+
+  for i = 1, 7 do
+    newRow(layout)
+    local timenote = i == 1 and "“X小时”" or "“" .. (i - 1) .. "天”"
+    local default = i == 1 and '99' or '0'
+    addTextView(layout, timenote .. "理智药最多吃")
+    ui.addEditText(layout, "max_drug_times_" .. i .. "day", default)
+    addTextView(layout, "次")
+  end
+
+  newRow(layout)
+  addTextView(layout, "自建QQ通知服务地址")
+  ui.addEditText(layout, "qqimagedeliver", "")
+  newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_quiet", "QQ通知只显示备注", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
+
   newRow(layout)
   ui.addCheckBox(layout, "disable_hotupdate", "禁用自动更新", false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "disable_drug_24hour",
-                 "禁用自动吃24时到期理智药", false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "disable_drug_48hour",
-                 "禁用自动吃48时到期理智药", false)
-
   newRow(layout)
   ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "qqnotify_quiet", "QQ通知只显示备注", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "enable_native_tap", "启用原生点击方式", false)
@@ -2827,15 +2834,15 @@ show_extra_ui = function()
             make_jump_ui_command(layout, nil,
                                  "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
 
-  newRow(layout)
-  addButton(layout, layout .. "_hd3_shop", "吾导先路任务与商店",
-            make_jump_ui_command(layout, nil,
-                                 "extra_mode='活动2任务与商店';lock:remove(main_ui_lock)"))
-
-  addButton(layout, layout .. "_hd3_shop_multi",
-            "吾导先路任务与商店多号",
-            make_jump_ui_command(layout, nil,
-                                 "extra_mode='活动2任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
+  -- newRow(layout)
+  -- addButton(layout, layout .. "_hd3_shop", "吾导先路任务与商店",
+  --           make_jump_ui_command(layout, nil,
+  --                                "extra_mode='活动2任务与商店';lock:remove(main_ui_lock)"))
+  --
+  -- addButton(layout, layout .. "_hd3_shop_multi",
+  --           "吾导先路任务与商店多号",
+  --           make_jump_ui_command(layout, nil,
+  --                                "extra_mode='活动2任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
 
   newRow(layout)
   addButton(layout, layout .. "_speedrun", "每日任务速通（别用）",
@@ -3552,6 +3559,11 @@ update_state_from_ui = function()
   max_drug_times = str2int(max_drug_times, 0)
   stone_times = 0
   max_stone_times = str2int(max_stone_times, 0)
+  for i = 1, 7 do
+    local k = 'drug_times_' .. i .. 'day'
+    _G[k] = 0
+  end
+
   appid = server == 0 and oppid or bppid
   job = parse_from_ui("now_job_ui", all_job)
 
@@ -3588,7 +3600,7 @@ update_state_from_ui = function()
   end
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
-  hd_open_time_end = parse_time("202204120400")
+  hd_open_time_end = parse_time("202203120400")
   all_open_time_start = parse_time("202202241600")
   all_open_time_end = parse_time("202203100400")
   update_open_time()

@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.04.08  1:57"
+release_date = "2022.04.08 17:38"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -102,12 +102,17 @@ if #((qqimagedeliver or ''):trim()) == 0 then
   qqimagedeliver = "http://82.156.198.12:49875"
 end
 if zl_enable_log then zl_disable_log = false end
-no_extra_job = {}
+
+for i = 1, 7 do
+  local k = 'max_drug_times_' .. i .. 'day'
+  _G[k] = str2int(_G[k], 0)
+end
+if disable_drug_24hour then max_drug_times_1day = 0 end
 
 load(before_account_hook or '')()
 
+no_extra_job = {}
 transfer_global_variable("multi_account_user1", "multi_account_user0")
-
 -- 多帐号模式
 if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
   multi_account_enable then
