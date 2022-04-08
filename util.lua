@@ -1938,6 +1938,11 @@ show_multi_account_ui = function()
               [[“启用账号”填数字“2 4”表示跑第2第4两个号，填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。临时账号写在#号后，填“1-10 # 5-10”表示跑前10个号，但本次启动只跑第5到第10个。账密为空时不做账号退出。抢登处理看必读。]])
 
   newRow(layout, "center")
+
+  multi_account_all_inherit_choice = map(function(x)
+    return "账号" .. tostring(x):padStart(2, '0')
+  end, range(1, multi_account_num))
+
   for i = 1, num do
     local padi = tostring(i):padStart(2, '0')
     newRow(layout)
@@ -1948,14 +1953,27 @@ show_multi_account_ui = function()
     -- ui.addCheckBox(layout, "multi_account" .. i, "启用", true)
     newRow(layout)
     addTextView(layout, "账号" .. padi .. "在")
-    ui.addRadioGroup(layout, "server" .. i, {"官服", "B服"}, 0, -2, -2, true)
+    -- addTextView(layout, "在")
+
+    -- ui.addRadioGroup(layout, "server" .. i, {"官服", "B服"}, 0, -2, -2, true)
+
+    ui.addSpinner(layout, "server" .. i, {"官服", "B服"}, 0)
     -- newRow(layout)
-    -- addTextView(layout, "账号" .. padi .. "使用")
-    addTextView(layout, "使用")
+    -- addTextView(layout, "账号" .. padi .. "用")
+
+    addTextView(layout, "用")
     addButton(layout, "multi_account_inherit_toggle" .. i, "默认设置",
               "multi_account_inherit_toggle(" .. i .. ")")
+
+    --
+    -- addButton(layout, "multi_account_inherit_toggle" .. i, "默认设置",
+    --           "multi_account_inherit_toggle(" .. i .. ")")
+
     -- addTextView(layout, "账号" .. padi .. "使用",multi_account_inherit)
-    -- ui.addSpinner(layout, "multi_account_inherit_spinner" .. i, {}, 0)
+    -- newRow(layout)
+    ui.addSpinner(layout, "multi_account_inherit_spinner" .. i,
+                  multi_account_all_inherit_choice, 0)
+
     -- addTextView(layout, "设置")
     -- addButton(layout, "multi_account_inherit_toggle" .. i,
     --           "切换为独立设置",
@@ -1972,7 +1990,11 @@ show_multi_account_ui = function()
   -- ui函数必须global
   multi_account_inherit_toggle = function(i)
     local btn = "multi_account_inherit_toggle" .. i
-    if ui.getText(btn) == "默认设置" then
+
+    local txt = ui.getText(btn)
+    if txt == "默认设置" then
+      ui.setText(btn, "继承设置")
+    elseif txt == "继承设置" then
       ui.setText(btn, "独立设置")
     else
       ui.setText(btn, "默认设置")
@@ -1988,16 +2010,26 @@ show_multi_account_ui = function()
     for i = start, stop do
       local btn = "multi_account_inherit_toggle" .. i
       local gid = "multi_account_user_row" .. i
+      local spinner = "multi_account_inherit_spinner" .. i
 
-      if ui.getText(btn) == "默认设置" then
+      -- local txt = ui.getText(btn)
+      -- if txt == "默认设置" then
+      --   ui.setText(btn, "使用" .. txt)
+      -- elseif txt == "独立设置" then
+      --   ui.setText(btn, "使用" .. txt)
+      -- end
+      local txt = ui.getText(btn)
+
+      -- ui.setText(btn,"账号30设置")
+      if txt == "默认设置" then
+        ui.setVisiblity(spinner, 3)
         ui.setRowVisibleByGid(layout, gid, 8)
-        -- ui.setSpinner("multi_account_inherit_spinner" .. i, all_inherit_choice,
-        --               0)
-        -- 异格
-      else
+      elseif txt == "独立设置" then
+        ui.setVisiblity(spinner, 3)
         ui.setRowVisibleByGid(layout, gid, 0)
-        -- TODO 这里“独立”的大小和“默认”有区别
-        -- ui.setSpinner("multi_account_inherit_spinner" .. i, {"  独立  "}, 0)
+      elseif txt == "继承设置" then
+        ui.setRowVisibleByGid(layout, gid, 8)
+        ui.setVisiblity(spinner, 1)
       end
     end
   end
@@ -3639,16 +3671,17 @@ end
 apply_multi_account_setting = function(i, visited)
   visited = visited or {}
   table.insert(visited, i)
-  if _G["multi_account_inherit_toggle" .. i] == "默认设置" then
-    -- local inherit = _G["multi_account_inherit_spinner" .. i]
-    local inherit = 0
-
-    local j = math.floor(inherit)
-    if inherit == 0 or table.includes(visited, j) then
+  local txt = _G["multi_account_inherit_toggle" .. i]
+  if txt == "继承设置" then
+    local inherit = _G["multi_account_inherit_spinner" .. i]
+    local j = math.floor(inherit) + 1
+    if table.includes(visited, j) then
       transfer_global_variable("multi_account_user0")
     else
       apply_multi_account_setting(j, visited)
     end
+  elseif txt == "默认设置" then
+    transfer_global_variable("multi_account_user0")
   else
     transfer_global_variable("multi_account_user" .. i)
   end
