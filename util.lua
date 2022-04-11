@@ -99,6 +99,7 @@ if not openPermissionSetting then
   end
 end
 
+package = getPackageName()
 -- transfer 节点精灵 to 懒人精灵
 getColor = function(x, y)
   local bgr = getPixelColor(x, y):upper()
@@ -753,6 +754,7 @@ findColorAbsolute = function(color, confidence)
 end
 
 findOne_game_up_check_last_time = 0
+findOne_oom_check_last_time = 0
 findOne_last_time = time()
 findOne_locked = false
 findOne = function(x, confidence, disable_game_up_check)
@@ -762,6 +764,11 @@ findOne = function(x, confidence, disable_game_up_check)
     (time() - findOne_game_up_check_last_time > 5000) then
     findOne_game_up_check_last_time = time()
     wait_game_up()
+  end
+
+  if not disable_oom_check and (time() - findOne_oom_check_last_time > 1000) then
+    findOne_oom_check_last_time = time()
+    oom_score_adj()
   end
 
   local x0 = x
@@ -1463,7 +1470,6 @@ wait_game_up = function(retry)
   if retry >= 4 then stop("无法启动游戏", false) end
 
   open(appid)
-  oom_score_adj()
   screenon()
   request_game_permission()
   local p = appear({"game", "keyguard_indication", "keyguard_input", "captcha"},
@@ -2951,8 +2957,7 @@ jump_multi_account_json = function()
   peaceExit()
 end
 openLog = function()
-  local log_file = "file://" .. getSdPath() .. '/' .. getPackageName() ..
-                     '/log/log.txt'
+  local log_file = "file://" .. getSdPath() .. '/' .. package .. '/log/log.txt'
   log_file = '/sdcard/Download/icon.png'
   log(log_file)
   if fileExist(log_file) then log(1) end
@@ -3144,7 +3149,6 @@ end
 enable_accessibility_service = function()
   if isAccessibilityServiceRun() then return end
   if root_mode then
-    local package = getPackageName()
     local service = package .. "/com.nx.assist.AssistService"
     local services = exec(
                        "su root sh -c 'settings get secure enabled_accessibility_services'")
@@ -3200,7 +3204,6 @@ enable_snapshot_service = function()
   if skip_snapshot_service_check then return end
   if root_mode then
     log("enable snapshot service by root")
-    local package = getPackageName()
     -- TODO need this?
     exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
     exec("su root sh -c 'appops set " .. package ..
@@ -3726,6 +3729,9 @@ setEventCallback = function()
   setStopCallBack(function()
     disable_log = false
     log("结束")
+    -- stopThread(keepalive_thread[1])
+    -- stopThread(keepalive_thread[2])
+    -- stopThread(keepalive_thread[3])
     -- log(exec("free -h"))
     -- log(exec("top -n 1"))
     if need_show_console then
@@ -4019,23 +4025,60 @@ check_login_frequency = function()
   end
 end
 
+keepalive_thread = {0, 0, 0}
 oom_score_adj = function()
   if not root_mode then return end
   if disable_oom_score_adj then return end
-  local getCmd = function(package, score)
-    score = score or "-1000"
-    return "'echo " .. score .. " > /proc/$(pidof " .. package ..
-             ")/oom_score_adj'"
-  end
-  local get = function(package)
-    return (exec("su root sh -c 'cat /proc/$(pidof " .. package ..
-                   ")/oom_score_adj'") or ''):trim()
-  end
-  local package = getPackageName()
-  local cmd = table.join({
-    getCmd(package), getCmd(package .. ":acc"), getCmd(package .. ":remote"),
-  }, ';')
-  exec("su root sh -c '" .. cmd .. "'")
+  -- log("4032")
+
+  -- local f = function(package)
+  --     local cmd = [[nohup su root sh -c ' \
+  -- while :; do
+  --   package=]] .. package .. [[
+  --   pid=$(pidof $package)
+  --   [ -z $pid ] && exit
+  --   echo -1000 > /proc/$pid/oom_score_adj
+  --   strace -e trace=none -e signal=none -p $pid
+  --   sleep 0.1
+  -- done
+  local cmd = [[nohup su root sh -c ' \
+echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
+echo -1000 > /proc/$(pidof ]] .. package .. [[:remote)/oom_score_adj
+echo -1000 > /proc/$(pidof ]] .. package .. [[)/oom_score_adj
+' > /dev/null & ]]
+  exec(cmd)
+
+  -- cmd = 'nohup sleep 50 > /dev/null &'
+  -- log(exec(cmd))
+  -- while true do log(exec(cmd)) end
+  -- end
+  -- f(package .. ':acc')
+  -- f(package .. ':remote')
+  -- f(package .. '')
+  -- keepalive_thread[1] = beginThread(f, package .. ':acc')
+  -- keepalive_thread[2] = beginThread(f, package .. ':remote')
+  -- keepalive_thread[3] = beginThread(f, package .. '')
+  -- log("keepalive", keepalive_thread)
+
+  -- local getCmd = function(package, score)
+  --
+  --   score = score or "-1000"
+  --   return "echo " .. score .. " > /proc/$(pidof " .. package ..
+  --            ")/oom_score_adj"
+  -- end
+  -- local get = function(package)
+  --   return (exec("su root sh -c 'cat /proc/$(pidof " .. package ..
+  --                  ")/oom_score_adj'") or ''):trim()
+  -- end
+  -- local package = getPackageName()
+  -- local cmd = table.join({
+  --   getCmd(package), getCmd(package .. ":acc"), getCmd(package .. ":remote"),
+  -- }, ';')
+  -- log(cmd)
+  -- exec("su root sh -c '" .. cmd .. "'")
+  -- exec("su root sh -c '" .. "sleep 1000" .. "'")
+  -- log(4040)
+  -- exit()
   -- log("oom_score_adj:" .. get(package) .. get(package .. ":acc") ..
   --       get(package .. ":remote"))
 end

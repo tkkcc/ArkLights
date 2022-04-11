@@ -3654,7 +3654,6 @@ path.前瞻投资 = function()
 
     toast(in_fight_return or '重开')
     ssleep(3)
-    oom_score_adj()
 
     -- 关闭游戏然后重启脚本
     if restart_game_check(zl_restart_interval) then
