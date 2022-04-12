@@ -2845,7 +2845,6 @@ show_extra_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "zl_no_waste", "每8小时做日常", false)
 
-
   -- addTextView(layout, [[商品需求]])
   -- ui.addEditText(layout, "zl_need_goods", [[]])
 
@@ -3294,6 +3293,33 @@ predebug_hook = function()
   -- ssleep(1)
   -- tap("主页列表首页")
   ssleep(1)
+
+  all = {
+    "迷茫的", "盲目的", "暴怒的", "孤独的", "偏执的",
+    "敏感的", "臆想的", "生存的", "谨慎的",
+  }
+  cur = {{text = "盲在的"}, {text = '桂想的'}, {text = '有用的'}}
+  local f = function()
+    -- 模糊匹配
+    for _, v in pairs(cur) do
+      local txt = v.text
+      if #txt ~= 9 or not txt:endsWith("的") then return end
+      local scores = map(function(x)
+        return {x, chineseUnicodeStringMatch(x, txt)}
+      end, all)
+      log(scores)
+      table.sort(scores, function(a, b) return a[2] < b[2] end)
+      if scores[#scores][2] == 2 and scores[#scores - 1][2] < 2 then
+        log("模糊匹配before", txt)
+        txt = scores[#scores][1]
+        log("模糊匹配after", txt)
+      end
+      v.text = txt
+    end
+  end
+  f()
+  log(cur)
+
   -- findOne("主页")
   -- tap("面板作战")
   -- findTap("返回3")
@@ -4090,7 +4116,7 @@ done"
   exec(cmd)
 
   findOne("面板")
-  tap({screen.width+1,screen.height+1})
+  tap({screen.width + 1, screen.height + 1})
 
 end
 
@@ -4298,6 +4324,17 @@ solveCapture = function()
   sleep(duration + 50)
 
   releaseCapture()
+end
+
+chineseUnicodeStringMatch = function(a, b)
+  local len = min(#a, #b) // 3
+  local score = 0
+  for i = 1, len do
+    if a:sub(i * 3 - 2, i * 3) == b:sub(i * 3 - 2, i * 3) then
+      score = score + 1
+    end
+  end
+  return score
 end
 
 -- post_util_hook

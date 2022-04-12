@@ -3961,6 +3961,35 @@ path.前瞻投资 = function()
     local cur = {}
     if not wait(function()
       cur = ocr("幻觉范围")
+
+      -- 分割
+      for _, v in pairs(cur) do
+        local txt = v.text
+        while #txt > 9 do
+          table.insert(cur, {text = txt:sub(#txt - 8, #txt)})
+          txt = txt:sub(1, #txt - 9)
+        end
+        v.text = txt
+      end
+
+      log("cur", cur)
+      -- 模糊匹配
+      for _, v in pairs(cur) do
+        local txt = v.text
+        if #txt ~= 9 or not txt:endsWith("的") then return end
+        local scores = map(function(x)
+          return {x, chineseUnicodeStringMatch(x, txt)}
+        end, all)
+        table.sort(scores, function(a, b) return a[2] < b[2] end)
+        log("scores", scores)
+        if scores[#scores][2] == 2 and scores[#scores - 1][2] < 2 then
+          log("模糊匹配before", txt)
+          txt = scores[#scores][1]
+          log("模糊匹配after", txt)
+        end
+        v.text = txt
+      end
+
       if table.all(cur, function(x) return table.includes(all, x.text) end) then
         return true
       end
