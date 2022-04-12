@@ -4225,15 +4225,18 @@ path.前瞻投资 = function()
   local drop_page = false
   if not wait(function()
     if not drop_page then tap("战略确认") end
+    if zl_more_repertoire then findTap("剧目") end
     findTap("收藏品")
     if findTap("源石锭") then drop_page = true end
     local p = findOne("不要了")
+    log(4233)
     if p and findOne("战略返回") then
       tap({p[1] + scale(765 - 668), scale(789)})
       tap({p[1] + scale(765 - 668), scale(789)})
       tap({p[1] + scale(765 - 668), scale(789)})
       tap({p[1] + scale(765 - 668), scale(789)})
     end
+
     -- 误触到招募券处理
     if findOne("确认招募") then
       if not wait(function()
@@ -4246,8 +4249,11 @@ path.前瞻投资 = function()
         tap("右右确认")
       end, 5) then return end
     end
+
     if not findOne("战略返回") then
-      appear({"战略返回", "战略帮助"})
+      if not appear({"战略返回", "战略帮助"}) then
+        tap("战略确认")
+      end
     end
     -- if disappear("战略返回",0.5) then return true end
     if findAny({"常规行动", "战略帮助"}) then return true end

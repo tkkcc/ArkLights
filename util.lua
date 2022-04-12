@@ -840,6 +840,7 @@ tap = function(x, noretry, allow_outside_game)
     -- sleep(max(0, tap_interval - (time() - tap_last_time)))
   end
   tap_last_time = time()
+  -- log(838,x)
   if #x > 0 then
     clickPoint(x[1], x[2])
   else
@@ -2832,14 +2833,18 @@ show_extra_ui = function()
   addTextView(layout, [[技能]])
 
   newRow(layout)
-  ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
   ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
-  ui.addCheckBox(layout, "zl_no_waste", "每8小时做日常", false)
+  ui.addCheckBox(layout, "zl_more_repertoire", "多点剧目", false)
+  ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "zl_accept_mg", "可打敏感", false)
   ui.addCheckBox(layout, "zl_accept_yx", "可打臆想", false)
   ui.addCheckBox(layout, "zl_accept_sc", "可打生存", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_no_waste", "每8小时做日常", false)
+
 
   -- addTextView(layout, [[商品需求]])
   -- ui.addEditText(layout, "zl_need_goods", [[]])
@@ -2851,7 +2856,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现多次作战或有效幻觉时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议1280x720。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，应换设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。如果需要蜡烛，应选普通难度，或者用明日再肝(还鸽)与MAA。如果需要推图，应该用明日再肝(还鸽)与MAA，有概率打过第三层boss。]])
+              [[用于刷投资以提高集成战略起点。出现多次作战或有效幻觉时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议1280x720。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，应换设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。如果需要蜡烛，应选普通难度，或用明日再肝(还鸽)与MAA。如果需要推图，应用明日再肝(还鸽)与MAA，有概率打过第三层boss。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -3289,6 +3294,29 @@ predebug_hook = function()
   -- ssleep(1)
   -- tap("主页列表首页")
   ssleep(1)
+  -- findOne("主页")
+  -- tap("面板作战")
+  -- findTap("返回3")
+  -- tap("面板作战")
+  -- findTap("源石锭")
+  findTap("剧目")
+
+  ssleep(1)
+  exit()
+
+  cur = {{text = '迷茫的盲目的木木的'}}
+  for _, v in pairs(cur) do
+    local txt = v.text
+    log(txt)
+    while #txt > 9 do
+      table.insert(cur, {text = txt:sub(#txt - 8, #txt)})
+      txt = txt:sub(1, #txt - 9)
+    end
+    v.text = txt
+  end
+  log(cur)
+  exit()
+
   log(time())
   keepalive()
   log(time())
@@ -3319,6 +3347,14 @@ predebug_hook = function()
     local cur = {}
     if not wait(function()
       cur = ocr("幻觉范围")
+      for _, v in pairs(cur) do
+        local txt = v.text
+        while #txt > 9 do
+          table.insert(cur, {text = txt:sub(#txt - 8, #txt)})
+          txt = txt:sub(1, #txt - 9)
+        end
+        v.text = txt
+      end
       if table.all(cur, function(x) return table.includes(all, x.text) end) then
         return true
       end
@@ -4044,7 +4080,7 @@ keepalive = function()
 end
 
 killacc = function()
-  cmd = [[sh -c ' \
+  local cmd = [[sh -c ' \
 kill $(pidof ]] .. package .. [[:acc)
 timeout 5 sh -c "
 while :;do
@@ -4052,6 +4088,10 @@ while :;do
 done"
 ']]
   exec(cmd)
+
+  findOne("面板")
+  tap({screen.width+1,screen.height+1})
+
 end
 
 oom_score_adj = function()
