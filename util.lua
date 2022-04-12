@@ -754,21 +754,20 @@ findColorAbsolute = function(color, confidence)
 end
 
 findOne_game_up_check_last_time = 0
-findOne_oom_check_last_time = 0
+findOne_keepalive_check_last_time = 0
 findOne_last_time = time()
 findOne_locked = false
 findOne = function(x, confidence, disable_game_up_check)
   if type(x) == "function" then return x() end
 
-  if not disable_game_up_check and
-    (time() - findOne_game_up_check_last_time > 5000) then
+  if (time() - findOne_game_up_check_last_time > 5000) then
     findOne_game_up_check_last_time = time()
     wait_game_up()
   end
 
-  if not disable_oom_check and (time() - findOne_oom_check_last_time > 1000) then
-    findOne_oom_check_last_time = time()
-    oom_score_adj()
+  if (time() - findOne_keepalive_check_last_time > 3600 * 1000) then
+    findOne_keepalive_check_last_time = time()
+    keepalive()
   end
 
   local x0 = x
@@ -1466,7 +1465,8 @@ wait_game_up = function(retry)
     return
   end
   retry = retry or 0
-  if retry == 2 then closeapp(appid) end
+  if retry == 2 then home() end
+  if retry == 3 then closeapp(appid) end
   if retry >= 4 then stop("无法启动游戏", false) end
 
   open(appid)
@@ -2439,6 +2439,7 @@ show_help_ui = function()
 好用的话在上面github链接里登录后点下star
 有问题加群反馈1009619697
 国内主页：gitee.com/bilabila/arknights
+
 ]])
 
   newRow(layout)
@@ -2563,12 +2564,8 @@ Q：QQ通知有什么用？
 A：任务完成后，机器人将把首页截图与可招募标签发给QQ。一般与 定时任务+云手机/模拟器/备用机 配合使用，这样平时只需检查聊天记录，无需接触游戏。
 
 Q：QQ通知怎么用？
-A：用自己QQ加机器人QQ为好友（机器人会自动同意），将自己QQ填入脚本横线处，然后启动。
-机器人QQ：2476685186,1514678048,2952153374。(建议全加或全拉进群)
-想自建服务的看github教程，想无偿贡献闲置QQ的可以私聊开发者。
-
-Q：QQ通知有消息没图片/怎么向群里发通知？
-A：QQ每日私聊发图数量有上限。可创建群聊，邀请机器人（机器人会自动同意），将群号填入脚本横线处。如果拉不进可以先拉群友，再让群友帮忙拉。
+A：加以下所有机器人QQ为好友（机器人会自动同意）后，创建群聊将所有机器人拉进群，将群号填到脚本横线处。
+机器人QQ：2476685186,1514678048,2952153374,605597237。
 
 Q：QQ通知的设备名怎么设置？
 A：QQ号后加“#设备名”，如“1009619697#雷电云5”
@@ -2595,10 +2592,11 @@ Q：单号密码错误会怎么处理？
 A：等待1小时后重试，可配合QQ通知使用。
 
 Q：多号密码错误会怎么处理？
-A：官服登录出验证码/B服登录失败时会暂时跳过该账号，可配合QQ通知使用。
+A：暂时跳过该账号，可配合QQ通知使用。
 
 Q：账号被抢登/抢占或掉线会怎么样？
-A：重登后执行后续任务。高级设置中可设“单号最大登录次数”为2，第一次切号登录算一次，之后被抢登或掉线再次登录是第二次，看到会跳过(多号)或等1小时(单号)，（单号或无帐密多号，且游戏处于登录后界面则 可能 需要被抢登或掉线2次，因为 不一定有 第一次登录）。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
+A：脚本默认是无限抢登。想避免抢登，应将高级设置中“单号最大登录次数”设为2，第一次切号登录算一次，之后被抢登或掉线再次登录是第二次，遇到就会跳过(多号)或等1小时(单号)，（特殊情况：单号或无帐密多号，且游戏处于登录后界面则 可能 需要被抢登或掉线2次，因为 不一定有 第一次登录）。网络不稳定或长时间刷源石锭时可能频繁掉线，不建议设置。
+
 
 Q：登陆出现滑动验证码？
 A：一段时间内多次登陆时出现，会自动解。
@@ -2645,7 +2643,7 @@ Q：突然没反应？
 A：卡随机界面，参考下一问题答案。卡同一界面，反馈下。
 
 Q：突然出现“停止运行”、悬浮按钮消失、悬浮按钮位置改变？
-A：被系统杀了。调整系统设置、给足权限、换设备、换脚本。
+A：被系统杀了。给足权限、换设备、换脚本。
 
 Q：突然没反应且悬浮按钮无绿边？
 A：说明脚本正常停止或出现代码错误，感觉有问题反馈下。
@@ -2743,8 +2741,19 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "自建QQ通知服务地址")
   ui.addEditText(layout, "qqimagedeliver", "")
+
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_quiet", "QQ通知只显示备注", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "enable_keepalive",
+                 "保活模式(需关root通知与“X正在运行”通知)",
+                 false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_restart_interval_3600",
+                 "前瞻投资每小时重启游戏", false)
+
   newRow(layout)
   ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
 
@@ -2760,10 +2769,6 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "enable_native_tap", "启用原生点击方式", false)
   newRow(layout)
   ui.addCheckBox(layout, "enable_simultaneous_tap", "启用多点同步点击",
-                 false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "diable_oom_score_adj", "禁用oom_score_adj设置",
                  false)
 
   newRow(layout)
@@ -3284,6 +3289,12 @@ predebug_hook = function()
   -- ssleep(1)
   -- tap("主页列表首页")
   ssleep(1)
+  log(time())
+  keepalive()
+  log(time())
+  -- log(findOne("凋零残响"))
+  exit()
+
   local restart = function()
     log(in_fight_return)
     exit()
@@ -3934,13 +3945,14 @@ shrink_number_config = function(x)
   return x
 end
 
-restart_game_check_last_time = time()
+restart_game_check_last_time = nil
 restart_game_check = function(timeout)
   timeout = timeout or 1800 -- 半小时
   log(3145, timeout)
+  restart_game_check_last_time = restart_game_check_last_time or time()
   if (time() - restart_game_check_last_time) > timeout * 1000 then
-    closeapp(appid)
     restart_game_check_last_time = time()
+    closeapp(appid)
     log(3149)
     return true
   end
@@ -4025,10 +4037,27 @@ check_login_frequency = function()
   end
 end
 
-keepalive_thread = {0, 0, 0}
+keepalive = function()
+  if not enable_keepalive then return end
+  killacc()
+  oom_score_adj()
+end
+
+killacc = function()
+  cmd = [[sh -c ' \
+kill $(pidof ]] .. package .. [[:acc)
+timeout 5 sh -c "
+while :;do
+  pidof ]] .. package .. [[:acc && break
+done"
+']]
+  exec(cmd)
+end
+
 oom_score_adj = function()
   if not root_mode then return end
-  if disable_oom_score_adj then return end
+  -- if disable_oom_score_adj then return end
+  -- if not enable_oom_score_adj then return end
   -- log("4032")
 
   -- local f = function(package)
@@ -4046,6 +4075,7 @@ echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
 echo -1000 > /proc/$(pidof ]] .. package .. [[:remote)/oom_score_adj
 echo -1000 > /proc/$(pidof ]] .. package .. [[)/oom_score_adj
 ' > /dev/null & ]]
+
   exec(cmd)
 
   -- cmd = 'nohup sleep 50 > /dev/null &'

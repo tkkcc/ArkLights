@@ -2336,7 +2336,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     tap({deadline.l, scale(409)})
 
     _G['drug_times_' .. idx .. 'day'] = times + 1
-    log(drug_times_3day,max_drug_times_3day)
+    log(drug_times_3day, max_drug_times_3day)
     if not wait(function()
       if findOne("开始行动") then return true end
       if findOne(state) then
@@ -3634,10 +3634,19 @@ path.前瞻投资 = function()
   --   end, 10) then stop("登录需要密码", false) end
   -- end
 
-  if not wait(function()
-    if not findOne("凋零残响") then return true end
-    tap("战略确认")
-  end, 15) then return end
+  if findOne("凋零残响") then
+    -- local last_time_see = time()
+    wait(function()
+      if findAny({"常规行动", "面板"}) then return true end
+      -- if findOne("凋零残响") then
+      --   last_time_see = time()
+      -- elseif time() - last_time_see > 5000 then
+      --   return true
+      -- end
+      tap("战略确认")
+    end, 15)
+    return
+  end
 
   -- 每8小时做日常
   if zl_no_waste then
@@ -3650,18 +3659,19 @@ path.前瞻投资 = function()
 
   local in_fight_return = ''
   local restart = function()
-    log(in_fight_return)
-
     toast(in_fight_return or '重开')
     ssleep(3)
+    restart_game_check(zl_restart_interval)
+    -- 脚本内存泄漏45M/h => 每小时重启acc进程
+    -- 游戏内存泄漏66M/h => 每小时重启游戏
 
-    -- 关闭游戏然后重启脚本
-    if restart_game_check(zl_restart_interval) then
-      saveConfig("hideUIOnce", "true")
-      save_extra_mode(extra_mode, extra_mode_multi)
-      log(3326, loadConfig("restart_mode_hook", ''))
-      restartScript()
-    end
+    -- -- 关闭游戏然后重启脚本
+    -- if restart_game_check(zl_restart_interval) then
+    --   saveConfig("hideUIOnce", "true")
+    --   save_extra_mode(extra_mode, extra_mode_multi)
+    --   log(3326, loadConfig("restart_mode_hook", ''))
+    --   restartScript()
+    -- end
 
   end
   local jumpout
@@ -4155,12 +4165,6 @@ path.前瞻投资 = function()
       -- return true
     end
   end, 30) then return end
-  log(2840)
-
-  if not findOne("干员费用够列表1") then
-    log(2830)
-    return
-  end
 
   -- 重复拖拽
   wait(function()
@@ -4214,8 +4218,8 @@ path.前瞻投资 = function()
     end
   end, 300) then return closeapp(appid) end
 
-  appear({"战略返回", "凋零残想"}, 30)
-  if findOne("凋零残想") then return end
+  appear({"战略返回", "凋零残响"}, 30)
+  if findOne("凋零残响") then return end
   if not findOne("战略返回") then return end
 
   local drop_page = false

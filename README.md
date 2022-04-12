@@ -19,8 +19,8 @@
 
 ## 安装
 
-下载[明日方舟速通](https://wwa.lanzoui.com/b010qimmf)（密码0000）
-
+下载[明日方舟速通](https://wwa.lanzoui.com/b010qimmf)（密码0000）  
+不支持夜神、mumu6、红手指安卓6
 
 ## 开发
 
