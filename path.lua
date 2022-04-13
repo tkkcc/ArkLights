@@ -3815,36 +3815,36 @@ path.前瞻投资 = function()
     if findOne("剿灭说明") then tap("剿灭说明") end
     tap("辅助招募券")
     tap("招募说明关闭")
-  end, 5) then return end
+  end, 10) then return end
 
   if not wait(function()
     tap("放弃招募")
     if findOne("剿灭说明") then tap("剿灭说明") end
     if not findOne("确认招募") then return true end
-  end, 5) then return end
+  end, 10) then return end
 
   if not wait(function()
     tap("右右确认")
     if findOne("剿灭说明") then tap("剿灭说明") end
     if findOne("初始招募") then return true end
-  end, 5) then return end
+  end, 10) then return end
 
   -- 第三人
   if not wait(function()
     tap("医疗招募券")
     tap("招募说明关闭")
     if findOne("确认招募") then return true end
-  end, 5) then return end
+  end, 10) then return end
 
   if not wait(function()
     tap("放弃招募")
     if not findOne("确认招募") then return true end
-  end, 5) then return end
+  end, 10) then return end
 
   if not wait(function()
     tap("右右确认")
     if findOne("初始招募") then return true end
-  end, 5) then return end
+  end, 10) then return end
 
   -- 第一人
   if not wait(function()
@@ -3853,7 +3853,7 @@ path.前瞻投资 = function()
     if not findOne("初始招募") and findOne("确认招募") then
       return true
     end
-  end, 5) then return end
+  end, 10) then return end
 
   if not wait(function()
     if findAny({"初始招募", "战略返回"}) then
@@ -4447,17 +4447,18 @@ path.前瞻投资 = function()
     tap("诡意行商投币")
   end) then return end
 
-  local coin_notification = sample("投币提示")
+  local coin_no_notification = sample("投币提示")
   local coin_start_time = time()
 
   -- 超时改为60秒，有时会出现上限极高情况
   wait(function()
     -- 不能投情况
     if not findOne("诡意行商投资入口") then return true end
+    if findOne("正在释放神经递质") then coin_start_time = time() end
 
     -- 6秒后，如果底部投币提示没有，那就说明投币结束
     -- 能投但币不够或者已投满
-    if time() - coin_start_time > 6000 and findOne(coin_notification) then
+    if time() - coin_start_time > 6000 and findOne(coin_no_notification) then
       return true
     end
     tap("诡意行商确认投资")

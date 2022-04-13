@@ -2440,6 +2440,10 @@ show_help_ui = function()
 好用的话在上面github链接里登录后点下star
 有问题加群反馈1009619697
 国内主页：gitee.com/bilabila/arknights
+商用要求：可卖脚本与服务，修改代码再卖必须开源。
+
+最近更新：
+1. 增加root保活机制，雷电2核2G内存可无限挂肉鸽。需手动关闭root授权提示。
 
 ]])
 
@@ -2668,7 +2672,7 @@ Q：报毒？
 A：框架限制，无法安装或不放心可以通过vmos使用或用虚拟机。
 
 Q：模拟器屏幕颠倒/旋转/竖屏？
-A：正常，模拟器设置里如果有“强制锁定横屏”可以开。
+A：正常，雷电模拟器可以选用“平板版”分辨率。
 
 Q：脚本什么原理？
 A：脚本通过无障碍录屏方式获取屏幕，判断状态，执行相应的操作，即所谓的图色脚本。
@@ -2681,8 +2685,6 @@ A：除了可以导入脚本导出的详细设置外，还可以导入如下简�
 100000 tttt
 13333 66666 B服
 导入简单格式时会追加而非覆盖。但如果第30个账号已填，则从第1个账号开始覆盖。
-
-
 ]])
 
   --   newRow(layout)
@@ -2746,28 +2748,30 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_quiet", "QQ通知只显示备注", false)
 
-  newRow(layout)
-  ui.addCheckBox(layout, "enable_keepalive",
-                 "保活模式(需关root通知与“X正在运行”通知)",
-                 false)
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "enable_keepalive",
+  --                "保活模式(需关root通知与“X正在运行”通知)",
+  --                false)
 
-  newRow(layout)
-  ui.addCheckBox(layout, "zl_restart_interval_3600",
-                 "前瞻投资每小时重启游戏", false)
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "zl_restart_interval_3600",
+  --                "前瞻投资每小时重启游戏", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "disable_hotupdate", "禁用自动更新", false)
-  newRow(layout)
   ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
+  ui.addCheckBox(layout, "disable_hotupdate", "禁用自动更新", false)
+
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "enable_native_tap", "启用原生点击方式", false)
+
   newRow(layout)
   ui.addCheckBox(layout, "enable_simultaneous_tap", "启用多点同步点击",
                  false)
@@ -2776,7 +2780,8 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "beta_mode", "使用调试更新源", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "debug_disable_log", "禁用日志", false)
+  ui.addCheckBox(layout, "debug_disable_log", "禁用全部日志", false)
+
   newRow(layout)
   ui.addCheckBox(layout, "debug_mode", "测试模式", false)
 
@@ -3292,42 +3297,21 @@ predebug_hook = function()
   disable_game_up_check = 1
   -- ssleep(1)
   -- tap("主页列表首页")
+  --
   ssleep(1)
-
-  all = {
-    "迷茫的", "盲目的", "暴怒的", "孤独的", "偏执的",
-    "敏感的", "臆想的", "生存的", "谨慎的",
-  }
-  cur = {{text = "盲在的"}, {text = '桂想的'}, {text = '有用的'}}
-  local f = function()
-    -- 模糊匹配
-    for _, v in pairs(cur) do
-      local txt = v.text
-      if #txt ~= 9 or not txt:endsWith("的") then return end
-      local scores = map(function(x)
-        return {x, chineseUnicodeStringMatch(x, txt)}
-      end, all)
-      log(scores)
-      table.sort(scores, function(a, b) return a[2] < b[2] end)
-      if scores[#scores][2] == 2 and scores[#scores - 1][2] < 2 then
-        log("模糊匹配before", txt)
-        txt = scores[#scores][1]
-        log("模糊匹配after", txt)
-      end
-      v.text = txt
-    end
-  end
-  f()
-  log(cur)
-
-  -- findOne("主页")
-  -- tap("面板作战")
-  -- findTap("返回3")
-  -- tap("面板作战")
-  -- findTap("源石锭")
-  findTap("剧目")
+  -- log(1)
+  -- log(appear("返回", 10))
+  disappear("面板", 50)
+  -- log(findOne("信用交易所"))
+  -- while true do
+  --   if not findOne("主页") then
+  --     log(1)
+  --   end
+  -- end
 
   ssleep(1)
+  -- killacc()
+  -- log(2)
   exit()
 
   cur = {{text = '迷茫的盲目的木木的'}}
@@ -3641,8 +3625,8 @@ end
 check_root_mode = function()
   if not disable_root_mode and #exec("su root sh -c 'echo aaa'") > 1 then
     root_mode = true
+    disableRootToast()
   end
-  -- log(exec("echo aaa"))
   -- log(exec("sh -c 'echo aaa'"))
   -- log(exec("sh -c 'echo aaa'"))
   -- log(exec("su root sh -c 'echo aaa'"))
@@ -4100,24 +4084,33 @@ check_login_frequency = function()
 end
 
 keepalive = function()
-  if not enable_keepalive then return end
+
+  -- log("enable_keepalive",enable_keepalive)
+  -- if not enable_keepalive then return end
   killacc()
   oom_score_adj()
 end
 
 killacc = function()
-  local cmd = [[sh -c ' \
+  if not root_mode then return end
+  local cmd = [[sh root sh -c ' \
+settings put global heads_up_notifications_enabled 0
 kill $(pidof ]] .. package .. [[:acc)
 timeout 5 sh -c "
 while :;do
   pidof ]] .. package .. [[:acc && break
 done"
-']]
+'
+]]
   exec(cmd)
 
-  findOne("面板")
   tap({screen.width + 1, screen.height + 1})
 
+  cmd = [[nohup su root sh -c ' \
+sleep 5
+settings put global heads_up_notifications_enabled 1
+' > /dev/null & ]]
+  exec(cmd)
 end
 
 oom_score_adj = function()
@@ -4335,6 +4328,15 @@ chineseUnicodeStringMatch = function(a, b)
     end
   end
   return score
+end
+
+disableRootToast = function()
+  -- toast会影响识别
+  local cmd = [[nohup su root sh -c ' \
+root_manager=$(pm list packages|grep -e .superuser -e .supersu -e .magisk | head -n1|cut -d: -f2)
+appops set $root_manager TOAST_WINDOW deny
+' > /dev/null & ]]
+  exec(cmd)
 end
 
 -- post_util_hook
