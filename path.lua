@@ -256,6 +256,8 @@ path.bilibili_login = {
       wait(function() input("bilibili_password_inputbox", password) end, 1)
       -- input("bilibili_username_inputbox", username)
       -- input("bilibili_password_inputbox", password)
+    else
+      stop("账号或密码为空", account_idx and true or false)
     end
     tap("bilibili_login")
     if not disappear("bilibili_login", 5) then stop("登录失败35", true) end
@@ -2380,10 +2382,10 @@ path.主线 = function(x)
       go()
       return true
     end,
-    [state_with_home("按下当前进度列表" .. chapter_index)] = function()
-      go()
-      return true
-    end,
+    -- [state_with_home("按下当前进度列表" .. chapter_index)] = function()
+    --   go()
+    --   return true
+    -- end,
   }
   if chapter_index <= 4 then -- chapter 0 to 3
     switch_start = 1
@@ -2391,16 +2393,16 @@ path.主线 = function(x)
   elseif chapter_index <= 9 then -- chapter 4 to 8
     switch_start = 5
     switch_end = 9
-  else
+  elseif chapter_index <= 14 then -- chapter 9 to ?
     switch_start = 10
-    switch_end = 10 - 1
+    switch_end = 14
   end
   for i = switch_start, switch_end do
     if chapter_index ~= i then
       p[state_with_home("当前进度列表" .. i)] =
         "当前进度列表" .. (i > chapter_index and "左" or "右")
-      p[state_with_home("按下当前进度列表" .. i)] =
-        "当前进度列表" .. (i > chapter_index and "左" or "右")
+      -- p[state_with_home("按下当前进度列表" .. i)] =
+      --   "当前进度列表" .. (i > chapter_index and "左" or "右")
     end
   end
 
@@ -2452,7 +2454,7 @@ end
 
 path.上一次 = function(x)
   log("1265")
-  if findOne("开始行动") then return path.开始行动(x) end
+  if findOne("开始行动") then return path.开始游戏(x) end
   log("1266")
   path.跳转("首页")
   tap("面板作战")
@@ -3710,7 +3712,7 @@ path.前瞻投资 = function()
     if not wait(function()
       if findOne("返回确认界面") then return true end
       tap("放弃本次探索")
-    end, 2) then
+    end, 5) then
       log(2608)
       -- 无法直接放弃的情况 不处理
       if not wait(function()
@@ -3736,6 +3738,11 @@ path.前瞻投资 = function()
 
     end
     if not wait(function()
+      if findOne("返回确认界面") then
+        tap("右右确认")
+        return
+      end
+      tap("战略确认")
       if findOne("常规行动") and not findOne("放弃探索") then
         return true
       end
@@ -3747,8 +3754,6 @@ path.前瞻投资 = function()
         jumpout = true
         return true
       end
-      tap("右右确认")
-      tap("战略确认")
     end, 30) then return end
   end
   if jumpout then return end

@@ -2440,10 +2440,10 @@ show_help_ui = function()
 好用的话在上面github链接里登录后点下star
 有问题加群反馈1009619697
 国内主页：gitee.com/bilabila/arknights
-商用要求：可卖脚本与服务，修改代码再卖必须开源。
+商用要求：可卖脚本与服务，修改代码再卖需开源
 
 最近更新：
-1. 增加root保活机制，雷电2核2G内存可无限挂肉鸽。需手动关闭root授权提示。
+1. 新增root保活，雷电2核2G内存可无限挂肉鸽。需手动关闭root授权提示。
 
 ]])
 
@@ -3295,20 +3295,29 @@ predebug_hook = function()
   -- exit()
 
   disable_game_up_check = 1
+
   -- ssleep(1)
   -- tap("主页列表首页")
   --
   ssleep(1)
-  -- log(1)
-  -- log(appear("返回", 10))
-  disappear("面板", 50)
-  -- log(findOne("信用交易所"))
-  -- while true do
-  --   if not findOne("主页") then
-  --     log(1)
-  --   end
-  -- end
+  -- log(findOne("作战列表AP-0"))
+  log(findOne("开始行动"))
+  log(findOne("代理指挥开"))
+  -- log(findOne("行动结束"))
+  -- log(findOne("零星代理"))
+  -- log(point.代理指挥开)
+  -- log(findOne("代理指挥开"))
+  -- log(findOne("代理指挥开"))
+  -- for i = 1, 11 do if findOne("当前进度列表" .. i) then log(i) end end
+  -- log("---")
+  -- for i = 1, 11 do if findOne("按下当前进度列表" .. i) then log(i) end end
+  -- chooseOperatorBeforeFight()
+  -- log(findOne("作战列表SK-5"))
+  -- tap("作战列表AP-5")
+  -- log(findOne("代理指挥开"))
 
+  sleep(1)
+  exit()
   ssleep(1)
   -- killacc()
   -- log(2)
