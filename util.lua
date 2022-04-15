@@ -892,7 +892,11 @@ swipu = function(dis)
 
   -- flatten to one depth
   -- local max_once_dis = 1080
-  local max_once_dis = screen.width - scale(300)
+  -- local freey = scale(150)
+  local freey = scale(150)
+  local freex = scale(300)
+  local max_once_dis = screen.width - scale(300) - freex
+
   for _, d in pairs(dis) do
     local sign = d > 0 and 1 or -1
     if math.abs(d) == swip_right_max then
@@ -903,7 +907,7 @@ swipu = function(dis)
 
       local finger = {
         {
-          point = {{0, scale(150)}, {0, screen.height - 1}},
+          point = {{freex, freey}, {freex, screen.height - 1}},
           start = 0,
           duration = 0,
         },
@@ -916,23 +920,24 @@ swipu = function(dis)
       while d > 0 do
         if d > max_once_dis then
           table.insert(finger, {
-            point = {{max_once_dis, scale(150)}},
+            point = {{freex + max_once_dis, freey}},
             start = start,
             duration = duration,
           })
         else
           table.insert(finger, {
-            point = {{d, scale(150)}},
+            point = {{freex + d, freey}},
             start = start,
             duration = duration,
           })
         end
         d = d - max_once_dis
         start = start + duration + interval
-        log(finger[#finger])
+        -- log(finger[#finger])
       end
       local last_finger = finger[#finger]
       finger[1].duration = last_finger.start + last_finger.duration + end_delay
+      -- log("finger",finger)
       gesture(finger)
       sleep(finger[1].duration + 50)
     end
@@ -947,6 +952,7 @@ swipe = function(x)
     swip("9-2")
   end
 
+  -- tap({scale(300), scale(150)})
   log("swipe", x)
   if x == 'right' then
     gesture({
@@ -968,7 +974,6 @@ swipe = function(x)
     })
     sleep(100 + 50)
   end
-
 end
 
 -- 安卓8以下的滑动用双指
@@ -3242,7 +3247,25 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8", "HD-9",
+
+    "10-2",
+    -- "10-3",
+    -- "10-4",
+    -- "10-5",
+    -- "10-6",
+    -- "10-7",
+    -- "10-8",
+    -- "10-9",
+    -- "10-10",
+    -- "10-11",
+    -- "10-12",
+    -- "10-14",
+    -- "10-15",
+    -- "10-16",
+    -- "10-17",
+    -- "9-2",
+
+    -- "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8", "HD-9",
     -- "break",
     -- "1-7", "1-7", "CE-5", "LS-5",
 
@@ -3299,10 +3322,13 @@ predebug_hook = function()
   -- ssleep(1)
   -- tap("主页列表首页")
   --
+  --
   ssleep(1)
+  swipe('right')
+  -- swipu('10-17')
   -- log(findOne("作战列表AP-0"))
-  log(findOne("开始行动"))
-  log(findOne("代理指挥开"))
+  -- log(findOne("开始行动"))
+  -- log(findOne("代理指挥开"))
   -- log(findOne("行动结束"))
   -- log(findOne("零星代理"))
   -- log(point.代理指挥开)

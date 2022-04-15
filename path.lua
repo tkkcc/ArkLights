@@ -1096,7 +1096,7 @@ path.基建信息获取 = function()
     local color = '#FFFFFF'
     local stationLevel
     stationLevel = dormitoryLevel
-    for j = 0, 5 do
+    for j = 0, 4 do
       local x, y = table.unpack(point["宿舍等级列表" .. i * 5 - j])
       if (compareColor(x, y, color, default_findcolor_confidence) or
         compareColor(x - scale(1), y - scale(3), color,
@@ -2362,7 +2362,7 @@ path.主线 = function(x)
   -- split s2-9 to 2 and 9
   local chapter = x:find("-")
   chapter = x:sub(1, chapter - 1)
-  chapter = chapter:sub(chapter:find("%d"))
+  chapter = chapter:sub(chapter:find("%d+"))
   local chapter_index = tonumber(chapter) + 1
   local state_with_home = function(y)
     local f = function() return findOne("主页") and findOne(y) end
@@ -2405,6 +2405,8 @@ path.主线 = function(x)
       --   "当前进度列表" .. (i > chapter_index and "左" or "右")
     end
   end
+  -- log("chapter",chapter)
+  -- exit()
 
   log(1040)
   if not findAny(table.keys(p)) then
