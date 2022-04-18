@@ -4272,7 +4272,7 @@ path.前瞻投资 = function()
       skill_times = skill_times + 1
       tap({p[1], p[2] + scale(200)})
       appear("技能ready", 5)
-      ssleep(0.5)
+      -- ssleep(0.5)
       wait(function()
         tap("开技能")
         if not findOne("技能ready") then return true end
@@ -4288,6 +4288,7 @@ path.前瞻投资 = function()
   if not wait(function()
     if not drop_page then tap("战略确认") end
     if zl_more_repertoire then findTap("剧目") end
+    if zl_more_experience then findTap("招募券") end
     findTap("收藏品")
     if findTap("源石锭") then drop_page = true end
     local p = findOne("不要了")
@@ -4301,15 +4302,41 @@ path.前瞻投资 = function()
 
     -- 误触到招募券处理
     if findOne("确认招募") then
-      if not wait(function()
-        if not findOne("确认招募") then return true end
-        tap("放弃招募")
-      end, 5) then return end
+      -- 放弃招募
+      if not zl_more_experience then
 
-      if not wait(function()
-        if findOne("编队") then return true end
-        tap("右右确认")
-      end, 5) then return end
+        if not wait(function()
+          if not findOne("确认招募") then return true end
+          tap("放弃招募")
+        end, 5) then return end
+
+        if not wait(function()
+          if findOne("编队") then return true end
+          tap("右右确认")
+        end, 5) then return end
+
+      else
+
+        -- 招募
+        if findOne("确认招募") then
+          local start_time = time()
+          if not wait(function()
+            if findOne("编队") then return true end
+            if findOne("返回确认界面") then
+              if time() - start_time < 2000 then
+                tap("左取消")
+              else
+                tap("右确认")
+              end
+              disappear("返回确认界面")
+              ssleep(.5)
+            end
+            tap("近卫招募列表" .. 1)
+            findTap("确认招募")
+            tap("开包skip")
+          end, 10) then return end
+        end
+      end
     end
 
     if not findOne("战略返回") then
@@ -4318,7 +4345,9 @@ path.前瞻投资 = function()
       end
     end
     -- if disappear("战略返回",0.5) then return true end
-    if findAny({"常规行动", "战略帮助"}) then return true end
+    if findAny({"常规行动", "战略帮助"}) and not findOne("确认招募") then
+      return true
+    end
   end, 30) then return end
 
   -- if not appear("战略返回", 5) then return end
@@ -4459,43 +4488,95 @@ path.前瞻投资 = function()
     end, 10)
   end
 
+  local buy = function()
+    local p = appear(point["战略商品列表"], 1)
+    p = findAny(point["战略商品列表"])
+    if not p then return end
+    if not wait(function()
+      local x, y = point[p]:match("(%d+)" .. coord_delimeter .. "(%d+)")
+      tap({tonumber(x) - scale(111), tonumber(y) - scale(100)})
+      if disappear(p, 1) then return true end
+    end, 2) then return end
+
+    disappear("诡意行商离开", 1)
+    if not wait(function()
+      tap("诡意行商确认投资")
+      if findOne("诡意行商离开") then return true end
+
+      if findOne("确认招募") then
+        local start_time = time()
+        if not wait(function()
+          if findOne("编队") then return true end
+          if findOne("返回确认界面") then
+            if time() - start_time < 2000 then
+              tap("左取消")
+            else
+              tap("右确认")
+            end
+            disappear("返回确认界面")
+            ssleep(.5)
+          end
+          tap("近卫招募列表" .. 1)
+          findTap("确认招募")
+          tap("开包skip")
+        end, 10) then return end
+      end
+    end, 10) then return end
+    return true
+  end
+
+  local coin = function()
+
+    -- if not appear("诡意行商投资", 1) then return goto_next_level() end
+    if not appear("诡意行商投资", 1) then return true end
+    if not wait(function()
+      if findOne("诡意行商投币") then return true end
+      tap("诡意行商投资")
+    end) then return end
+    if not wait(function()
+      if findOne("诡意行商投资入口") then return true end
+      tap("诡意行商投币")
+    end) then return end
+
+    local coin_no_notification = sample("投币提示")
+    local coin_start_time = time()
+
+    -- 超时改为60秒，有时会出现上限极高情况
+    wait(function()
+      -- 不能投情况
+      if not findOne("诡意行商投资入口") then return true end
+      if findOne("正在释放神经递质") then coin_start_time = time() end
+
+      -- 6秒后，如果底部投币提示没有，那就说明投币结束
+      -- 能投但币不够或者已投满
+      if time() - coin_start_time > 6000 and findOne(coin_no_notification) then
+        return true
+      end
+      tap("诡意行商确认投资")
+    end, 60)
+  end
+
   if not wait(function()
     -- if not findOne("战略帮助") then return true end
-    if findOne("诡意行商投资") then return true end
+    if findAny({"诡意行商投资", "诡意行商离开"}) then return true end
     tap("进入")
   end, 3) then
     -- check_goods()
-    goto_next_level()
+    -- goto_next_level()
     return
   end
+
   -- check_goods()
+  if not zl_skip_coin then coin() end
 
-  -- if not appear("诡意行商投资", 1) then return goto_next_level() end
-  if not wait(function()
-    if findOne("诡意行商投币") then return true end
-    tap("诡意行商投资")
-  end) then return end
-  if not wait(function()
-    if findOne("诡意行商投资入口") then return true end
-    tap("诡意行商投币")
-  end) then return end
+  if zl_more_experience then
+    if not wait(function()
+      if findOne("诡意行商离开") then return true end
+      tap("开包skip")
+    end, 5) then return end
+    for i = 1, 10 do if not buy() then break end end
+  end
 
-  local coin_no_notification = sample("投币提示")
-  local coin_start_time = time()
-
-  -- 超时改为60秒，有时会出现上限极高情况
-  wait(function()
-    -- 不能投情况
-    if not findOne("诡意行商投资入口") then return true end
-    if findOne("正在释放神经递质") then coin_start_time = time() end
-
-    -- 6秒后，如果底部投币提示没有，那就说明投币结束
-    -- 能投但币不够或者已投满
-    if time() - coin_start_time > 6000 and findOne(coin_no_notification) then
-      return true
-    end
-    tap("诡意行商确认投资")
-  end, 60)
   return goto_next_level()
 end
 

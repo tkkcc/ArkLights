@@ -714,7 +714,8 @@ log = function(...)
   -- for _, v in pairs(l) do a = a .. ' ' .. v end
   print(l)
   console.println(1, a .. ' ' .. l)
-  writeLog(l)
+  -- TODO: 有可能是日常太多导致雷电上速通停止运行吗
+  -- writeLog(l)
 end
 
 open = function(id)
@@ -1791,6 +1792,10 @@ closeapp = function(package)
   end
 end
 closeapp = disable_game_up_check_wrapper(closeapp)
+restartapp = function(package)
+  closeapp(package)
+  wait_game_up()
+end
 screenoff = function()
   if root_mode then exec('su root sh -c "input keyevent 223"') end
 end
@@ -2457,6 +2462,7 @@ show_help_ui = function()
 商用要求：可卖脚本与服务，修改代码再卖需开源
 
 最近更新：
+1. 刷肉鸽等级(蜡烛)已加。
 1. 第10章已加。
 1. 新增root保活，雷电2G内存可无限挂肉鸽。需手动关闭root授权提示（设置-超级用户-右上角三个点-通知-无）。
 
@@ -2798,6 +2804,14 @@ show_debug_ui = function()
 ]])
 
   newRow(layout)
+  addTextView(layout, "前瞻投资重启游戏间隔(游戏有内存泄漏)")
+  ui.addEditText(layout, "zl_restart_interval", "1800")
+
+  newRow(layout)
+  addTextView(layout, "重启acc进程间隔(acc进程有内存泄漏)")
+  ui.addEditText(layout, "keepalive_interval", "1800")
+
+  newRow(layout)
   ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
 
   newRow(layout)
@@ -2875,9 +2889,9 @@ show_extra_ui = function()
   addTextView(layout, [[技能]])
 
   newRow(layout)
-  ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
   ui.addCheckBox(layout, "zl_more_repertoire", "多点剧目", false)
-  ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
+  ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
+  ui.addCheckBox(layout, "zl_skip_coin", "跳过投币", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "zl_accept_mg", "可打敏感", false)
@@ -2885,6 +2899,7 @@ show_extra_ui = function()
   ui.addCheckBox(layout, "zl_accept_sc", "可打生存", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
   ui.addCheckBox(layout, "zl_no_waste", "每8小时做日常", false)
 
   -- addTextView(layout, [[商品需求]])
@@ -2897,7 +2912,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷投资以提高集成战略起点。出现多次作战或有效幻觉时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。战斗掉落收藏品会捡(但观光只能点亮)。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议1280x720。分辨率设成16:9就不会选矛头分队。多次出现停止运行、随机状态卡住、悬浮按钮消失，应换设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。如果需要蜡烛，应选普通难度，或用明日再肝(还鸽)与MAA。如果需要推图，应用明日再肝(还鸽)与MAA，有概率打过第三层boss。]])
+              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。出现多次作战或有效幻觉时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议1280x720。分辨率设成16:9就不会选矛头分队。游戏本体存在内存泄漏，因此每半小时重启一次，不影响效率。多次出现速通停止运行、随机状态卡住、悬浮按钮消失，应换设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。如果需要刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”，并手动升高幕后筹备。如果需要推图打boss，应用明日再肝(还鸽)与MAA，有概率打过第三层boss。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -3350,6 +3365,52 @@ predebug_hook = function()
   -- exit()
 
   disable_game_up_check = 1
+  log(findAny(point.战略商品列表))
+  for i = 1,16 do
+    log(i,findOne("战略商品列表"..i))
+  end
+  -- for i = 9,16 do
+  --   log(i,findOne("战略商品列表"..i))
+  -- end
+  exit()
+  -- log(findOne("战略返回"))
+  --
+  -- tap("诡意行商确认投资")
+  -- exit()
+
+  local buy = function()
+    for i = 1, 9 do
+      local p = appear(point["战略商品列表"])
+      if not p then return end
+      if not wait(function()
+        if not findOne(p) then return true end
+        local x, y = point[p]:match("(%d+)" .. coord_delimeter .. "(%d+)")
+        tap({tonumber(x), tonumber(y) - scale(100)})
+      end, 2) then return end
+
+      if not wait(function()
+        tap("诡意行商确认投资")
+        if findOne("诡意行商离开") then return true end
+
+        if findOne("确认招募") then
+          if not wait(function()
+            if findOne("编队") then return true end
+            if findOne("返回确认界面") then
+              tap("左取消")
+              disappear("返回确认界面")
+              ssleep(.5)
+            end
+            tap("近卫招募列表" .. 1)
+            findTap("确认招募")
+            tap("开包skip")
+          end, 10) then return restartapp(apppid) end
+
+        end
+      end, 10) then return end
+
+    end
+  end
+  buy()
 
   -- ssleep(1)
   -- tap("主页列表首页")
@@ -3870,9 +3931,9 @@ setEventCallback = function()
     --   console.dismiss()
     -- end
 
-    log("\nps|grep bila\n", exec("su root sh -c 'ps|grep bila' "))
-    log("\nps -a |grep bila\n", exec("su root sh -c 'ps -a|grep bila' "))
-    log("\nps -e |grep bila\n", exec("su root sh -c 'ps -e|grep bila' "))
+    -- log("\nps|grep bila\n", exec("su root sh -c 'ps|grep bila' "))
+    -- log("\nps -a |grep bila\n", exec("su root sh -c 'ps -a|grep bila' "))
+    -- log("\nps -e |grep bila\n", exec("su root sh -c 'ps -e|grep bila' "))
   end)
   setUserEventCallBack(function(type) restartScript() end)
 end
@@ -4178,7 +4239,8 @@ kill $(pidof ]] .. package .. [[:acc)
 timeout 5 sh -c "
 while :;do
   pidof ]] .. package .. [[:acc && break
-done"
+done
+"
 '
 ]]
   exec(cmd)
