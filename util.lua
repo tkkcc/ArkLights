@@ -190,7 +190,7 @@ loadConfig = function(k, v)
 end
 
 peaceExit = function()
-  need_show_console = false
+  -- need_show_console = false
   exit()
 end
 
@@ -728,8 +728,7 @@ stop = function(msg, try_next_account)
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
   toast(msg)
-  captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                          table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
+  captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
   home()
   ssleep(2)
   if try_next_account then restart_next_account() end
@@ -765,7 +764,7 @@ findOne = function(x, confidence, disable_game_up_check)
     wait_game_up()
   end
 
-  if (time() - findOne_keepalive_check_last_time > 3600 * 1000) then
+  if (time() - findOne_keepalive_check_last_time > keepalive_interval * 1000) then
     findOne_keepalive_check_last_time = time()
     keepalive()
   end
@@ -1211,8 +1210,7 @@ run = function(...)
   -- 对每个账号的远程提醒，本地无需装QQ。
   if #QQ > 0 then
     path.跳转("首页")
-    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                            table.join(qqmessage, ' '), QQ)
+    captureqqimagedeliver(table.join(qqmessage, ' '), QQ)
   end
 end
 
@@ -1452,8 +1450,7 @@ trySolveCapture = function()
     local msg =
       "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
     toast(msg)
-    captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                            table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
     if not appear("realgame", 120) then
       back()
       if not appear("realgame", 5) then closeapp(appid) end
@@ -1744,7 +1741,18 @@ captureqqimagedeliver = function(info, to)
   local f = io.open(getWorkPath() .. '/.nomedia', 'w')
   f:close()
   local img = getWorkPath() .. "/tmp.jpg"
-  snapShot(img)
+
+  if qqnotify_nobar then
+    hideControlBar()
+    ssleep(1)
+    snapShot(img)
+    setControlBar()
+  else
+    snapShot(img)
+  end
+
+  if not qqnotify_notime then info = os.date('%Y.%m.%d %H:%M:%S') .. info end
+
   notifyqq(base64(img), tostring(info), tostring(to))
 end
 
@@ -2443,12 +2451,14 @@ show_help_ui = function()
   addTextView(layout, [[
 源码与其他脚本：github.com/tkkcc/arknights
 好用的话在上面github链接里登录后点下star
+不star属于白嫖行为，开发者也没动力更新下去了
 有问题加群反馈1009619697
 国内主页：gitee.com/bilabila/arknights
 商用要求：可卖脚本与服务，修改代码再卖需开源
 
 最近更新：
-1. 新增root保活，雷电2核2G内存可无限挂肉鸽。需手动关闭root授权提示。
+1. 第10章已加。
+1. 新增root保活，雷电2G内存可无限挂肉鸽。需手动关闭root授权提示（设置-超级用户-右上角三个点-通知-无）。
 
 ]])
 
@@ -2483,14 +2493,14 @@ A：不会，任何作战开始前（包括上一次）都会判断合成玉是�
 Q：资源关未开放会怎么样？
 A：资源关未开放时无效，会跳过。资源关全天开放时段会通过热更新提前设置。
 
-Q：刷1-7？
+Q：怎么刷1-7？
 A：勾选“轮次作战”，作战设置填“1-7”，启动
 
-Q：刷上一次？
+Q：怎么刷上一次？
 A：勾选“轮次作战”，作战设置填“上一次”，启动
 
-Q：刷n次作战？
-A：作战设置中用“break”表示退出轮次作战，比如“1-7*5 break 当期委托x5”
+Q：怎么只刷n次作战？
+A：作战设置中用“break”表示退出“轮次作战”任务，比如“1-7*5 break ...”表示只刷5次1-7。
 
 Q：只打过老剿灭/怎么打切尔诺伯格/龙门市区/龙门外环？
 A：勾选“轮次作战”，作战设置里填“长期委托X”（X按每个号的情况来，如“长期委托1”），启动。长期委托全打过的，可以用关卡名。
@@ -2713,6 +2723,10 @@ show_debug_ui = function()
   addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
 
+  newRow(layout)
+  addTextView(layout, "最大连续作战次数(达到重启游戏)")
+  ui.addEditText(layout, "max_fight_times", "")
+
   -- newRow(layout)
   -- ui.addCheckBox(layout, "zl_enable_slow_drag", "前瞻投资长部署时间",
   --                false)
@@ -2751,7 +2765,15 @@ show_debug_ui = function()
   ui.addEditText(layout, "qqimagedeliver", "")
 
   newRow(layout)
-  ui.addCheckBox(layout, "qqnotify_quiet", "QQ通知只显示备注", false)
+  ui.addCheckBox(layout, "qqnotify_quiet",
+                 "QQ通知设备名与账号名只显示备注", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_notime", "QQ通知不显示时间", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_nobar", "QQ通知不显示悬浮按钮",
+                 false)
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_keepalive",
@@ -2762,6 +2784,19 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "zl_restart_interval_3600",
   --                "前瞻投资每小时重启游戏", false)
 
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
+
+  newRow(layout)
+  addTextView(layout, [[
+
+
+
+
+
+以下为调试设置，请根据开发者建议使用！
+]])
+
   newRow(layout)
   ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
 
@@ -2769,10 +2804,16 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "debug_disable_log", "禁用全部日志", false)
+
+  newRow(layout)
   ui.addCheckBox(layout, "disable_hotupdate", "禁用自动更新", false)
 
-  -- newRow(layout)
-  -- ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "beta_mode", "使用调试更新源", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "debug_mode", "测试模式", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "enable_native_tap", "启用原生点击方式", false)
@@ -2780,15 +2821,6 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "enable_simultaneous_tap", "启用多点同步点击",
                  false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "beta_mode", "使用调试更新源", false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "debug_disable_log", "禁用全部日志", false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "debug_mode", "测试模式", false)
 
   newRow(layout)
   addTextView(layout, "强制分辨率")
@@ -3324,6 +3356,12 @@ predebug_hook = function()
   --
   --
   ssleep(1)
+  log(point.开始行动)
+  exit()
+  hideControlBar()
+  log(2)
+  ssleep(10)
+  exit()
   swipe('right')
   -- swipu('10-17')
   -- log(findOne("作战列表AP-0"))
@@ -3826,11 +3864,15 @@ setEventCallback = function()
     -- stopThread(keepalive_thread[3])
     -- log(exec("free -h"))
     -- log(exec("top -n 1"))
-    if need_show_console then
-      console.show()
-    else
-      console.dismiss()
-    end
+    -- if need_show_console then
+    -- console.show()
+    -- else
+    --   console.dismiss()
+    -- end
+
+    log("\nps|grep bila\n", exec("su root sh -c 'ps|grep bila' "))
+    log("\nps -a |grep bila\n", exec("su root sh -c 'ps -a|grep bila' "))
+    log("\nps -e |grep bila\n", exec("su root sh -c 'ps -e|grep bila' "))
   end)
   setUserEventCallBack(function(type) restartScript() end)
 end
@@ -3880,6 +3922,8 @@ setControlBar = function()
   local screen = getScreen()
   setControlBarPosNew(0, 1)
 end
+
+hideControlBar = function() showControlBar(false) end
 
 -- extra_mode_hook = function()
 --
@@ -4119,7 +4163,7 @@ check_login_frequency = function()
 end
 
 keepalive = function()
-
+  log("keepalive")
   -- log("enable_keepalive",enable_keepalive)
   -- if not enable_keepalive then return end
   killacc()

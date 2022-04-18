@@ -50,13 +50,14 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.04.15 15:30"
+release_date = "2022.04.18 14:42"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
 ui_submit_width = -2
 ui_small_submit_width = -2
 network_timeout = 300
+keepalive_interval = 3600
 
 require('util')
 require("point")
@@ -69,11 +70,11 @@ load(after_require_hook or '')()
 point.面板活动 = point.面板活动2
 rfl.面板活动 = rfl.面板活动2
 
+consoleInit()
 showControlBar(true)
 setEventCallback()
 hotUpdate()
 fetchSkillIcon()
-consoleInit()
 check_root_mode()
 enable_accessibility_service()
 enable_snapshot_service()
@@ -84,6 +85,7 @@ loadUIConfig()
 restart_mode_hook()
 
 findOne_interval = str2int(findOne_interval, -1)
+max_fight_times = str2int(max_fight_times, math.huge)
 tap_interval = str2int(tap_interval, -1)
 zl_restart_interval = str2int(zl_restart_interval, math.huge)
 if 1 then zl_restart_interval = 3600 end
@@ -99,7 +101,7 @@ if QQ:find('#') then
   devicenote = QQ:sub(QQ:find('#') + 1, #QQ):trim()
   QQ = QQ:sub(1, QQ:find('#') - 1):trim()
 end
-if #((qqimagedeliver or ''):trim()) == 0 then
+if not ((qqimagedeliver or ''):trim()):startsWith("http") then
   qqimagedeliver = "http://82.156.198.12:49875"
 end
 if zl_enable_log then zl_disable_log = false end
@@ -126,7 +128,7 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
     multi_account_choice =
       multi_account_choice:sub(p + 1, #multi_account_choice)
   end
-  log(123, multi_account_choice)
+  log("multi_account_choice", multi_account_choice)
 
   saveConfig("continue_account", '')
   multi_account_choice = expand_number_config(multi_account_choice)
@@ -149,7 +151,7 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
       usernote = username:sub(username:find('#') + 1, #username):trim()
       username = username:sub(1, username:find('#') - 1):trim()
     end
-    log({username, usernote})
+    -- log({username, usernote})
     if extra_mode then
       no_extra_job = job
       job = {extra_mode}
@@ -197,5 +199,5 @@ check_crontab()
 load(after_all_hook or '')()
 
 ssleep(.5)
-console.dismiss()
+-- console.dismiss()
 peaceExit()

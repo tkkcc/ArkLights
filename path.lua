@@ -36,28 +36,34 @@ path.base = {
       stop("账号或密码为空", account_idx and true or false)
     end
     if #username > 0 then
+      log(44)
       if not wait(function()
         tap("账号左侧")
         tap("账号")
         -- if disappear("手机验证码登录", 1) then return true end
         if appear('inputbox', 1) then return true end
       end, 10) then return end
+      log(45)
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
       -- if debug_mode then toast(username) end
       -- ssleep(.5) -- 等待输入法弹出
       if not wait(function()
         wait(function() input("inputbox", username) end, 1)
+        log(45.1)
         tap("okbutton")
         -- appear("手机验证码登录")
         if appear("手机验证码登录", 1) and not findOne("okbutton") then
           return true
         end
+        log(45.2)
       end, 3) then return end
+      log(46)
     end
     if not appear("手机验证码登录", 1) then return end
 
     if #password > 0 then
+      log(44)
       -- if debug_mode then toast(password) end
       if not wait(function()
         tap("账号左侧")
@@ -65,22 +71,28 @@ path.base = {
         -- if disappear("手机验证码登录", 1) then return true end
         if appear('inputbox', 1) then return true end
       end, 10) then return end
+      log(45)
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
       -- if debug_mode then toast(password) end
       -- ssleep(.5) -- 等待输入法弹出
       if not wait(function()
         wait(function() input("inputbox", password) end, 1)
+        log(45.1)
         tap("okbutton")
         -- appear("手机验证码登录")
         if appear("手机验证码登录", 1) and not findOne("okbutton") then
           return true
         end
+        log(45.2)
       end, 3) then return end
+      log(46)
       -- appear("手机验证码登录")
     end
 
+    log(47)
     if not appear("手机验证码登录", 1) then return end
+    log(48)
 
     -- local login_error_times = 0
     wait(function()
@@ -155,7 +167,7 @@ path.base = {
         return path.跳转("首页")
       end
 
-      tap("开始行动")
+      tap("开始行动1")
       appear({"开始行动", "接管作战"}, 1)
     end, 60) then return end
 
@@ -167,13 +179,21 @@ path.base = {
     if zero_star or not see_end then
       log("代理失败返回首页")
 
-      captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                              table.join(qqmessage, ' ') .. " " .. cur_fight ..
+      captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
                               "代理失败" ..
                               (home and "(掉线或抢登)" or ''), QQ)
       -- 一次代理失败直接认为无效：不行，因为可能是掉线造成的失败
       -- fight_failed_times[cur_fight] = 3
       log(161)
+      return path.跳转("首页")
+    end
+
+    fight_times = (fight_times or 0) + 1
+    if fight_times >= max_fight_times then
+      login_times = (login_times or 0) - 1
+      fight_times = 0
+      closeapp(appid)
+      wait_game_up()
       return path.跳转("首页")
     end
 
@@ -260,7 +280,9 @@ path.bilibili_login = {
       stop("账号或密码为空", account_idx and true or false)
     end
     tap("bilibili_login")
-    if not disappear("bilibili_login", 5) then stop("登录失败35", true) end
+    if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 5) then
+      stop("登录失败35", true)
+    end
     -- 小米
     appearTap({text = "存储"}, 1)
     appear({"bilibili_change2", "captcha"})
@@ -358,7 +380,13 @@ path.fallback = {
     end, 30) then stop("214 返回键30秒超时") end
     if x then return tap(path.fallback[x]) end
   end,
-  活动公告返回 = function() return path.fallback.签到返回() end,
+  活动公告返回 = function()
+    tap("活动公告返回")
+    if disappear("活动公告返回", 1) then
+      return path.fallback.签到返回()
+    end
+
+  end,
   抽签返回 = function()
     for u = scale(300), screen.width - scale(300), 200 do
       tap({u, screen.height // 2})
@@ -2234,7 +2262,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     if findOne("开始行动") then
       tap("开始行动蓝")
       -- TODO 2秒太慢 => 一开始就用0秒, 2秒内增加至2秒
-      disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
+      disappear("开始行动", min(5, (time() - start_time) / 1000 * 5 / 5))
     end
   end, 30) then return end
 
@@ -2858,8 +2886,7 @@ path.活动任务与商店 = function()
   end
 
   if not appear("主页", 1) then return path.活动任务与商店() end
-  captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                          table.join(qqmessage, ' ') .. " " ..
+  captureqqimagedeliver(table.join(qqmessage, ' ') .. " " ..
                           "活动任务领取", QQ)
   tap("返回")
   if not appear("活动导航1") then return end
@@ -2937,8 +2964,7 @@ path.活动任务与商店 = function()
 
     -- 一个商品都没买到
     if success_once == false then
-      captureqqimagedeliver(os.date('%Y.%m.%d %H:%M:%S') ..
-                              table.join(qqmessage, ' ') .. " " ..
+      captureqqimagedeliver(table.join(qqmessage, ' ') .. " " ..
                               "活动奖励领取", QQ)
       break
     end
@@ -3020,7 +3046,7 @@ path["1-11"] = function()
 
   if not wait(function()
     if findOne("当前进度列表2") then return true end
-    tap("开始行动")
+    tap("开始行动1")
   end, 60 * 2, 1) then return end
   pre_fight = "1-11"
   no_success_one_loop = 0
@@ -4213,7 +4239,7 @@ path.前瞻投资 = function()
     log(4106)
     wait(function()
       if findOne("生命值") then return true end
-      tap("开始行动")
+      tap("开始行动1")
     end)
 
     log(4107)
@@ -4240,7 +4266,7 @@ path.前瞻投资 = function()
       tap("战略确认")
       return true
     end
-    tap("开始行动")
+    tap("开始行动1")
     local p = findOne("技能亮")
     if p and skill_times < zl_skill_times then
       skill_times = skill_times + 1
