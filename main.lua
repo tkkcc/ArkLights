@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.04.19  0:38"
+release_date = "2022.04.19 16:04"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -86,13 +86,13 @@ restart_mode_hook()
 findOne_interval = str2int(findOne_interval, -1)
 max_fight_times = str2int(max_fight_times, math.huge)
 tap_interval = str2int(tap_interval, -1)
-zl_restart_interval = str2int(zl_restart_interval, 1800)
-keepalive_interval = str2int(keepalive_interval, 1800)
+zl_restart_interval = str2int(zl_restart_interval1, 3600)
+keepalive_interval = str2int(keepalive_interval1, 3600)
 zl_skill_times = str2int(zl_skill_times, 0)
 zl_skill_idx = str2int(zl_skill_idx, 1)
 tapall_duration = str2int(tapall_duration, -1)
 max_login_times = str2int(max_login_times, math.huge)
-if not always_enable_log and debug_disable_log then disable_log = true end
+if not always_enable_log and not enable_log then run = disable_log_wrapper(run) end
 if not enable_shift_log then chooseOperator =
   disable_log_wrapper(chooseOperator) end
 QQ = (QQ or ''):commonmap():trim()
@@ -110,7 +110,6 @@ for i = 1, 7 do
   _G[k] = str2int(_G[k], 0)
 end
 if disable_drug_24hour then max_drug_times_1day = 0 end
-
 load(before_account_hook or '')()
 
 no_extra_job = {}

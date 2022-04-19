@@ -4272,7 +4272,7 @@ path.前瞻投资 = function()
       skill_times = skill_times + 1
       tap({p[1], p[2] + scale(200)})
       appear("技能ready", 5)
-      -- ssleep(0.5)
+      ssleep(0.5)
       wait(function()
         tap("开技能")
         if not findOne("技能ready") then return true end

@@ -2,9 +2,10 @@
 
 明日方舟全托管脚本，适配16:9及以上分辨率，等待耗时极低。
 
-[老版视频演示](https://www.bilibili.com/video/BV1LM4y1F7kA)
-[每日任务速通最速记录35.25s](https://www.bilibili.com/video/BV1eQ4y1C7Ch)
+[特色功能介绍](https://www.bilibili.com/read/cv16183975)
+[老版日常演示](https://www.bilibili.com/video/BV1LM4y1F7kA)
 [7时21分速刷999源石锭](https://www.youtube.com/watch?v=PFBHJk7uk28)
+[每日任务速通最速记录35.25s](https://www.bilibili.com/video/BV1eQ4y1C7Ch)
 
 本项目使用GPL协议，请遵循[修改开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLRequireSourcePostedPublic)与[商用开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLCommercially)要求。
 
@@ -12,7 +13,7 @@
 
 1. 支持明日方舟官服与B服。
 1. 支持真机、云手机、模拟器及虚拟机（安卓7至12，DPI>=320，分辨率>=720x1280，长宽比>=16:9）。
-1. 支持多账号、定时任务、亮屏解锁、自适应基建换班、QQ通知等。
+1. 支持多账号管理、定时启动、亮屏解锁、自适应高产基建换班、QQ通知等。
 1. 极低等待耗时，快过手操。全托管，高鲁棒。免root，热更新，免费开源。
 1. 支持集成战略刷投资，最速记录7时21分刷999源石锭，平均每小时135个。
 1. 不统计掉落，不支持无人机加速贸易站。
@@ -20,7 +21,8 @@
 ## 安装
 
 下载[明日方舟速通](https://wwa.lanzoui.com/b010qimmf)（密码0000）  
-不支持夜神、mumu6、红手指安卓6
+不支持夜神、mumu6、红手指安卓6  
+蓝叠需要开高级图形引擎
 
 ## 开发
 
@@ -29,20 +31,20 @@
 <details>
 <summary>自建QQ通知服务</summary>
 
-
+  
 脚本已内置多号分流通知服务，具体看必读。想提高稳定性与安全性可自建。
 
-在一个有公网IP的服务器，安装[pnpm](https://pnpm.io/zh/installation)后安装服务
+在一个有公网IP的服务器，用npm安装[qqimagedeliver](https://github.com/tkkcc/qqimagedeliver)
 ```
-pnpm i -g qqimagedeliver
+npm i -g qqimagedeliver
 ```
-用闲置QQ号登录服务
+用闲置QQ号登录
 ```
 qqimagedeliver --username=12345 # 先扫码登录
 qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 qqimagedeliver --username="12345 6789" --password="abcde fghij" --maxtry=2 # 可多号分流
 ```
-将服务IP与端口(默认49875)填入脚本高级设置中
+将服务器IP与端口(默认49875)填入脚本高级设置中
 ```
 http://82.156.198.12:49875
 ```
