@@ -835,10 +835,12 @@ tap = function(x, noretry, allow_outside_game)
   end
   log("tap", x0, x)
   if type(x) ~= "table" then return end
+
   if tap_interval > 0 and tap_interval - (time() - tap_last_time) > 0 then
     return
     -- sleep(max(0, tap_interval - (time() - tap_last_time)))
   end
+
   tap_last_time = time()
   -- log(838,x)
   if #x > 0 then
@@ -1193,7 +1195,9 @@ run = function(...)
   update_state()
 
   wait_game_up()
-  setTimer(setControlBar, 2000)
+  setTimer(setControlBar, 500)
+  setTimer(setControlBar, 1000)
+  setTimer(setControlBar, 5000)
 
   for _, v in ipairs(arg) do
     setControlBar()
@@ -2846,11 +2850,15 @@ show_debug_ui = function()
   ui.addEditText(layout, "force_height", [[]])
 
   newRow(layout)
-  addTextView(layout, "点击间隔")
+  addTextView(layout, "点击后等待")
+  ui.addEditText(layout, "tap_wait", "")
+
+  newRow(layout)
+  addTextView(layout, "最小点击间隔(丢包)")
   ui.addEditText(layout, "tap_interval", "")
 
   newRow(layout)
-  addTextView(layout, "找色间隔")
+  addTextView(layout, "最小截屏间隔")
   ui.addEditText(layout, "findOne_interval", "")
 
   newRow(layout)
@@ -2915,7 +2923,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。出现多次作战或有效幻觉时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议1280x720。分辨率设成16:9就不会选矛头分队。游戏本体存在内存泄漏，因此每半小时重启一次，不影响效率。多次出现速通停止运行、随机状态卡住、悬浮按钮消失，应换设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。如果需要刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”，并手动升高幕后筹备。如果需要推图打boss，应用明日再肝(还鸽)与MAA，有概率打过第三层boss。]])
+              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。出现多次作战或有效幻觉时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多测试可看群精华消息。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议1280x720。分辨率设成16:9就不会选矛头分队。游戏本体存在内存泄漏，因此每半小时重启一次，不影响效率。多次出现速通停止运行、随机状态卡住、悬浮按钮消失，应换设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。如果需要刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”，并手动升高幕后筹备。如果需要推图打boss，应用明日再肝(还鸽)与MAA，有概率打过第三层boss。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -3337,7 +3345,8 @@ test_fight_hook = function()
     -- "积水潮窟", "切尔诺伯格", "龙门外环", "龙门市区",
     -- "废弃矿区", "大骑士领郊外", "北原冰封废城", "PR-A-1", "0-4",
     -- "0-5", "0-6", "0-7", "0-8", "0-9", "0-10", "0-11", "1-1", "1-3", "1-4",
-    -- "1-5", "1-6", "1-7", "1-8", "1-9", "1-10", "1-11", "1-12", "2-1", "2-2",
+    -- "1-5", "1-6", "1-7", "
+    -- 1-8", "1-9", "1-10", "1-11", "1-12", "2-1", "2-2",
     -- "2-3", "2-4", "2-5", "2-6", "2-7", "2-8", "2-9", "2-10", "S2-1", "S2-2",
     -- "S2-3", "S2-4", "S2-5", "S2-6", "S2-7", "S2-8", "S2-9", "S2-10", "S2-12",
     -- "3-1", "3-2", "3-3", "3-4", "3-5", "3-6", "3-7", "3-8", "S3-1", "S3-2",
@@ -3363,11 +3372,54 @@ predebug_hook = function()
   if not predebug then return end
   tap_interval = -1
   findOne_interval = -1
+  keepalive_interval = 3500
   zl_skill_times = 100
   -- log(shift_prefer_speed)
   -- exit()
 
   disable_game_up_check = 1
+  max_login_times =  10000
+
+  log(2253)
+  disable_game_up_check = false
+  path.跳转("好友")
+  log(2254)
+  if not wait(function()
+    tap('好友列表')
+    if findOne("好友列表") then return true end
+  end, 10) then return end
+  log(2255)
+  if not wait(function()
+    tap('访问基建')
+    if findAny({"访问下位灰", "访问下位橘"}) then return true end
+    -- if not findOne("好友列表") then return true end
+  end, 10) then return end -- 无好友或网络超时10秒
+  log(2256)
+  if speedrun then
+    disappear("正在提交反馈至神经", network_timeout)
+    appear("主页", 5)
+    return
+  end
+  disable_communication_check = 1
+  if not wait(function()
+    if not disable_communication_check and
+      findOne("今日参与交流已达上限") then
+      log("今日参与交流已达上限")
+      disappear("正在提交反馈至神经", network_timeout)
+      appear("主页", 5)
+      communication_enough = true
+      return true
+    end
+    if findOne("访问下位灰") then
+      log("访问下位灰")
+      return true
+    end
+    tap("访问下位橘")
+  end, 60) then return end
+  log(2257)
+  exit()
+  -- log(findOne("行动结束"))
+  -- exit()
   log(findAny(point.战略商品列表))
   for i = 1, 16 do log(i, findOne("战略商品列表" .. i)) end
   -- for i = 9,16 do
@@ -4140,6 +4192,7 @@ restart_game_check = function(timeout)
   restart_game_check_last_time = restart_game_check_last_time or time()
   if (time() - restart_game_check_last_time) > timeout * 1000 then
     restart_game_check_last_time = time()
+    login_times = (login_times or 0) - 1
     closeapp(appid)
     log(3149)
     return true

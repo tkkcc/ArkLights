@@ -168,6 +168,7 @@ path.base = {
       end
 
       tap("开始行动1")
+
       appear({"开始行动", "接管作战"}, 1)
     end, 60) then return end
 
