@@ -438,12 +438,23 @@ table.appear_times = function(t, times)
   end
   return ans
 end
+
+-- 交
 table.intersect = function(a, b)
   local ans = {}
   if #b < #a then a, b = b, a end
   b = table.value2key(b)
   a = table.value2key(a)
   for k, _ in pairs(a) do if b[k] then table.insert(ans, k) end end
+  return ans
+end
+
+-- 差
+table.subtract = function(a, b)
+  local ans = {}
+  b = table.value2key(b or {})
+  a = table.value2key(a or {})
+  for k, _ in pairs(a) do if not b[k] then table.insert(ans, k) end end
   return ans
 end
 
@@ -2206,7 +2217,6 @@ multi_account_config_import = function()
     stop("从剪贴板导入失败：" .. result, false)
   end
 
-
   local f = io.open(config, 'w')
   f:write(data)
   f:close()
@@ -2402,7 +2412,7 @@ show_main_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[开基建退出提示，异形屏适配设为0。关游戏模式，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势区域。关懒人输入法，音量加停止脚本。有问题看必读。]])
+              [[开基建退出提示，异形屏适配设为0。关游戏模式，关全局侧边栏，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势。关懒人输入法，音量加停止脚本。有问题看必读。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
@@ -3403,6 +3413,18 @@ predebug_hook = function()
 
   log(2253)
   disable_game_up_check = false
+  ssleep(1)
+  p = findAny(point.任务有列表)
+  p = table.subtract(point.任务有列表, p)
+  log(p)
+  exit()
+
+
+  tap({5, 0})
+  tap({6, 6})
+  ssleep(1)
+  exit()
+
   path.跳转("好友")
   log(2254)
   if not wait(function()

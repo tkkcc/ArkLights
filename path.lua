@@ -406,7 +406,13 @@ path.fallback = {
     leaving_jump = false
     if not wait(function()
       if not findOne("返回确认") then return true end
-      if findOne("活动签到返回") then  return path.活动签到返回() end
+
+      -- 宽屏上有误判
+      if findOne("活动公告返回") then
+        path.fallback.活动公告返回()
+        return true
+      end
+
       if stay_in_dorm_once then
         back()
         -- 必须等待
@@ -1950,37 +1956,36 @@ path.任务收集 = function()
     point.任务有列表4 = nil
   end
 
-  for i = 1, #point.任务有列表 do
+  for _ = 1, #point.任务有列表 do
+    local p = findAny(point.任务有列表)
+    if not p then break end
 
-    log(794, i)
-    if findOne("任务有列表" .. i) then
-      log(795, i)
+    log(795, p)
 
-      -- nagivate to tab
+    -- nagivate to tab
+    if not wait(function()
+      if findOne("收集全部") then return true end
+      tap(p)
+    end, 10) then return end
+
+    -- 判定是否有剩余红点
+    local remain = findAny(table.subtract(point.任务有列表, {p}))
+
+    -- tap collect
+    if not wait(function()
+      if not findTap("收集全部") then return true end
+    end, 5) then return end
+
+    -- wait for popup
+    disappear(p, network_timeout)
+    if disappear("主页") then
       if not wait(function()
-        if findOne("收集全部") then return true end
-        tap("任务有列表" .. i)
+        tap(p)
+        if findOne("主页") and findOne("返回") then return true end
       end, 10) then return end
 
-      -- 判定是否有剩余红点
-      local remain = findAny(table.slice(point.任务有列表, i + 1))
-
-      -- tap collect
-      if not wait(function()
-        if not findTap("收集全部") then return true end
-      end, 5) then return end
-
-      -- wait for popup
-      disappear("任务有列表" .. i, 10)
-      if disappear("主页", 2) then
-        if not wait(function()
-          tap("任务有列表" .. i)
-          if findOne("主页") and findOne("返回") then return true end
-        end, 10) then return end
-
-        -- 等待剩余红点出现
-        if remain then appear(remain) end
-      end
+      -- 等待剩余红点出现
+      if remain then appear(remain) end
     end
   end
 end
