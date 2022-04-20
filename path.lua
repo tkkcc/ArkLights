@@ -159,12 +159,11 @@ path.base = {
 
       -- 掉线
       if findAny({
-        "开始唤醒", "bilibili_framelayout_only", "面板",
-        "手机验证码登录",
+        "开始唤醒", "bilibili_framelayout_only", "手机验证码登录",
       }) then
         home = true
         log(60)
-        return path.跳转("首页")
+        return true
       end
 
       tap("开始行动1")
@@ -177,7 +176,7 @@ path.base = {
     log("回到首页")
     log("代理结束", cur_fight, "失败次数", fight_failed_times[cur_fight])
     log(139, first_time_see_zero_star, zero_star)
-    if zero_star or not see_end then
+    if zero_star or not see_end or home then
       log("代理失败返回首页")
 
       captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
@@ -407,6 +406,7 @@ path.fallback = {
     leaving_jump = false
     if not wait(function()
       if not findOne("返回确认") then return true end
+      if findOne("活动签到返回") then  return path.活动签到返回() end
       if stay_in_dorm_once then
         back()
         -- 必须等待
@@ -3107,6 +3107,8 @@ path.访问好友 = function()
   end
 
   if not wait(function()
+
+    disappear("正在提交反馈至神经", network_timeout)
     if not disable_communication_check and
       findOne("今日参与交流已达上限") then
       log("今日参与交流已达上限")

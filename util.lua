@@ -362,7 +362,11 @@ string.padEnd = function(str, len, char)
   if char == nil then char = " " end
   return str .. string.rep(char, len - #str)
 end
-
+table.diff = function(a, b)
+  local ans = {}
+  for k, v in pairs(a) do if v ~= b[k] then ans[k] = v end end
+  return ans
+end
 table.index = function(t, idx)
   local ans = {}
   for _, i in pairs(idx) do table.insert(ans, t[i]) end
@@ -2063,6 +2067,7 @@ show_multi_account_ui = function()
     end
   end
 
+  ui.saveProfile(getUIConfigPath(layout .. '_default'))
   ui.loadProfile(getUIConfigPath(layout))
   multi_account_inherit_render(1, num)
 
@@ -2093,8 +2098,10 @@ multi_account_config_export = function(simple)
       end)
       content = JsonEncode(content)
     end
+    content = JsonDecode(content)
+
     if simple then
-      content = JsonDecode(content)
+      -- 提取账密
       local account = ''
       for i = 1, multi_account_num do
         local username = content['username' .. i]:map({[' '] = ''})
@@ -2108,6 +2115,19 @@ multi_account_config_export = function(simple)
       end
       log(account)
       content = account
+    else
+      -- -- 压缩？
+      -- local jsonpath = getWorkPath() .. '/export.json'
+      -- local zippath = getWorkPath() .. '/export.zip'
+      f = io.open(getUIConfigPath(layout .. "_default"))
+      local default = f:read() or '{}'
+      f:close()
+      status, default = pcall(JsonDecode, default)
+      if not status then
+        content = ''
+      else
+        content = JsonEncode(table.diff(content, default))
+      end
     end
 
     putClipboard(content)
@@ -2185,6 +2205,7 @@ multi_account_config_import = function()
   if not data or #data == 0 then
     stop("从剪贴板导入失败：" .. result, false)
   end
+
 
   local f = io.open(config, 'w')
   f:write(data)
@@ -2468,7 +2489,7 @@ show_help_ui = function()
 最近更新：
 1. 刷肉鸽等级(蜡烛)已加。
 1. 第10章已加。
-1. 新增root保活，雷电2G内存可无限挂肉鸽。需手动关闭root授权提示（设置-超级用户-右上角三个点-通知-无）。
+1. 新增root保活，雷电2核2G内存可无限挂肉鸽。需手动关闭root授权提示（设置-超级用户-右上角三个点-通知-无）。
 
 ]])
 
@@ -2673,7 +2694,7 @@ Q：突然没反应？
 A：卡随机界面，参考下一问题答案。卡同一界面，反馈下。
 
 Q：突然出现“停止运行”、悬浮按钮消失、悬浮按钮位置改变？
-A：被系统杀了。给足权限、换设备、换脚本。有root更稳定。
+A：被系统杀了。给足速通与明日方舟的权限、换设备、换脚本。有root更稳定。
 
 Q：突然没反应且悬浮按钮无绿边？
 A：说明脚本正常停止或出现代码错误，感觉有问题反馈下。
@@ -2816,7 +2837,7 @@ show_debug_ui = function()
   ui.addEditText(layout, "keepalive_interval1", "3600")
 
   newRow(layout)
-  ui.addCheckBox(layout, "enable_log", "开启日志(可能导致闪退)", false)
+  ui.addCheckBox(layout, "enable_log", "开启日志(会导致闪退)", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
@@ -3378,7 +3399,7 @@ predebug_hook = function()
   -- exit()
 
   disable_game_up_check = 1
-  max_login_times =  10000
+  max_login_times = 10000
 
   log(2253)
   disable_game_up_check = false
