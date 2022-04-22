@@ -281,7 +281,7 @@ path.bilibili_login = {
     end
     tap("bilibili_login")
     if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 5) then
-      stop("登录失败35", true)
+      stop("B服登录失败", true)
     end
     -- 小米
     appearTap({text = "存储"}, 1)
@@ -377,7 +377,7 @@ path.fallback = {
         last_time_tap_return = time()
       end
       -- 干员/皮肤界面用返回键没用，这时按基建右上角
-    end, 30) then stop("214 返回键30秒超时") end
+    end, 30) then stop("返回键30秒超时") end
     if x then return tap(path.fallback[x]) end
   end,
   活动公告返回 = function()
@@ -4279,11 +4279,12 @@ path.前瞻投资 = function()
     if p and skill_times < zl_skill_times then
       skill_times = skill_times + 1
       tap({p[1], p[2] + scale(200)})
-      appear("技能ready", 5)
+      -- appear("技能ready", 5)
+      appear("生命值蓝", 5)
       ssleep(0.5)
       wait(function()
         tap("开技能")
-        if not findOne("技能ready") then return true end
+        if disappear("生命值蓝", 1) then return true end
       end)
     end
   end, 300) then return closeapp(appid) end
