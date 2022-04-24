@@ -1812,6 +1812,7 @@ closeapp = function(package)
 end
 closeapp = disable_game_up_check_wrapper(closeapp)
 restartapp = function(package)
+  login_times = (login_times or 0) - 1
   closeapp(package)
   wait_game_up()
 end
@@ -2627,6 +2628,7 @@ A：任务完成后，机器人将把首页截图与可招募标签发给QQ。�
 Q：QQ通知怎么用？
 A：加以下所有机器人QQ为好友（机器人会自动同意）后，创建群聊将所有机器人拉进群，将群号填到脚本横线处。
 机器人QQ：2476685186,1514678048,2952153374,605597237。
+输入麻烦可以加群，机器人是水月头像管理员。
 
 Q：QQ通知的设备名怎么设置？
 A：QQ号后加“#设备名”，如“1009619697#雷电云5”
@@ -2991,7 +2993,7 @@ show_extra_ui = function()
   --                                "extra_mode='活动2任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
 
   newRow(layout)
-  addButton(layout, layout .. "_speedrun", "每日任务速通（别用）",
+  addButton(layout, layout .. "_speedrun", "每日任务速通（待修）",
             make_jump_ui_command(layout, nil,
                                  "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
 
@@ -3413,18 +3415,22 @@ predebug_hook = function()
 
   log(2253)
   disable_game_up_check = false
+  -- ssleep(1)
+  -- log(findOne("活动公告返回"))
+  -- log(findOne("线索传递界面"))
   ssleep(1)
+  -- path.跳转("")
+  -- log(findOne("活动公告返回"))
+  exit()
   while true do
-    local p  = findOne("技能ready")
-    if p then
-      log(p)
-    end
+    local p = findOne("技能ready")
+    if p then log(p) end
   end
   exit()
 
   local f = function()
     local p = findOne("技能亮")
-    log("p",p)
+    log("p", p)
     exit()
     if p then
       tap({p[1], p[2] + scale(200)})
@@ -3948,20 +3954,24 @@ update_state_from_ui = function()
   end
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
+  -- 活动开放时间段
   hd_open_time_end = parse_time("202203120400")
-  all_open_time_start = parse_time("202202241600")
-  all_open_time_end = parse_time("202203100400")
+
+  -- 资源关全天开放时间段
+  all_open_time_start = parse_time("202205191600")
+  all_open_time_end = parse_time("202206020400")
   update_open_time()
 
-  crisis_contract_start = parse_time("202202241600")
-  crisis_contract_end = parse_time("202203100400")
+  -- 危机合约时间段，只为加速信用交易所
+  during_crisis_contract = false
+  local crisis_contract_start = parse_time("202205191600")
+  local crisis_contract_end = parse_time("202206020400")
   local current = parse_time()
   if crisis_contract_start < current and current < crisis_contract_end then
     during_crisis_contract = true
-  else
-    during_crisis_contract = false
   end
 
+  -- 用于自定义换班，已弃用
   startup_time = parse_time()
   facility2operator = {}
   facility2nexthour = {}
@@ -4261,9 +4271,7 @@ restart_game_check = function(timeout)
   restart_game_check_last_time = restart_game_check_last_time or time()
   if (time() - restart_game_check_last_time) > timeout * 1000 then
     restart_game_check_last_time = time()
-    login_times = (login_times or 0) - 1
-    closeapp(appid)
-    log(3149)
+    restartapp(appid)
     return true
   end
 end

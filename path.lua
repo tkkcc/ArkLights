@@ -190,10 +190,8 @@ path.base = {
 
     fight_times = (fight_times or 0) + 1
     if fight_times >= max_fight_times then
-      login_times = (login_times or 0) - 1
       fight_times = 0
-      closeapp(appid)
-      wait_game_up()
+      restartapp(appid)
       return path.跳转("首页")
     end
 
@@ -334,6 +332,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+  线索传递界面 = function() tap("线索传递返回") end,
   查看谢幕表 = function() tap("战略确认") end,
   我知道了 = function() tap("我知道了") end,
   剿灭提示 = function() tap("左上角返回") end,
@@ -353,7 +352,6 @@ path.fallback = {
       tap("跳过剧情确认")
     end
   end,
-
   签到返回黄 = function() return path.fallback.签到返回() end,
   签到返回 = function()
     local x
@@ -362,10 +360,12 @@ path.fallback = {
     if not wait(function()
       -- 曾出现 返回确认 误判为 活动公告返回
       -- 返回确认3按back太快弹不出来
-      local timeout = min(2, (time() - start_time) / 1000 * 2 / 10)
+      local timeout = min(2, (time() - start_time + 1000) / 1000 * 2 / 10)
       log(237, timeout)
       -- timeout = 0
-      x = appear({"返回确认", "返回确认3", "断罪"}, timeout)
+      x = appear({
+        "返回确认", "返回确认3", "断罪", "活动公告返回",
+      }, timeout)
       -- disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
       if x then return true end
       back()
@@ -381,11 +381,11 @@ path.fallback = {
     if x then return tap(path.fallback[x]) end
   end,
   活动公告返回 = function()
-    tap("活动公告返回")
-    if disappear("活动公告返回", 1) then
-      return path.fallback.签到返回()
-    end
-
+    if not wait(function()
+      if disappear("活动公告返回", 1) then return true end
+      back()
+    end, 5) then return restartapp(appid) end
+    return path.fallback.签到返回()
   end,
   抽签返回 = function()
     for u = scale(300), screen.width - scale(300), 200 do
@@ -484,7 +484,7 @@ path.fallback = {
       "返回确认", "返回确认2", "返回确认3", "活动公告返回",
       "签到返回", "签到返回黄", "活动签到返回", "抽签返回",
       "战略返回", '感谢庆典返回', '限时开放许可',
-      "限时幸运签",
+      "限时幸运签", "线索传递界面",
     }, .1)
     log(251, x)
     if x then return tap(path.fallback[x]) end
@@ -1870,9 +1870,11 @@ end
 
 path.线索传递 = function()
   -- internal
-  -- log(827)
+  disappear("正在提交反馈至神经", network_timeout)
   if not findTap("线索传递") then return end
-  -- log(828)
+
+  appear({"线索传递数字列表8", "正在提交反馈至神经"})
+  disappear("正在提交反馈至神经", network_timeout)
   if not appear("线索传递数字列表8", 10) then return end
   if not appear("线索传递有好友", .5) then
     no_friend = true
@@ -1949,6 +1951,7 @@ end
 
 path.任务收集 = function()
   path.跳转("任务")
+  appear({"任务未选中列表2", "任务有列表2", "任务无列表2"})
 
   if speedrun then
     -- 只保留日常任务
@@ -1985,7 +1988,7 @@ path.任务收集 = function()
       end, 10) then return end
 
       -- 等待剩余红点出现
-      if remain then appear(remain) end
+      if remain then appear(point.任务有列表) end
     end
   end
 end
@@ -2659,6 +2662,7 @@ path.物资芯片 = function(x)
     appear(fight_notation)
   end
   if findOne(fight_notation) then
+    ssleep(.5)
     tap("作战列表" .. x)
     appear("开始行动")
     path.开始游戏(x)
@@ -3113,7 +3117,6 @@ path.访问好友 = function()
 
   if not wait(function()
 
-    disappear("正在提交反馈至神经", network_timeout)
     if not disable_communication_check and
       findOne("今日参与交流已达上限") then
       log("今日参与交流已达上限")
@@ -3127,6 +3130,7 @@ path.访问好友 = function()
       return true
     end
     tap("访问下位橘")
+    disappear("正在提交反馈至神经", network_timeout)
   end, 60) then return end
   log(2257)
 end
@@ -3715,10 +3719,7 @@ path.前瞻投资 = function()
   local jumpout
   if findOne("战略返回") then path.fallback.战略返回() end
 
-  if findOne("暂停中") and findOne("生命值") then
-    closeapp(appid)
-    wait_game_up()
-  end
+  if findOne("暂停中") and findOne("生命值") then restartapp(appid) end
 
   -- 先导航到常规行动
   if not findOne("常规行动") then
@@ -4191,7 +4192,7 @@ path.前瞻投资 = function()
     if not findOne("快捷编队") then return true end
     -- 出现过在这儿卡死的
     if not disappear("正在提交反馈至神经", network_timeout) then
-      closeapp(appid)
+      restartapp(appid)
       return true
     end
   end, 10) then return end
@@ -4287,7 +4288,7 @@ path.前瞻投资 = function()
         if disappear("生命值蓝", 1) then return true end
       end)
     end
-  end, 300) then return closeapp(appid) end
+  end, 300) then return restartapp(appid) end
 
   appear({"战略返回", "凋零残响"}, 30)
   if findOne("凋零残响") then return end

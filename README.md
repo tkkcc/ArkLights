@@ -42,8 +42,8 @@ npm i -g qqimagedeliver
 ```
 qqimagedeliver --username=12345 # 先扫码登录
 qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
-qqimagedeliver --username="12345 6789" --password="abcde fghij" --maxtry=2 # 可多号分流
 ```
+
 将服务器IP与端口(默认49875)填入脚本高级设置中
 ```
 http://82.156.198.12:49875
