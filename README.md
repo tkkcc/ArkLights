@@ -1,15 +1,17 @@
-# 明日方舟速通
+<h1 align="center"> ArkLights</h1>
 
-明日方舟最速全托管脚本
+<p align="center">
+ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights auto helper</a>
+</p>
 
-ArkLights is the lightning fast Arknights auto helper
-
-[特色功能介绍](https://www.bilibili.com/read/cv16183975)
-[老版日常演示](https://www.bilibili.com/video/BV1LM4y1F7kA)
-[7时21分速刷999源石锭](https://www.youtube.com/watch?v=PFBHJk7uk28)
-[每日任务速通最速记录35.25s](https://www.bilibili.com/video/BV1eQ4y1C7Ch)
-
-本项目使用GPL协议，请遵循[修改开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLRequireSourcePostedPublic)与[商用开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLCommercially)要求。
+<!-- <p align="center">明日方舟速通：明日方舟最速全托管脚本</a> </p> -->
+<p align="center" >
+<a href=https://www.bilibili.com/read/cv16183975>特色功能介绍</a>
+<a href=https://www.bilibili.com/video/BV1LM4y1F7kA>老版日常演示</a>
+<a href=https://www.bilibili.com/video/BV11T4y1S7cj>999源石锭速刷记录7时21分</a>
+<a href=https://www.bilibili.com/video/BV1eQ4y1C7Ch>每日任务速通记录35.25s</a>
+</p>
+<!-- 本项目使用GPL协议，请遵循[修改开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLRequireSourcePostedPublic)与[商用开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLCommercially)要求。 -->
 
 ## 特点
 
