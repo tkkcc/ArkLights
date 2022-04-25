@@ -2566,7 +2566,7 @@ Q：作战出现非三星代理/代理失误时是否跳过？
 A：出现时通知QQ，连续出现三次跳过当前关。
 
 Q：设置不吃药但还是吃了/自动吃到期理智药？
-A：默认自动吃48小时到期理智药（无论次数设置为多少），可在高级设置中关闭。
+A：默认自动吃24小时到期理智药（无论次数设置为多少），可在高级设置中关闭。
 
 Q：换班产率低？
 A：“高产”换班根据 当前实际可用基建技能 穷举所有干员组合，计算每个组合8小时平均加成，选择最高加成组合，有以下限制：
@@ -2956,7 +2956,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。出现多次作战或有效幻觉时重开。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多测试可看群精华消息。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议1280x720。分辨率设成16:9就不会选矛头分队。游戏本体存在内存泄漏，因此每半小时重启一次，不影响效率。多次出现速通停止运行、随机状态卡住、悬浮按钮消失，应换设备或脚本。通过999源石锭刷取耗时可知效率与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(每小时97个)，三结局耗时8时10分(每小时122个)，4点启动+三结局耗时7时21分(每小时135个)。如果需要刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”，并手动升高幕后筹备。如果需要推图打boss，应用明日再肝(还鸽)与MAA，有概率打过第三层boss。]])
+              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多测试见群精华消息。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议16:9，否则可能选不到后勤队。游戏本体存在内存泄漏，因此会抽空重启。如果1小时内就出现脚本停止运行、随机界面卡住、悬浮按钮消失，应把“高级设置”中两个3600重启间隔调小(如900)。999源石锭刷取耗时与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(97个/时)，三结局耗时8时10分(122个/时)，4点启动+三结局耗时7时21分(135个/时)。如需刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”。如需推图，可尝试明日再肝(还鸽)与MAA。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -3415,10 +3415,13 @@ predebug_hook = function()
 
   log(2253)
   disable_game_up_check = false
+  ssleep(1)
+  nodeLib.setOnNodeEvent(function(e) print("event:" .. e) end)
+
   -- ssleep(1)
   -- log(findOne("活动公告返回"))
   -- log(findOne("线索传递界面"))
-  ssleep(1)
+  ssleep(1000)
   -- path.跳转("")
   -- log(findOne("活动公告返回"))
   exit()
@@ -4052,6 +4055,7 @@ setEventCallback = function()
   setStopCallBack(function()
     disable_log = false
     log("结束")
+    disableRootToast(true)
     -- stopThread(keepalive_thread[1])
     -- stopThread(keepalive_thread[2])
     -- stopThread(keepalive_thread[3])
@@ -4603,12 +4607,13 @@ chineseUnicodeStringMatch = function(a, b)
   return score
 end
 
-disableRootToast = function()
+disableRootToast = function(reenable)
   -- toast会影响识别
   local cmd = [[nohup su root sh -c ' \
 root_manager=$(pm list packages|grep -e .superuser -e .supersu -e .magisk | head -n1|cut -d: -f2)
-appops set $root_manager TOAST_WINDOW deny
-' > /dev/null & ]]
+root_manager=${root_manager:-com.android.settings}
+appops set $root_manager TOAST_WINDOW ]] .. (reenable and "allow" or "deny") ..
+[[' > /dev/null & ]]
   exec(cmd)
 end
 
