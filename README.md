@@ -1,6 +1,8 @@
 # 明日方舟速通
 
-明日方舟全托管脚本，适配16:9及以上分辨率，等待耗时极低。
+明日方舟最速全托管脚本
+
+ArkLights is the lightning fast Arknights auto helper
 
 [特色功能介绍](https://www.bilibili.com/read/cv16183975)
 [老版日常演示](https://www.bilibili.com/video/BV1LM4y1F7kA)
