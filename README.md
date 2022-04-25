@@ -13,6 +13,8 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights auto
 </p>
 <!-- 本项目使用GPL协议，请遵循[修改开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLRequireSourcePostedPublic)与[商用开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLCommercially)要求。 -->
 
+![](cover.jpg)
+
 ## 特点
 
 1. 支持明日方舟官服与B服。
