@@ -44,16 +44,24 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights auto
 ```
 npm i -g qqimagedeliver
 ```
+
 用闲置QQ号登录
 ```
 qqimagedeliver --username=12345 # 先扫码登录
 qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 ```
+服务器防火墙要开放服务端口(默认49875)
 
-将服务器IP与端口(默认49875)填入脚本高级设置中
+将服务器IP与端口按如下格式填到脚本高级设置
 ```
 http://82.156.198.12:49875
 ```
+用自己QQ加该QQ为好友，将自己QQ填到脚本主界面  
+脚本主界面任务全不勾，启动，观察是否收到QQ通知
+
+
+
+
 </details>
 
 ## 对比

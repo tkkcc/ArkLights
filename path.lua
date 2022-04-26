@@ -1225,7 +1225,7 @@ path.制造换班 = function(trading)
 
       good = findAny({"赤金站", "源石站", "芯片站", "经验站"})
       if good == '芯片站' and findOne("芯片站已完成") then
-        good = "经验站"
+        good = "赤金站"
         chip2book_needed = true
       end
 
@@ -1398,10 +1398,17 @@ path.制造换班 = function(trading)
           tap("芯片站")
           if not findOne("制造站设施列表1") then return true end
         end, 2) then return end
+
         if not wait(function()
-          tap("芯片站选经验")
+          tap("芯片站选赤金类")
+          if findOne("芯片站选赤金") then return true end
+        end, 2) then return end
+
+        if not wait(function()
+          tap("芯片站选赤金")
           if findOne("制造站执行更改") then return true end
         end, 2) then return end
+
         if not wait(function()
           tap("制造站最多")
           tap("制造站执行更改")
