@@ -1,0 +1,17 @@
+{
+  "name": "arklights-docs",
+  "version": "0.0.1",
+  "description": "manual for ArkLights",
+  "main": "index.js",
+  "repository": "https://github.com/tkkcc/ArkLights",
+  "author": "bilabila <bilabila@qq.com> (https://tkkcc.github.io/)",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^0.22.3"
+  },
+  "scripts": {
+    "docs:dev": "vitepress dev .",
+    "docs:build": "vitepress build .",
+    "docs:serve": "vitepress serve ."
+  }
+}
