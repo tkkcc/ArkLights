@@ -7,11 +7,11 @@
   "author": "bilabila <bilabila@qq.com> (https://tkkcc.github.io/)",
   "license": "MIT",
   "devDependencies": {
-    "vitepress": "^0.22.3"
+    "@vuepress/plugin-docsearch": "^2.0.0-beta.41",
+    "vuepress": "^2.0.0-beta.41"
   },
   "scripts": {
-    "docs:dev": "vitepress dev .",
-    "docs:build": "vitepress build .",
-    "docs:serve": "vitepress serve ."
+    "docs:dev": "vuepress dev .",
+    "docs:build": "vuepress build ."
   }
 }

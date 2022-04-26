@@ -2438,6 +2438,7 @@ show_main_ui = function()
     -- },
     {randomString(32), "其他功能", make_jump_ui_command(layout, "extra")},
     {randomString(32), "必读", make_jump_ui_command(layout, "help")},
+    -- {randomString(32), "必读", make_jump_ui_command(layout,nil, "jump_vercel()")},
     {
       randomString(32), "退出",
       make_jump_ui_command(layout, nil, "peaceExit()"),
@@ -2750,6 +2751,22 @@ A：除了可以导入脚本导出的详细设置外，还可以导入如下格�
   ui.show(layout, false)
 end
 
+show_help_ui = function()
+  local layout = "help"
+  ui.newLayout(layout, ui_page_width, -2)
+  ui.setTitleText(layout, "必读")
+  newRow(layout)
+
+  newRow(layout)
+  ui.addButton(layout, layout .. "_stop", "返回")
+  ui.setBackground(layout .. "_stop", ui_cancel_color)
+  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+  newRow(layout)
+  ui.addWebView(layout, randomString(32), 'https://arklights.vercel.app', -2,
+               -2)
+  ui.show(layout, false)
+end
+
 show_debug_ui = function()
   local layout = "debug"
   ui.newLayout(layout, ui_page_width, -2)
@@ -3050,6 +3067,15 @@ jump_github = function()
   local intent = {
     action = "android.intent.action.VIEW",
     uri = "https://github.com/" .. github,
+  }
+  runIntent(intent)
+  peaceExit()
+end
+jump_vercel = function()
+  local vercel = "arklights"
+  local intent = {
+    action = "android.intent.action.VIEW",
+    uri = "https://" .. vercel .. '.vercel.app',
   }
   runIntent(intent)
   peaceExit()
@@ -4611,7 +4637,7 @@ disableRootToast = function(reenable)
 root_manager=$(pm list packages|grep -e .superuser -e .supersu -e .magisk | head -n1|cut -d: -f2)
 root_manager=${root_manager:-com.android.settings}
 appops set $root_manager TOAST_WINDOW ]] .. (reenable and "allow" or "deny") ..
-[[' > /dev/null & ]]
+                [[' > /dev/null & ]]
   exec(cmd)
 end
 

@@ -13,3 +13,4 @@ tmp*
 /*/
 !/docs/
 node_modules/
+dist/

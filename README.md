@@ -26,7 +26,10 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights auto
 
 ## 安装
 
-下载[明日方舟速通](https://wwa.lanzoui.com/b010qimmf)（密码0000）  
+下载明日方舟速通：
+[123pan](https://www.123pan.com/s/6MR9-zIv7d) /
+[蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) /
+[github release](https://github.com/tkkcc/ArkLights/releases/download/v0.0.18/arknightsspeedrun2.apk)  
 不支持夜神、mumu6、红手指安卓6  
 蓝叠要选高级图形引擎，逍遥要选OpenGL
 
