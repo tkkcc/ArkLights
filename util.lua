@@ -2437,8 +2437,11 @@ show_main_ui = function()
     --   make_jump_ui_command(layout, nil, "jump_qqgroup()"),
     -- },
     {randomString(32), "其他功能", make_jump_ui_command(layout, "extra")},
-    {randomString(32), "必读", make_jump_ui_command(layout, "help")},
-    -- {randomString(32), "必读", make_jump_ui_command(layout,nil, "jump_vercel()")},
+    -- {randomString(32), "必读", make_jump_ui_command(layout, "help")},
+    {
+      randomString(32), "必读",
+      make_jump_ui_command(layout, nil, "jump_vercel()"),
+    },
     {
       randomString(32), "退出",
       make_jump_ui_command(layout, nil, "peaceExit()"),
@@ -2763,7 +2766,7 @@ show_help_ui = function()
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
   newRow(layout)
   ui.addWebView(layout, randomString(32), 'https://arklights.vercel.app', -2,
-               -2)
+                1000)
   ui.show(layout, false)
 end
 
@@ -3078,6 +3081,7 @@ jump_vercel = function()
     uri = "https://" .. vercel .. '.vercel.app',
   }
   runIntent(intent)
+  while true do ssleep(100) end
   peaceExit()
 end
 
