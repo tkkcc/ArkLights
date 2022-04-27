@@ -107,7 +107,7 @@
     mkdir -p $dst
     while IFS= read -r -d '' f; do
       iconv -f UTF-8 -t GB18030 "$f" -o "$dst/$f"
-    done < <(find . -type f -name '*.ui' -printf '%P\0')
+    done < <(find . -maxdepth 1 -type f -name '*.ui' -printf '%P\0')
   }
   saverun() {
     save

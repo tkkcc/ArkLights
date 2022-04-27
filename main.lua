@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.04.27  1:27"
+release_date = "2022.04.27 21:44"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -101,7 +101,8 @@ if QQ:find('#') then
   devicenote = QQ:sub(QQ:find('#') + 1, #QQ):trim()
   QQ = QQ:sub(1, QQ:find('#') - 1):trim()
 end
-if not ((qqimagedeliver or ''):trim()):startsWith("http") then
+qqimagedeliver = (qqimagedeliver or ''):trim()
+if not qqimagedeliver:startsWith("http") then
   qqimagedeliver = "http://82.156.198.12:49875"
 end
 if zl_enable_log then zl_disable_log = false end
@@ -119,7 +120,7 @@ transfer_global_variable("multi_account_user1", "multi_account_user0")
 if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
   multi_account_enable then
 
-  -- 分隔临时设置
+  -- 分隔临时账号设置
   multi_account_choice = multi_account_choice:commonmap()
   local p = multi_account_choice:find('#')
   if p then
@@ -154,7 +155,6 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
     if extra_mode then
       no_extra_job = job
       job = {extra_mode}
-
     end
     if #username > 0 and #password > 0 then
       table.insert(job, 1, "退出账号")
@@ -198,5 +198,4 @@ check_crontab()
 load(after_all_hook or '')()
 
 ssleep(.5)
--- console.dismiss()
 peaceExit()

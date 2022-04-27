@@ -4,13 +4,14 @@ const { docsearchPlugin } = require('@vuepress/plugin-docsearch')
 module.exports = {
   lang: 'zh-CN',
   title: '明日方舟速通',
-  description: '明日方舟速通',
+  description: '最快的明日方舟全托管脚本',
   theme: defaultTheme({
     repo: 'tkkcc/ArkLights',
     sidebarDepth: 5,
     docsBranch: 'lr',
     docsDir: 'docs',
     // editLinkPattern: ':repo/edit/:branch/:path'
+    navbar: [{ text: '必读', link: '/guide' }],
   }),
   markdown: {
     extractHeaders: {

@@ -353,6 +353,7 @@ path.fallback = {
     end
   end,
   签到返回黄 = function() return path.fallback.签到返回() end,
+  回坑返回 = function() return path.fallback.签到返回() end,
   签到返回 = function()
     local x
     local last_time_tap_return = time()
@@ -953,7 +954,7 @@ path.宿舍换班 = function()
       discover(operator, {}, 1, true)
       log(818, operator, shift_min_mood)
       operator = table.filter(operator,
-                              function(x) return x[3] < shift_min_mood end)
+                              function(x) return x[3] < shift_min_mood + 1 end)
       -- log(819,operator)
       operator = map(function(x) return x[4] end, operator)
       operator = table.slice(operator, 1, 5)

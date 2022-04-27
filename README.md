@@ -23,6 +23,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights auto
 1. 极低等待耗时，快过手操。全托管，高鲁棒。免root，热更新，免费开源。
 1. 支持集成战略刷投资，最速记录7时21分刷999源石锭，平均每小时135个。
 1. 不统计掉落，不支持无人机加速贸易站。
+1. 不限商用，修改代码后商用必须开源。
 
 ## 安装
 

@@ -2535,7 +2535,7 @@ show_help_ui = function()
   ui.setBackground(layout .. "_stop", ui_cancel_color)
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
   newRow(layout)
-  ui.addWebView(layout, randomString(32), 'https://arklights.vercel.app', -2,
+  ui.addWebView(layout, randomString(32), 'https://arklights.vercel.app/guide', -2,
                 1000)
   ui.show(layout, false)
 end
@@ -3087,14 +3087,16 @@ enable_accessibility_service = function()
     --       (#other_services > 0 and other_services or '""') .. "'")
 
     -- 秘诀：先开再关再开
-    exec("su root sh -c 'settings put secure enabled_accessibility_services " ..
-           other_services .. (#other_services > 0 and ':' or '') .. service ..
-           "'")
-    exec("su root sh -c 'settings put secure enabled_accessibility_services " ..
-           (#other_services > 0 and other_services or '""') .. "'")
-    exec("su root sh -c 'settings put secure enabled_accessibility_services " ..
-           other_services .. (#other_services > 0 and ':' or '') .. service ..
-           "'")
+    exec([[su root sh -c '
+settings put secure enabled_accessibility_services ]] .. other_services ..
+           (#other_services > 0 and ':' or '') .. service .. [[;
+
+settings put secure enabled_accessibility_services ]] ..
+           (#other_services > 0 and other_services or '""') .. [[;
+
+settings put secure enabled_accessibility_services ]] .. other_services ..
+           (#other_services > 0 and ':' or '') .. service .. [[;
+']])
     if wait(function() return isAccessibilityServiceRun() end) then return end
   end
   openPermissionSetting()
@@ -3214,6 +3216,14 @@ predebug_hook = function()
   log(2253)
   disable_game_up_check = false
   ssleep(1)
+  log(expand_number_config(shrink_number_config("")))
+  log(expand_number_config(shrink_number_config("1")))
+  log(expand_number_config(shrink_number_config("9 8")))
+  log(expand_number_config(shrink_number_config("9 7")))
+  log(expand_number_config(shrink_number_config("1 2 4 5 9 8 7 6")))
+
+  exit()
+
   nodeLib.setOnNodeEvent(function(e) print("event:" .. e) end)
 
   -- ssleep(1)
@@ -4030,17 +4040,15 @@ str2int = function(number, fallback)
 end
 
 -- string annotation to list
-expand_number_config = function(x, minimum, maximum)
-  minimum = minimum or 1
-  maximum = maximum or 99
+expand_number_config = function(x)
   local y = {}
   x = string.filterSplit(x)
   for _, v in pairs(x) do
     if v:find('-') then
-      local s = str2int(v:sub(1, v:find('-') - 1), 1)
-      local e = str2int(v:sub(v:find('-') + 1), maximum)
+      local s = str2int(v:sub(1, v:find('-') - 1), -1)
+      local e = str2int(v:sub(v:find('-') + 1), -1)
       local d = e < s and -1 or 1
-      for i = s, e, d do table.insert(y, i) end
+      if s > 0 and e > 0 then for i = s, e, d do table.insert(y, i) end end
     else
       table.insert(y, str2int(v, 0))
     end
@@ -4056,14 +4064,24 @@ end
 
 -- list to string annotation
 shrink_number_config = function(x)
-  -- local ans = ''
-  -- x = x:split(' ')
-  -- local s = ''
-  -- local e = ''
-  -- for _, i in pairs(x) do
-  --   if x[
-  -- end
-  return x
+  local ans = ''
+  x = x:split(' ')
+  for i, _ in pairs(x) do x[i] = str2int(x[i], -1) end
+  local i = 1
+  while i <= #x do
+    local j = i + 1
+    while j <= #x and x[j] - x[j - 1] == 1 do j = j + 1 end
+    if j == i + 1 then
+      while j <= #x and x[j] - x[j - 1] == -1 do j = j + 1 end
+    end
+    if j == i + 1 then
+      ans = ans .. x[i] .. ' '
+    else
+      ans = ans .. x[i] .. '-' .. x[j - 1] .. ' '
+    end
+    i = j
+  end
+  return ans
 end
 
 restart_game_check_last_time = nil
