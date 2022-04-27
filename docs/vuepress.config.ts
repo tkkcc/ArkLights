@@ -8,6 +8,9 @@ module.exports = {
   theme: defaultTheme({
     repo: 'tkkcc/ArkLights',
     sidebarDepth: 5,
+    docsBranch: 'lr',
+    docsDir: 'docs',
+    // editLinkPattern: ':repo/edit/:branch/:path'
   }),
   markdown: {
     extractHeaders: {

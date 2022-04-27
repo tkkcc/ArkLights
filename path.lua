@@ -1694,7 +1694,7 @@ path.制造加速 = function()
   tap("制造站收取")
 end
 
-path.线索搜集 = function()
+path.线索交流 = function()
   path.跳转("基建")
 
   local f
@@ -1863,13 +1863,13 @@ path.线索布置 = function()
     wait(function() tap("解锁线索") end, .5)
 
     if not appear({"进驻信息", "进驻信息选中"}, 5) then
-      return path.线索搜集()
+      return path.线索交流()
     end
 
     if not wait(function()
       if findOne("线索传递") then return true end
       tap("制造站进度")
-    end, 10) then return path.线索搜集() end
+    end, 10) then return path.线索交流() end
 
     return path.线索布置()
   end
@@ -3142,7 +3142,7 @@ path.访问好友 = function()
   log(2257)
 end
 
-path.公招刷新 = function()
+path.公开招募 = function()
   log(1355)
   path.跳转("公开招募")
   log(1356)
@@ -3503,7 +3503,7 @@ path.每日任务速通 = function()
   f(1)
   f(1, true)
   path.信用购买()
-  path.公招刷新()
+  path.公开招募()
 
   path.任务收集()
 end
@@ -4607,5 +4607,5 @@ path.公开招募加急 = function()
   -- 只处理第一个列表
   recruit_accelerate_mode = true
   point.公开招募列表 = table.slice(point.公开招募列表, 1, 1)
-  forever(path.公招刷新)
+  forever(path.公开招募)
 end
