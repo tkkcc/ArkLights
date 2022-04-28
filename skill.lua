@@ -868,6 +868,10 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
     local state = sample("干员第一个")
     for j = 1, 3 do
       log("842尝试翻页", j)
+      if findOne("正在提交反馈至神经") then
+        disappear("正在提交反馈至神经", network_timeout)
+        ssleep(.5)
+      end
       swipo()
       if not findOne(state) then break end
     end
@@ -905,6 +909,10 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
       local state = sample("干员第一个")
       for j = 1, 3 do
         log("844尝试翻页", j)
+        if findOne("正在提交反馈至神经") then
+          disappear("正在提交反馈至神经", network_timeout)
+          ssleep(.5)
+        end
         swipo()
         if not findOne(state) then break end
       end

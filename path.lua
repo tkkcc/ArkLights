@@ -1037,13 +1037,15 @@ path.宿舍换班 = function()
       end, 5) then return end
     end
 
-    if not wait(function()
-      if findAny({
-        "隐藏", "进驻信息", "进驻信息选中",
-        -- "正在提交反馈至神经",
-      }) then return true end
+    if not wait(function(reset_wait_start_time)
+      if findAny({"隐藏", "进驻信息", "进驻信息选中"}) then
+        return true
+      end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
       tap("确认蓝")
-    end, 10) then return end
+    end, 5) then return end
 
   end
   for i = 1, 4 do f(i) end
@@ -1376,10 +1378,13 @@ path.制造换班 = function(trading)
                    powerStationNum, dormitoryCapacity, dormitoryLevelSum,
                    goldStationNum)
 
-    wait(function()
+    wait(function(reset_wait_start_time)
       tap("确认蓝")
       if findAny({"制造站设施列表1", "贸易站设施列表1"}) then
         return true
+      end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
       end
     end, 5)
 
@@ -1398,33 +1403,32 @@ path.制造换班 = function(trading)
         if not wait(function()
           tap("芯片站")
           if not findOne("制造站设施列表1") then return true end
-        end, 2) then return end
+        end, 5) then return end
 
         if not wait(function()
           tap("芯片站选赤金类")
           if findOne("芯片站选赤金") then return true end
-        end, 2) then return end
+        end, 5) then return end
 
         if not wait(function()
           tap("芯片站选赤金")
           if findOne("制造站执行更改") then return true end
-        end, 2) then return end
+        end, 5) then return end
 
         if not wait(function()
           tap("制造站最多")
           tap("制造站执行更改")
           if not findOne("制造站设施列表1") then return true end
         end, 5) then return end
-        if not wait(function()
+
+        if not wait(function(reset_wait_start_time)
           tap("右确认")
-          if appear({
-            "制造站设施列表1", "单选确认框",
-            "正在提交反馈至神经",
-          }, 1) then
-            disappear("正在提交反馈至神经", network_timeout)
-            return true
+          if appear("制造站设施列表1", 1) then return true end
+          if findOne("正在提交反馈至神经") then
+            reset_wait_start_time()
           end
         end, 5) then return end
+
         return true
       end
       chip2book()
@@ -1476,12 +1480,14 @@ path.总览换班 = function()
     -- 0.1 是 从干员列表退出后 取消连续点击 保证滑动手势有效
     -- 0.5 是 首次进入界面时 需要多点时间
     -- local timeout = first_look and .5 or .1
-    local timeout = first_look and .5 or .25
+    local timeout = (first_look and .5 or .25)
     -- local timeout = .1
     local p
     log(800, p)
     first_look = false
-    if not appear("入驻干员", timeout) and findOne("撤下干员") then
+    -- 至少做两次"入驻干员"检测，慢机只靠timeout不够可能，强制加一次
+    if not appear("入驻干员", timeout) and findOne("撤下干员") and
+      not findOne("入驻干员") then
       log("无入驻干员")
       return
     end
@@ -1511,8 +1517,11 @@ path.总览换班 = function()
 
       -- 多次进入同一高度，直接翻页
       if (visitedy[height] or 0) >= 4 then
-        if not wait(function()
+        if not wait(function(reset_wait_start_time)
           if findOne("撤下干员") then return true end
+          if findOne("正在提交反馈至神经") then
+            reset_wait_start_time()
+          end
           tap("确认蓝")
         end, 5) then return end
         return
@@ -1540,8 +1549,11 @@ path.总览换班 = function()
         ssleep(0.25)
         tapAll(map(function(j) return "干员选择列表" .. j end,
                    range(2 * limit, limit + 1, -1)))
-        if not wait(function()
+        if not wait(function(reset_wait_start_time)
           if findOne("撤下干员") then return true end
+          if findOne("正在提交反馈至神经") then
+            reset_wait_start_time()
+          end
           tap("确认蓝")
         end, 5) then return end
         return true
@@ -1604,8 +1616,11 @@ path.总览换班 = function()
       disappear("干员未选中", 2)
     end, 5) then return end
 
-    if not wait(function()
+    if not wait(function(reset_wait_start_time)
       if findOne("撤下干员") then return true end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
       tap("确认蓝")
     end, 5) then return end
 
@@ -2495,7 +2510,7 @@ path.主线 = function(x)
     end
   end
   -- 10秒内需要完成章节切换
-  auto(p, nil, 10, 10)
+  auto(p, nil, 5, 5)
   path.开始游戏(x)
 end
 
@@ -2886,7 +2901,7 @@ path.活动任务与商店 = function()
       got = true
       return true
     end
-  end, 2)
+  end)
 
   if got then
     disappear("正在提交反馈至神经", network_timeout)
@@ -2914,7 +2929,7 @@ path.活动任务与商店 = function()
       if findOne("活动商店横线") then return true end
       tap("开包skip")
       tap("收取信用有")
-    end, 2) then return end
+    end) then return end
 
     log(832)
 
@@ -2951,7 +2966,7 @@ path.活动任务与商店 = function()
       tap("活动商店支付")
       if not appear("活动商店支付", 1) or
         findOne("正在提交反馈至神经") then return true end
-    end, 2) then
+    end, 5) then
       success_once = false
       return
     end
@@ -2974,7 +2989,7 @@ path.活动任务与商店 = function()
     if not wait(function()
       if not findOne("活动导航1") then return true end
       tap("活动商店")
-    end, 2) then return end
+    end) then return end
     if not appear("活动商店横线", 5) then break end
 
     success_once = false
@@ -3495,8 +3510,11 @@ path.每日任务速通 = function()
 
     local exit_state = {"进驻信息", "进驻信息选中"}
     if last then table.insert(exit_state, "正在提交反馈至神经") end
-    if not wait(function()
+    if not wait(function(reset_wait_start_time)
       if findAny(exit_state) then return true end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
       tap("确认蓝")
     end, 5) then return end
   end
@@ -3536,7 +3554,7 @@ path.指定换班 = function()
         elseif compareColor(x, y, "#CCFF66", default_findcolor_confidence) then
           type = "发"
         end
-      end, 2) then return end
+      end) then return end
     elseif i == 10 then
       type = "控"
     elseif i <= 14 then
@@ -3626,11 +3644,13 @@ path.指定换班 = function()
     findtap_operator_fast(operator)
     swipo(true)
 
-    if not wait(function()
-      if findAny({
-        "隐藏", "进驻信息", "进驻信息选中",
-        "正在提交反馈至神经",
-      }) then return true end
+    if not wait(function(reset_wait_start_time)
+      if findAny({"隐藏", "进驻信息", "进驻信息选中"}) then
+        return true
+      end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
       tap("确认蓝")
     end, 5) then return end
   end
@@ -4514,16 +4534,15 @@ path.前瞻投资 = function()
       local x, y = point[p]:match("(%d+)" .. coord_delimeter .. "(%d+)")
       tap({tonumber(x) - scale(111), tonumber(y) - scale(100)})
       if disappear(p, 1) then return true end
-    end, 2) then return end
+    end) then return end
 
     disappear("诡意行商离开", 1)
-    if not wait(function()
+    if not wait(function(reset_wait_start_time)
       tap("诡意行商确认投资")
       if findOne("诡意行商离开") then return true end
-
       if findOne("确认招募") then
         local start_time = time()
-        if not wait(function()
+        if not wait(function(reset_wait_start_time2)
           if findOne("编队") then return true end
           if findOne("返回确认界面") then
             if time() - start_time < 2000 then
@@ -4534,10 +4553,17 @@ path.前瞻投资 = function()
             disappear("返回确认界面")
             ssleep(.5)
           end
+          if findOne("正在提交反馈至神经") then
+            reset_wait_start_time()
+            reset_wait_start_time2()
+          end
           tap("近卫招募列表" .. 1)
           findTap("确认招募")
           tap("开包skip")
         end, 10) then return end
+      end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
       end
     end, 10) then return end
     return true
@@ -4557,21 +4583,21 @@ path.前瞻投资 = function()
     end) then return end
 
     local coin_no_notification = sample("投币提示")
-    local coin_start_time = time()
 
     -- 超时改为60秒，有时会出现上限极高情况
-    wait(function()
+    wait(function(reset_wait_start_time)
       -- 不能投情况
       if not findOne("诡意行商投资入口") then return true end
-      if findOne("正在释放神经递质") then coin_start_time = time() end
+      if findOne("正在释放神经递质") then reset_wait_start_time() end
+      if not findOne(coin_no_notification) then reset_wait_start_time() end
 
       -- 6秒后，如果底部投币提示没有，那就说明投币结束
       -- 能投但币不够或者已投满
-      if time() - coin_start_time > 6000 and findOne(coin_no_notification) then
-        return true
-      end
+      -- if time() - coin_start_time > 6000 and findOne(coin_no_notification) then
+      --   return true
+      -- end
       tap("诡意行商确认投资")
-    end, 60)
+    end, 6)
   end
 
   if not wait(function()

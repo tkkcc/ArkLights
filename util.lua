@@ -1419,8 +1419,9 @@ wait = function(func, timeout, interval)
   interval = interval or 0
   -- log(timeout,interval)
   local start_time = time()
+  local reset_wait_start_time = function() start_time = time() end
   while true do
-    local ans = func()
+    local ans = func(reset_wait_start_time)
     -- log(584,ans)
     if ans then return ans end
     if (time() - start_time) > timeout * 1000 then break end
@@ -2413,7 +2414,7 @@ show_main_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[开基建退出提示，异形屏适配设为0。关游戏模式，关全局侧边栏，关深色夜间护眼模式，关隐藏刘海，注意全面屏手势。关懒人输入法，音量加停止脚本。有问题看必读。]])
+              [[开基建退出提示，异形屏适配设为0。关游戏模式、全局侧边栏、深色夜间护眼模式、隐藏刘海。关懒人输入法，音量加停止脚本。有问题看必读。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
@@ -2535,8 +2536,8 @@ show_help_ui = function()
   ui.setBackground(layout .. "_stop", ui_cancel_color)
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
   newRow(layout)
-  ui.addWebView(layout, randomString(32), 'https://arklights.vercel.app/guide', -2,
-                1000)
+  ui.addWebView(layout, randomString(32), 'https://arklights.vercel.app/guide',
+                -2, 1000)
   ui.show(layout, false)
 end
 

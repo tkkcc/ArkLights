@@ -333,7 +333,7 @@ http://82.156.198.12:49875
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>arknights.host即将上线</td>
+      <td>arknights.host已上线，群号450555868</td>
    </tr>
 </table>
 
