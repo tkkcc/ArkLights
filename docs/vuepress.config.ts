@@ -11,7 +11,7 @@ module.exports = {
     docsBranch: 'lr',
     docsDir: 'docs',
     // editLinkPattern: ':repo/edit/:branch/:path'
-    navbar: [{ text: '必读', link: '/guide' }],
+    navbar: [{ text: '必读', link: '/guide.html' }],
   }),
   markdown: {
     extractHeaders: {

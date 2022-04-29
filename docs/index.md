@@ -3,7 +3,7 @@ home: true
 
 actions:
   - text: 立即使用
-    link: /guide
+    link: /guide.html
     type: primary
 
 features:
