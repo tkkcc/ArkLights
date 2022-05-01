@@ -1,7 +1,9 @@
 -- predebug = true
+-- test_fight = true
+-- fake_fight = true
+always_enable_log = true
 -- enable_drug_24hour = true
 -- prefer_speed = true
--- always_enable_log = true
 -- enable_shift_log = true
 -- disable_dorm_shift=true
 -- disable_overview_shift=true
@@ -33,8 +35,6 @@ crontab_enable = true
 -- ok_time = 1000
 -- ignore_jmfight_enough_check=true
 -- use_zhuzhu_game = true
--- test_fight = true
--- fake_fight = true
 -- no_config_cache = true
 -- prefer_bapp_on_android7 = true
 -- debug0721 = true
@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.04.29  0:35"
+release_date = "2022.05.01 20:23"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -66,8 +66,6 @@ require('skill')
 require("fight")
 
 load(after_require_hook or '')()
-point.面板活动 = point.面板活动2
-rfl.面板活动 = rfl.面板活动2
 
 consoleInit()
 showControlBar(true)

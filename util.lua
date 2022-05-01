@@ -933,17 +933,18 @@ swipu = function(dis)
       local duration = 150
       local interval = 50
       local end_delay = 50
+      local flipy = swipu_flipy or 0
       d = math.abs(d)
       while d > 0 do
         if d > max_once_dis then
           table.insert(finger, {
-            point = {{freex + max_once_dis, freey}},
+            point = {{freex + max_once_dis, freey},{freex + max_once_dis, freey + flipy},},
             start = start,
             duration = duration,
           })
         else
           table.insert(finger, {
-            point = {{freex + d, freey}},
+            point = {{freex + d, freey},{freex + d, freey+flipy},},
             start = start,
             duration = duration,
           })
@@ -954,7 +955,7 @@ swipu = function(dis)
       end
       local last_finger = finger[#finger]
       finger[1].duration = last_finger.start + last_finger.duration + end_delay
-      -- log("finger",finger)
+      log("finger",finger)
       gesture(finger)
       sleep(finger[1].duration + 50)
     end
@@ -976,7 +977,7 @@ swipe = function(x)
       {
         point = {{scale(300), scale(150)}, {1000000, scale(150)}},
         start = 0,
-        duration = 150,
+        duration = 250,
       },
     })
     sleep(150 + 50)
@@ -1195,7 +1196,7 @@ run = function(...)
     table.extend(qqmessage, {devicenote and devicenote or getDevice(), usernote})
   elseif account_idx ~= nil then
     table.extend(qqmessage, {
-      devicenote and devicenote or getDevice(), "账号" .. account_idx,
+      devicenote and devicenote or getDevice(), "号" .. account_idx,
       server == 0 and "官服" or "B服", username, usernote,
     })
   else
@@ -1877,7 +1878,7 @@ make_account_ui = function(layout, prefix)
   newRow(layout)
   addTextView(layout, "作战")
   ui.addEditText(layout, prefix .. "fight_ui",
-                 [[当期委托x5 活动6*99 9-16*2 JT8-3 PR-D-2 CE-5 LS-5 上一次]])
+                 [[当期委托x5 活动8*99 10-17*2 JT8-3 PR-D-2 CE-6 上一次]])
 
   newRow(layout)
   addTextView(layout, "最多吃")
@@ -2606,6 +2607,9 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nobar", "QQ通知不显示悬浮按钮",
                  false)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_free_draw", "限时活动禁用赠送寻访",
+                 false)
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_keepalive",
@@ -3139,8 +3143,9 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
+    "HD-10","HD-1","HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8", "HD-9",
 
-    "10-2",
+    -- "10-2",
     -- "10-3",
     -- "10-4",
     -- "10-5",
@@ -3217,6 +3222,18 @@ predebug_hook = function()
   log(2253)
   disable_game_up_check = false
   ssleep(1)
+  tap("开始行动活动")
+  ssleep(1)
+  exit()
+  swipu_flipy = scale(100)
+  log(findOne("开始行动活动"))
+  exit()
+  swip("HD-1")
+  -- swip("10-17")
+  --
+  -- swipe("right")
+
+  exit()
   log(expand_number_config(shrink_number_config("")))
   log(expand_number_config(shrink_number_config("1")))
   log(expand_number_config(shrink_number_config("9 8")))
@@ -3758,7 +3775,7 @@ update_state_from_ui = function()
       fight[k] = extrajianpin2name[v]
     end
     -- log(2729, v)
-    if table.find({'活动', "GA", "WR", "IW", "WD"}, startsWithX(v)) then
+    if table.find({'活动', "GA", "WR", "IW", "WD", "SN"}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       fight[k] = "HD-" .. (idx or '')
       -- log(2731, v, idx)
@@ -3767,7 +3784,7 @@ update_state_from_ui = function()
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202203120400")
+  hd_open_time_end = parse_time("202205220400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202205191600")
@@ -4432,6 +4449,39 @@ root_manager=${root_manager:-com.android.settings}
 appops set $root_manager TOAST_WINDOW ]] .. (reenable and "allow" or "deny") ..
                 [[' > /dev/null & ]]
   exec(cmd)
+end
+
+hd_wrapper = function(func)
+  local f = function(...)
+    swipu_flipy = scale(100)
+    local keys = {"代理指挥开","开始行动"}
+    local point_store ={}
+    local rfl_store ={}
+    local first_point_store ={}
+
+    for _,k in pairs(keys) do
+      point_store[k]=  point[k]
+      rfl_store[k]=  rfl[k]
+      first_point_store[k]=  first_point[k]
+      point[k] = point[k.."活动"]
+      rfl[k] =rfl[k.."活动"]
+      first_point[k]=  first_point[k.."活动"]
+
+    end
+
+
+    local ret = func(...)
+
+    for _,k in pairs(keys) do
+      point[k] = point_store[k]
+      rfl[k] =rfl_store[k]
+      first_point[k]=  first_point_store[k]
+    end
+    swipu_flipy = 0
+
+    return ret
+  end
+  return f
 end
 
 -- post_util_hook

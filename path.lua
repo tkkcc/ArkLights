@@ -207,7 +207,7 @@ path.base = {
     local next_fight = fight[next_fight_tick]
     log(cur_fight, next_fight)
 
-    if get_fight_type(cur_fight) == "剿灭" then
+    if table.includes({ "剿灭"},get_fight_type(cur_fight)) then
       -- 剿灭必须回主页
       path.跳转("首页")
     elseif next_fight == cur_fight then
@@ -332,6 +332,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+  开始行动活动黄 = function() tap("返回") end,
   线索传递界面 = function() tap("线索传递返回") end,
   查看谢幕表 = function() tap("战略确认") end,
   我知道了 = function() tap("我知道了") end,
@@ -513,7 +514,7 @@ path.限时活动 = function(retry)
       '活动签到返回', '抽签返回', '感谢庆典返回',
       '限时开放许可', "限时幸运签",
     })
-  elseif findOne("面板赠送一次") then
+  elseif findOne("面板赠送一次") and not disable_free_draw then
     tap("面板干员寻访")
     if not appear("赠送一次") then return end
     ssleep(.5)
@@ -566,6 +567,7 @@ path.邮件收取 = function()
 
   -- 卡在邮件的获取
   local start_time = time()
+  local last_time_tap_return = time()
   wait(function()
     local timeout = min(2, (time() - start_time) / 1000 * 2 / 10)
     -- local timeout = 0
@@ -574,6 +576,14 @@ path.邮件收取 = function()
       "bilibili_framelayout_only",
     }, timeout) then return true end
     back()
+
+    -- 每5秒按下返回，处理限时活动中领到干员/皮肤
+    if time() - last_time_tap_return > 5000 then
+      -- TODO:按返回在获得物资界面没用
+      tap("返回", true)
+      last_time_tap_return = time()
+    end
+
   end, 30)
 end
 
@@ -2173,6 +2183,11 @@ end
 
 same_page_fight = function(pre, cur)
   if type(pre) ~= 'string' or type(cur) ~= 'string' then return end
+
+  -- 禁用同页跳转
+  if get_fight_type(cur) == '活动' then return end
+
+
   -- pattern before last - should be same
   -- PR-A-1 == PR-A-2, PR-A-1 != PR-A-2
   if pre:gsub("(.*)-.*$", "%1") == cur:gsub("(.*)-.*$", "%1") then
@@ -2839,15 +2854,18 @@ path.活动 = function(x)
     end
   end, 10) then return end
   if not wait(function()
-    tap("活动导航2")
+    local level = str2int(x:sub(#x),1)
+    local level2nav = { 4, 2,2,2,2,2,3,3,3,4 }
+    tap("活动导航".. level2nav[(level+1)])
     if not findOne("活动导航1") then return true end
   end, 5) then return end
-  ssleep(2)
+  ssleep(3)
   swip(x)
   tap("作战列表" .. x)
   appear("开始行动")
   path.开始游戏(x)
 end
+path.活动 = hd_wrapper(path.活动)
 
 path.活动2任务与商店 = function()
 
