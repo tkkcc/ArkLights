@@ -938,13 +938,16 @@ swipu = function(dis)
       while d > 0 do
         if d > max_once_dis then
           table.insert(finger, {
-            point = {{freex + max_once_dis, freey},{freex + max_once_dis, freey + flipy},},
+            point = {
+              {freex + max_once_dis, freey},
+              {freex + max_once_dis, freey + flipy},
+            },
             start = start,
             duration = duration,
           })
         else
           table.insert(finger, {
-            point = {{freex + d, freey},{freex + d, freey+flipy},},
+            point = {{freex + d, freey}, {freex + d, freey + flipy}},
             start = start,
             duration = duration,
           })
@@ -955,7 +958,7 @@ swipu = function(dis)
       end
       local last_finger = finger[#finger]
       finger[1].duration = last_finger.start + last_finger.duration + end_delay
-      log("finger",finger)
+      log("finger", finger)
       gesture(finger)
       sleep(finger[1].duration + 50)
     end
@@ -3143,7 +3146,8 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-10","HD-1","HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8", "HD-9",
+    "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
+    "HD-9",
 
     -- "10-2",
     -- "10-3",
@@ -3222,7 +3226,19 @@ predebug_hook = function()
   log(2253)
   disable_game_up_check = false
   ssleep(1)
-  tap("开始行动活动")
+  -- tap({1258,22})
+  -- log(findOne(""))
+  -- log(point.开始行动1)
+  -- tap("开始行动1")
+
+  state = findAny({
+    "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
+    "单选确认框", "源石恢复理智不足", "当期委托侧边栏",
+  })
+  log(state)
+  exit()
+
+  log(findOne("开始行动活动"))
   ssleep(1)
   exit()
   swipu_flipy = scale(100)
@@ -4454,28 +4470,27 @@ end
 hd_wrapper = function(func)
   local f = function(...)
     swipu_flipy = scale(100)
-    local keys = {"代理指挥开","开始行动"}
-    local point_store ={}
-    local rfl_store ={}
-    local first_point_store ={}
+    local keys = {}
+    local point_store = {}
+    local rfl_store = {}
+    local first_point_store = {}
 
-    for _,k in pairs(keys) do
-      point_store[k]=  point[k]
-      rfl_store[k]=  rfl[k]
-      first_point_store[k]=  first_point[k]
-      point[k] = point[k.."活动"]
-      rfl[k] =rfl[k.."活动"]
-      first_point[k]=  first_point[k.."活动"]
+    for _, k in pairs(keys) do
+      point_store[k] = point[k]
+      rfl_store[k] = rfl[k]
+      first_point_store[k] = first_point[k]
+      point[k] = point[k .. "活动"]
+      rfl[k] = rfl[k .. "活动"]
+      first_point[k] = first_point[k .. "活动"]
 
     end
 
-
     local ret = func(...)
 
-    for _,k in pairs(keys) do
+    for _, k in pairs(keys) do
       point[k] = point_store[k]
-      rfl[k] =rfl_store[k]
-      first_point[k]=  first_point_store[k]
+      rfl[k] = rfl_store[k]
+      first_point[k] = first_point_store[k]
     end
     swipu_flipy = 0
 

@@ -207,7 +207,7 @@ path.base = {
     local next_fight = fight[next_fight_tick]
     log(cur_fight, next_fight)
 
-    if table.includes({ "剿灭"},get_fight_type(cur_fight)) then
+    if table.includes({"剿灭"}, get_fight_type(cur_fight)) then
       -- 剿灭必须回主页
       path.跳转("首页")
     elseif next_fight == cur_fight then
@@ -332,7 +332,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
-  开始行动活动黄 = function() tap("返回") end,
+  开始行动活动 = function() tap("返回") end,
   线索传递界面 = function() tap("线索传递返回") end,
   查看谢幕表 = function() tap("战略确认") end,
   我知道了 = function() tap("我知道了") end,
@@ -2187,7 +2187,6 @@ same_page_fight = function(pre, cur)
   -- 禁用同页跳转
   if get_fight_type(cur) == '活动' then return end
 
-
   -- pattern before last - should be same
   -- PR-A-1 == PR-A-2, PR-A-1 != PR-A-2
   if pre:gsub("(.*)-.*$", "%1") == cur:gsub("(.*)-.*$", "%1") then
@@ -2267,7 +2266,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
   -- safeexit()
 
   if not appear("代理指挥开", .5) then
-    tap("代理指挥开")
+    tap("代理指挥开1")
     if not appear("代理指挥开", .5) then
       clean_fight(x)
       return
@@ -2345,7 +2344,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     if not wait(function()
       if findOne("开始行动") then return true end
       if findOne(state) then
-        tap("药剂恢复理智确认")
+        tap("恢复理智确认")
         disappear(state, 10)
       end
     end, 10) then return end
@@ -2366,7 +2365,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     if not wait(function()
       if findOne("开始行动") then return true end
       if findOne(state) then
-        tap("药剂恢复理智确认")
+        tap("恢复理智确认")
         disappear(state, 10)
       end
     end, 10) then return end
@@ -2402,7 +2401,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     if not max_times or times >= max_times then
       log(2326, idx, times, max_times)
       zero_san = true
-      tap("药剂恢复理智取消")
+      tap("开始行动蓝")
       return
     end
 
@@ -2417,7 +2416,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     if not wait(function()
       if findOne("开始行动") then return true end
       if findOne(state) then
-        tap("药剂恢复理智确认")
+        tap("恢复理智确认")
         disappear(state, 10)
       end
     end, 10) then return end
@@ -2429,7 +2428,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
   elseif state == "源石恢复理智取消" or state ==
     "药剂恢复理智取消" or state == '源石恢复理智不足' then
     zero_san = true
-    tap("药剂恢复理智取消")
+    tap("开始行动蓝")
   end
 end
 
@@ -2854,12 +2853,12 @@ path.活动 = function(x)
     end
   end, 10) then return end
   if not wait(function()
-    local level = str2int(x:sub(#x),1)
-    local level2nav = { 4, 2,2,2,2,2,3,3,3,4 }
-    tap("活动导航".. level2nav[(level+1)])
+    local level = str2int(x:sub(#x), 1)
+    local level2nav = {4, 2, 2, 2, 2, 2, 3, 3, 3, 4}
+    tap("活动导航" .. level2nav[(level + 1)])
     if not findOne("活动导航1") then return true end
   end, 5) then return end
-  ssleep(3)
+  ssleep(2)
   swip(x)
   tap("作战列表" .. x)
   appear("开始行动")
