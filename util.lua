@@ -2857,7 +2857,7 @@ jump_vercel = function()
   local vercel = "arklights"
   local intent = {
     action = "android.intent.action.VIEW",
-    uri = "https://" .. vercel .. '.vercel.app',
+    uri = "https://" .. vercel .. '.vercel.app/guide.html',
   }
   runIntent(intent)
   while true do ssleep(100) end
