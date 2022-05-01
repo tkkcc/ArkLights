@@ -934,12 +934,13 @@ swipu = function(dis)
       local interval = 50
       local end_delay = 50
       local flipy = swipu_flipy or 0
+      local flipx = swipu_flipx or 0
       d = math.abs(d)
       while d > 0 do
         if d > max_once_dis then
           table.insert(finger, {
             point = {
-              {freex + max_once_dis, freey},
+              {freex + max_once_dis, freey + flipx},
               {freex + max_once_dis, freey + flipy},
             },
             start = start,
@@ -947,7 +948,7 @@ swipu = function(dis)
           })
         else
           table.insert(finger, {
-            point = {{freex + d, freey}, {freex + d, freey + flipy}},
+            point = {{freex + d, freey}, {freex + d + flipx, freey + flipy}},
             start = start,
             duration = duration,
           })
@@ -3223,6 +3224,13 @@ predebug_hook = function()
   disable_game_up_check = 1
   max_login_times = 10000
 
+  swipu_flipy = 0
+  swipu_flipx = 0
+
+  -- swip("HD-1")
+  log(findOne("开始行动活动"))
+  exit()
+
   log(2253)
   disable_game_up_check = false
   ssleep(1)
@@ -3241,7 +3249,7 @@ predebug_hook = function()
   log(findOne("开始行动活动"))
   ssleep(1)
   exit()
-  swipu_flipy = scale(100)
+  swipu_flipy = 100
   log(findOne("开始行动活动"))
   exit()
   swip("HD-1")

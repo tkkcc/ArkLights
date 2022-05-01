@@ -332,7 +332,10 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
-  开始行动活动 = function() tap("返回") end,
+  开始行动活动 = function()
+    tap("返回")
+    appear("主页")
+  end,
   线索传递界面 = function() tap("线索传递返回") end,
   查看谢幕表 = function() tap("战略确认") end,
   我知道了 = function() tap("我知道了") end,
@@ -2861,7 +2864,14 @@ path.活动 = function(x)
   ssleep(2)
   swip(x)
   tap("作战列表" .. x)
-  appear("开始行动")
+  if not appear("开始行动") then
+
+    wait(function()
+      if appear("主页") then return true end
+      back()
+    end, 15)
+
+  end
   path.开始游戏(x)
 end
 path.活动 = hd_wrapper(path.活动)
