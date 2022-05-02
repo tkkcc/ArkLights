@@ -3228,7 +3228,11 @@ predebug_hook = function()
   swipu_flipx = 0
 
   -- swip("HD-1")
-  log(findOne("开始行动活动"))
+  ssleep(1)
+  -- log(findOne("开始行动"))
+  -- log(findOne("代理指挥开"))
+  log(findOne("全权委托确认"))
+
   exit()
 
   log(2253)

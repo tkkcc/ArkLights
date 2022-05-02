@@ -132,6 +132,7 @@ path.base = {
     local see_end
     local unexpect_return
     local home
+    local normal
 
     if not wait(function()
       if findOne("行动结束") then see_end = true end
@@ -143,6 +144,7 @@ path.base = {
 
       if findOne("开始行动") and findOne("代理指挥开") then
         log(59)
+        normal = true
         return true
       end
 
@@ -176,6 +178,10 @@ path.base = {
     log("回到首页")
     log("代理结束", cur_fight, "失败次数", fight_failed_times[cur_fight])
     log(139, first_time_see_zero_star, zero_star)
+    log("zero_star", zero_star)
+    log("see_end", see_end)
+    log("home", home)
+    log("normal", normal)
     if zero_star or not see_end or home then
       log("代理失败返回首页")
 
@@ -2298,7 +2304,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
   wait(function()
     if not findOne("代理指挥开") then return true end
     tap("开始行动蓝")
-  end, .5)
+  end, 1)
 
   local state = nil
   local start_time = time()
@@ -2306,7 +2312,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
       "单选确认框", "源石恢复理智不足", "当期委托侧边栏",
-      "行动结束", "全权委托确认使用"
+      "行动结束",
     })
     -- 剿灭后一直按开始行动导致开始行动界面消失，可能出现下面的界面
     if state == "当前委托侧边栏" then
@@ -2319,7 +2325,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     if state == "行动结束" then return true end
     if state and not disappear(state, .5) then return true end
 
-    local p = findAny({"开始行动","全权委托确认使用"})
+    local p = findAny({"开始行动", "全权委托确认使用"})
     if p then
 
       tap("开始行动蓝")
@@ -2820,12 +2826,15 @@ path.剿灭 = function(x)
     if findOne("切换") then return true end
     tap("主页右侧")
   end, 5)
+
   if is_jmfight_enough(x) then return end
+
   if not wait(function()
     if findOne("当前委托侧边栏") then return true end
     tap("切换")
     appear("当前委托侧边栏")
   end, 5) then return end
+
   if not wait(function()
     if not findOne("当前委托侧边栏") then return true end
     tap("作战列表" .. x)
