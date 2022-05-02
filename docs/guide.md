@@ -11,6 +11,7 @@
 
 ## 最近更新
 
+- 默认自动用全权委托
 - 新增活动关SN-1~SN-10，1280x720分辨率可用关卡名，其他分辨率只能用“上一次”
 - 新增CE-6、LS-6
 - magisk hide设备需手动关闭root授权提示
@@ -25,7 +26,7 @@
 
 #### 模拟器
 
-支持 雷电、逍遥（选OpenGL渲染）、蓝叠（选高级图形引擎）、genymotion(安卓10)、redroid(安卓10)、Android Emulator
+支持 雷电、逍遥（选OpenGL渲染）、蓝叠（选高级/高阶/兼容图形引擎）、genymotion(安卓10)、redroid(安卓10)、Android Emulator
 
 不支持 夜神、mumu6、mumu9（能用，但启动闪屏）
 

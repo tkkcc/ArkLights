@@ -2285,6 +2285,15 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
   if is_jmfight_enough(x) then return end
 
+  if findOne("全权委托") then
+    wait(function()
+      tap("全权委托")
+      if disappear("全权委托", 1) and not disappear("开始行动", 1) then
+        return true
+      end
+    end, 30)
+  end
+
   -- quick tap .5s
   wait(function()
     if not findOne("代理指挥开") then return true end
@@ -2297,6 +2306,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
       "单选确认框", "源石恢复理智不足", "当期委托侧边栏",
+      "行动结束", "全权委托确认使用"
     })
     -- 剿灭后一直按开始行动导致开始行动界面消失，可能出现下面的界面
     if state == "当前委托侧边栏" then
@@ -2306,16 +2316,23 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
     if state == "单选确认框" then return true end
     if state == "开始行动红" then return true end
+    if state == "行动结束" then return true end
     if state and not disappear(state, .5) then return true end
 
-    if findOne("开始行动") then
+    local p = findAny({"开始行动","全权委托确认使用"})
+    if p then
+
       tap("开始行动蓝")
       -- TODO 2秒太慢 => 一开始就用0秒, 2秒内增加至2秒
-      disappear("开始行动", min(5, (time() - start_time) / 1000 * 5 / 5))
+      disappear(p, min(5, (time() - start_time) / 1000 * 5 / 5))
+
     end
   end, 30) then return end
 
-  if state == "开始行动红" then
+  if state == "行动结束" then
+    no_success_one_loop = 0
+    return path.base.接管作战()
+  elseif state == "开始行动红" then
     no_success_one_loop = 0
     if fake_fight then
       log("debug0415", x)
@@ -2869,7 +2886,7 @@ path.活动 = function(x)
     wait(function()
       if appear("主页") then return true end
       back()
-    end, 15)
+    end, 30)
 
   end
   path.开始游戏(x)
