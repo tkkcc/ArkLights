@@ -3347,6 +3347,7 @@ path.公开招募 = function()
                     function(x)
             return extra_recruit_importance_tag:find(x)
           end) then
+          disable_log = false
           toast("已找到保留标签：" .. extra_recruit_importance_tag)
           ssleep(5)
           peaceExit()
