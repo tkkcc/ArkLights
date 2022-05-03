@@ -3937,7 +3937,7 @@ consoleInit = function()
                  round(screen.height * 0.9), round(screen.height * 0.9))
   local screen = getScreen()
   local resolution = screen.width .. 'x' .. screen.height
-  console.setTitle("明日方舟速通  " .. release_date .. '  ' .. resolution)
+  console.setTitle(release_date .. '  ' .. resolution)
 
   console.show()
   console.dismiss()

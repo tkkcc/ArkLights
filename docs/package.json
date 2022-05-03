@@ -7,6 +7,7 @@
   "author": "bilabila <bilabila@qq.com> (https://tkkcc.github.io/)",
   "license": "MIT",
   "devDependencies": {
+    "@vuepress/plugin-docsearch": "^2.0.0-beta.43",
     "vuepress": "^2.0.0-beta.41"
   },
   "scripts": {
