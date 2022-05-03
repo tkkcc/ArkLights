@@ -155,7 +155,7 @@ http://82.156.198.12:49875
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>&#10006;</td>
-      <td>autojs实现</td>
+      <td>持续更新，autojs实现，群号741061612</td>
    </tr>
    <tr>
    <td><a href="https://www.bilibili.com/video/BV1kA41147HA">明日方舟托管助手</a></td>

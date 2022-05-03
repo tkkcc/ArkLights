@@ -214,6 +214,15 @@ path.base = {
     log(cur_fight, next_fight)
 
     if table.includes({"剿灭"}, get_fight_type(cur_fight)) then
+
+      -- if appear("全权委托", 1) then
+      --   wait(function()
+      --     tap("全权委托")
+      --     if disappear("全权委托", 1) and not disappear("开始行动", 1) then
+      --       return true
+      --     end
+      --   end, 30)
+      -- end
       -- 剿灭必须回主页
       path.跳转("首页")
     elseif next_fight == cur_fight then
@@ -338,6 +347,14 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+  全权委托 = function()
+    wait(function()
+      tap("全权委托")
+      if disappear("全权委托", 1) and not disappear("主页", 1) then
+        return true
+      end
+    end, 30)
+  end,
   开始行动活动 = function()
     tap("返回")
     appear("主页")

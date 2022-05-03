@@ -6,15 +6,15 @@
 
 反馈群：[1009619697](https://qm.qq.com/cgi-bin/qm/qr?k=ZtJVQZ1LI_9nMh3tj7fKgYu5PrwqBCje&jump_from=webapi)
 
-源码与其他脚本：[github.com/tkkcc/ArkLights](https://github.com/tkkcc/ArkLights)
+源码与其他明日方舟脚本：[github.com/tkkcc/ArkLights](https://github.com/tkkcc/ArkLights)
 觉得好用请在github上给个star，这是对开发者最大的帮助。无法访问请看[国内主页](https://gitee.com/bilabila/arknights)。
 
 ## 最近更新
 
 - 自动用全权委托
-- 新增活动关SN-1~SN-10，1280x720分辨率可用关卡名，其他分辨率只能用“上一次”
+- 新增活动关SN-1~SN-10，1280x720分辨率可用关卡名，**其他分辨率只能用“上一次”**
 - 新增CE-6、LS-6
-- magisk hide设备需手动关闭root授权提示
+- magisk hide设备需**手动关闭root授权提示**
 
 ## 设备兼容
 
@@ -62,6 +62,10 @@
 #### 作战设置/账号密码不能修改
 
 关闭懒人输入法。如已开启，卸载脚本后重装。
+
+#### 一直在主界面与公告/邮箱/退出游戏切换
+
+[手机注意事项](#手机真机)
 
 #### 怎么停止脚本/脚本无法关闭/点屏幕没反应/日志关不掉
 
@@ -216,7 +220,7 @@ username3 password3 b
 
 ### 基建换班
 
-#### 基建反复进入退出
+#### 基建反复进入退出/一直在主界面与基建间切换
 
 基建退出提示要开
 

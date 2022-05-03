@@ -1986,7 +1986,7 @@ show_multi_account_ui = function()
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
   addTextView(layout,
-              [[“启用账号”填数字“2 4”表示跑第2第4两个号，填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。临时账号写在#号后，填“1-10 # 5-10”表示跑前10个号，但本次启动只跑第5到第10个。账密为空时不做账号退出。抢登处理看必读。]])
+              [[“启用账号”填数字“2 4”表示跑第2第4两个号，填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。临时账号写在#号后，填“1-10 # 5-10”表示跑前10个号，但本次启动只跑第5到第10个。账密为空默认跳过。抢登处理看必读。]])
 
   newRow(layout, "center")
 
@@ -2613,6 +2613,9 @@ show_debug_ui = function()
                  false)
   newRow(layout)
   ui.addCheckBox(layout, "disable_free_draw", "限时活动禁用赠送寻访",
+                 false)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_strick_account_check", "多账号允许不填帐密(双服单号玩家)",
                  false)
 
   -- newRow(layout)

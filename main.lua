@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.05.02 18:07"
+release_date = "2022.05.03 16:07"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_page_width = -2
@@ -154,12 +154,18 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
       no_extra_job = job
       job = {extra_mode}
     end
+
     if #username > 0 and #password > 0 then
       table.insert(job, 1, "退出账号")
     end
+
     saveConfig("continue_account",
                table.join(table.slice(multi_account_choice, idx), ' '))
-    run(job)
+
+    if disable_strick_account_check or #username > 0 and #password > 0 then
+      run(job)
+    end
+
   end
   saveConfig("continue_account", '')
 elseif not crontab_enable_only then
