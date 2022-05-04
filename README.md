@@ -44,7 +44,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights auto
   
 脚本已内置多号分流通知服务，具体看必读。想提高稳定性与安全性可自建。
 
-在一个有公网IP的服务器，用npm安装[qqimagedeliver](https://github.com/tkkcc/qqimagedeliver)
+在一个有公网IP的服务器(或脚本能连接的设备上，如模拟器连宿主机)，用npm安装[qqimagedeliver](https://github.com/tkkcc/qqimagedeliver)
 ```
 npm i -g qqimagedeliver
 ```

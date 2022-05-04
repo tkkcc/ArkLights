@@ -392,7 +392,7 @@ path.fallback = {
       log(237, timeout)
       -- timeout = 0
       x = appear({
-        "返回确认", "返回确认3", "断罪", "活动公告返回",
+        "返回确认", "返回确认3"
       }, timeout)
       -- disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
       if x then return true end

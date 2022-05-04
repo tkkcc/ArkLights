@@ -358,9 +358,9 @@ username3 password3 b
 
 先加反馈群，水月头像管理员是机器人。
 
-创建群聊将数个机器人拉进群，将群号填到脚本横线处。
+创建群聊将数个机器人拉进群，将群号填到脚本主界面上“完成后通知QQ”后。
 
-想自建看[github主页教程](https://github.com/tkkcc/ArkLights#%E5%BC%80%E5%8F%91)。
+想自建看[github主页教程](https://github.com/tkkcc/ArkLights#%E5%BC%80%E5%8F%91)
 
 #### QQ通知的设备名怎么设置
 
