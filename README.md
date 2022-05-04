@@ -32,41 +32,13 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights auto
 [蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) /
 [github release](https://github.com/tkkcc/ArkLights/releases/download/v0.0.18/arknightsspeedrun2.apk)  
 
-[设备兼容](https://arklights.vercel.app/guide.html/)
+[设备兼容](https://arklights.vercel.app/guide.html#%E8%AE%BE%E5%A4%87%E5%85%BC%E5%AE%B9)
 
 ## 开发
 
 参考[懒人精灵](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)IDE内文档
 
-<details>
-<summary>自建QQ通知服务</summary>
-
-  
-脚本已内置多号分流通知服务，具体看必读。想提高稳定性与安全性可自建。
-
-在一个有公网IP的服务器(或脚本能连接的设备上，如模拟器连宿主机)，用npm安装[qqimagedeliver](https://github.com/tkkcc/qqimagedeliver)
-```
-npm i -g qqimagedeliver
-```
-
-用闲置QQ号登录
-```
-qqimagedeliver --username=12345 # 先扫码登录
-qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
-```
-服务器防火墙要开放服务端口(默认49875)
-
-将服务器IP与端口按如下格式填到脚本高级设置
-```
-http://82.156.198.12:49875
-```
-用自己QQ加该QQ为好友，将自己QQ填到脚本主界面  
-脚本主界面任务全不勾，启动，观察是否收到QQ通知
-
-
-
-
-</details>
+[自建QQ通知服务](https://arklights.vercel.app/guide.html#qq%E9%80%9A%E7%9F%A5%E6%9C%8D%E5%8A%A1%E6%80%8E%E4%B9%88%E8%87%AA%E5%BB%BA)
 
 ## 对比
 

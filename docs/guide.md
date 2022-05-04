@@ -360,7 +360,30 @@ username3 password3 b
 
 创建群聊将数个机器人拉进群，将群号填到脚本主界面上“完成后通知QQ”后。
 
-想自建看[github主页教程](https://github.com/tkkcc/ArkLights#%E5%BC%80%E5%8F%91)
+#### QQ通知服务怎么自建
+
+想提高QQ通知的稳定性与安全性可自建服务。
+
+在一个有公网IP的服务器(或脚本能连接的设备上，如模拟器连宿主机)，用npm安装[qqimagedeliver](https://github.com/tkkcc/qqimagedeliver)
+```sh
+npm i -g qqimagedeliver
+```
+
+用闲置QQ号登录
+```sh
+qqimagedeliver --username=12345 # 先扫码登录
+qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
+```
+服务器防火墙要开放服务端口(默认49875)
+
+将服务器IP与端口按如下格式填到脚本高级设置
+```txt
+http://82.156.198.12:49875
+```
+用自己QQ加该QQ为好友，将自己QQ填到脚本主界面`完成后通知QQ`后
+
+脚本主界面任务全不勾，启动，观察是否收到QQ通知
+
 
 #### QQ通知的设备名怎么设置
 
