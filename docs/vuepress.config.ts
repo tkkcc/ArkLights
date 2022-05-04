@@ -1,5 +1,5 @@
 const { defaultTheme } = require('@vuepress/theme-default')
-// const { searchPlugin } = require('@vuepress/plugin-search')
+const { searchPlugin } = require('@vuepress/plugin-search')
 // const { docsearchPlugin } = require('@vuepress/plugin-docsearch')
 
 module.exports = {
@@ -20,6 +20,7 @@ module.exports = {
     },
   },
   plugins: [
+    searchPlugin({ }),
     // docsearchPlugin({
     //   appId: 'N54QELCZVC',
     //   apiKey: '19f00e580e32ceb6310bf2ec37590c79',
