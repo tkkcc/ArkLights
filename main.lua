@@ -50,12 +50,14 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.05.04 12:20"
+release_date = "2022.05.05 23:38"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
+ui_warn_color = "#ff33ccff"
 ui_page_width = -2
 ui_submit_width = -2
 ui_small_submit_width = -2
+ui_small_submit_height = -2
 network_timeout = 300
 
 require('util')
@@ -120,11 +122,11 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
 
   -- 分隔临时账号设置
   multi_account_choice = multi_account_choice:commonmap()
-  local p = multi_account_choice:find('#')
-  if p then
+  local temp_choice_pos = multi_account_choice:find('#')
+  if temp_choice_pos then
     multi_account_config_remove_once_choice()
-    multi_account_choice =
-      multi_account_choice:sub(p + 1, #multi_account_choice)
+    multi_account_choice = multi_account_choice:sub(temp_choice_pos + 1,
+                                                    #multi_account_choice)
   end
   log("multi_account_choice", multi_account_choice)
 
@@ -159,8 +161,15 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
       table.insert(job, 1, "退出账号")
     end
 
-    saveConfig("continue_account",
-               table.join(table.slice(multi_account_choice, idx), ' '))
+    log(164, idx)
+    saveConfig("continue_account", (not temp_choice_pos and idx == 1) and '' or
+                 table.join(table.slice(multi_account_choice, idx), ' '))
+    saveConfig("continue_all_account",
+               (not temp_choice_pos and idx == 1) and '' or
+                 table.join(
+                   table.extend(table.slice(multi_account_choice, idx),
+                                table.slice(multi_account_choice, 1, idx - 1)),
+                   ' '))
 
     if disable_strick_account_check or #username > 0 and #password > 0 then
       run(job)

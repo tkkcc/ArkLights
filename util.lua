@@ -427,6 +427,7 @@ table.remove_duplicate = function(t)
   return ans
 end
 
+-- 出现n次的元素
 table.appear_times = function(t, times)
   local ans = {}
   local visited = {}
@@ -438,6 +439,10 @@ table.appear_times = function(t, times)
   end
   return ans
 end
+
+-- table.rotate = function(t, idx)
+--   return table.extend(table.slice(t, idx), table.slice(t, 1, idx - 1))
+-- end
 
 -- 交
 table.intersect = function(a, b)
@@ -1880,21 +1885,22 @@ make_account_ui = function(layout, prefix)
   layout = layout or "main"
   prefix = prefix or ''
   newRow(layout)
-  addTextView(layout, "作战")
+  addTextView(layout, "作战关卡")
   ui.addEditText(layout, prefix .. "fight_ui",
-                 [[当期委托x5 活动8*99 10-17*2 JT8-3 PR-D-2 CE-6 上一次]])
+                 [[当期委托x5 活动9*99 10-17*2 JT8-3 PR-D-2 CE-6 上一次]])
 
   newRow(layout)
-  addTextView(layout, "最多吃")
+  addTextView(layout, "作战吃药")
   ui.addEditText(layout, prefix .. 'max_drug_times', "0")
-  addTextView(layout, "次药和")
+  addTextView(layout, "次，吃石头")
   ui.addEditText(layout, prefix .. 'max_stone_times', "0")
-  addTextView(layout, "次石头")
+  addTextView(layout, "次")
 
   newRow(layout)
-  addTextView(layout, "换班模式")
+  addTextView(layout, "基建模式")
   -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
   --                  -2, -2, true)
+
   ui.addRadioGroup(layout, prefix .. "shift_prefer_speed", {"极速", "高产"},
                    1, -2, -2, true)
   addTextView(layout, "心情阈值")
@@ -1933,6 +1939,7 @@ make_account_ui = function(layout, prefix)
   for k, v in pairs(all_job) do
     if k % max_checkbox_one_row == 1 then
       newRow(layout, prefix .. "now_job_row" .. k, "center")
+
     end
     ui.addCheckBox(layout, prefix .. "now_job_ui" .. k, v,
                    table.includes(now_job, v))
@@ -1966,7 +1973,8 @@ show_multi_account_ui = function()
   ui.addEditText(layout, layout .. "_choice", "", -1)
 
   continue_account = loadConfig("continue_account", '')
-  if #continue_account > 0 then
+  continue_all_account = loadConfig("continue_all_account", '')
+  if #continue_account > 0 and #continue_all_account > 0 then
     continue_account = shrink_number_config(continue_account)
     continue_account_btn = randomString(32)
     addButton(layout, continue_account_btn, "继续账号" .. continue_account,
@@ -2089,12 +2097,12 @@ show_multi_account_ui = function()
   ui.loadProfile(getUIConfigPath(layout))
   multi_account_inherit_render(1, num)
 
-  if #continue_account > 0 then
-    if equal_number_config(ui.getText('multi_account_choice') or '',
-                           continue_account) then
-      ui.setVisiblity(continue_account_btn, 3)
-    end
-  end
+  -- if #continue_account > 0 then
+  --   if equal_number_config(ui.getText('multi_account_choice') or '',
+  --                          continue_account) then
+  --     ui.setVisiblity(continue_account_btn, 3)
+  --   end
+  -- end
 
   ui.show(layout, false)
 end
@@ -2237,7 +2245,7 @@ multi_account_config_import = function()
   -- end
 end
 
-multi_account_config_remove_once_choice = function()
+multi_account_config_remove_once_choice = function(append)
   local layout = "multi_account"
   local config = getUIConfigPath(layout)
   if not fileExist(config) then return end
@@ -2250,12 +2258,22 @@ multi_account_config_remove_once_choice = function()
   cur = cur or {}
   local choice = cur[layout .. "_choice"] or ''
   choice = choice:commonmap()
-  if not choice:find('#') then return end
-  cur[layout .. "_choice"] = choice:sub(1, choice:find('#') - 1):trim()
+
+  if choice:find('#') then
+    choice = choice:sub(1, choice:find('#') - 1):trim()
+  end
+
+  if type(append) == "string" and #append > 0 then
+    choice = choice .. '#' .. append
+  end
+
+  cur[layout .. "_choice"] = choice
+
   cur = JsonEncode(cur)
   f = io.open(config, 'w')
   f:write(cur)
   f:close()
+  return choice
 end
 
 transfer_global_variable = function(prefix, save_prefix)
@@ -2345,9 +2363,10 @@ styleButton = function(layout)
   ui.setTextColor(layout, "#ff000000")
 end
 
-addButton = function(layout, id, text, func, w, h)
-  ui.addButton(layout, id, text, w or -2, h or -2)
+addButton = function(layout, id, text, func, w, h, bg)
+  ui.addButton(layout, id or randomString(32), text, w or -2, h or -2)
   ui.setOnClick(id, func)
+  if bg then ui.setBackground(id, bg) end
   -- styleButton(id)
 end
 
@@ -2401,12 +2420,14 @@ show_main_ui = function()
 
   newRow(layout)
   addTextView(layout, "完成后")
-  ui.addCheckBox(layout, "end_home", "回到主页", true)
+  ui.addCheckBox(layout, "end_home", "返回桌面", true)
   ui.addCheckBox(layout, "end_closeapp", "关闭游戏", false)
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
+
   newRow(layout)
   addTextView(layout, "定时启动")
   ui.addEditText(layout, "crontab_text", "8:00 16:00 24:00")
+
   -- ui.addCheckBox(layout, "crontab_enable", "启用", true)
   -- newRow(layout)
   -- addTextView(layout, "点击间隔(毫秒)")
@@ -2417,12 +2438,13 @@ show_main_ui = function()
   -- 无法实现
   -- ui.addCheckBox(layout, "end_poweroff", "关机")
 
-  newRow(layout)
-  addTextView(layout,
-              [[开基建退出提示，异形屏适配设为0。关游戏模式、全局侧边栏、深色夜间护眼模式、隐藏刘海。关懒人输入法，音量加停止脚本。有问题看必读。]])
+  -- newRow(layout)
+  -- addTextView(layout,
+  --             [[开基建退出提示，异形屏适配设为0。关游戏模式、全局侧边栏、深色夜间护眼模式、隐藏刘海。关懒人输入法，音量加停止脚本。有问题看必读。]])
 
   -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
+  local readme_btn = randomString(32)
   local buttons = {
     {
       randomString(32), "多账号",
@@ -2442,15 +2464,14 @@ show_main_ui = function()
     --   layout .. "qqgroup", "反馈群",
     --   make_jump_ui_command(layout, nil, "jump_qqgroup()"),
     -- },
-    {randomString(32), "其他功能", make_jump_ui_command(layout, "extra")},
+    {randomString(32), "肉鸽/公招", make_jump_ui_command(layout, "extra")},
     -- {randomString(32), "必读", make_jump_ui_command(layout, "help")},
-    {
-      randomString(32), "必读",
-      make_jump_ui_command(layout, nil, "jump_vercel()"),
-    },
     {
       randomString(32), "退出",
       make_jump_ui_command(layout, nil, "peaceExit()"),
+    }, {
+      readme_btn, "必读", make_jump_ui_command(layout, nil,
+                                                 "saveConfig('readme_already_read','1');jump_vercel()"),
     },
     {randomString(32), "高级设置", make_jump_ui_command(layout, "debug")},
     -- {
@@ -2458,30 +2479,50 @@ show_main_ui = function()
     --   make_jump_ui_command(layout, nil, "jump_bilibili()"),
     -- },
   }
+
   for k, v in pairs(buttons) do
-    if k % max_checkbox_one_row == 1 then
-      newRow(layout, layout .. "screenon_row" .. k, "center")
-    end
+    if k % max_checkbox_one_row == 1 then newRow(layout) end
     addButton(layout, v[1], v[2], v[3])
   end
 
-  newRow(layout, layout .. "bottom_row", "center")
+  if #loadConfig("readme_already_read", '') == 0 then
+    ui.setBackground(readme_btn, ui_submit_color)
+  end
+
+  newRow(layout)
   -- addButton(layout, layout .. "_stop", "退出",
   --           make_jump_ui_command(layout, nil, "peaceExit()"))
   -- ui.setBackground(layout .. "_stop", ui_cancel_color)
-  addButton(layout, layout .. "_start_only" .. release_date, "仅启动",
+  addButton(layout, randomString(32), "启动",
             make_jump_ui_command(layout, nil,
                                  "crontab_enable=false;lock:remove(main_ui_lock)"),
             ui_small_submit_width)
-  addButton(layout, layout .. "_crontab_only" .. release_date, "仅定时",
+  addButton(layout, randomString(32), "定时",
             make_jump_ui_command(layout, nil,
                                  "crontab_enable_only=true;lock:remove(main_ui_lock)"),
             ui_small_submit_width)
-  addButton(layout, layout .. "_start" .. release_date, "启动并定时",
+  addButton(layout, randomString(32), "启动并定时",
             make_jump_ui_command(layout, nil, "lock:remove(main_ui_lock)"),
-            ui_small_submit_width)
+            ui_small_submit_width, ui_small_submit_height, ui_submit_color)
 
-  ui.setBackground(layout .. "_start" .. release_date, ui_submit_color)
+  continue_account = loadConfig("continue_account", '')
+  continue_all_account = loadConfig("continue_all_account", '')
+  if #continue_account > 0 and #continue_all_account > 0 then
+    newRow(layout)
+    continue_account = shrink_number_config(continue_account)
+    addButton(layout, randomString(32),
+              "启动并定时，本次只跑剩余账号" .. continue_account,
+              make_jump_ui_command(layout, nil,
+                                   "multi_account_config_remove_once_choice(continue_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
+              ui_small_submit_width, ui_small_submit_height, ui_submit_color)
+    newRow(layout)
+    continue_all_account = shrink_number_config(continue_all_account)
+    addButton(layout, randomString(32),
+              "启动并定时，本次先跑剩余账号" ..
+                continue_all_account, make_jump_ui_command(layout, nil,
+                                                           "multi_account_config_remove_once_choice(continue_all_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
+              ui_small_submit_width, ui_small_submit_height, ui_submit_color)
+  end
 
   ui.loadProfile(getUIConfigPath(layout))
   -- log(getUIConfigPath(layout))
@@ -2596,9 +2637,13 @@ show_debug_ui = function()
     ui.addEditText(layout, "max_drug_times_" .. i .. "day", default)
     addTextView(layout, "次")
   end
+  --
+  -- newRow(layout)
+  -- addTextView(layout, "QQ通知账号")
+  -- ui.addEditText(layout, "qqimagedeliver", "")
 
   newRow(layout)
-  addTextView(layout, "自建QQ通知服务地址")
+  addTextView(layout, "QQ通知自建服务地址")
   ui.addEditText(layout, "qqimagedeliver", "")
 
   newRow(layout)
@@ -2611,12 +2656,13 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nobar", "QQ通知不显示悬浮按钮",
                  false)
+
   newRow(layout)
-  ui.addCheckBox(layout, "disable_free_draw", "限时活动禁用赠送寻访",
-                 false)
+  ui.addCheckBox(layout, "disable_free_draw",
+                 "限时活动禁用赠送寻访(每日单抽)", false)
   newRow(layout)
-  ui.addCheckBox(layout, "disable_strick_account_check", "多账号允许不填帐密(双服单号玩家)",
-                 false)
+  ui.addCheckBox(layout, "disable_strick_account_check",
+                 "多账号允许不填帐密(双服单号玩家)", false)
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_keepalive",
@@ -2756,7 +2802,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多测试见群精华消息。支持凌晨4点数据更新，支持16:9及以上分辨率，但建议16:9，否则可能选不到后勤队。游戏本体存在内存泄漏，因此会抽空重启。如果1小时内就出现脚本停止运行、随机界面卡住、悬浮按钮消失，应把“高级设置”中两个3600重启间隔调小(如900)。999源石锭刷取耗时与难度、幕后筹备无关，与是否通关三结局、启动时间有关，双结局耗时10时14分(97个/时)，三结局耗时8时10分(122个/时)，4点启动+三结局耗时7时21分(135个/时)。如需刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”。如需推图，可尝试明日再肝(还鸽)与MAA。]])
+              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多干员测试见群精华消息。支持凌晨4点数据更新、支持掉线抢登情况、支持每8小时做日常。支持16:9及以上分辨率，但建议16:9，否则可能选不到后勤队。游戏本体存在内存泄漏，因此会抽空重启。如果1小时内就出现脚本停止运行、随机界面卡住、悬浮按钮消失，应把“高级设置”中两个3600重启间隔调小(如900)。999源石锭刷取耗时与难度、幕后筹备无关，与是否通关三结局、网络延迟有关，双结局耗时10时14分(97个/时)，三结局耗时8时10分(122个/时)，低网络延迟+三结局耗时7时21分(135个/时)。如需刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”。如需推图，可尝试明日再肝(还鸽)与MAA。]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2772,15 +2818,15 @@ show_extra_ui = function()
   addTextView(layout,
               [[用于刷黄绿票，或刷出指定标签。使用加急券在第一个公招位反复执行“公开招募”任务，沿用脚本主页的“自动招募”设置。“自动招募”只勾“其他”时，刷出保底标签就停；只勾“其他”、“4”时，刷出保底小车、保底5星、资深就停；其余同理。如果想刷到指定标签就停，则“保留标签”填期望标签（例如填“削弱 快速复活”）。]])
 
-  newRow(layout)
-  addButton(layout, layout .. "_hd2_shop", "遗尘漫步任务与商店",
-            make_jump_ui_command(layout, nil,
-                                 "extra_mode='活动任务与商店';lock:remove(main_ui_lock)"))
-
-  addButton(layout, layout .. "_hd2_shop_multi",
-            "遗尘漫步任务与商店多号",
-            make_jump_ui_command(layout, nil,
-                                 "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
+  -- newRow(layout)
+  -- addButton(layout, layout .. "_hd2_shop", "遗尘漫步任务与商店",
+  --           make_jump_ui_command(layout, nil,
+  --                                "extra_mode='活动任务与商店';lock:remove(main_ui_lock)"))
+  --
+  -- addButton(layout, layout .. "_hd2_shop_multi",
+  --           "遗尘漫步任务与商店多号",
+  --           make_jump_ui_command(layout, nil,
+  --                                "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
 
   -- newRow(layout)
   -- addButton(layout, layout .. "_hd3_shop", "吾导先路任务与商店",
@@ -2792,10 +2838,10 @@ show_extra_ui = function()
   --           make_jump_ui_command(layout, nil,
   --                                "extra_mode='活动2任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
 
-  newRow(layout)
-  addButton(layout, layout .. "_speedrun", "每日任务速通（待修）",
-            make_jump_ui_command(layout, nil,
-                                 "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
+  -- newRow(layout)
+  -- addButton(layout, layout .. "_speedrun", "每日任务速通（待修）",
+  --           make_jump_ui_command(layout, nil,
+  --                                "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
 
   -- ui.setOnClick(layout .. "_speedrun", )
   -- addButton(layout, layout .. "jump_qq_btn", "需加机器人好友",
@@ -2805,10 +2851,11 @@ show_extra_ui = function()
   -- ui.setOnClick(layout .. "_speedrun", make_jump_ui_command(layout, nil,
   --                                                           "extra_mode='每日任务速通';lock:remove(main_ui_lock)"))
   --
-  newRow(layout)
-  ui.addButton(layout, layout .. "_1-12", "克洛丝单人1-12（没写）")
-  ui.setOnClick(layout .. "_1-12", make_jump_ui_command(layout, nil,
-                                                        "extra_mode='克洛丝单人1-12';lock:remove(main_ui_lock)"))
+
+  -- newRow(layout)
+  -- ui.addButton(layout, layout .. "_1-12", "克洛丝单人1-12（没写）")
+  -- ui.setOnClick(layout .. "_1-12", make_jump_ui_command(layout, nil,
+  --                                                       "extra_mode='克洛丝单人1-12';lock:remove(main_ui_lock)"))
 
   ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
@@ -2863,7 +2910,7 @@ jump_vercel = function()
     uri = "https://" .. vercel .. '.vercel.app/guide.html',
   }
   runIntent(intent)
-  while true do ssleep(100) end
+  while true do ssleep(1) end
   peaceExit()
 end
 

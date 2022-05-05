@@ -349,10 +349,14 @@ path.bilibili_login_change = update(path.bilibili_login, {
 path.fallback = {
   全权委托 = function()
     wait(function()
+
       tap("全权委托")
-      if disappear("全权委托", 1) and not disappear("主页", 1) then
-        return true
-      end
+      if not findOne("主页") then tap("开始行动蓝") end
+      ssleep(1)
+
+      if not findOne("全权委托") and findOne("代理指挥开") and
+        findOne("主页") then return true end
+
     end, 30)
   end,
   开始行动活动 = function()
@@ -391,9 +395,7 @@ path.fallback = {
       local timeout = min(2, (time() - start_time + 1000) / 1000 * 2 / 10)
       log(237, timeout)
       -- timeout = 0
-      x = appear({
-        "返回确认", "返回确认3"
-      }, timeout)
+      x = appear({"返回确认", "返回确认3"}, timeout)
       -- disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
       if x then return true end
       back()
@@ -2308,14 +2310,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
   if is_jmfight_enough(x) then return end
 
-  if findOne("全权委托") then
-    wait(function()
-      tap("全权委托")
-      if disappear("全权委托", 1) and not disappear("开始行动", 1) then
-        return true
-      end
-    end, 30)
-  end
+  if findOne("全权委托") then path.fallback.全权委托() end
 
   -- quick tap .5s
   wait(function()
