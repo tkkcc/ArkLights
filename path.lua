@@ -2392,10 +2392,12 @@ path.开始游戏 = function(x, disable_ptrs_check)
     state = "源石恢复理智取消"
     if not appear({state, '源石恢复理智不足'}) then
       log(2143)
+      tap("开始行动蓝")
       return
     end
     if findOne('源石恢复理智不足') then
       log(2144)
+      tap("开始行动蓝")
       return
     end
 

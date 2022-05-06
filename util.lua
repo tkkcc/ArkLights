@@ -1200,9 +1200,9 @@ run = function(...)
     if type(arg[1]) == "function" then return arg[1]() end
     if type(arg[1]) == "table" then arg = arg[1] end
   end
-  qqmessage = {' '}
+  qqmessage = {}
   if qqnotify_quiet then
-    table.extend(qqmessage, {devicenote and devicenote or getDevice(), usernote})
+    table.extend(qqmessage, {devicenote, usernote})
   elseif account_idx ~= nil then
     table.extend(qqmessage, {
       devicenote and devicenote or getDevice(), "号" .. account_idx,
@@ -1782,9 +1782,11 @@ captureqqimagedeliver = function(info, to)
     snapShot(img)
   end
 
-  if not qqnotify_notime then info = os.date('%Y.%m.%d %H:%M:%S') .. info end
+  if not qqnotify_notime then
+    info = os.date('%Y.%m.%d %H:%M:%S') .. ' ' .. info
+  end
 
-  notifyqq(base64(img), tostring(info), tostring(to))
+  notifyqq(base64(img), tostring(info):trim(), tostring(to))
 end
 
 poweroff =
@@ -1897,7 +1899,7 @@ make_account_ui = function(layout, prefix)
   addTextView(layout, "次")
 
   newRow(layout)
-  addTextView(layout, "基建模式")
+  addTextView(layout, "换班模式")
   -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
   --                  -2, -2, true)
 
@@ -1938,7 +1940,7 @@ make_account_ui = function(layout, prefix)
   local max_checkbox_one_row = 3
   for k, v in pairs(all_job) do
     if k % max_checkbox_one_row == 1 then
-      newRow(layout, prefix .. "now_job_row" .. k, "center")
+      newRow(layout, prefix .. "now_job_row" .. k)
 
     end
     ui.addCheckBox(layout, prefix .. "now_job_ui" .. k, v,
@@ -1954,7 +1956,7 @@ show_multi_account_ui = function()
   ui.newLayout(layout, ui_page_width, -2)
   ui.setTitleText(layout, "多账号")
 
-  newRow(layout, layout .. "_save_row", "center")
+  newRow(layout, layout .. "_save_row")
   ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
   ui.setBackground(layout .. "_start", ui_submit_color)
   ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
@@ -1996,7 +1998,7 @@ show_multi_account_ui = function()
   addTextView(layout,
               [[“启用账号”填数字“2 4”表示跑第2第4两个号，填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。临时账号写在#号后，填“1-10 # 5-10”表示跑前10个号，但本次启动只跑第5到第10个。账密为空默认跳过。抢登处理看必读。]])
 
-  newRow(layout, "center")
+  newRow(layout)
 
   multi_account_all_inherit_choice = map(function(x)
     return "账号" .. tostring(x):padStart(2, '0')
@@ -2222,11 +2224,14 @@ end
 multi_account_config_import = function()
   local layout = "multi_account"
   local config = getUIConfigPath(layout)
-  local data = getClipboard()
+  local data = getClipboard():trim()
   local status, result, startidx, endidx
   status, result = pcall(JsonDecode, data)
   log("剪贴板数据：" .. data)
   if not data or #data == 0 then stop('剪贴板无数据', false) end
+  if not status and data[1] == '{' then
+    stop("json格式错误(剪贴板数据不完整)", false)
+  end
   if not status then data, startidx, endidx = parse_simple_config(data) end
   if not data or #data == 0 then
     stop("从剪贴板导入失败：" .. result, false)
@@ -2259,9 +2264,7 @@ multi_account_config_remove_once_choice = function(append)
   local choice = cur[layout .. "_choice"] or ''
   choice = choice:commonmap()
 
-  if choice:find('#') then
-    choice = choice:sub(1, choice:find('#') - 1):trim()
-  end
+  if choice:find('#') then choice = choice:sub(1, choice:find('#') - 1):trim() end
 
   if type(append) == "string" and #append > 0 then
     choice = choice .. '#' .. append
@@ -2373,9 +2376,10 @@ end
 setNewRowGid = function(gid) default_row_gid = gid end
 newRow = function(layout, id, align, w, h)
   -- log(173,default_row_gid)
-  ui.newRow(layout, id or randomString(32), w or -2, h or -2, default_row_gid)
+  id = id or randomString(32)
+  ui.newRow(layout, id, w or -2, h or -2, default_row_gid)
   align = align or 'left'
-  -- if id and align == 'center' then ui.setGravity(id, 17) end
+  if align == 'center' then ui.setGravity(id, 17) end
 end
 addTextView = function(layout, text, id)
   ui.addTextView(layout, id or randomString(32), text)
@@ -2967,7 +2971,7 @@ show_gesture_capture_ui = function()
   addTextView(layout, "当前手势：")
   ui.addTextView(layout, "unlock_gesture", JsonEncode({}))
 
-  newRow(layout, layout .. "_save_row", "center")
+  newRow(layout, layout .. "_save_row")
 
   ui.addButton(layout, layout .. "_stop", "返回")
   ui.setBackground(layout .. "_stop", ui_cancel_color)
@@ -3026,12 +3030,12 @@ show_crontab_ui = function()
   local default_hour = {8, 16, 24}
   for i = 1, 24 do
     if i % max_checkbox_one_row == 1 then
-      newRow(layout, layout .. "_row" .. i, "center")
+      newRow(layout, layout .. "_row" .. i)
     end
     ui.addCheckBox(layout, layout .. i, tostring(i):padStart(2, '0') .. "点",
                    table.includes(default_hour, i))
   end
-  newRow(layout, layout .. "_stop_row", "center")
+  newRow(layout, layout .. "_stop_row")
   ui.addButton(layout, layout .. "_stop", "返回", ui_submit_width)
   ui.setBackground(layout .. "_stop", ui_submit_color)
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
@@ -3282,6 +3286,7 @@ predebug_hook = function()
   -- log(findOne("开始行动"))
   -- log(findOne("代理指挥开"))
   log(findOne("全权委托确认"))
+  log(findOne("源石恢复理智取消"))
 
   exit()
 

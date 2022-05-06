@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.05.05 23:38"
+release_date = "2022.05.06 16:40"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -116,6 +116,7 @@ load(before_account_hook or '')()
 
 no_extra_job = {}
 transfer_global_variable("multi_account_user1", "multi_account_user0")
+saveConfig("continue_account", '')
 -- 多帐号模式
 if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
   multi_account_enable then
@@ -130,7 +131,6 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
   end
   log("multi_account_choice", multi_account_choice)
 
-  saveConfig("continue_account", '')
   multi_account_choice = expand_number_config(multi_account_choice)
   for idx, i in pairs(multi_account_choice) do
     multi_account_choice_idx = idx
