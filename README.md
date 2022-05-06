@@ -1,7 +1,7 @@
 <h1 align="center"> ArkLights</h1>
 
 <p align="center">
-ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights auto helper</a>
+ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game helper</a>
 </p>
 
 <!-- <p align="center">明日方舟速通：明日方舟最速全托管脚本</a> </p> -->
@@ -117,7 +117,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights auto
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>&#10004;</td>
-      <td>用户量大，兼容性高，autojs实现，群号1087079756</td>
+      <td>用户量大，兼容性高，autojs实现，群号852749806、1087079756、942502024</td>
    </tr>
    <tr>
    <td><a href="https://github.com/AgainstEntropy/PRTS">PRTS</a></td>
