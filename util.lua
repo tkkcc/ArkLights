@@ -1205,7 +1205,7 @@ run = function(...)
     table.extend(qqmessage, {devicenote, usernote})
   elseif account_idx ~= nil then
     table.extend(qqmessage, {
-      devicenote and devicenote or getDevice(), "号" .. account_idx,
+      devicenote and devicenote or getDevice(), "账号" .. account_idx,
       server == 0 and "官服" or "B服", username, usernote,
     })
   else
