@@ -5,6 +5,7 @@ import fire
 from pathlib import Path
 import json
 import io
+from collections import defaultdict
 
 
 def unpack(source_folder="arknights", destination_folder="arknights_extract"):
@@ -121,12 +122,40 @@ def avator2operator(src="ArknightsGameData/zh_CN/gamedata/excel/character_table.
     ans = {}
     for p in png:
         # print("p",p)
-        try: 
+        try:
             o = next(k for k in data if p.stem.startswith(k))
-            ans[str(p.stem)] = data[o]['name']
+            ans[str(p.stem)] = data[o]["name"]
         except Exception:
-            print("not found",p)
+            print("not found", p)
 
+    return json.dumps(ans, ensure_ascii=False)
+
+
+def skillicon2operator(
+    char="ArknightsGameData/zh_CN/gamedata/excel/character_table.json",
+    build="ArknightsGameData/zh_CN/gamedata/excel/building_data.json",
+):
+    # print("char",char)
+    # print("build",build)
+    char = json.loads(open(char).read())
+    build = json.loads(open(build).read())
+    # print("char.keys()",char.keys())
+    # print("build.keys()",build["chars"].keys())
+
+    char2name = {k: char[k]["name"] for k in char}
+    buffid2name = {}
+    for c, b in build["buffs"].items():
+        buffid2name[b["buffId"]] = b["skillIcon"]
+
+    ans = defaultdict(list)
+    for c, b in build["chars"].items():
+        for b1 in b["buffChar"]:
+            for b2 in b1["buffData"]:
+                buffid = b2["buffId"]
+                buffname = buffid2name[buffid]
+                operator = char2name[c]
+                phase = b2["cond"]["phase"]
+                ans[buffname].append(operator + str(phase))
 
     return json.dumps(ans, ensure_ascii=False)
 

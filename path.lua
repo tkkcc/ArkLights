@@ -940,6 +940,61 @@ sample = function(v)
   return "sample"
 end
 
+path.宿舍清空 = function()
+  local f
+  f = function(i)
+    path.跳转("基建")
+
+    if not wait(function()
+      if not findOne("进驻总览") or not findOne("缩放结束") then
+        return true
+      end
+      tap("宿舍列表" .. i)
+    end) then return end
+
+    if not appear({"进驻信息", "进驻信息选中"}, 5) then
+      log("621")
+      return
+    end
+    if not wait(function()
+      if findOne("筛选") then return true end
+      if findOne("进驻信息选中") then
+        wait(function()
+          if findOne("筛选") then return true end
+          tap("进驻第一人")
+        end, 1)
+      elseif findOne("进驻信息") then
+        tap("进驻信息")
+        ssleep(.2)
+        wait(function()
+          if findOne("筛选") then return true end
+          tap("进驻第一人")
+        end, 1)
+      end
+    end, 5) then return end
+
+    tap("清空选择")
+    if not wait(function()
+      if findOne("干员未选中") and findOne("第一干员未选中") then
+        return true
+      end
+      tap("清空选择")
+    end, 5) then return end
+
+    if not wait(function(reset_wait_start_time)
+      if findAny({"隐藏", "进驻信息", "进驻信息选中"}) then
+        return true
+      end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
+      tap("确认蓝")
+    end, 5) then return end
+
+  end
+  for i = 1, 4 do f(i) end
+end
+
 path.宿舍换班 = function()
   local f
   f = function(i)
@@ -1015,7 +1070,7 @@ path.宿舍换班 = function()
 
     log(842, #operator)
     -- 把未进驻的非满心情干员放进去
-    if #operator < 5 then
+    if nil and #operator < 5 then
 
       -- 进入筛选界面
       if not wait(function()
@@ -1212,6 +1267,8 @@ end
 
 -- trading 是否是贸易站
 path.制造换班 = function(trading)
+  if disable_manu_shift and not trading then return end
+
   -- if not debug then return end
   local station_color = trading and "#33CCFF" or "#FFCC00"
   local type
@@ -1291,7 +1348,7 @@ path.制造换班 = function(trading)
       end
       type = good2type[good]
       log(524, type)
-      if not disappear("制造站补货通知", 5) then return end
+      if not disappear("制造站补货通知", 10) then return end
 
       -- 制造站进入干员列表
       if not wait(function()
@@ -1333,7 +1390,7 @@ path.制造换班 = function(trading)
       end
       type = good2type[good]
       log(525, type)
-      if not disappear("制造站补货通知", 5) then return end
+      if not disappear("制造站补货通知", 10) then return end
 
       -- 贸易站进入干员列表
       if not wait(function()
@@ -1409,10 +1466,12 @@ path.制造换班 = function(trading)
       log(1037)
       return
     end
+
     log(1217, tradingStationLevel, manufacturingStationLevel, powerStationLevel,
         dormitoryLevel)
 
-    chooseOperator(trading, type, stationLevel, tradingStationNum,
+    local stationType = trading and "贸易站" or "制造站"
+    chooseOperator(stationType, type, stationLevel, tradingStationNum,
                    powerStationNum, dormitoryCapacity, dormitoryLevelSum,
                    goldStationNum)
 
@@ -1480,9 +1539,13 @@ path.制造换班 = function(trading)
   for i = 1, #station do f(i, station[i], stationLevel[i]) end
 end
 
-path.贸易换班 = function() return path.制造换班(true) end
+path.贸易换班 = function()
+  if disable_trading_shift then return end
+  return path.制造换班(true)
+end
 
 path.总览换班 = function()
+  if disable_overview_shift then return end
   local f
   path.跳转("基建", nil, true)
   if not wait(function()
@@ -1660,7 +1723,7 @@ path.总览换班 = function()
         reset_wait_start_time()
       end
       tap("确认蓝")
-    end, 5) then return end
+    end, 3) then return end
 
     return true
   end
@@ -1680,20 +1743,26 @@ path.总览换班 = function()
     if not bottom then bottom = sample("进驻总览底部") end
   end
   if not findOne("撤下干员") then return end
+
   tap("返回")
   if appear("进驻总览") then leaving_jump = true end
 end
 
 path.基建换班 = function()
+  -- 极速模式
   if shift_prefer_speed then
     path.宿舍换班()
     path.总览换班()
     return
   end
 
-
+  path.宿舍清空()
+  -- if not disappear("制造站补货通知", 10) then return end
   path.控制中枢换班()
   path.会客厅换班()
+
+  -- 收菜后有一个移动动画，直接获取信息会出错
+  -- if disable_control_shift and disable_meeting_shift then ssleep(2) end
 
   path.基建信息获取()
   path.制造换班()
@@ -1701,8 +1770,54 @@ path.基建换班 = function()
   path.总览换班()
 end
 
-path.控制中枢换班 = function() end
-path.会客厅换班 = function() end
+path.控制中枢换班 =
+  function() if disable_control_shift then return end end
+
+path.会客厅换班 = function()
+  if disable_meeting_shift then return end
+
+  -- 进总览
+  path.跳转("基建", nil, true)
+  if not wait(function()
+    if findOne("撤下干员") then return true end
+    tap("进驻总览")
+  end, 10) then return end
+
+  -- 进干员列表
+  if not wait(function()
+    if findOne("确认蓝") then return true end
+    tap("进驻总览会客厅")
+  end, 10) then return end
+
+  -- 清空选择
+  local start_time = time()
+  if not wait(function()
+    if findOne("干员未选中") and findOne("第一干员未选中") then
+      return true
+    end
+    if time() - start_time > 1000 then
+      tap("干员选择列表1")
+      start_time = time()
+    end
+    tap("清空选择")
+  end, 5) then
+    log(1037)
+    return
+  end
+
+  chooseOperator("会客厅", type, stationLevel, tradingStationNum,
+                 powerStationNum, dormitoryCapacity, dormitoryLevelSum,
+                 goldStationNum)
+
+  if not wait(function(reset_wait_start_time)
+    tap("确认蓝")
+    if findOne("撤下干员") then return true end
+    if findOne("正在提交反馈至神经") then reset_wait_start_time() end
+  end, 3) then return end
+
+  tap("返回")
+  if appear("进驻总览") then leaving_jump = true end
+end
 
 path.制造加速 = function()
   path.跳转("基建")

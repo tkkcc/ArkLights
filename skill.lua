@@ -72,7 +72,7 @@ fetchSkillIcon = function()
   if downloadFile(md5url, md5path) == -1 then
     toast("下载基建图标校验数据失败")
     ssleep(3)
-    return
+    return restartScript()
   end
   local f = io.open(md5path, 'r')
   local expectmd5 = f:read() or '1'
@@ -84,12 +84,12 @@ fetchSkillIcon = function()
   if downloadFile(url, path) == -1 then
     toast("下载最新基建图标失败")
     ssleep(3)
-    return
+    return restartScript()
   end
   if fileMD5(path) ~= expectmd5 then
     toast("基建图标校验失败")
     ssleep(3)
-    return
+    return restartScript()
   end
   unZip(path, extract_path)
   saveConfig("skill_md5", expectmd5)
@@ -132,6 +132,7 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
   end
 
   log(114, card)
+  -- card = table.slice(card, 9, 9)
   local empty1_num = 0
   for idx, v in pairs(card) do
     -- 技能判断
@@ -144,11 +145,13 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     local png = ''
     local png2 = ''
     if not mood_only then
+      png = 'empty1'
       png =
         findBuildingSkill(icon1[1], icon1[2], icon1[3], icon1[4], pngdata) or
-          'empty1.png'
+          png
+
       -- 已到结尾，返回
-      if png == 'empty1.png' then
+      if png == 'empty1' then
         empty1_num = empty1_num + 1
         -- 第一页有可能有多个
         if pageid > 1 or pageid == 1 and empty1_num > 3 then
@@ -156,7 +159,7 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
           return true
         end
       end
-      png2 = 'empty2.png'
+      png2 = 'empty2'
       operator = skillpng2operator[png]
       if #operator == 1 then
 
@@ -164,7 +167,7 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
         png2 =
           findBuildingSkill(icon2[1], icon2[2], icon2[3], icon2[4], pngdata) or
             png2
-        if png2 ~= 'empty2.png' and not disable_log then
+        if png2 ~= 'empty2' and not disable_log then
           operator2 = skillpng2operator[png2]
           operator = table.intersect(operator, operator2)
         end
@@ -202,37 +205,9 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     table.insert(operators, {png, png2, mood, icon1, pageid})
   end
   -- sleep(max(0, delay - (time() - start_time)))
+  log(operators)
+  -- exit()
 end)
-
-skillpng2operator = JsonDecode(
-                      '{"Bskill_ctrl_p_spd.png":["凯尔希2"],"Bskill_ctrl_token_p_spd.png":["布丁1"],"Bskill_ctrl_p_bot.png":["森蚺2"],"Bskill_ctrl_t_spd.png":["阿米娅0","诗怀雅0"],"Bskill_ctrl_c_spd.png":["老鲤2"],"Bskill_ctrl_h_spd.png":["琴柳2"],"Bskill_ctrl_cost_aegir.png":["歌蕾蒂娅0"],"Bskill_ctrl_aegir.png":["歌蕾蒂娅0"],"Bskill_ctrl_aegir2.png":["歌蕾蒂娅2"],"Bskill_ctrl_psk.png":["焰尾2"],"Bskill_ctrl_t_limit%26spd.png":["灵知2"],"Bskill_ctrl_lda.png":["老鲤0"],"Bskill_ctrl_lda_add.png":["吽2"],"Bskill_ctrl_karlan.png":["灵知0"],"Bskill_ctrl_lungmen.png":["陈0"],"Bskill_ctrl_ussg.png":["早露0"],"Bskill_ctrl_sp.png":["寒芒克洛丝0","炎狱炎熔0"],"Bskill_ctrl_cost.png":["焰尾0","灰喉0","苇草2","暴雨0","送葬人2","临光0","杜宾0","清道夫0","红0","坚雷1"],"Bskill_ctrl_clear_sui.png":["令0"],"Bskill_ctrl_cost_bd1%26bd2.png":["令2"],"Bskill_ctrl_cost_bd1.png":["夕0"],"Bskill_ctrl_cost_bd2.png":["夕0"],"Bskill_ctrl_ash.png":["灰烬2"],"Bskill_ctrl_r6.png":["战车0","灰烬0","闪击0","霜华0"],"Bskill_ctrl_tachanka.png":["战车2"],"Bskill_ctrl_c_wt.png":["阿0"],"Bskill_ctrl_c_wt2.png":["惊蛰2"],"Bskill_ctrl_c_wt1.png":["惊蛰0"],"Bskill_pow_spd3.png":["澄闪2","雷蛇2","炎狱炎熔2","格雷伊0"],"Bskill_pow_spd2.png":["伊芙利特2","异客2","格劳克斯2","深靛1","雷蛇0","布丁0","阿消1","清流0"],"Bskill_pow_spd1.png":["异客0","格劳克斯0","澄闪0","深靛0","伊芙利特0","炎熔0","煌0","Castle-30","Lancet-20","THRM-EX0","正义骑士号0"],"Bskill_pow_spd%26cost.png":["THRM-EX0"],"Bskill_pow_jnight.png":["正义骑士号0"],"Bskill_man_exp3.png":["断罪者1","食铁兽2"],"Bskill_man_exp2.png":["Castle-30","白雪1","红豆0","霜叶1","食铁兽0"],"Bskill_man_exp1.png":["帕拉斯2"],"Bskill_man_gold2.png":["砾1"],"Bskill_man_gold1.png":["夜烟0","斑点1"],"Bskill_man_spd%26trade.png":["清流1"],"Bskill_man_spd_bd_n1.png":["迷迭香0"],"Bskill_man_spd_bd1.png":["迷迭香0"],"Bskill_man_spd_bd2.png":["迷迭香2"],"Bskill_man_spd_variable21.png":["槐琥2"],"Bskill_man_spd3.png":["梅尔2"],"Bskill_man_spd2.png":["灰毫2","远牙2","野鬃2","白面鸮2","赫默2","调香师1","史都华德1","杰西卡0","水月2","罗比菈塔1","香草0"],"Bskill_man_limit%26cost3.png":["石棉2"],"Bskill_man_spd%26limit%26cost3.png":["石棉0","泡普卡0"],"Bskill_man_spd_add1.png":["芬0","刻俄柏2"],"Bskill_man_spd_add2.png":["稀音0","克洛丝0"],"Bskill_man_spd1.png":["灰毫0","远牙0","野鬃0","白面鸮0","赫默0","豆苗0","夜刀0","流星0"],"Bskill_man_spd%26power3.png":["温蒂2"],"Bskill_man_spd%26power2.png":["森蚺2","温蒂0"],"Bskill_man_spd%26power1.png":["异客2","森蚺0"],"Bskill_man_skill_spd.png":["水月0"],"Bskill_man_spd%26limit3.png":["蛇屠箱0","黑角0"],"Bskill_man_spd%26limit1.png":["卡缇0","米格鲁0"],"Bskill_man_spd%26limit%26cost2.png":["火神2"],"Bskill_man_spd%26limit%26cost1.png":["火神0"],"Bskill_man_spd%26limit%26cost4.png":["贝娜0"],"Bskill_man_exp%26limit2.png":["卡达1"],"Bskill_man_exp%26limit1.png":["稀音2"],"Bskill_man_limit%26cost2.png":["泡泡0"],"Bskill_man_spd_variable31.png":["泡泡1"],"Bskill_man_limit%26cost1.png":["帕拉斯0","刻俄柏0","豆苗1","清道夫1","红云0"],"Bskill_man_spd_variable11.png":["红云1"],"Bskill_man_exp%26cost.png":["卡达0"],"Bskill_man_originium2.png":["艾雅法拉0","锡兰2","地灵1","炎熔1"],"Bskill_man_originium1.png":["薄绿1","月见夜1"],"Bskill_man_cost_all.png":["槐琥0"],"Bskill_tra_Lappland1.png":["拉普兰德0"],"Bskill_tra_Lappland2.png":["拉普兰德2"],"Bskill_tra_texas1.png":["德克萨斯0"],"Bskill_tra_texas2.png":["德克萨斯2"],"Bskill_tra_vodfox.png":["巫恋2"],"Bskill_tra_spd3.png":["能天使2"],"Bskill_tra_spd_variable22.png":["雪雉2"],"Bskill_tra_spd%26cost.png":["古米0","月见夜0","空爆0"],"Bskill_tra_spd%26limit7.png":["可颂2","拜松2"],"Bskill_tra_spd2.png":["空2","夜刀0","夜烟1","安比尔1","慕斯0","缠丸1","芬1"],"Bskill_tra_spd%26limit6.png":["梓兰1","玫兰莎0","远山0"],"Bskill_tra_spd_variable21.png":["雪雉0"],"Bskill_tra_spd%26limit5.png":["银灰2"],"Bskill_tra_spd1.png":["可颂0","能天使0","拜松0","安德切尔0","深海色0","蛇屠箱1","香草1"],"Bskill_tra_spd%26limit4.png":["崖心2"],"Bskill_tra_spd%26limit3.png":["角峰0","讯使0","银灰0"],"Bskill_tra_spd%26limit2.png":["四月2"],"Bskill_tra_spd%26limit1.png":["四月0","翎羽1","黑角0"],"Bskill_tra_flow_gs2.png":["图耶2"],"Bskill_tra_flow_gs1.png":["图耶0"],"Bskill_tra_flow_gc2.png":["绮良2"],"Bskill_tra_flow_gc1.png":["绮良0"],"Bskill_tra_limit_diff.png":["孑0"],"Bskill_tra_limit_count.png":["孑1"],"Bskill_tra_spd%26dorm2.png":["空弦2"],"Bskill_tra_spd%26dorm1.png":["空弦0"],"Bskill_tra_wt%26cost2.png":["柏喙2","卡夫卡2"],"Bskill_tra_wt%26cost1.png":["巫恋0","柏喙0","贝娜2","卡夫卡0"],"Bskill_tra_bd_n2.png":["乌有2"],"Bskill_tra_long2.png":["龙舌兰2"],"Bskill_tra_long1.png":["龙舌兰0"],"Bskill_tra_limit%26cost.png":["史都华德0","暗索1","桃金娘0"],"Bskill_dorm_all%26one2.png":["杜林0"],"Bskill_dorm_all%26one1.png":["安比尔0","杜林0"],"Bskill_dorm_all3.png":["推进之王2","夜莺2","凛冬2"],"Bskill_dorm_all2.png":["阿米娅2","空0","波登可1","凛冬0","推进之王0","桃金娘1"],"Bskill_dorm_all%26one3.png":["远牙0","风笛0","赫拉格2"],"Bskill_dorm_all1.png":["赫拉格1","四月0","夜莺0"],"Bskill_dorm_all%26bd_n1_n2.png":["爱丽丝0"],"Bskill_dorm_all%26bd_n1.png":["爱丽丝2"],"Bskill_dorm_single4.png":["闪灵2"],"Bskill_dorm_single3.png":["琴柳0","蜜莓2"]}')
-skillpng2operator = table.filterKV(skillpng2operator, function(k, v)
-  return k:startsWith("Bskill_man") or k:startsWith("Bskill_tra")
-end)
-skillpng = table.remove_duplicate(table.keys(skillpng2operator))
--- table.insert(skillpng, "empty2.png")
-
--- 扩充干员等级
-for k, v in pairs(skillpng2operator) do
-  local extra = {}
-  for _, o in pairs(v) do
-    if o:endsWith('1') then table.insert(extra, o:sub(1, #o - 1) .. '2') end
-    if o:endsWith('0') then
-      table.insert(extra, o:sub(1, #o - 1) .. '1')
-      table.insert(extra, o:sub(1, #o - 1) .. '2')
-    end
-  end
-  table.extend(v, extra)
-end
-
--- -- 只有1个技能干员
--- skillpng2operator['empty2.png'] = table.appear_times(table.flatten(
---                                                        skillpng2operator), 1)
--- 所有干员
-skillpng2operator['empty1.png'] = table.remove_duplicate(table.flatten(
-                                                           skillpng2operator))
-skillpng2operator['empty2.png'] = skillpng2operator['empty1.png']
-skillpng2operator['empty1.png'] = {}
 
 -- 贸易站干员选择
 -- operator: 列表，每个元素包含两个技能图标
@@ -273,60 +248,60 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
     for _, icon in pairs(table.flatten(icons)) do
       all[icon] = (all[icon] or 0) + 1
       -- log(266, icon, goodType, base)
-      if icon == 'Bskill_tra_spd3.png' then
+      if icon == 'bskill_tra_spd3' then
         base = base + 0.35
-      elseif icon == 'Bskill_tra_spd%26cost.png' then
+      elseif icon == 'bskill_tra_spd&cost' then
         base = base + 0.3
-      elseif icon == 'Bskill_tra_spd%26limit7.png' then
+      elseif icon == 'bskill_tra_spd&limit7' then
         base = base + 0.3
         storage = storage + 1
-      elseif icon == 'Bskill_tra_spd%26limit6.png' then
+      elseif icon == 'bskill_tra_spd&limit6' then
         base = base + 0.25
         storage = storage + 1
-      elseif icon == 'Bskill_tra_spd%26limit5.png' then
+      elseif icon == 'bskill_tra_spd&limit5' then
         base = base + 0.20
         storage = storage + 4
-      elseif icon == 'Bskill_tra_spd%26limit4.png' then
+      elseif icon == 'bskill_tra_spd&limit4' then
         base = base + 0.15
         storage = storage + 4
-      elseif icon == 'Bskill_tra_spd%26limit3.png' then
+      elseif icon == 'bskill_tra_spd&limit3' then
         base = base + 0.15
         storage = storage + 2
-      elseif icon == 'Bskill_tra_spd%26limit2.png' then
+      elseif icon == 'bskill_tra_spd&limit2' then
         base = base + 0.1
         storage = storage + 4
-      elseif icon == 'Bskill_tra_spd%26limit1.png' then
+      elseif icon == 'bskill_tra_spd&limit1' then
         base = base + 0.1
         storage = storage + 2
-      elseif icon == 'Bskill_tra_spd2.png' then
+      elseif icon == 'bskill_tra_spd2' then
         base = base + 0.3
-      elseif icon == 'Bskill_tra_spd1.png' then
+      elseif icon == 'bskill_tra_spd1' then
         base = base + 0.2
-      elseif icon == 'Bskill_tra_flow_gc2.png' then
+      elseif icon == 'bskill_tra_flow_gc2' then
         base = base + 0.05
         gold = gold + (gold // 2) * 2
-      elseif icon == 'Bskill_tra_flow_gc1.png' then
+      elseif icon == 'bskill_tra_flow_gc1' then
         base = base + 0.05
         gold = gold + (gold // 4) * 2
-      elseif icon == 'Bskill_tra_spd%26dorm2.png' then
+      elseif icon == 'bskill_tra_spd&dorm2' then
         base = base + 0.02 * dormitoryLevelSum
-      elseif icon == 'Bskill_tra_spd%26dorm1.png' then
+      elseif icon == 'bskill_tra_spd&dorm1' then
         base = base + 0.01 * dormitoryLevelSum
-      elseif icon == 'Bskill_tra_bd_n2.png' then
+      elseif icon == 'bskill_tra_bd_n2' then
         -- 忽略其他站人间烟火
         base = base + 0.01 * dormitoryCapacity
-      elseif icon == 'Bskill_tra_limit%26cost.png"' then
+      elseif icon == 'bskill_tra_limit&cost"' then
         storage = storage + 5
-      elseif icon == 'Bskill_tra_wt%26cost2.png' and goodType == '贵金属' then
+      elseif icon == 'bskill_tra_wt&cost2' and goodType == '贵金属' then
         -- 认为裁缝B单独用效果极小
         base = base + 0.02
-      elseif icon == 'Bskill_tra_wt%26cost1.png' and goodType == '贵金属' then
+      elseif icon == 'bskill_tra_wt&cost1' and goodType == '贵金属' then
         -- 认为裁缝B单独用效果极小
         base = base + 0.01
-      elseif all['Bskill_tra_long2.png'] and goodType == '贵金属' then
+      elseif all['bskill_tra_long2'] and goodType == '贵金属' then
         -- 认为投资B单独用效果极小
         base = base + 0.02
-      elseif all['Bskill_tra_long1.png'] and goodType == '贵金属' then
+      elseif all['bskill_tra_long1'] and goodType == '贵金属' then
         -- 认为投资A单独用效果极小
         base = base + 0.01
       end
@@ -334,13 +309,13 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
 
     -- 应用全局性技能
     -- 拉狗徳狗
-    local texas = all['Bskill_tra_texas1.png'] or all['Bskill_tra_texas2.png']
-    if all['Bskill_tra_Lappland1.png'] then
+    local texas = all['bskill_tra_texas1'] or all['bskill_tra_texas2']
+    if all['bskill_tra_Lappland1'] then
       if texas then
         storage = storage + 2
         base = base + 0.65
       end
-    elseif all['Bskill_tra_Lappland2.png'] then
+    elseif all['bskill_tra_Lappland2'] then
       if texas then
         storage = storage + 4
         base = base + 0.65
@@ -348,30 +323,30 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
     end
 
     -- 雪雉
-    if all['Bskill_tra_spd_variable22.png'] then
+    if all['bskill_tra_spd_variable22'] then
       base = base + min(0.35, base // 0.05 * 0.05) *
-               all['Bskill_tra_spd_variable22.png']
+               all['bskill_tra_spd_variable22']
     end
 
     -- 图耶
-    if all['Bskill_tra_flow_gs2.png'] then
-      base = base + 0.05 + (gold // 2) * 0.15 * all['Bskill_tra_flow_gs2.png']
+    if all['bskill_tra_flow_gs2'] then
+      base = base + 0.05 + (gold // 2) * 0.15 * all['bskill_tra_flow_gs2']
     end
-    if all['Bskill_tra_flow_gs1.png'] then
-      base = base + 0.05 + (gold // 4) * 0.15 * all['Bskill_tra_flow_gs1.png']
+    if all['bskill_tra_flow_gs1'] then
+      base = base + 0.05 + (gold // 4) * 0.15 * all['bskill_tra_flow_gs1']
     end
 
     -- 孑 
-    if all['Bskill_tra_limit_count.png'] then
+    if all['bskill_tra_limit_count'] then
       -- 孑精1
       base = base + max(1, (maxStorage + storage - base // 0.1)) * 0.04
-    elseif all['Bskill_tra_limit_diff.png'] then
+    elseif all['bskill_tra_limit_diff'] then
       -- 孑精0 近似 14及以上仓库时为0.36
       base = base + 0.36 * min(1, (maxStorage + storage) / 14)
     end
 
     -- 巫恋
-    if all['Bskill_tra_vodfox.png'] and goodType == '贵金属' then
+    if all['bskill_tra_vodfox'] and goodType == '贵金属' then
       if maxOperator == 1 then
         base = 0
       elseif maxOperator == 2 then
@@ -379,36 +354,32 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
       else
         -- 参考 https://bbs.nga.cn/read.php?tid=25965441&rand=365
         -- 即使柏喙/卡夫卡等价白板，也倾向于选，因为其他地方也不怎么用
-        if all['Bskill_tra_wt%26cost2.png'] and all['Bskill_tra_long2.png'] then
+        if all['bskill_tra_wt&cost2'] and all['bskill_tra_long2'] then
           only_need = {
-            'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost2.png',
-            'Bskill_tra_long2.png',
+            'bskill_tra_vodfox', 'bskill_tra_wt&cost2', 'bskill_tra_long2',
           }
           base = 1.7192
-        elseif all['Bskill_tra_wt%26cost2.png'] and all['Bskill_tra_long1.png'] then
+        elseif all['bskill_tra_wt&cost2'] and all['bskill_tra_long1'] then
           only_need = {
-            'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost2.png',
-            'Bskill_tra_long1.png',
+            'bskill_tra_vodfox', 'bskill_tra_wt&cost2', 'bskill_tra_long1',
           }
           base = 1.3205
-        elseif all['Bskill_tra_wt%26cost2.png'] then
-          only_need = {'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost2.png'}
+        elseif all['bskill_tra_wt&cost2'] then
+          only_need = {'bskill_tra_vodfox', 'bskill_tra_wt&cost2'}
           base = 0.9218
-        elseif all['Bskill_tra_long2.png'] then
+        elseif all['bskill_tra_long2'] then
           only_need = {
-            'Bskill_tra_vodfox.png', 'Bskill_tra_long2.png',
-            'Bskill_tra_wt%26cost1.png',
+            'bskill_tra_vodfox', 'bskill_tra_long2', 'bskill_tra_wt&cost1',
           }
-          base = 1.4734 + 0.001 * all['Bskill_tra_wt%26cost1.png']
-        elseif all['Bskill_tra_long1.png'] then
+          base = 1.4734 + 0.001 * all['bskill_tra_wt&cost1']
+        elseif all['bskill_tra_long1'] then
           only_need = {
-            'Bskill_tra_vodfox.png', 'Bskill_tra_long1.png',
-            'Bskill_tra_wt%26cost1.png',
+            'bskill_tra_vodfox', 'bskill_tra_long1', 'bskill_tra_wt&cost1',
           }
-          base = 1.1927 + 0.001 * all['Bskill_tra_wt%26cost1.png']
+          base = 1.1927 + 0.001 * all['bskill_tra_wt&cost1']
         else
-          only_need = {'Bskill_tra_vodfox.png', 'Bskill_tra_wt%26cost1.png'}
-          base = 0.9120 + 0.001 * all['Bskill_tra_wt%26cost1.png']
+          only_need = {'bskill_tra_vodfox', 'bskill_tra_wt&cost1'}
+          base = 0.9120 + 0.001 * all['bskill_tra_wt&cost1']
         end
       end
     end
@@ -451,11 +422,10 @@ end
 
 testManufacturingStationOperatorBest = function()
   local operator = {
-    {'Bskill_man_exp3.png', 'Bskill_man_exp1.png', 12},
-    {'Bskill_man_exp2.png', '', 12}, {'', 'Bskill_man_spd_variable31.png', 12},
-    {'Bskill_man_spd2.png', '', 12},
-    {'', 'Bskill_man_spd%26limit%26cost2.png', 12},
-    {'', 'Bskill_man_spd%26limit%26cost4.png', 12},
+    {'bskill_man_exp3', 'bskill_man_exp1', 12}, {'bskill_man_exp2', '', 12},
+    {'', 'bskill_man_spd_variable31', 12}, {'bskill_man_spd2', '', 12},
+    {'', 'bskill_man_spd&limit&cost2', 12},
+    {'', 'bskill_man_spd&limit&cost4', 12},
   }
   local tradingStationNum = 3
   local powerStationNum = 3
@@ -519,91 +489,91 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
       if debug_mode then log(427, icon, icons, base, station) end
       all[icon] = (all[icon] or 0) + 1
       -- log(266, icon, goodType, base)
-      if icon == 'Bskill_man_exp3.png' then
+      if icon == 'bskill_man_exp3' then
         if goodType == '作战记录' then base = base + 0.35 end
         -- log(272, base)
-      elseif icon == 'Bskill_man_exp2.png' then
+      elseif icon == 'bskill_man_exp2' then
         if goodType == '作战记录' then base = base + 0.30 end
-      elseif icon == 'Bskill_man_exp1.png' then
+      elseif icon == 'bskill_man_exp1' then
         if goodType == '作战记录' then base = base + 0.25 end
-      elseif icon == 'Bskill_man_gold2.png' then
+      elseif icon == 'bskill_man_gold2' then
         if goodType == '贵金属' then base = base + 0.35 end
-      elseif icon == 'Bskill_man_gold1.png' then
+      elseif icon == 'bskill_man_gold1' then
         if goodType == '贵金属' then base = base + 0.30 end
-      elseif icon == 'Bskill_man_spd%26trade.png' then
+      elseif icon == 'bskill_man_spd&trade' then
         -- 清流，使用贸易站数量
         if goodType == '贵金属' then
           -- base = base + 0.20 * tradingStationNum
           station = station + 0.20 * tradingStationNum
         end
-      elseif icon == 'Bskill_man_spd_bd_n1.png' then
+      elseif icon == 'bskill_man_spd_bd_n1' then
         -- 迷迭香不考虑
-      elseif icon == 'Bskill_man_spd_bd1.png' then
+      elseif icon == 'bskill_man_spd_bd1' then
         -- 迷迭香不考虑
-      elseif icon == 'Bskill_man_spd_bd2.png' then
+      elseif icon == 'bskill_man_spd_bd2' then
         -- 迷迭香不考虑
-      elseif icon == 'Bskill_man_spd3.png' then
+      elseif icon == 'bskill_man_spd3' then
         base = base + 0.30
-      elseif icon == 'Bskill_man_spd2.png' then
+      elseif icon == 'bskill_man_spd2' then
         base = base + 0.25
-      elseif icon == 'Bskill_man_limit%26cost3.png' then
+      elseif icon == 'bskill_man_limit&cost3' then
         storage[operatoridx] = (storage[operatoridx] or 0) + 16
         -- table.insert(storage, 16)
-      elseif icon == 'Bskill_man_spd%26limit%26cost3.png' then
+      elseif icon == 'bskill_man_spd&limit&cost3' then
         base = base + 0.25
         storage[operatoridx] = (storage[operatoridx] or 0) - 12
         -- table.insert(storage, -12)
-      elseif icon == 'Bskill_man_spd_add1.png' then
+      elseif icon == 'bskill_man_spd_add1' then
         -- 8小时平均收益 ((0.2+0.24)/2*5+0.25*3)/8
         base = base + 0.23125
-      elseif icon == 'Bskill_man_spd_add2.png' then
+      elseif icon == 'bskill_man_spd_add2' then
         -- 8小时平均收益 ((0.15+0.23)/2*5+0.25*3)/8
         base = base + 0.2125
-      elseif icon == 'Bskill_man_spd1.png' then
+      elseif icon == 'bskill_man_spd1' then
         base = base + 0.15
-      elseif icon == 'Bskill_man_spd%26limit3.png' then
+      elseif icon == 'bskill_man_spd&limit3' then
         base = base + 0.1
         storage[operatoridx] = (storage[operatoridx] or 0) + 10
         -- table.insert(storage, 10)
-      elseif icon == 'Bskill_man_spd%26limit1.png' then
+      elseif icon == 'bskill_man_spd&limit1' then
         base = base + 0.1
         -- table.insert(storage, 6)
         storage[operatoridx] = (storage[operatoridx] or 0) + 6
-      elseif icon == 'Bskill_man_spd%26limit%26cost2.png' then
+      elseif icon == 'bskill_man_spd&limit&cost2' then
         base = base - 0.05
         -- table.insert(storage, 19)
         storage[operatoridx] = (storage[operatoridx] or 0) + 19
-      elseif icon == 'Bskill_man_spd%26limit%26cost1.png' then
+      elseif icon == 'bskill_man_spd&limit&cost1' then
         base = base - 0.05
         -- table.insert(storage, 16)
         storage[operatoridx] = (storage[operatoridx] or 0) + 16
-      elseif icon == 'Bskill_man_spd%26limit%26cost4.png' then
+      elseif icon == 'bskill_man_spd&limit&cost4' then
         base = base - 0.2
         -- table.insert(storage, 17)
         storage[operatoridx] = (storage[operatoridx] or 0) + 17
-      elseif icon == 'Bskill_man_exp%26limit2.png' then
+      elseif icon == 'bskill_man_exp&limit2' then
         if goodType == '作战记录' then
           -- table.insert(storage, 15)
           storage[operatoridx] = (storage[operatoridx] or 0) + 15
         end
-      elseif icon == 'Bskill_man_exp%26limit1.png' then
+      elseif icon == 'bskill_man_exp&limit1' then
         if goodType == '作战记录' then
           -- table.insert(storage, 12) 
           storage[operatoridx] = (storage[operatoridx] or 0) + 12
         end
-      elseif icon == 'Bskill_man_limit%26cost2.png' then
+      elseif icon == 'bskill_man_limit&cost2' then
         -- table.insert(storage, 10)
         storage[operatoridx] = (storage[operatoridx] or 0) + 10
-      elseif icon == 'Bskill_man_limit%26cost1.png' then
+      elseif icon == 'bskill_man_limit&cost1' then
         -- table.insert(storage, 8)
         storage[operatoridx] = (storage[operatoridx] or 0) + 8
-      elseif icon == 'Bskill_man_exp%26cost.png' then
+      elseif icon == 'bskill_man_exp&cost' then
         -- Vlog 心情消耗不考虑
-      elseif icon == 'Bskill_man_originium2.png' then
+      elseif icon == 'bskill_man_originium2' then
         if goodType == '源石' then base = base + 0.35 end
-      elseif icon == 'Bskill_man_originium1.png' then
+      elseif icon == 'bskill_man_originium1' then
         if goodType == '源石' then base = base + 0.3 end
-      elseif icon == 'empty.png' then
+      elseif icon == 'empty' then
         log('empty')
       end
     end
@@ -611,54 +581,51 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     if debug_mode then log(428, icon, icons, base, station, storage) end
 
     -- 应用全局性技能
-    if all['Bskill_man_spd_variable31.png'] then
+    if all['bskill_man_spd_variable31'] then
       -- 泡泡
       for _, s in pairs(storage) do
         if s > 0 and s <= 16 then
-          base = base + s * 0.01 * all['Bskill_man_spd_variable31.png']
+          base = base + s * 0.01 * all['bskill_man_spd_variable31']
         elseif s > 16 then
-          base = base + s * 0.03 * all['Bskill_man_spd_variable31.png']
+          base = base + s * 0.03 * all['bskill_man_spd_variable31']
         end
       end
-    elseif all['Bskill_man_spd_variable11.png'] then
+    elseif all['bskill_man_spd_variable11'] then
       -- 红云
       base = base + max(table.sum(storage), 0) * 0.02 *
-               all['Bskill_man_spd_variable11.png']
+               all['bskill_man_spd_variable11']
     end
-    if all['Bskill_man_spd_variable21.png'] then
+    if all['bskill_man_spd_variable21'] then
       -- 槐虎
       base = base + min(0.4, base // 0.05 * 0.05) *
-               all['Bskill_man_spd_variable21.png']
+               all['bskill_man_spd_variable21']
     end
 
     -- 发电站数
-    if all['Bskill_man_spd%26power3.png'] then
+    if all['bskill_man_spd&power3'] then
       station_only = true
-      station = station + 0.15 * powerStationNum *
-                  all['Bskill_man_spd%26power3.png']
-      table.extend(only_need, {'Bskill_man_spd%26power3.png'})
+      station = station + 0.15 * powerStationNum * all['bskill_man_spd&power3']
+      table.extend(only_need, {'bskill_man_spd&power3'})
     end
-    if all['Bskill_man_spd%26power2.png'] then
+    if all['bskill_man_spd&power2'] then
       station_only = true
-      station = station + 0.1 * powerStationNum *
-                  all['Bskill_man_spd%26power2.png']
-      table.extend(only_need, {'Bskill_man_spd%26power2.png'})
+      station = station + 0.1 * powerStationNum * all['bskill_man_spd&power2']
+      table.extend(only_need, {'bskill_man_spd&power2'})
     end
-    if all['Bskill_man_spd%26power1.png'] then
+    if all['bskill_man_spd&power1'] then
       station_only = true
-      station = station + 0.05 * powerStationNum *
-                  all['Bskill_man_spd%26power1.png']
-      table.extend(only_need, {'Bskill_man_spd%26power1.png'})
+      station = station + 0.05 * powerStationNum * all['bskill_man_spd&power1']
+      table.extend(only_need, {'bskill_man_spd&power1'})
     end
-    if all['Bskill_man_skill_spd.png'] then
+    if all['bskill_man_skill_spd'] then
       -- 水月，标准化技能数量
-      base = base + standard * 0.05 * all['Bskill_man_skill_spd.png']
+      base = base + standard * 0.05 * all['bskill_man_skill_spd']
     end
     if debug_mode then log(428.5, icon, icons, base, station, storage) end
 
     if station_only then
       base = station
-      table.extend(only_need, {'Bskill_man_spd%26trade.png'})
+      table.extend(only_need, {'bskill_man_spd&trade'})
     else
       base = base + station
     end
@@ -710,7 +677,7 @@ for i = 1, h do
       table.insert(stationIconMask, {i, j})
       -- log(613,i,j)
     end
-    if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 17 ^ 2 then
+    if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 18.5 ^ 2 then
       table.insert(stationIconCenterMask, {i, j})
     end
   end
@@ -780,11 +747,13 @@ findBuildingSkill = function(x1, y1, x2, y2, pngdata)
     end
     score = score / scoreBase
 
-    -- if k == 'Bskill_tra_long1.png' then log(662, score, tmp) end
-    -- if k == 'Bskill_tra_flow_gc1.png' then log(663, score, tmp) end
+    -- if k == 'bskill_tra_long1' then log(662, score, tmp) end
+    -- if k == 'bskill_tra_flow_gc1' then log(663, score, tmp) end
     --
-    -- if k == 'Bskill_tra_texas1.png' then log(662, score, tmp) end
-    -- if k == 'Bskill_tra_Lappland2.png' then log(663, score, tmp) end
+    -- if k == 'bskill_tra_texas1' then log(662, score, tmp) end
+    -- if k == 'bskill_tra_Lappland2' then log(663, score, tmp) end
+    -- if k == 'bskill_meet_spd3' then log(663, score, tmp) end
+    -- if k == 'bskill_meet_spd2' then log(662, score, tmp) end
     -- exit()
 
     if best_score > score then
@@ -793,51 +762,93 @@ findBuildingSkill = function(x1, y1, x2, y2, pngdata)
     end
   end
   log(2208, best_score, best, x1, y1, x2, y2)
-  -- exit()
   return best
 end
 
 initPngdata = function()
-  -- 读取图标图像，300个36x36的png，可能比较耗时
-  if not tradingPngdata then
-    manufacturingPngdata = {}
-    tradingPngdata = {}
+  if skillpng2operator then return end
 
-    local s = ''
-    for _, v in pairs(skillpng) do
-      local pngdata
-      if v:startsWith("Bskill_man") then
-        pngdata = manufacturingPngdata
-      elseif v:startsWith("Bskill_tra") then
-        pngdata = tradingPngdata
+  -- 读取数据，生成方法
+  local f = io.open(getWorkPath() .. '/skill/skillicon2operator.json', 'r')
+  skillpng2operator = f:read()
+  f:close()
+  local status
+  status, skillpng2operator = pcall(JsonDecode, skillpng2operator)
+  if not status then stop("基建图标数据异常", false) end
+
+  -- 扩充精英化等级
+  for k, v in pairs(skillpng2operator) do
+    local extra = {}
+    for _, o in pairs(v) do
+      if o:endsWith('1') then table.insert(extra, o:sub(1, #o - 1) .. '2') end
+      if o:endsWith('0') then
+        table.insert(extra, o:sub(1, #o - 1) .. '1')
+        table.insert(extra, o:sub(1, #o - 1) .. '2')
       end
+    end
+    table.extend(v, extra)
+  end
 
-      local _, _, color = getImage(getWorkPath() .. '/skill/' .. v)
-      pngdata[v] = {}
-      for _, m in pairs(stationIconMask) do
-        i, j = m[1], m[2]
-        b, g, r = colorToRGB(color[(w - i - 1) * w + j])
-        table.extend(pngdata[v], {r, g, b})
-        if nil and v == 'Bskill_man_exp2.png' then
-          -- if v == 'Bskill_ws_evolve2.png' then
-          r = string.format('%X', r):padStart(2, '0')
-          g = string.format('%X', g):padStart(2, '0')
-          b = string.format('%X', b):padStart(2, '0')
-          s = s .. i .. '|' .. j .. '|' .. r .. g .. b .. ','
-        end
+  -- 第一技能缺失，无需再考虑
+  skillpng2operator['empty1'] = {}
+
+  -- 第二技能缺失，所有干员
+  skillpng2operator['empty2'] = table.remove_duplicate(table.flatten(
+                                                         skillpng2operator))
+
+  -- 读取图标
+  manufacturingPngdata = {}
+  tradingPngdata = {}
+  meetingPngdata = {}
+  controlPngdata = {}
+  stationType2pngData = {
+    制造站 = manufacturingPngdata,
+    贸易站 = tradingPngdata,
+    会客厅 = meetingPngdata,
+    控制中枢 = controlPngdata,
+  }
+
+  local s = ''
+  for v, _ in pairs(skillpng2operator) do
+    local pngdata
+    if v:startsWith("bskill_man") then
+      pngdata = manufacturingPngdata
+    elseif v:startsWith("bskill_tra") then
+      pngdata = tradingPngdata
+    elseif v:startsWith("bskill_meet") then
+      pngdata = meetingPngdata
+    elseif v:startsWith("bskill_ctrl") then
+      pngdata = controlPngdata
+    else
+      pngdata = {}
+    end
+
+    local _, _, color = getImage(getWorkPath() .. '/skill/' .. v .. '.png')
+    pngdata[v] = {}
+    for _, m in pairs(stationIconMask) do
+      i, j = m[1], m[2]
+      b, g, r = colorToRGB(color[(w - i - 1) * w + j])
+      table.extend(pngdata[v], {r, g, b})
+      if nil and v == 'bskill_man_exp2' then
+        -- if v == 'bskill_ws_evolve2' then
+        r = string.format('%X', r):padStart(2, '0')
+        g = string.format('%X', g):padStart(2, '0')
+        b = string.format('%X', b):padStart(2, '0')
+        s = s .. i .. '|' .. j .. '|' .. r .. g .. b .. ','
       end
     end
   end
-  if not manufacturingPngdata['Bskill_man_exp2.png'] then
+  if not manufacturingPngdata['bskill_man_exp2'] then
     stop("基建图标数据异常")
   end
+
 end
 
 -- 是否是贸易站，商品类别
-chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
-                          powerStationNum, dormitoryCapacity, dormitoryLevelSum,
-                          goldStationNum)
-  log("trading", trading)
+chooseOperator = function(stationType, goodType, stationLevel,
+                          tradingStationNum, powerStationNum, dormitoryCapacity,
+                          dormitoryLevelSum, goldStationNum)
+  log("stationType", stationType)
   log("goodType", goodType)
   log("stationLevel", stationLevel)
   log("tradingStationNum", tradingStationNum)
@@ -858,11 +869,12 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   local maxSwipTimes = 10
   local operator = {}
   for i = 1, maxSwipTimes do
-    if discover(operator,
-                (not trading) and manufacturingPngdata or tradingPngdata, i) then
-      break
-    end
-    log(operator)
+    -- if discover(operator,
+    --             (not trading) and manufacturingPngdata or tradingPngdata, i) then
+    -- log(stationType, #stationType2pngData[stationType])
+    if discover(operator, stationType2pngData[stationType], i) then break end
+    -- log(operator)
+
     -- exit()
     -- 三次重试
     local state = sample("干员第一个")
@@ -886,16 +898,20 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   -- TODO 滑动时就可以开始计算
   -- 计算最优技能
   local best, best_score
-  if not trading then
+  if stationType == "贸易站" then
     best, best_score = manufacturingStationOperatorBest(operator,
                                                         tradingStationNum,
                                                         powerStationNum,
                                                         goodType, stationLevel)
-  else
+  elseif stationType == "制造站" then
     best, best_score = tradingStationOperatorBest(operator, dormitoryCapacity,
                                                   dormitoryLevelSum,
                                                   goldStationNum, goodType,
                                                   stationLevel)
+  elseif stationType == "会客厅" then
+    best, best_score = meetingStationOperatorBest(operator)
+  elseif stationType == "控制中枢" then
+    best, best_score = controlStationOperatorBest(operator)
   end
   sleep(max(0, 500 - (time() - start_time)))
 
@@ -924,4 +940,28 @@ chooseOperator = function(trading, goodType, stationLevel, tradingStationNum,
   end
   swipo(true, true)
   -- exit()
+end
+
+-- 会客厅干员选择：先选+25%，剩下按鹰序
+-- 返回效率最高的index
+meetingStationOperatorBest = function(operator)
+  -- 过滤心情小于阈值的干员
+  local minAllowedMood = shift_min_mood
+  if disable_shift_mood then minAllowedMood = -1 end
+  operator = table.filter(operator,
+                          function(x) return x[3] >= minAllowedMood end)
+  local best = {}
+  local best_score = -1
+  local remain = {}
+  for _, o in pairs(operator) do
+    if o[1] == "bskill_meet_spd3" or o[2] == "bskill_meet_spd3" then
+      table.insert(best, o)
+    else
+      table.insert(remain, o)
+    end
+  end
+  log(best)
+  best = table.slice(table.extend(best, remain), 1, 2)
+  -- exit()
+  return best, best_score
 end

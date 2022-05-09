@@ -2269,7 +2269,7 @@ hotUpdate = function()
   if downloadFile(md5url, md5path) == -1 then
     toast("下载校验数据失败")
     ssleep(3)
-    return
+    return restartScript()
   end
   local f = io.open(md5path, 'r')
   local expectmd5 = f:read() or '1'
@@ -2282,12 +2282,12 @@ hotUpdate = function()
   if downloadFile(url, path) == -1 then
     toast("下载最新脚本失败")
     ssleep(3)
-    return
+    return restartScript()
   end
   if fileMD5(path) ~= expectmd5 then
     toast("脚本校验失败")
     ssleep(3)
-    return
+    return restartScript()
   end
   installLrPkg(path)
   saveConfig("lr_md5", expectmd5)
@@ -2606,12 +2606,13 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "shift_prefer_speed", "基建换班禁用高产换班",
                  false)
+
   newRow(layout)
   ui.addCheckBox(layout, "disable_control_shift",
                  "基建换班禁用控制中枢换班", true)
   newRow(layout)
   ui.addCheckBox(layout, "disable_meeting_shift",
-                 "基建换班禁用会客厅换班", true)
+                 "基建换班禁用会客厅换班", false)
   newRow(layout)
   ui.addCheckBox(layout, "disable_manu_shift",
                  "基建换班禁用制造站换班", false)
@@ -3257,6 +3258,11 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+
+  -- unZip("/sdcard/skill.zip", "/sdcard/skill")
+  unZip(getWorkPath() .. "/skill.zip", getWorkPath() .. "/skill")
+  ssleep(1)
+  exit()
 
   -- swip("HD-1")
   ssleep(1)
