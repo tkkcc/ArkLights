@@ -982,7 +982,7 @@ path.宿舍换班 = function()
     end, 5) then return end
 
     local operator
-    if shift_prefer_speed ~= 1 then
+    if shift_prefer_speed then
       -- 选后5个
       operator = map(function(x) return "干员选择列表" .. x end,
                      range(6, 10))
@@ -1685,18 +1685,23 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
-  if not disable_dorm_shift then path.宿舍换班() end
-  path.基建信息获取()
-
-  if shift_prefer_speed == 1 then
-    if not disable_manu_shift then path.制造换班() end
-    if not disable_trading_shift then path.贸易换班() end
-    if not disable_meet_shift then path.会客厅换班() end
+  if shift_prefer_speed then
+    path.宿舍换班()
+    path.总览换班()
+    return
   end
 
-  if not disable_overview_shift then path.总览换班() end
+
+  path.控制中枢换班()
+  path.会客厅换班()
+
+  path.基建信息获取()
+  path.制造换班()
+  path.贸易换班()
+  path.总览换班()
 end
 
+path.控制中枢换班 = function() end
 path.会客厅换班 = function() end
 
 path.制造加速 = function()

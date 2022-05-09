@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.05.07 22:16"
+release_date = "2022.05.09 19:33"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -79,39 +79,12 @@ enable_accessibility_service()
 enable_snapshot_service()
 detectServer()
 predebug_hook()
+main_ui_config_transfer()
 showUI()
 loadUIConfig()
 restart_mode_hook()
+update_state_from_debugui()
 
-findOne_interval = str2int(findOne_interval, -1)
-max_fight_times = str2int(max_fight_times, math.huge)
-tap_interval = str2int(tap_interval, -1)
-zl_restart_interval = str2int(zl_restart_interval1, 3600)
-keepalive_interval = str2int(keepalive_interval1, 3600)
-zl_skill_times = str2int(zl_skill_times, 0)
-zl_skill_idx = str2int(zl_skill_idx, 1)
-tapall_duration = str2int(tapall_duration, -1)
-max_login_times = str2int(max_login_times, math.huge)
-milesecond_after_click = str2int(tap_wait, milesecond_after_click)
-if not always_enable_log and not enable_log then run = disable_log_wrapper(run) end
-if not enable_shift_log then chooseOperator =
-  disable_log_wrapper(chooseOperator) end
-QQ = (QQ or ''):commonmap():trim()
-if QQ:find('#') then
-  devicenote = QQ:sub(QQ:find('#') + 1, #QQ):trim()
-  QQ = QQ:sub(1, QQ:find('#') - 1):trim()
-end
-qqimagedeliver = (qqimagedeliver or ''):trim()
-if not qqimagedeliver:startsWith("http") then
-  qqimagedeliver = "http://82.156.198.12:49875"
-end
-if zl_enable_log then zl_disable_log = false end
-
-for i = 1, 7 do
-  local k = 'max_drug_times_' .. i .. 'day'
-  _G[k] = str2int(_G[k], 0)
-end
-if disable_drug_24hour then max_drug_times_1day = 0 end
 load(before_account_hook or '')()
 
 no_extra_job = {}
@@ -161,7 +134,6 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
       table.insert(job, 1, "退出账号")
     end
 
-    log(164, idx)
     saveConfig("continue_account", (not temp_choice_pos and idx == 1) and '' or
                  table.join(table.slice(multi_account_choice, idx), ' '))
     saveConfig("continue_all_account",

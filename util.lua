@@ -1898,15 +1898,15 @@ make_account_ui = function(layout, prefix)
   ui.addEditText(layout, prefix .. 'max_stone_times', "0")
   addTextView(layout, "次")
 
-  newRow(layout)
-  addTextView(layout, "换班模式")
+  -- newRow(layout)
+  -- addTextView(layout, "换班模式")
   -- ui.addRadioGroup(layout, prefix .. "prefer_speed", {"极速", "高产"}, 0,
   --                  -2, -2, true)
 
-  ui.addRadioGroup(layout, prefix .. "shift_prefer_speed", {"极速", "高产"},
-                   1, -2, -2, true)
-  addTextView(layout, "心情阈值")
-  ui.addEditText(layout, prefix .. 'shift_min_mood', "12")
+  -- ui.addRadioGroup(layout, prefix .. "shift_prefer_speed", {"极速", "高产"},
+  --                  1, -2, -2, true)
+  -- addTextView(layout, "心情阈值")
+  -- ui.addEditText(layout, prefix .. 'shift_min_mood', "12")
 
   -- ui.setEnable(prefix .. "shift_prefer_speed", false)
   -- ui.setEnable(prefix .. "shift_min_mood", false)
@@ -2111,80 +2111,42 @@ end
 
 multi_account_config_export = function(simple)
   local layout = "multi_account"
-  local config = getUIConfigPath(layout)
-  local status
-  if fileExist(config) then
-    log("load", config)
-    local f = io.open(config, 'r')
-    local content = f:read() or '{}'
-    f:close()
-    status, content = pcall(JsonDecode, content)
-    if status then
-      content = table.filterKV(content, function(k, v)
-        if #k == 32 and not k:find('_') then return false end
-        return true
-      end)
-      content = JsonEncode(content)
-    end
-    content = JsonDecode(content)
+  local content = loadOneUIConfig(layout)
 
-    if simple then
-      -- 提取账密
-      local account = ''
-      for i = 1, multi_account_num do
-        local username = content['username' .. i]:map({[' '] = ''})
-        local password = content['password' .. i]
-        local server = content['server' .. i]
-        if type(username) == 'string' and #username > 0 and type(password) ==
-          'string' and #password > 0 then
-          account = account .. username .. ' ' .. password .. ' ' ..
-                      (server == 1 and 'B服' or '官服') .. '\n'
-        end
-      end
-      log(account)
-      content = account
-    else
-      -- -- 压缩？
-      -- local jsonpath = getWorkPath() .. '/export.json'
-      -- local zippath = getWorkPath() .. '/export.zip'
-      f = io.open(getUIConfigPath(layout .. "_default"))
-      local default = f:read() or '{}'
-      f:close()
-      status, default = pcall(JsonDecode, default)
-      if not status then
-        content = ''
-      else
-        content = JsonEncode(table.diff(content, default))
+  content = table.filterKV(content, function(k, v)
+    if #k == 32 and not k:find('_') then return false end
+    return true
+  end)
+
+  if simple then
+    -- 提取账密
+    local account = ''
+    for i = 1, multi_account_num do
+      local username = content['username' .. i]:trim():map({[' '] = ''})
+      local password = content['password' .. i]:trim()
+      local server = content['server' .. i]
+      if type(username) == 'string' and #username > 0 and type(password) ==
+        'string' and #password > 0 then
+        account = account .. username .. ' ' .. password .. ' ' ..
+                    (server == 1 and 'B服' or '官服') .. '\n'
       end
     end
-
-    putClipboard(content)
-    toast("多账号设置已复制" .. #content)
+    log(account)
+    content = account
   else
-    toast("多账号设置不存在")
+    local default = loadOneUIConfig(layout .. "_default")
+    content = JsonEncode(table.diff(content, default))
   end
+
+  putClipboard(content)
+  toast("多账号设置已复制" .. #content)
+
 end
 
 parse_simple_config = function(data)
   data = data or ''
   local layout = 'multi_account'
-  local config = getUIConfigPath(layout)
-  local cur = {}
-  local status
-  if fileExist(config) then
-    -- log("load", config)
-    -- log(20)
-    local f = io.open(config, 'r')
-    -- log(21)
-    local content = f:read() or '{}'
-    -- log(22, #content)
-    f:close()
-    -- log(22.1)
-    status, cur = pcall(JsonDecode, content)
-    cur = cur or {}
-    -- log(23, status)
-  end
-
+  local cur = loadOneUIConfig(layout)
   local i = multi_account_num
   while i > 0 do
     if type(cur["username" .. i]) == 'string' and #cur["username" .. i] > 0 or
@@ -2222,60 +2184,34 @@ parse_simple_config = function(data)
 end
 
 multi_account_config_import = function()
-  local layout = "multi_account"
-  local config = getUIConfigPath(layout)
   local data = getClipboard():trim()
-  local status, result, startidx, endidx
-  status, result = pcall(JsonDecode, data)
-  log("剪贴板数据：" .. data)
   if not data or #data == 0 then stop('剪贴板无数据', false) end
-  if not status and data[1] == '{' then
+  log("剪贴板数据：" .. data)
+  local status, result
+  status, result = pcall(JsonDecode, data)
+  if not status and data:sub(1, 1) == '{' then
     stop("json格式错误(剪贴板数据不完整)", false)
   end
-  if not status then data, startidx, endidx = parse_simple_config(data) end
+  if not status then data = parse_simple_config(data) end
   if not data or #data == 0 then
     stop("从剪贴板导入失败：" .. result, false)
   end
-
-  local f = io.open(config, 'w')
-  f:write(data)
-  f:close()
-  -- if startidx then
-  --   toast("多账号设置已导入为账号" .. startidx .. "至账号" ..
-  --           endidx)
-  --   ssleep(1)
-  -- else
-  --   toast("多账号设置已导入")
-  --   ssleep(1)
-  -- end
+  local layout = "multi_account"
+  saveOneUIConfig(layout, data)
 end
 
 multi_account_config_remove_once_choice = function(append)
   local layout = "multi_account"
-  local config = getUIConfigPath(layout)
-  if not fileExist(config) then return end
-  local f = io.open(config, 'r')
-  local content = f:read() or '{}'
-  f:close()
-  local status, cur
-  status, cur = pcall(JsonDecode, content)
-  if not status then return end
-  cur = cur or {}
+  local cur = loadOneUIConfig(layout)
   local choice = cur[layout .. "_choice"] or ''
   choice = choice:commonmap()
-
   if choice:find('#') then choice = choice:sub(1, choice:find('#') - 1):trim() end
-
   if type(append) == "string" and #append > 0 then
     choice = choice .. '#' .. append
   end
-
   cur[layout .. "_choice"] = choice
-
   cur = JsonEncode(cur)
-  f = io.open(config, 'w')
-  f:write(cur)
-  f:close()
+  saveOneUIConfig(layout, cur)
   return choice
 end
 
@@ -2409,21 +2345,23 @@ show_main_ui = function()
 
   if appid_need_user_select then
     newRow(layout)
-    addTextView(layout, "服务器")
-    ui.addRadioGroup(layout, "server", {"官服", "B服"}, 0, -2, -2, true)
+    addTextView(layout, "服务器选")
+    -- ui.addRadioGroup(layout, "server", {"官服", "B服"}, 0, -2, -2, true)
+
+    ui.addSpinner(layout, "server", {"官服", "B服"}, 0)
   end
 
   make_account_ui(layout)
 
-  newRow(layout)
-  addTextView(layout, "完成后通知QQ")
-  ui.addEditText(layout, "QQ", "")
+  -- newRow(layout)
+  -- addTextView(layout, "完成后通知QQ")
+  -- ui.addEditText(layout, "QQ", "")
 
   -- addButton(layout, layout .. "jump_qq_btn", "加机器人好友",
   --           make_jump_ui_command(layout, nil, 'jump_qq()'))
 
   newRow(layout)
-  addTextView(layout, "完成后")
+  addTextView(layout, "完成之后")
   ui.addCheckBox(layout, "end_home", "返回桌面", true)
   ui.addCheckBox(layout, "end_closeapp", "关闭游戏", false)
   ui.addCheckBox(layout, "end_screenoff", "熄屏")
@@ -2641,10 +2579,10 @@ show_debug_ui = function()
     ui.addEditText(layout, "max_drug_times_" .. i .. "day", default)
     addTextView(layout, "次")
   end
-  --
-  -- newRow(layout)
-  -- addTextView(layout, "QQ通知账号")
-  -- ui.addEditText(layout, "qqimagedeliver", "")
+
+  newRow(layout)
+  addTextView(layout, "QQ通知账号")
+  ui.addEditText(layout, "QQ", "")
 
   newRow(layout)
   addTextView(layout, "QQ通知自建服务地址")
@@ -2660,6 +2598,29 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nobar", "QQ通知不显示悬浮按钮",
                  false)
+
+  newRow(layout)
+  addTextView(layout, "基建换班心情阈值")
+  ui.addEditText(layout, "shift_min_mood", '12')
+
+  newRow(layout)
+  ui.addCheckBox(layout, "shift_prefer_speed", "基建换班禁用高产换班",
+                 false)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_control_shift",
+                 "基建换班禁用控制中枢换班", true)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_meeting_shift",
+                 "基建换班禁用会客厅换班", true)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_manu_shift",
+                 "基建换班禁用制造站换班", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_trading_shift",
+                 "基建换班禁用贸易站换班", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_overview_shift",
+                 "基建换班禁用总览换班", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "disable_free_draw",
@@ -3046,13 +3007,36 @@ end
 
 assignGlobalVariable = function(t)
   for k, v in pairs(t) do
-    if string.find(k, "dual") then log(k, v, type(v)) end
+    -- if string.find(k, "dual") then log(k, v, type(v)) end
     -- if _G[k] then log("_G[k] exist", k, v) end
     _G[k] = v
   end
 end
+
 getUIConfigPath = function(layout)
   return getWorkPath() .. '/config_' .. layout .. '.json'
+end
+
+loadOneUIConfig = function(layout)
+  local config = getUIConfigPath(layout)
+  if not fileExist(config) then return {} end
+  log("load", config)
+  local f = io.open(config, 'r')
+  local content = f:read() or '{}'
+  f:close()
+  local status
+  status, content = pcall(JsonDecode, content)
+  if status then return content or {} end
+  return {}
+end
+
+saveOneUIConfig = function(layout, content)
+  if type(content) == 'table' then content = JsonEncode(content) end
+
+  local config = getUIConfigPath(layout)
+  local f = io.open(config, 'w')
+  f:write(content or '{}')
+  f:close()
 end
 
 loadUIConfig = function(layouts)
@@ -3060,14 +3044,7 @@ loadUIConfig = function(layouts)
     layouts = {"multi_account", "gesture_capture", "extra", "debug", "main"}
   end
   for _, layout in pairs(layouts) do
-    local config = getUIConfigPath(layout)
-    if fileExist(config) then
-      log("load", config)
-      local f = io.open(config, 'r')
-      local content = f:read() or '{}'
-      f:close()
-      assignGlobalVariable(JsonDecode(content) or {})
-    end
+    assignGlobalVariable(loadOneUIConfig(layout))
   end
 end
 
@@ -3816,8 +3793,6 @@ check_root_mode = function()
 end
 
 update_state_from_ui = function()
-  shift_min_mood = str2int(shift_min_mood, 12)
-  if shift_min_mood <= 0 or shift_min_mood >= 24 then shift_min_mood = 12 end
 
   -- 总览换班就按工作状态了，保证高心情
   -- prefer_skill = true
@@ -4564,6 +4539,55 @@ hd_wrapper = function(func)
     return ret
   end
   return f
+end
+
+update_state_from_debugui = function()
+  findOne_interval = str2int(findOne_interval, -1)
+  max_fight_times = str2int(max_fight_times, math.huge)
+  tap_interval = str2int(tap_interval, -1)
+  zl_restart_interval = str2int(zl_restart_interval1, 3600)
+  keepalive_interval = str2int(keepalive_interval1, 3600)
+  zl_skill_times = str2int(zl_skill_times, 0)
+  zl_skill_idx = str2int(zl_skill_idx, 1)
+  tapall_duration = str2int(tapall_duration, -1)
+  max_login_times = str2int(max_login_times, math.huge)
+  milesecond_after_click = str2int(tap_wait, milesecond_after_click)
+  if not always_enable_log and not enable_log then
+    run = disable_log_wrapper(run)
+  end
+  if not enable_shift_log then
+    chooseOperator = disable_log_wrapper(chooseOperator)
+  end
+  QQ = (QQ or ''):commonmap():trim()
+  if QQ:find('#') then
+    devicenote = QQ:sub(QQ:find('#') + 1, #QQ):trim()
+    QQ = QQ:sub(1, QQ:find('#') - 1):trim()
+  end
+  qqimagedeliver = (qqimagedeliver or ''):trim()
+  if not qqimagedeliver:startsWith("http") then
+    qqimagedeliver = "http://82.156.198.12:49875"
+  end
+  if zl_enable_log then zl_disable_log = false end
+  for i = 1, 7 do
+    local k = 'max_drug_times_' .. i .. 'day'
+    _G[k] = str2int(_G[k], 0)
+  end
+  if disable_drug_24hour then max_drug_times_1day = 0 end
+  shift_min_mood = str2int(shift_min_mood, 12)
+  if shift_min_mood <= 0 or shift_min_mood >= 24 then shift_min_mood = 12 end
+end
+
+-- 基建心情阈值与QQ号
+main_ui_config_transfer = function()
+  local main_config = loadOneUIConfig("main")
+  local debug_config = loadOneUIConfig("debug")
+  if main_config["QQ"] and #main_config["QQ"] > 0 then
+    debug_config["QQ"] = main_config["QQ"]
+  end
+  if main_config["shift_min_mood"] and #main_config["shift_min_mood"] > 0 then
+    debug_config["shift_min_mood"] = main_config["shift_min_mood"]
+  end
+  saveOneUIConfig("debug", debug_config)
 end
 
 -- post_util_hook
