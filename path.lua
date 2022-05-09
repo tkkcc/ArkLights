@@ -996,6 +996,7 @@ path.宿舍清空 = function()
 end
 
 path.宿舍换班 = function()
+  if disable_dorm_shift then return end
   local f
   f = function(i)
     path.跳转("基建")
@@ -1756,15 +1757,11 @@ path.基建换班 = function()
     return
   end
 
-  path.宿舍清空()
-  -- if not disappear("制造站补货通知", 10) then return end
+  path.宿舍换班()
+  path.基建信息获取()
   path.控制中枢换班()
   path.会客厅换班()
-
-  -- 收菜后有一个移动动画，直接获取信息会出错
-  -- if disable_control_shift and disable_meeting_shift then ssleep(2) end
-
-  path.基建信息获取()
+  path.办公室换班()
   path.制造换班()
   path.贸易换班()
   path.总览换班()
@@ -1772,6 +1769,7 @@ end
 
 path.控制中枢换班 =
   function() if disable_control_shift then return end end
+path.办公室换班 = function() if disable_office_shift then return end end
 
 path.会客厅换班 = function()
   if disable_meeting_shift then return end

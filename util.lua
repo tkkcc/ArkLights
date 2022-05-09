@@ -2608,11 +2608,17 @@ show_debug_ui = function()
                  false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "disable_dorm_shift",
+                 "基建换班禁用宿舍换班", false)
+  newRow(layout)
   ui.addCheckBox(layout, "disable_control_shift",
-                 "基建换班禁用控制中枢换班", true)
+                 "基建换班禁用控制中枢换班", false)
   newRow(layout)
   ui.addCheckBox(layout, "disable_meeting_shift",
                  "基建换班禁用会客厅换班", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_office_shift",
+                 "基建换班禁用办公室换班", false)
   newRow(layout)
   ui.addCheckBox(layout, "disable_manu_shift",
                  "基建换班禁用制造站换班", false)

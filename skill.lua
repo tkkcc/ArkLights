@@ -60,6 +60,9 @@
 -- console.log(ans)
 -- // console.log(JSON.stringify(ans))
 -- TODO 改为从解包文件获取而非prts
+-- finished
+
+
 fetchSkillIcon = function()
   toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
@@ -132,7 +135,7 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
   end
 
   log(114, card)
-  -- card = table.slice(card, 9, 9)
+  -- card = table.slice(card, 4, 4)
   local empty1_num = 0
   for idx, v in pairs(card) do
     -- 技能判断
@@ -677,7 +680,7 @@ for i = 1, h do
       table.insert(stationIconMask, {i, j})
       -- log(613,i,j)
     end
-    if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 18.5 ^ 2 then
+    if ((i - 18.5) ^ 2 + (j - 18.5) ^ 2) < 17 ^ 2 then
       table.insert(stationIconCenterMask, {i, j})
     end
   end
@@ -754,6 +757,8 @@ findBuildingSkill = function(x1, y1, x2, y2, pngdata)
     -- if k == 'bskill_tra_Lappland2' then log(663, score, tmp) end
     -- if k == 'bskill_meet_spd3' then log(663, score, tmp) end
     -- if k == 'bskill_meet_spd2' then log(662, score, tmp) end
+    if k == 'bskill_man_spd2' then log(663, score, tmp) end
+    if k == 'bskill_man_exp2' then log(662, score, tmp) end
     -- exit()
 
     if best_score > score then
@@ -762,13 +767,14 @@ findBuildingSkill = function(x1, y1, x2, y2, pngdata)
     end
   end
   log(2208, best_score, best, x1, y1, x2, y2)
+  -- exit()
   return best
 end
 
 initPngdata = function()
   if skillpng2operator then return end
 
-  -- 读取数据，生成方法
+  -- 读取数据
   local f = io.open(getWorkPath() .. '/skill/skillicon2operator.json', 'r')
   skillpng2operator = f:read()
   f:close()
@@ -824,6 +830,9 @@ initPngdata = function()
     end
 
     local _, _, color = getImage(getWorkPath() .. '/skill/' .. v .. '.png')
+    -- if v=='empty1' then
+    --   print(color)
+    -- end
     pngdata[v] = {}
     for _, m in pairs(stationIconMask) do
       i, j = m[1], m[2]
@@ -873,7 +882,6 @@ chooseOperator = function(stationType, goodType, stationLevel,
     --             (not trading) and manufacturingPngdata or tradingPngdata, i) then
     -- log(stationType, #stationType2pngData[stationType])
     if discover(operator, stationType2pngData[stationType], i) then break end
-    -- log(operator)
 
     -- exit()
     -- 三次重试
@@ -898,12 +906,12 @@ chooseOperator = function(stationType, goodType, stationLevel,
   -- TODO 滑动时就可以开始计算
   -- 计算最优技能
   local best, best_score
-  if stationType == "贸易站" then
+  if stationType == "制造站" then
     best, best_score = manufacturingStationOperatorBest(operator,
                                                         tradingStationNum,
                                                         powerStationNum,
                                                         goodType, stationLevel)
-  elseif stationType == "制造站" then
+  elseif stationType == "贸易站" then
     best, best_score = tradingStationOperatorBest(operator, dormitoryCapacity,
                                                   dormitoryLevelSum,
                                                   goldStationNum, goodType,
