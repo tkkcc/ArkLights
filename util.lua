@@ -2750,6 +2750,7 @@ show_extra_ui = function()
   ui.addEditText(layout, "zl_skill_idx", [[1]])
   addTextView(layout, [[技能]])
 
+
   newRow(layout)
   ui.addCheckBox(layout, "zl_more_repertoire", "多点剧目", false)
   ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
@@ -2764,8 +2765,10 @@ show_extra_ui = function()
   ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
   ui.addCheckBox(layout, "zl_no_waste", "每8小时做日常", false)
 
-  -- addTextView(layout, [[商品需求]])
-  -- ui.addEditText(layout, "zl_need_goods", [[]])
+  newRow(layout)
+  addTextView(layout, [[商品需求]])
+  ui.addEditText(layout, "zl_need_goods", [[]])
+
 
   -- ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", false)
   -- newRow(layout)
@@ -2774,7 +2777,8 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多干员测试见群精华消息。支持凌晨4点数据更新、支持掉线抢登情况、支持每8小时做日常。支持16:9及以上分辨率，但建议16:9，否则可能选不到后勤队。游戏本体存在内存泄漏，因此会抽空重启。如果1小时内就出现脚本停止运行、随机界面卡住、悬浮按钮消失，应把“高级设置”中两个3600重启间隔调小(如900)。999源石锭刷取耗时与难度、幕后筹备无关，与是否通关三结局、网络延迟有关，双结局耗时10时14分(97个/时)，三结局耗时8时10分(122个/时)，低网络延迟+三结局耗时7时21分(135个/时)。如需刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”。如需推图，可尝试明日再肝(还鸽)与MAA。]])
+              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多干员测试见群精华消息。支持凌晨4点数据更新、支持掉线抢登情况、支持每8小时做日常。支持16:9及以上分辨率，但建议16:9，否则可能选不到后勤队。游戏本体存在内存泄漏，因此会抽空重启。如果1小时内就出现脚本停止运行、随机界面卡住、悬浮按钮消失，应把“高级设置”中两个3600重启间隔调小(如900)。999源石锭刷取耗时与难度、幕后筹备无关，与是否通关三结局、网络延迟有关，双结局耗时10时14分(97个/时)，三结局耗时8时10分(122个/时)，低网络延迟+三结局耗时7时21分(135个/时)。如需刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”。如需推图，可尝试明日再肝(还鸽)与MAA。]] ..
+    [[商品需求可填商品名称关键字，用空格隔开(如填“玩 金 骑士”)，则刷到所需藏品就会停止并通知QQ]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,

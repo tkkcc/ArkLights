@@ -4814,7 +4814,8 @@ path.前瞻投资 = function()
     return
   end
 
-  -- check_goods()
+  check_goods()
+
   if not zl_skip_coin then coin() end
 
   if zl_more_experience then
