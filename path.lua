@@ -1719,7 +1719,7 @@ path.总览换班 = function()
     log("limit", limit)
 
     -- 排除异格干员
-    local operator ={}
+    local operator = {}
     discover(operator, {}, 1, true)
     operator = table.filter(operator, function(x) return x[3] > 0 end)
     operator = map(function(x) return x[4] end, operator)
@@ -1789,7 +1789,58 @@ path.控制中枢换班 = function()
   return path.会客厅换班("控制中枢")
 end
 
-path.办公室换班 = function() if disable_office_shift then return end end
+path.办公室换班 = function(stationType)
+  if disable_office_shift then return end
+  -- TODO: 感觉没必要对办公室做处理，又没做体系
+  if 1 then return end
+  stationType = stationType or "办公室"
+
+  path.跳转("基建")
+
+  -- 进办公室
+  if not wait(function()
+    if not findOne("进驻总览") or not findOne("缩放结束") then
+      return true
+    end
+    tap(stationType)
+  end) then return end
+
+  if not appear({"进驻信息", "进驻信息选中"}, 5) then return end
+
+  if not wait(function()
+    if findOne("确认蓝") then return true end
+    tap("制造站进度")
+  end, 10) then return end
+
+  -- 清空选择
+  local start_time = time()
+  tap("干员选择列表1")
+  if not wait(function()
+    if findOne("干员未选中") and findOne("第一干员未选中") then
+      return true
+    end
+    if time() - start_time > 1000 then
+      tap("干员选择列表1")
+      start_time = time()
+    end
+    -- tap("清空选择")
+  end, 5) then
+    log(1037)
+    return
+  end
+
+  chooseOperator(stationType, type, stationLevel, tradingStationNum,
+                 powerStationNum, dormitoryCapacity, dormitoryLevelSum,
+                 goldStationNum)
+
+  if not wait(function(reset_wait_start_time)
+    tap("确认蓝")
+    if findAny({"隐藏", "进驻信息", "进驻信息选中"}) then
+      return true
+    end
+    if findOne("正在提交反馈至神经") then reset_wait_start_time() end
+  end, 3) then return end
+end
 
 path.会客厅换班 = function(stationType)
   if disable_meeting_shift and not stationType then return end

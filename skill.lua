@@ -206,10 +206,10 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     log("yg1", yg1)
     log("yg2", yg2)
     log("yg3", yg3)
-    if math.abs(colorDiff(yg1, yg2)) < 36 and
-      table.any(ygStaitonColor,
-                function(color) return math.abs(colorDiff(yg1, color)) < 36 end) and
-      (math.abs(colorDiff(yg3, "ff303030")) < 45) then
+    if math.abs(colorDiff(yg1, yg2)) < 36 and table.any(ygStaitonColor,
+                                                        function(color)
+      return math.abs(colorDiff(yg1, color)) < 36
+    end) and (math.abs(colorDiff(yg3, "ff303030")) < 45) then
       log("异格干员")
       mood = -mood
     end
@@ -817,11 +817,13 @@ initPngdata = function()
   tradingPngdata = {}
   meetingPngdata = {}
   controlPngdata = {}
+  officePngdata = {}
   stationType2pngData = {
     制造站 = manufacturingPngdata,
     贸易站 = tradingPngdata,
     会客厅 = meetingPngdata,
     控制中枢 = controlPngdata,
+    办公室 = officePngdata,
   }
 
   local s = ''
@@ -835,6 +837,8 @@ initPngdata = function()
       pngdata = meetingPngdata
     elseif v:startsWith("bskill_ctrl") then
       pngdata = controlPngdata
+    elseif v:startsWith("bskill_hire") then
+      pngdata = officePngdata
     else
       pngdata = {}
     end
@@ -928,6 +932,8 @@ chooseOperator = function(stationType, goodType, stationLevel,
                                                   stationLevel)
   elseif stationType == "会客厅" then
     best, best_score = meetingStationOperatorBest(operator)
+  elseif stationType == "办公室" then
+    best, best_score = officeStationOperatorBest(operator)
   elseif stationType == "控制中枢" then
     best, best_score = controlStationOperatorBest(operator)
   end
@@ -985,6 +991,57 @@ meetingStationOperatorBest = function(operator)
   best = table.slice(table.extend(best, remain), 1, 2)
   -- exit()
   return best, best_score
+end
+
+-- 办公室干员选择：
+-- 按联络速度加成选，忽略彩6体系与迷迭香体系效果。
+-- 返回效率最高的index
+officeStationOperatorBest = function(operator)
+  -- 过滤心情小于阈值的干员
+  local minAllowedMood = shift_min_mood
+  if disable_shift_mood then minAllowedMood = -1 end
+  operator = table.filter(operator,
+                          function(x) return x[3] >= minAllowedMood end)
+  local best = {}
+  local best_score = -1
+  for _, o in pairs(operator) do
+    local s = 0
+    for _, icon in pairs({o[1], o[2]}) do
+      if icon == "bskill_hire_skgoat" then
+        s = s + 0.45
+      elseif icon == "bskill_hire_spd5" then
+        s = s + 0.45
+      elseif icon == "bskill_hire_spd4" then
+        s = s + 0.4
+      elseif icon == "bskill_hire_spd3" then
+        s = s + 0.35
+      elseif icon == "bskill_hire_spd&clue" then
+        s = s + 0.35 + 0.01
+      elseif icon == "bskill_hire_spd2" then
+        s = s + 0.3
+      elseif icon == "bskill_hire_spd&ursus2" then
+        s = s + 0.2
+      elseif icon == "bskill_hire_spd&blacksteel2" then
+        s = s + 0.2
+      elseif icon == "bskill_hire_spd_bd_n1_n1" then
+        s = s + 0.2
+      elseif icon == "bskill_hire_spd&cost2" then
+        s = s + 0.2
+      elseif icon == "bskill_hire_blitz" then
+        s = s + 0.2
+      elseif icon == "bskill_hire_spd1" then
+        s = s + 0.2
+      elseif icon == "bskill_hire_spd&cost1" then
+        s = s + 0.1
+      elseif icon == "bskill_hire_spd" then
+        s = s + 0.1
+      end
+    end
+    table.insert(best, {s, o})
+  end
+  table.sort(best, function(a, b) return a[1] > b[1] end)
+  best = best[1][2]
+  return {best}, best_score
 end
 
 -- 控制中枢干员选择：同类技能不一起上
