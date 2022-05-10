@@ -191,23 +191,27 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     end
     log(129, idx, operator, mood)
 
-    -- 异格处理，仅宿舍换低心情干员时选异格，其他均不选异格，将心情设为0。
-    if not mood_only then
-      -- "634|174|22BBFF,634|160|22BBFF,627|379|88888B"
-      local yg1 = {v[1] + scale(7), v[2] - scale(219)}
-      local yg2 = {v[1] + scale(7), v[2] - scale(205)}
-      log("yg1", yg1)
-      log("yg2", yg2)
-      yg1 = getPixelColor(yg1[1], yg1[2])
-      yg2 = getPixelColor(yg2[1], yg2[2])
-      log("yg1", yg1)
-      log("yg2", yg2)
-      if colorDiff(yg1, yg2) < 36 and
-        table.any(ygStaitonColor,
-                  function(color) return colorDiff(yg1, color) < 36 end) then
-        log("异格干员")
-        mood = 0
-      end
+    -- 异格将心情设为负值
+    local yg1 = {v[1] + scale(7), v[2] - scale(219)}
+    local yg2 = {v[1] + scale(7), v[2] - scale(205)}
+    local yg3 = {v[1] + scale(15), v[2] - scale(264)}
+
+    -- "1276|801|898989,1291|537|272727"
+    log("yg1", yg1)
+    log("yg2", yg2)
+    log("yg3", yg3)
+    yg1 = getPixelColor(yg1[1], yg1[2])
+    yg2 = getPixelColor(yg2[1], yg2[2])
+    yg3 = getPixelColor(yg3[1], yg3[2])
+    log("yg1", yg1)
+    log("yg2", yg2)
+    log("yg3", yg3)
+    if math.abs(colorDiff(yg1, yg2)) < 36 and
+      table.any(ygStaitonColor,
+                function(color) return math.abs(colorDiff(yg1, color)) < 36 end) and
+      (math.abs(colorDiff(yg3, "ff303030")) < 45) then
+      log("异格干员")
+      mood = -mood
     end
     -- exit()
 
@@ -929,6 +933,9 @@ chooseOperator = function(stationType, goodType, stationLevel,
   end
   sleep(max(0, 500 - (time() - start_time)))
 
+  -- 按页数排序
+  table.sort(best, function(a, b) return a[5] < b[5] end)
+
   -- 选择干员
   operator = best
   log(692, operator, best_score)
@@ -1038,7 +1045,7 @@ ygStaitonColor = {
   'ffffbb22', -- 贸易,
   'ff00d8ff', -- 制造,
   'ff77dcc7', -- 发电,
-  -- 'ffffffff', -- 宿舍,
+  'ffffffff', -- 宿舍,
   -- 'ffffffff', -- 控制,
   -- 'ffffffff', -- 会客,
 }

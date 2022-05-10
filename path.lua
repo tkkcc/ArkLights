@@ -1047,8 +1047,9 @@ path.宿舍换班 = function()
       operator = {}
       discover(operator, {}, 1, true)
       log(818, operator, shift_min_mood)
-      operator = table.filter(operator,
-                              function(x) return x[3] < shift_min_mood + 1 end)
+      operator = table.filter(operator, function(x)
+        return math.abs(x[3]) < shift_min_mood + 1
+      end)
       -- log(819,operator)
       operator = map(function(x) return x[4] end, operator)
       operator = table.slice(operator, 1, 5)
@@ -1064,6 +1065,7 @@ path.宿舍换班 = function()
     if #operator > 0 and not wait(function()
       if not findOne("干员未选中") then return true end
       -- 慢机仍会漏换， miui13也是
+      -- 加了心情检测这儿还要等？
       ssleep(0.25)
       tapAll(operator)
       disappear("干员未选中", 2)
@@ -1548,7 +1550,7 @@ end
 path.总览换班 = function()
   if disable_overview_shift then return end
   local f
-  path.跳转("基建", nil, true)
+  path.跳转("基建")
   if not wait(function()
     if findOne("撤下干员") then return true end
     tap("进驻总览")
@@ -1613,7 +1615,7 @@ path.总览换班 = function()
     local limit = findOne("清空选择") and 5 or 1
 
     if p then
-      -- 处理异格干员:出现同高度第二次缺人，不清空从后往前选人。还是要等鹰角更新。
+      -- 处理异格干员:出现同高度第二次缺人，不清空从后往前选人。
       log('visitedy', visitedy, height, p)
       local height = tostring(p[2])
 
@@ -1634,10 +1636,12 @@ path.总览换班 = function()
       if (visitedy[height] or 0) >= 3 then
         visitedy[height] = (visitedy[height] or 0) + 1
         log(676, limit, height)
+
         if not wait(function()
           if findOne("筛选取消") then return true end
           tap("筛选")
         end, 5) then return end
+
         if not wait(function()
           if not findOne("筛选取消") then return true end
           tap("筛选确认")
@@ -1684,37 +1688,50 @@ path.总览换班 = function()
       end, 5) then return end
     end
 
-    if prefer_skill and not findOne("筛选技能降序") then
-      if not wait(function()
-        if findOne("筛选技能降序") then return true end
-        tap("筛选技能降序")
-        appear("筛选技能降序", 1)
-      end, 5) then return end
-    end
+    -- if prefer_skill and not findOne("筛选技能降序") then
+    --   if not wait(function()
+    --     if findOne("筛选技能降序") then return true end
+    --     tap("筛选技能降序")
+    --     appear("筛选技能降序", 1)
+    --   end, 5) then return end
+    -- end
 
     if not wait(function()
       if not findOne("筛选取消") then return true end
       tap("筛选确认")
     end, 5) then return end
 
+    local start_time = time()
     if not wait(function()
-      -- and findOne("筛选横线") and
-      -- findOne("筛选")
       if findOne("干员未选中") and findOne("第一干员未选中") then
         return true
       end
+      if time() - start_time > 1000 then
+        tap("干员选择列表1")
+        start_time = time()
+      end
       tap("清空选择")
-    end, 5) then return end
+    end, 5) then
+      log(1037)
+      return
+    end
 
     log("limit", limit)
+
+    -- 排除异格干员
+    local operator ={}
+    discover(operator, {}, 1, true)
+    operator = table.filter(operator, function(x) return x[3] > 0 end)
+    operator = map(function(x) return x[4] end, operator)
+    operator = table.slice(operator, 1, limit)
 
     if not wait(function()
       if not findOne("干员未选中") then return true end
 
       -- 不得不等，不然不按序
+      -- 不用等，因为加了异格检测需要时间？
       ssleep(0.25)
-      tapAll(map(function(j) return "干员选择列表" .. j end,
-                 range(1, limit)))
+      tapAll(operator)
       disappear("干员未选中", 2)
     end, 5) then return end
 
@@ -1779,7 +1796,7 @@ path.会客厅换班 = function(stationType)
 
   stationType = stationType or "会客厅"
   -- 进总览
-  path.跳转("基建", nil, true)
+  path.跳转("基建")
   if not wait(function()
     if findOne("撤下干员") then return true end
     tap("进驻总览")
@@ -1788,7 +1805,7 @@ path.会客厅换班 = function(stationType)
   -- 进干员列表
   if not wait(function()
     if findOne("确认蓝") then return true end
-    tap("进驻总览"..stationType)
+    tap("进驻总览" .. stationType)
   end, 10) then return end
 
   -- 清空选择

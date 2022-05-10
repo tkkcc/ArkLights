@@ -3265,6 +3265,8 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
 
+  log(colorDiff('ffcfcfcf','fffcfcfc'))
+  exit()
   ssleep(1)
   local operator = {}
   initPngdata()
