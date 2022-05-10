@@ -61,8 +61,6 @@
 -- // console.log(JSON.stringify(ans))
 -- TODO 改为从解包文件获取而非prts
 -- finished
-
-
 fetchSkillIcon = function()
   toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
@@ -135,7 +133,7 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
   end
 
   log(114, card)
-  -- card = table.slice(card, 4, 4)
+  -- card = table.slice(card, 1, 1)
   local empty1_num = 0
   for idx, v in pairs(card) do
     -- 技能判断
@@ -193,22 +191,30 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     end
     log(129, idx, operator, mood)
 
-    -- -- 异格处理
-    -- log(v[1],v[2])
+    -- 异格处理，仅宿舍换低心情干员时选异格，其他均不选异格，将心情设为0。
+    if not mood_only then
+      -- "634|174|22BBFF,634|160|22BBFF,627|379|88888B"
+      local yg1 = {v[1] + scale(7), v[2] - scale(219)}
+      local yg2 = {v[1] + scale(7), v[2] - scale(205)}
+      log("yg1", yg1)
+      log("yg2", yg2)
+      yg1 = getPixelColor(yg1[1], yg1[2])
+      yg2 = getPixelColor(yg2[1], yg2[2])
+      log("yg1", yg1)
+      log("yg2", yg2)
+      if colorDiff(yg1, yg2) < 36 and
+        table.any(ygStaitonColor,
+                  function(color) return colorDiff(yg1, color) < 36 end) then
+        log("异格干员")
+        mood = 0
+      end
+    end
     -- exit()
-    -- local yg1 = {v[1] + scale(49), v[2] + scale(93)}
-    -- local yg2 = {v[1] + scale(49), v[2] + scale(93)}
-    -- local yg = false
-    -- yg1 = getPixelColor(yg1)
-    -- yg2 = getPixelColor(yg2)
-    -- if yg1 == yg2 and ygstation[yg1] then
-    --   log("异格干员")
-    --   yg = true
-    -- else
+
     table.insert(operators, {png, png2, mood, icon1, pageid})
   end
   -- sleep(max(0, delay - (time() - start_time)))
-  log(operators)
+  log(217, operators)
   -- exit()
 end)
 
@@ -313,12 +319,12 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
     -- 应用全局性技能
     -- 拉狗徳狗
     local texas = all['bskill_tra_texas1'] or all['bskill_tra_texas2']
-    if all['bskill_tra_Lappland1'] then
+    if all['bskill_tra_lappland1'] then
       if texas then
         storage = storage + 2
         base = base + 0.65
       end
-    elseif all['bskill_tra_Lappland2'] then
+    elseif all['bskill_tra_lappland2'] then
       if texas then
         storage = storage + 4
         base = base + 0.65
@@ -754,7 +760,7 @@ findBuildingSkill = function(x1, y1, x2, y2, pngdata)
     -- if k == 'bskill_tra_flow_gc1' then log(663, score, tmp) end
     --
     -- if k == 'bskill_tra_texas1' then log(662, score, tmp) end
-    -- if k == 'bskill_tra_Lappland2' then log(663, score, tmp) end
+    -- if k == 'bskill_tra_lappland2' then log(663, score, tmp) end
     -- if k == 'bskill_meet_spd3' then log(663, score, tmp) end
     -- if k == 'bskill_meet_spd2' then log(662, score, tmp) end
     if k == 'bskill_man_spd2' then log(663, score, tmp) end
@@ -819,7 +825,7 @@ initPngdata = function()
     local pngdata
     if v:startsWith("bskill_man") then
       pngdata = manufacturingPngdata
-    elseif v:startsWith("bskill_tra") then
+    elseif v:startsWith("bskill_tra_") then
       pngdata = tradingPngdata
     elseif v:startsWith("bskill_meet") then
       pngdata = meetingPngdata
@@ -973,3 +979,66 @@ meetingStationOperatorBest = function(operator)
   -- exit()
   return best, best_score
 end
+
+-- 控制中枢干员选择：同类技能不一起上
+-- 返回效率最高的index
+controlStationOperatorBest = function(operator)
+  -- 过滤心情小于阈值的干员
+  local minAllowedMood = shift_min_mood
+  if disable_shift_mood then minAllowedMood = -1 end
+  operator = table.filter(operator,
+                          function(x) return x[3] >= minAllowedMood end)
+  local best = {}
+  local best_score = -1
+  local remain = {}
+  local goodicon = {
+    'bskill_ctrl_t_spd', -- +贸易7%
+    'bskill_ctrl_p_spd', -- +制造2%
+    'bskill_ctrl_c_spd', -- +线索25%
+    'bskill_ctrl_cost_bd1&bd2', -- 令 进驻控制中枢时，当自身心情大于12时，人间烟火+15；当自身心情处于12以下时，感知信息+10
+    'bskill_ctrl_cost_bd1', -- 夕 进驻控制中枢时，控制中枢内所有干员的心情每小时恢复+0.05；当自身心情处于12以下时，人间烟火+15
+    'bskill_ctrl_cost_bd2', -- 夕 进驻控制中枢时，自身心情每小时消耗+0.5；当自身心情大于12时，感知信息+10
+    'bskill_ctrl_ash', -- ash
+    'bskill_ctrl_tachanka', -- 机枪
+    -- 'bskill_ctrl_p_bot', -- +小车,加发电站数
+    -- 'bskill_ctrl_token_p_spd', -- +小车,+制造2%
+    -- 'bskill_ctrl_h_spd', -- 进驻控制中枢时，人力办公室联络速度小于30%时（其中包含基础联络速度5%），则联络速度额外+20%（该加成全局效果唯一，不受其它加成影响）
+    'bskill_ctrl_psk', -- 焰尾 进驻控制中枢时，每个进驻在制造站的红松骑士团干员，作战记录类配方的生产力+10%，贵金属类配方的生产力-10%
+    'bskill_ctrl_t_limit&spd.png', -- 灵知 进驻控制中枢时，每个进驻在贸易站的喀兰贸易干员，订单获取效率-15%，订单上限+6
+  }
+
+  local manu_acc = false
+  local trading_acc = false
+
+  for _, o in pairs(operator) do
+    if o[1] == 'bskill_ctrl_t_spd' or o[2] == 'bskill_ctrl_t_spd' then
+      if not trading_acc then
+        trading_acc = true
+        table.insert(best, o)
+      end
+      -- c与p有概率判错，直接舍弃老鲤
+    elseif o[1] == 'bskill_ctrl_p_spd' or o[2] == 'bskill_ctrl_p_spd' or o[1] ==
+      'bskill_ctrl_c_spd' or o[2] == 'bskill_ctrl_c_spd' then
+      if not manu_acc then
+        manu_acc = true
+        table.insert(best, o)
+      end
+      -- elseif o[1] == 'bskill_ctrl_c_spd' or o[2] == 'bskill_ctrl_c_spd' then
+      --   table.insert(best, o)
+    else
+      table.insert(remain, o)
+    end
+  end
+  log(best)
+  best = table.slice(table.extend(best, remain), 1, 5)
+  return best, best_score
+end
+
+ygStaitonColor = {
+  'ffffbb22', -- 贸易,
+  'ff00d8ff', -- 制造,
+  'ff77dcc7', -- 发电,
+  -- 'ffffffff', -- 宿舍,
+  -- 'ffffffff', -- 控制,
+  -- 'ffffffff', -- 会客,
+}

@@ -1996,7 +1996,7 @@ show_multi_account_ui = function()
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
   addTextView(layout,
-              [[“启用账号”填数字“2 4”表示跑第2第4两个号，填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。临时账号写在#号后，填“1-10 # 5-10”表示跑前10个号，但本次启动只跑第5到第10个。账密为空默认跳过。抢登处理看必读。]])
+              [[“启用账号”填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。临时账号写在#号后，填“1-10 # 5-10”表示跑前10个号，但本次启动只跑第5到第10个。账密为空跳过，高级设置中可调。抢登处理看必读。]])
 
   newRow(layout)
 
@@ -3265,9 +3265,18 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
 
-  -- unZip("/sdcard/skill.zip", "/sdcard/skill")
-  unZip(getWorkPath() .. "/skill.zip", getWorkPath() .. "/skill")
   ssleep(1)
+  local operator = {}
+  initPngdata()
+  discover(operator, tradingPngdata, 1)
+  -- discover(operator, manufacturingPngdata, 1)
+
+  log(operator)
+  exit()
+
+  -- unZip("/sdcard/skill.zip", "/sdcard/skill")
+  -- unZip(getWorkPath() .. "/skill.zip", getWorkPath() .. "/skill")
+  -- ssleep(1)
   exit()
 
   -- swip("HD-1")
@@ -3745,13 +3754,6 @@ predebug_hook = function()
   log(findOne("干员未选中"))
   -- log(point.指挥分队)
   -- log(findOne("指挥分队"))
-  exit()
-  local operator = {}
-  initPngdata()
-  discover(operator, tradingPngdata, 1)
-  -- discover(operator, manufacturingPngdata, 1)
-
-  log(operator)
   exit()
   -- solveCapture()
 
