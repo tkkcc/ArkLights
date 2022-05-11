@@ -3940,7 +3940,7 @@ path.退出账号 = function()
   }, nil, true), path.fallback)
 end
 
-path._前瞻投资 = function(lighter)
+path.前瞻投资 = function(lighter)
   -- 防止日志占用资源过多把脚本挤掉
   if zl_disable_log then disable_log = true end
   -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）
@@ -3987,7 +3987,9 @@ path._前瞻投资 = function(lighter)
   local restart = function()
     toast(in_fight_return or '重开')
     ssleep(3)
-    restart_game_check(zl_restart_interval)
+    if not restart_game_check(zl_restart_interval) then
+      path.前瞻投资(true)
+    end
     -- 脚本内存泄漏45M/h => 每小时重启acc进程
     -- 游戏内存泄漏66M/h => 每小时重启游戏
 
@@ -3999,8 +4001,7 @@ path._前瞻投资 = function(lighter)
     --   restartScript()
     -- end
 
-    -- -- 抽空点亮幕后筹备
-    -- path._前瞻投资(true)
+    -- 抽空点亮幕后筹备
   end
 
   local jumpout
@@ -4083,7 +4084,7 @@ path._前瞻投资 = function(lighter)
   if jumpout then return end
 
   -- 点幕后筹备后继续
-  if nil and lighter and not lighter_enough and not zl_disable_lighter then
+  if lighter and not lighter_enough and not zl_disable_lighter then
     local f = function()
       -- 进入幕后
       if not wait(function()
@@ -4093,9 +4094,9 @@ path._前瞻投资 = function(lighter)
       end, 5) then return end
 
       -- 确认是否已满
-      ssleep(1)
+      ssleep(.1)
       tap("幕后筹备升级右列表1")
-      appear({"幕后筹备升级有", "幕后筹备升级无"}, 1)
+      appear({"幕后筹备升级有", "幕后筹备升级无"}, .5)
       if findOne("幕后筹备升级无") then
         lighter_enough = true
         return
@@ -4111,32 +4112,36 @@ path._前瞻投资 = function(lighter)
         local found
         for _, p in pairs(lists) do
           tap(p .. 1)
-          if appear("幕后筹备升级", 1) then
+          if appear("幕后筹备升级", .5) then
+            list = point[p]
             found = true
             break
           end
         end
         if not found then return end
-        list = point[p]
       end
 
+      -- 从左向右点
+      list = map(function(p) return point[p] end, list)
+      table.sort(list, function(a, b) return a[1] < b[1] end)
+
+      tap(list[2])
       for _, p in pairs(list) do
         tap(p)
-        local jumpout
-        wait(function(reset_wait_start_time)
-          appearTap("幕后筹备升级有", 0.5)
+        -- local jumpout
+        if not wait(function(reset_wait_start_time)
+          appearTap("幕后筹备升级有", .25)
           if findAny({"幕后筹备升级无", "幕后筹备升级不"}) then
             return true
           end
-          if not appear({"幕后筹备升级", "正在提交反馈至神经"}) then
-            jumpout = true
-            return true
-          end
+          -- if not appear({"幕后筹备升级", "正在提交反馈至神经"}) then
+          --   jumpout = true
+          --   return true
+          -- end
           if findOne("正在提交反馈至神经") then
             reset_wait_start_time()
           end
-        end, 5)
-        if jumpout then return end
+        end, 2) then break end
       end
     end
     f()
@@ -4945,7 +4950,7 @@ path._前瞻投资 = function(lighter)
   return goto_next_level()
 end
 
-path.前瞻投资 = never_end_wrapper(path._前瞻投资)
+path.战略前瞻投资 = never_end_wrapper(path.前瞻投资)
 
 path["克洛丝单人1-12"] = function()
   -- TODO

@@ -856,7 +856,7 @@ tap = function(x, noretry, allow_outside_game)
   log("tap", x0, x)
   if type(x) ~= "table" then return end
 
-  log(843, tap_interval)
+  -- log(843, tap_interval)
   if tap_interval > 0 and tap_interval - (time() - tap_last_time) > 0 then
     return
     -- sleep(max(0, tap_interval - (time() - tap_last_time)))
@@ -2346,6 +2346,33 @@ show_main_ui = function()
   ui.setTitleText(layout,
                   "明日方舟速通  " .. release_date .. '  ' .. resolution)
 
+  continue_account = loadConfig("continue_account", '')
+  continue_all_account = loadConfig("continue_all_account", '')
+  if #continue_account > 0 and #continue_all_account > 0 then
+    newRow(layout, nil, nil, -1)
+    continue_account = shrink_number_config(continue_account)
+    addButton(layout, nil,
+              "启动并定时，本次只跑剩余账号" .. continue_account,
+              make_jump_ui_command(layout, nil,
+                                   "multi_account_config_remove_once_choice(continue_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
+              -1, nil, ui_submit_color)
+    newRow(layout, nil, nil, -1)
+    continue_all_account = shrink_number_config(continue_all_account)
+    addButton(layout, nil, "启动并定时，本次先跑剩余账号" ..
+                continue_all_account, make_jump_ui_command(layout, nil,
+                                                           "multi_account_config_remove_once_choice(continue_all_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
+              -1, nil, ui_submit_color)
+  end
+
+  continue_extra_mode = loadConfig("continue_extra_mode", '')
+  if #continue_extra_mode > 0 then
+    newRow(layout, nil, nil, -1)
+    addButton(layout, nil, "继续" .. continue_extra_mode,
+              make_jump_ui_command(layout, nil,
+                                   "extra_mode=continue_extra_mode;saveConfig('continue_extra_mode','');lock:remove(main_ui_lock)"),
+              -1, nil, ui_submit_color)
+  end
+
   if appid_need_user_select then
     newRow(layout)
     addTextView(layout, "服务器选")
@@ -2436,36 +2463,17 @@ show_main_ui = function()
   -- addButton(layout, layout .. "_stop", "退出",
   --           make_jump_ui_command(layout, nil, "peaceExit()"))
   -- ui.setBackground(layout .. "_stop", ui_cancel_color)
-  addButton(layout, randomString(32), "启动",
+  addButton(layout, nil, "启动",
             make_jump_ui_command(layout, nil,
                                  "crontab_enable=false;lock:remove(main_ui_lock)"),
             ui_small_submit_width)
-  addButton(layout, randomString(32), "定时",
+  addButton(layout, nil, "定时",
             make_jump_ui_command(layout, nil,
                                  "crontab_enable_only=true;lock:remove(main_ui_lock)"),
             ui_small_submit_width)
-  addButton(layout, randomString(32), "启动+定时",
+  addButton(layout, nil, "启动并定时",
             make_jump_ui_command(layout, nil, "lock:remove(main_ui_lock)"),
             ui_small_submit_width, ui_small_submit_height, ui_submit_color)
-
-  continue_account = loadConfig("continue_account", '')
-  continue_all_account = loadConfig("continue_all_account", '')
-  if #continue_account > 0 and #continue_all_account > 0 then
-    newRow(layout)
-    continue_account = shrink_number_config(continue_account)
-    addButton(layout, randomString(32),
-              "启动并定时，本次只跑剩余账号" .. continue_account,
-              make_jump_ui_command(layout, nil,
-                                   "multi_account_config_remove_once_choice(continue_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
-              ui_small_submit_width, ui_small_submit_height, ui_submit_color)
-    newRow(layout)
-    continue_all_account = shrink_number_config(continue_all_account)
-    addButton(layout, randomString(32),
-              "启动并定时，本次先跑剩余账号" ..
-                continue_all_account, make_jump_ui_command(layout, nil,
-                                                           "multi_account_config_remove_once_choice(continue_all_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
-              ui_small_submit_width, ui_small_submit_height, ui_submit_color)
-  end
 
   ui.loadProfile(getUIConfigPath(layout))
   -- log(getUIConfigPath(layout))
@@ -2740,7 +2748,7 @@ show_extra_ui = function()
   ui.addButton(layout, layout .. "_invest" .. release_date, "战略前瞻投资")
   ui.setOnClick(layout .. "_invest" .. release_date,
                 make_jump_ui_command(layout, nil,
-                                     "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
+                                     "extra_mode='战略前瞻投资';lock:remove(main_ui_lock)"))
 
   newRow(layout)
   addTextView(layout, [[选第]])
@@ -3293,9 +3301,10 @@ predebug_hook = function()
   -- log(colorDiff('ffcfcfcf','fffcfcfc'))
   -- exit()
   ssleep(1)
-  -- path.前瞻投资(true)
-  tap("幕后筹备升级右列表5")
-  tap("幕后筹备升级列表9")
+  path.前瞻投资(true)
+  -- tap("幕后筹备升级右列表5")
+  -- tap("幕后筹备升级列表9")
+  -- path.
   ssleep(1)
   exit(0)
   local operator = {}
