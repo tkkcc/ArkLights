@@ -357,7 +357,7 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
       -- https://ngabbs.com/read.php?tid=26013244&rand=499
       -- 孑0 / 德拉ii =112% (1天3换(18/6) 、只在换班时收单)
       -- 孑0 近似
-      base = base + (maxStorage+storage) * 0.04 / (level + 1.12) * 4.034
+      base = base + (maxStorage + storage) * 0.04 / (level + 1.12) * 4.034
     end
 
     -- 巫恋

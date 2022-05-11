@@ -856,6 +856,7 @@ tap = function(x, noretry, allow_outside_game)
   log("tap", x0, x)
   if type(x) ~= "table" then return end
 
+  log(843, tap_interval)
   if tap_interval > 0 and tap_interval - (time() - tap_last_time) > 0 then
     return
     -- sleep(max(0, tap_interval - (time() - tap_last_time)))
@@ -1393,7 +1394,7 @@ deploy = function(x1, x2, y2, d)
       start = dragd + delay,
     },
   }
-  -- if 1 or zl_enable_tap_before_drag then 
+  -- if 1 or zl_enable_tap_before_drag then
   --   tap({x1, y1})
   --   ssleep(.5)
   -- end
@@ -1530,6 +1531,7 @@ screenLockSwipUp = function()
 end
 screenLockGesture = function()
   local point = JsonDecode(unlock_gesture or "[]") or {}
+  log("point", point)
   if findOne("keyguard_input") then
     if unlock_mode == 0 then
       gesture({point = point, duration = 3000})
@@ -1972,7 +1974,7 @@ show_multi_account_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, layout .. '_enable', "启用账号", false)
-  ui.addEditText(layout, layout .. "_choice", "", -1)
+  ui.addEditText(layout, layout .. "_choice", "1-" .. multi_account_num, -1)
 
   continue_account = loadConfig("continue_account", '')
   continue_all_account = loadConfig("continue_all_account", '')
@@ -2303,7 +2305,8 @@ styleButton = function(layout)
 end
 
 addButton = function(layout, id, text, func, w, h, bg)
-  ui.addButton(layout, id or randomString(32), text, w or -2, h or -2)
+  id = id or randomString(32)
+  ui.addButton(layout, id, text, w or -2, h or -2)
   ui.setOnClick(id, func)
   if bg then ui.setBackground(id, bg) end
   -- styleButton(id)
@@ -2388,11 +2391,9 @@ show_main_ui = function()
   local max_checkbox_one_row = 3
   local readme_btn = randomString(32)
   local buttons = {
+    {randomString(32), "多号", make_jump_ui_command(layout, 'multi_account')},
     {
-      randomString(32), "多账号",
-      make_jump_ui_command(layout, 'multi_account'),
-    }, {
-      randomString(32), "亮屏解锁",
+      randomString(32), "解锁",
       make_jump_ui_command(layout, 'gesture_capture'),
     }, -- {
     --   layout .. "crontab", "定时执行",
@@ -2443,7 +2444,7 @@ show_main_ui = function()
             make_jump_ui_command(layout, nil,
                                  "crontab_enable_only=true;lock:remove(main_ui_lock)"),
             ui_small_submit_width)
-  addButton(layout, randomString(32), "启动并定时",
+  addButton(layout, randomString(32), "启动+定时",
             make_jump_ui_command(layout, nil, "lock:remove(main_ui_lock)"),
             ui_small_submit_width, ui_small_submit_height, ui_submit_color)
 
@@ -2608,8 +2609,8 @@ show_debug_ui = function()
                  false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "disable_dorm_shift",
-                 "基建换班禁用宿舍换班", false)
+  ui.addCheckBox(layout, "disable_dorm_shift", "基建换班禁用宿舍换班",
+                 false)
   newRow(layout)
   ui.addCheckBox(layout, "disable_control_shift",
                  "基建换班禁用控制中枢换班", false)
@@ -2641,9 +2642,9 @@ show_debug_ui = function()
   --                "保活模式(需关root通知与“X正在运行”通知)",
   --                false)
 
-  -- newRow(layout)
-  -- ui.addCheckBox(layout, "zl_restart_interval_3600",
-  --                "前瞻投资每小时重启游戏", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_disable_lighter",
+                 "前瞻投资禁用升级幕后筹备", false)
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
@@ -2682,10 +2683,10 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "disable_hotupdate", "禁用自动更新", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "beta_mode", "使用调试更新源", false)
+  ui.addCheckBox(layout, "beta_mode", "启用调试更新源", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "debug_mode", "测试模式", false)
+  ui.addCheckBox(layout, "debug_mode", "启用测试模式", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "enable_native_tap", "启用原生点击方式", false)
@@ -2705,7 +2706,7 @@ show_debug_ui = function()
   ui.addEditText(layout, "tap_wait", "")
 
   newRow(layout)
-  addTextView(layout, "最小点击间隔(丢包)")
+  addTextView(layout, "最小点击间隔(丢包模式)")
   ui.addEditText(layout, "tap_interval", "")
 
   newRow(layout)
@@ -2750,7 +2751,6 @@ show_extra_ui = function()
   ui.addEditText(layout, "zl_skill_idx", [[1]])
   addTextView(layout, [[技能]])
 
-
   newRow(layout)
   ui.addCheckBox(layout, "zl_more_repertoire", "多点剧目", false)
   ui.addCheckBox(layout, "zl_more_experience", "多点蜡烛", false)
@@ -2769,7 +2769,6 @@ show_extra_ui = function()
   addTextView(layout, [[商品需求]])
   ui.addEditText(layout, "zl_need_goods", [[]])
 
-
   -- ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", false)
   -- newRow(layout)
   -- addTextView(layout, [[重启间隔(秒)]])
@@ -2777,8 +2776,12 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout,
-              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多干员测试见群精华消息。支持凌晨4点数据更新、支持掉线抢登情况、支持每8小时做日常。支持16:9及以上分辨率，但建议16:9，否则可能选不到后勤队。游戏本体存在内存泄漏，因此会抽空重启。如果1小时内就出现脚本停止运行、随机界面卡住、悬浮按钮消失，应把“高级设置”中两个3600重启间隔调小(如900)。999源石锭刷取耗时与难度、幕后筹备无关，与是否通关三结局、网络延迟有关，双结局耗时10时14分(97个/时)，三结局耗时8时10分(122个/时)，低网络延迟+三结局耗时7时21分(135个/时)。如需刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”。如需推图，可尝试明日再肝(还鸽)与MAA。]] ..
-    [[商品需求可填商品名称关键字，用空格隔开(如填“玩 金 骑士”)，则刷到其中任一商品就会停止并通知QQ]])
+              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多干员测试见群精华消息。]] ..
+                [[支持凌晨4点数据更新、支持掉线抢登情况、支持每8小时做日常。支持16:9及以上分辨率，但建议16:9，否则可能选不到后勤队。]] ..
+                [[游戏本体存在内存泄漏，因此会抽空重启。如果1小时内就出现脚本停止运行、随机界面卡住、悬浮按钮消失，应把“高级设置”中两个3600重启间隔调小(如900)。]] ..
+                [[999源石锭刷取耗时与难度、幕后筹备无关，与是否通关三结局、网络延迟有关，双结局耗时10时14分(97个/时)，三结局耗时8时10分(122个/时)，低网络延迟+三结局耗时7时21分(135个/时)。]] ..
+                [[如需刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”。]] ..
+                [[商品需求可填商品名称关键字，用空格隔开(如填“玩 金 骑士”)，则刷到其中任一商品就会停止并通知QQ]])
 
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
@@ -2919,23 +2922,36 @@ show_gesture_capture_ui = function()
   local layout = "gesture_capture"
   ui.newLayout(layout, ui_page_width, -2)
   ui.setTitleText(layout, (root_mode and '亮屏解锁' or
-                    " 当前无root权限，无法使用"))
+                    " 当前无root权限，请借助其他亮屏解锁软件"))
+
+  newRow(layout)
+
+  addButton(layout, nil, "返回", make_jump_ui_command(layout, "main"), nil,
+            nil, ui_cancel_color)
 
   newRow(layout)
   addTextView(layout,
               [[录入解锁手势或密码，以便熄屏下自动解锁]])
 
   newRow(layout)
-  addTextView(layout,
-              "1. 点击 开始录制，将观察到 熄屏+亮屏+上滑 现象")
+  addTextView(layout, "1. 点击")
+
+  addButton(layout, nil, "开始录制", "gesture_capture()", nil, nil,
+            ui_submit_color)
+  -- ui.addButton(layout, layout .. "_start", "开始录制", ui_small_submit_width)
+  -- ui.setBackground(layout .. "_start", ui_submit_color)
+  -- ui.setOnClick(layout .. "_start", "")
+
   newRow(layout)
-  addTextView(layout, "2. 手势或密码界面 出现后，手动解锁")
+  addTextView(layout, "2. 观察到 熄屏+亮屏+上滑 后，手动解锁")
   newRow(layout)
-  addTextView(layout,
-              "3. 亮屏解锁界面 出现后，点击任意文字区域")
+  addTextView(layout, "3. 点击本界面任意文字区域")
   newRow(layout)
-  addTextView(layout, "4. 选择解锁方式")
-  ui.addRadioGroup(layout, "unlock_mode", {"手势", "密码"}, 0, -2, -2, true)
+  addTextView(layout, "4. 选择锁屏类型")
+
+  ui.addSpinner(layout, "unlock_mode", {"手势", "密码"}, 0)
+  -- ui.addRadioGroup(layout, "unlock_mode", {"手势", "密码"}, 0, -2, -2, true)
+
   newRow(layout)
   addTextView(layout,
               [[5. 快速测试：启动脚本后，手动熄屏，5秒内应观察到亮屏解锁现象。]])
@@ -2943,24 +2959,29 @@ show_gesture_capture_ui = function()
   addTextView(layout, "当前手势：")
   ui.addTextView(layout, "unlock_gesture", JsonEncode({}))
 
-  newRow(layout, layout .. "_save_row")
-
-  ui.addButton(layout, layout .. "_stop", "返回")
-  ui.setBackground(layout .. "_stop", ui_cancel_color)
-  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
-  ui.addButton(layout, layout .. "_start", "开始录制", ui_small_submit_width)
-  ui.setBackground(layout .. "_start", ui_submit_color)
-  ui.setOnClick(layout .. "_start", "gesture_capture()")
-
   ui.loadProfile(getUIConfigPath(layout))
   ui.show(layout, false)
 end
 
 gesture_capture = function()
+
+  keepalive_interval = 3600
+  tap_interval = -1
+  findOne_interval = -1
+  -- update_state_from_debugui()
   local finger = {}
   screenoff()
-  disappear("gesture_capture_ui", 5)
+  ssleep(3)
+  -- wait(function()
+  --   log(findOne("gesture_capture_ui"))
+  --   nodeLib.updateNode()
+  --   if not findOne("gesture_capture_ui") then return true end
+  -- end,5)
+
+  -- disappear("gesture_capture_ui", 5)
   screenon()
+  disappear("gesture_capture_ui", 1)
+
   local state
   if not wait(function()
     state = appear({
@@ -3272,6 +3293,11 @@ predebug_hook = function()
   -- log(colorDiff('ffcfcfcf','fffcfcfc'))
   -- exit()
   ssleep(1)
+  -- path.前瞻投资(true)
+  tap("幕后筹备升级右列表5")
+  tap("幕后筹备升级列表9")
+  ssleep(1)
+  exit(0)
   local operator = {}
   initPngdata()
   discover(operator, tradingPngdata, 1)
@@ -3767,7 +3793,6 @@ predebug_hook = function()
   -- log(findOne("captcha"))
   exit()
 
-  log(1)
   local p = appear({"game", "keyguard_indication", "keyguard_input", "captcha"},
                    5)
   log(p)
@@ -4276,7 +4301,9 @@ keepalive = function()
   -- log("enable_keepalive",enable_keepalive)
   -- if not enable_keepalive then return end
   killacc()
+  log("killacc finish")
   oom_score_adj()
+  log("keepalive finish")
 end
 
 killacc = function()
@@ -4293,7 +4320,7 @@ done
 ]]
   exec(cmd)
 
-  tap({screen.width + 1, screen.height + 1})
+  tap({screen.width + 1, screen.height + 1}, true, true)
 
   cmd = [[nohup su root sh -c ' \
 sleep 5
@@ -4584,9 +4611,7 @@ update_state_from_debugui = function()
     QQ = QQ:sub(1, QQ:find('#') - 1):trim()
   end
   qqimagedeliver = (qqimagedeliver or ''):trim()
-  if not qqimagedeliver:startsWith("http") then
-    qqimagedeliver = "http://82.156.198.12:49875"
-  end
+  if #qqimagedeliver == 0 then qqimagedeliver = "82.156.198.12:49875" end
   if zl_enable_log then zl_disable_log = false end
   for i = 1, 7 do
     local k = 'max_drug_times_' .. i .. 'day'
@@ -4595,6 +4620,7 @@ update_state_from_debugui = function()
   if disable_drug_24hour then max_drug_times_1day = 0 end
   shift_min_mood = str2int(shift_min_mood, 12)
   if shift_min_mood <= 0 or shift_min_mood >= 24 then shift_min_mood = 12 end
+  if enable_native_tap then clickPoint = _tap end
 end
 
 -- 基建心情阈值与QQ号
@@ -4610,8 +4636,7 @@ main_ui_config_transfer = function()
   saveOneUIConfig("debug", debug_config)
 end
 
--- post_util_hook
+-- eager post_util_hook
 loadUIConfig({"debug"})
 force_width = str2int(force_width, 0)
 force_height = str2int(force_height, 0)
-if enable_native_tap then clickPoint = _tap end

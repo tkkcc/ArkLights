@@ -1724,7 +1724,7 @@ path.总览换班 = function()
     -- 排除异格干员
     local operator = {}
     discover(operator, {}, 1, true)
-    operator = table.filter(operator, function(x) return x[3] > 0 end)
+    operator = table.filter(operator, function(x) return x[3] >= 0 end)
     operator = map(function(x) return x[4] end, operator)
     operator = table.slice(operator, 1, limit)
 
@@ -3940,7 +3940,7 @@ path.退出账号 = function()
   }, nil, true), path.fallback)
 end
 
-path.前瞻投资 = function()
+path._前瞻投资 = function(lighter)
   -- 防止日志占用资源过多把脚本挤掉
   if zl_disable_log then disable_log = true end
   -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）
@@ -3999,7 +3999,10 @@ path.前瞻投资 = function()
     --   restartScript()
     -- end
 
+    -- -- 抽空点亮幕后筹备
+    -- path._前瞻投资(true)
   end
+
   local jumpout
   if findOne("战略返回") then path.fallback.战略返回() end
 
@@ -4078,6 +4081,67 @@ path.前瞻投资 = function()
     end, 30) then return end
   end
   if jumpout then return end
+
+  -- 点幕后筹备后继续
+  if nil and lighter and not lighter_enough and not zl_disable_lighter then
+    local f = function()
+      -- 进入幕后
+      if not wait(function()
+        tap("战略确认")
+        tap("幕后筹备")
+        if findOne("幕后筹备界面") then return true end
+      end, 5) then return end
+
+      -- 确认是否已满
+      ssleep(1)
+      tap("幕后筹备升级右列表1")
+      appear({"幕后筹备升级有", "幕后筹备升级无"}, 1)
+      if findOne("幕后筹备升级无") then
+        lighter_enough = true
+        return
+      end
+
+      -- 确认类型
+      local lists = {
+        "幕后筹备升级左列表", "幕后筹备升级中3列表",
+        "幕后筹备升级中2列表", "幕后筹备升级中1列表",
+      }
+      local list = point["幕后筹备升级右列表"]
+      if not findOne("幕后筹备升级") then
+        local found
+        for _, p in pairs(lists) do
+          tap(p .. 1)
+          if appear("幕后筹备升级", 1) then
+            found = true
+            break
+          end
+        end
+        if not found then return end
+        list = point[p]
+      end
+
+      for _, p in pairs(list) do
+        tap(p)
+        local jumpout
+        wait(function(reset_wait_start_time)
+          appearTap("幕后筹备升级有", 0.5)
+          if findAny({"幕后筹备升级无", "幕后筹备升级不"}) then
+            return true
+          end
+          if not appear({"幕后筹备升级", "正在提交反馈至神经"}) then
+            jumpout = true
+            return true
+          end
+          if findOne("正在提交反馈至神经") then
+            reset_wait_start_time()
+          end
+        end, 5)
+        if jumpout then return end
+      end
+    end
+    f()
+    return
+  end
 
   -- 开始探索
   if not wait(function()
@@ -4881,7 +4945,7 @@ path.前瞻投资 = function()
   return goto_next_level()
 end
 
-path.前瞻投资 = never_end_wrapper(path.前瞻投资)
+path.前瞻投资 = never_end_wrapper(path._前瞻投资)
 
 path["克洛丝单人1-12"] = function()
   -- TODO
