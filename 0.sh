@@ -43,7 +43,7 @@
   extract() {
     rm -rf arknights
     rm -rf arknights_extract
-    unzip arknights-hg-1801.apk -d arknights
+    unzip ${1:-arknights-hg-1801.apk} -d arknights
     ./extract.py unpack
   }
   release() {
@@ -188,7 +188,7 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     find png_noalpha -type f -not -name 'bskill_*' -delete
     touch png_noalpha/.nomedia
 
-    git -C $root/ArknightsGameData pull
+    git submodule update --init --recursive
     ./extract.py skillicon2operator > png_noalpha/skillicon2operator.json
 
     zip release/skill.zip -q -r -j png_noalpha

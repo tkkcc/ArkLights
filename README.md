@@ -38,9 +38,23 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 ## 开发
 
-参考[懒人精灵](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)IDE内文档
+1. 参考[懒人精灵](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)IDE内文档
 
-[自建QQ通知服务](https://arklights.vercel.app/guide.html#qq%E9%80%9A%E7%9F%A5%E6%9C%8D%E5%8A%A1%E6%80%8E%E4%B9%88%E8%87%AA%E5%BB%BA)
+
+1. 基建图标数据提取
+    ```sh
+    # 解包
+    ./0.sh extract arknights-hg-1801.apk
+    # 提取
+    ./0.sh buildingskill
+    ```
+
+1. 发布
+    ```sh
+    ./0.sh release
+    ```
+
+1. [自建QQ通知服务](https://arklights.vercel.app/guide.html#qq%E9%80%9A%E7%9F%A5%E6%9C%8D%E5%8A%A1%E6%80%8E%E4%B9%88%E8%87%AA%E5%BB%BA)
 
 ## 对比
 
