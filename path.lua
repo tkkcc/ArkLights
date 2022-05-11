@@ -800,7 +800,10 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   p[target] = function()
     if prev_jump == "基建" and x == "基建" and not leaving_jump then
       tap('返回')
-      disappear(target)
+      if not disappear(target, 1) then
+        log("found804", target)
+        return true
+      end
       return
     end
 
@@ -1762,8 +1765,6 @@ path.总览换班 = function()
   end
   if not findOne("撤下干员") then return end
 
-  -- tap("返回")
-  -- if appear("进驻总览") then leaving_jump = true end
 end
 
 path.基建换班 = function()

@@ -354,8 +354,10 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
       -- 孑精1
       base = base + max(1, (maxStorage + storage - base // 0.1)) * 0.04
     elseif all['bskill_tra_limit_diff'] then
-      -- 孑精0 近似 14及以上仓库时为0.36
-      base = base + 0.36 * min(1, (maxStorage + storage) / 14)
+      -- https://ngabbs.com/read.php?tid=26013244&rand=499
+      -- 孑0 / 德拉ii =112% (1天3换(18/6) 、只在换班时收单)
+      -- 孑0 近似
+      base = base + (maxStorage+storage) * 0.04 / (level + 1.12) * 4.034
     end
 
     -- 巫恋
@@ -632,7 +634,8 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     end
     if all['bskill_man_skill_spd'] then
       -- 水月，标准化技能数量
-      base = base + standard * 0.05 * all['bskill_man_skill_spd']
+      -- base = base + standard * 0.05 * all['bskill_man_skill_spd']
+      base = base + 0.05
     end
     if debug_mode then log(428.5, icon, icons, base, station, storage) end
 
