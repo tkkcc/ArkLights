@@ -38,15 +38,16 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 ## 开发
 
-1. 参考[懒人精灵](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)IDE内文档
+1. 参考[懒人精灵3.6.0无障碍模式IDE](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)内文档
 
-
-1. 基建图标数据提取
+1. 数据提取
     ```sh
     # 解包
     ./0.sh extract arknights-hg-1801.apk
-    # 提取
+    # 提取基建图标数据
     ./0.sh buildingskill
+    # 提取公招保底组合
+    ./0.sh recruit
     ```
 
 1. 发布

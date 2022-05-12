@@ -181,6 +181,7 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     echo $md5 >release/skill.zip.md5
   }
   buildingskill() {
+
     local png=$root/arknights_extract/assets/torappu/dynamicassets/arts/building/skills
     rm -rf png_noalpha
     mkdir png_noalpha
@@ -195,6 +196,9 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     local md5=$(md5sum release/skill.zip | cut -d' ' -f1)
     echo $md5 >release/skill.zip.md5
 
+  }
+  recruit(){
+    ./extract.py recruit
   }
   "$@"
   wait

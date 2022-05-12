@@ -3585,6 +3585,7 @@ path.公开招募 = function()
               end
             end, 5) then return end
             if recruit_accelerate_mode then
+              disable_log = false
               toast("已遇到需保留情况")
               ssleep(5)
               peaceExit()
@@ -3593,13 +3594,12 @@ path.公开招募 = function()
         else
           -- 最大星数
           local max_star = -1
-          local list
+          local list = {}
 
           for _, v in pairs(tag4) do
             -- 同星级需要优选“资深”优选，不选会出弹窗。
-            local better = max_star < v[2] or max_star == v[2] and (v[1][1] and
-                             (v[1][1]:find("资深") or
-                               (#v[1] > #list and not list[1]:find("资深"))))
+            local better = max_star < v[2] or max_star == v[2] and
+                             (v[1][1] and v[1][1]:find("资深"))
 
             if better then
               max_star = v[2]

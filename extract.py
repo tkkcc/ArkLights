@@ -6,6 +6,8 @@ from pathlib import Path
 import json
 import io
 from collections import defaultdict
+import re
+import itertools
 
 
 def unpack(source_folder="arknights", destination_folder="arknights_extract"):
@@ -135,12 +137,8 @@ def skillicon2operator(
     char="ArknightsGameData/zh_CN/gamedata/excel/character_table.json",
     build="ArknightsGameData/zh_CN/gamedata/excel/building_data.json",
 ):
-    # print("char",char)
-    # print("build",build)
     char = json.loads(open(char).read())
     build = json.loads(open(build).read())
-    # print("char.keys()",char.keys())
-    # print("build.keys()",build["chars"].keys())
 
     char2name = {k: char[k]["name"] for k in char}
     buffid2name = {}
@@ -158,6 +156,148 @@ def skillicon2operator(
                 ans[buffname].append(operator + str(phase))
 
     return json.dumps(ans, ensure_ascii=False)
+
+
+def recruit(
+    char="ArknightsGameData/zh_CN/gamedata/excel/character_table.json",
+    gacha="ArknightsGameData/zh_CN/gamedata/excel/gacha_table.json",
+):
+    char = json.loads(open(char).read())
+    gacha = json.loads(open(gacha).read())
+    tag = [x["tagName"] for x in gacha["gachaTags"] if x["tagId"] < 100]
+
+    recruit_char = gacha["recruitDetail"]
+    recruit_char = re.sub(r"<[^>]+>", "", recruit_char, 0)
+    recruit_char = re.findall(r"\\n(.*)", recruit_char)
+    recruit_char = set(y.strip() for x in recruit_char for y in x.split("/"))
+
+    # 排除非公招干员
+    char = {k: v for k, v in char.items() if v["name"] in recruit_char}
+
+    # 排除6星干员，没有高级资深一定不出6星，没有资深可能出5星
+    char = {k: v for k, v in char.items() if v["rarity"] + 1 < 6 }
+
+    # 排除12星干员，拉满9小时最低3星
+    char = {k: v for k, v in char.items() if v["rarity"] + 1 >=3 }
+
+    profession2tag = defaultdict(
+        lambda: "???",
+        {
+            "CASTER": "术师干员",
+            "MEDIC": "医疗干员",
+            "PIONEER": "先锋干员",
+            "SNIPER": "狙击干员",
+            "SPECIAL": "特种干员",
+            "SUPPORT": "辅助干员",
+            "TANK": "重装干员",
+            "WARRIOR": "近卫干员",
+        },
+    )
+    position2tag = defaultdict(
+        lambda: "???",
+        {
+            "MELEE": "近战位",
+            "RANGED": "远程位",
+        },
+    )
+    star2tag = defaultdict(
+        lambda: "",
+        {
+            5: "资深干员",
+            6: "高级资深干员",
+            1: "支援机械",
+        },
+    )
+
+    char2tag = {
+        v["name"]: list(
+            filter(
+                None,
+                [
+                    *v["tagList"],
+                    profession2tag[v["profession"]],
+                    # star2tag[v["rarity"] + 1],
+                    position2tag[v["position"]],
+                ],
+            )
+        )
+        for k, v in char.items()
+    }
+
+    char2star = {v["name"]: v["rarity"] + 1 for k, v in char.items()}
+
+    tag2char = defaultdict(set)
+    for c, t in char2tag.items():
+        for t in t:
+            tag2char[t].add(c)
+
+    # tag2star = defaultdict(float)
+    goodtag = []
+    stuff = [1, 2, 3]
+    min_star = 4
+    # max_star = 5
+    # stop_combination = []
+
+    for num in range(1, 7):
+        for t in itertools.combinations(tag, num):
+            # t = set(t)
+            # if any(tt.issubset(t) for tt in stop_combination):
+            #     continue
+            c = set.intersection(*(tag2char[t] for t in t))
+            if len(c) == 0:
+                continue
+
+            s1 = min(char2star[c] for c in c)
+            if s1 < min_star:
+                continue
+            s2 = max(char2star[c] for c in c)
+            s3 = sum(char2star[c] for c in c) / len(c)
+            # 最低星 最高星 期望星 标签数
+            s = s1 + s2 / 10 + s3 / 100 + (6 - len(t)) / 1000
+            # tag2star[tuple(t)] = s
+            goodtag.append([s, list(t), list(c)])
+            # if s1 >= max_star:
+            #     stop_combination.append(t)
+
+    # 按分数排序
+    goodtag = sorted(goodtag, reverse=True)
+
+    # 去重
+    visited = []
+    oktag = []
+    for t in goodtag:
+        ts = set(t[1])
+        if any(tt.issubset(ts) for tt in visited):
+            continue
+        visited.append(ts)
+        oktag.append(t)
+    goodtag = oktag
+
+    # 格式化
+    goodtag = [[x[1], int(x[0]), x[2]] for x in goodtag]
+
+    # lua table
+    # tag2star = {k: v for k, v in sorted(tag2star.items(), key=lambda x: -x[1])}
+    # goodtag = json.dumps(goodtag, ensure_ascii=False)
+    # print(tag2star)
+
+    goodtag = py2lua(goodtag)
+    
+    return goodtag
+
+def py2lua(x):
+    if type(x) is list:
+        ans='{'
+        for i,y in enumerate(x):
+            ans += py2lua(y)
+            if i<len(x)-1:
+                ans +=','
+        ans+='}'
+        return ans
+    elif type(x) is int:
+        return str(x)
+    elif type(x) is str:
+        return "\"" + x + "\""
 
 
 if __name__ == "__main__":
