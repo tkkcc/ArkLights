@@ -1206,8 +1206,8 @@ run = function(...)
     table.extend(qqmessage, {devicenote, usernote})
   elseif account_idx ~= nil then
     table.extend(qqmessage, {
-      devicenote and devicenote or getDevice(), "账号" .. account_idx,
-      server == 0 and "官服" or "B服", username, usernote,
+      devicenote and devicenote or getDevice(), "号" .. account_idx,
+      server == 0 and "官服" or "B服", qqhide(username), usernote,
     })
   else
     table.extend(qqmessage, {
@@ -2463,13 +2463,11 @@ show_main_ui = function()
   -- addButton(layout, layout .. "_stop", "退出",
   --           make_jump_ui_command(layout, nil, "peaceExit()"))
   -- ui.setBackground(layout .. "_stop", ui_cancel_color)
-  addButton(layout, nil, "启动",
-            make_jump_ui_command(layout, nil,
-                                 "crontab_enable=false;lock:remove(main_ui_lock)"),
+  addButton(layout, nil, "启动", make_jump_ui_command(layout, nil,
+                                                        "crontab_enable=false;lock:remove(main_ui_lock)"),
             ui_small_submit_width)
-  addButton(layout, nil, "定时",
-            make_jump_ui_command(layout, nil,
-                                 "crontab_enable_only=true;lock:remove(main_ui_lock)"),
+  addButton(layout, nil, "定时", make_jump_ui_command(layout, nil,
+                                                        "crontab_enable_only=true;lock:remove(main_ui_lock)"),
             ui_small_submit_width)
   addButton(layout, nil, "启动并定时",
             make_jump_ui_command(layout, nil, "lock:remove(main_ui_lock)"),
@@ -4643,6 +4641,13 @@ main_ui_config_transfer = function()
     debug_config["shift_min_mood"] = main_config["shift_min_mood"]
   end
   saveOneUIConfig("debug", debug_config)
+end
+
+qqhide = function(x)
+  x = tostring(x)
+  -- if #x<=7 then return x end
+  -- return x:sub(1,3) + '***' + x:sub(#x-4,#x)
+  return x:sub(#x - 3, #x)
 end
 
 -- eager post_util_hook
