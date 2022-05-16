@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 {
   root=$(dirname "$0")
   init() {
@@ -190,16 +190,17 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     touch png_noalpha/.nomedia
 
     git submodule update --init --recursive
-    ./extract.py skillicon2operator > png_noalpha/skillicon2operator.json
+    ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
 
     zip release/skill.zip -q -r -j png_noalpha
     local md5=$(md5sum release/skill.zip | cut -d' ' -f1)
     echo $md5 >release/skill.zip.md5
 
   }
-  recruit(){
+  recruit() {
     ./extract.py recruit
   }
+
   "$@"
   wait
 }

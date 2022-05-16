@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.05.13 19:00"
+release_date = "2022.05.16 17:17"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -79,7 +79,7 @@ enable_accessibility_service()
 enable_snapshot_service()
 detectServer()
 predebug_hook()
-main_ui_config_transfer()
+-- main_ui_config_transfer()
 showUI()
 loadUIConfig()
 restart_mode_hook()
@@ -109,8 +109,8 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
   for idx, i in pairs(multi_account_choice) do
     multi_account_choice_idx = idx
     account_idx = i
-    username = (_G["username" .. i] or ''):map({["＃"] = "#"}):trim()
-    password = (_G["password" .. i] or ''):trim()
+    username = (_G["username" .. i] or ''):map({["＃"] = "#", [" "] = ""})
+    password = (_G["password" .. i] or ''):map({["\n"] = "", [" "] = ""})
     server = _G["server" .. i] or 0
     usernote = ''
     apply_multi_account_setting(i)

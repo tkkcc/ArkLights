@@ -175,10 +175,10 @@ def recruit(
     char = {k: v for k, v in char.items() if v["name"] in recruit_char}
 
     # 排除6星干员，没有高级资深一定不出6星，没有资深可能出5星
-    char = {k: v for k, v in char.items() if v["rarity"] + 1 < 6 }
+    char = {k: v for k, v in char.items() if v["rarity"] + 1 < 6}
 
     # 排除12星干员，拉满9小时最低3星
-    char = {k: v for k, v in char.items() if v["rarity"] + 1 >=3 }
+    char = {k: v for k, v in char.items() if v["rarity"] + 1 >= 3}
 
     profession2tag = defaultdict(
         lambda: "???",
@@ -282,22 +282,23 @@ def recruit(
     # print(tag2star)
 
     goodtag = py2lua(goodtag)
-    
+
     return goodtag
+
 
 def py2lua(x):
     if type(x) is list:
-        ans='{'
-        for i,y in enumerate(x):
+        ans = "{"
+        for i, y in enumerate(x):
             ans += py2lua(y)
-            if i<len(x)-1:
-                ans +=','
-        ans+='}'
+            if i < len(x) - 1:
+                ans += ","
+        ans += "}"
         return ans
     elif type(x) is int:
         return str(x)
     elif type(x) is str:
-        return "\"" + x + "\""
+        return '"' + x + '"'
 
 
 if __name__ == "__main__":

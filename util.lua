@@ -1207,7 +1207,7 @@ run = function(...)
   elseif account_idx ~= nil then
     table.extend(qqmessage, {
       devicenote and devicenote or getDevice(), "号" .. account_idx,
-      server == 0 and "官服" or "B服", qqhide(username), usernote,
+      server == 0 and "官服" or "B服", username, usernote,
     })
   else
     table.extend(qqmessage, {
@@ -1788,7 +1788,26 @@ captureqqimagedeliver = function(info, to)
     info = os.date('%Y.%m.%d %H:%M:%S') .. ' ' .. info
   end
 
-  notifyqq(base64(img), tostring(info):trim(), tostring(to))
+  local notify = notifyqq
+  if #pushplus_token > 0 then
+    notify = notifypp
+    to = pushplus_token
+
+    -- img = base64(img)
+
+    local f = io.open(img, 'r')
+    img = f:read()
+    f:close()
+    -- local simg = getWorkPath() .. "/stmp.jpg"
+    -- scaleImage(img, simg, 160, 90)
+    -- img = base64(simg)
+    --
+  else
+    img = base64(img)
+  end
+  info = tostring(info):trim()
+  to = tostring(to)
+  notify(img, info, to)
 end
 
 poweroff =
@@ -2013,6 +2032,13 @@ show_multi_account_ui = function()
     ui.addEditText(layout, "username" .. i, "", -1)
     addTextView(layout, "密码")
     ui.addEditText(layout, "password" .. i, "", -1)
+
+    addButton(layout, nil, "#" .. i, make_jump_ui_command(layout, nil,
+                                                          "multi_account_config_remove_once_choice('" ..
+                                                            i ..
+                                                            "');saveConfig('continue_account','');lock:remove(main_ui_lock)"),
+              -2, nil, ui_submit_color)
+
     -- ui.addCheckBox(layout, "multi_account" .. i, "启用", true)
     newRow(layout)
     addTextView(layout, "账号" .. padi .. "在")
@@ -2025,11 +2051,11 @@ show_multi_account_ui = function()
     -- addTextView(layout, "账号" .. padi .. "用")
 
     addTextView(layout, "用")
-    addButton(layout, "multi_account_inherit_toggle" .. i, "默认设置",
+    addButton(layout, "multi_account_inherit_toggle" .. i, "继承设置",
               "multi_account_inherit_toggle(" .. i .. ")")
 
     --
-    -- addButton(layout, "multi_account_inherit_toggle" .. i, "默认设置",
+    -- addButton(layout, "multi_account_inherit_toggle" .. i, "单号设置",
     --           "multi_account_inherit_toggle(" .. i .. ")")
 
     -- addTextView(layout, "账号" .. padi .. "使用",multi_account_inherit)
@@ -2055,12 +2081,12 @@ show_multi_account_ui = function()
     local btn = "multi_account_inherit_toggle" .. i
 
     local txt = ui.getText(btn)
-    if txt == "默认设置" then
+    if txt == "单号设置" then
       ui.setText(btn, "继承设置")
     elseif txt == "继承设置" then
       ui.setText(btn, "独立设置")
     else
-      ui.setText(btn, "默认设置")
+      ui.setText(btn, "单号设置")
     end
     multi_account_inherit_render(i)
   end
@@ -2075,16 +2101,22 @@ show_multi_account_ui = function()
       local gid = "multi_account_user_row" .. i
       local spinner = "multi_account_inherit_spinner" .. i
 
+      local txt = ui.getText(btn)
       -- local txt = ui.getText(btn)
       -- if txt == "默认设置" then
       --   ui.setText(btn, "使用" .. txt)
       -- elseif txt == "独立设置" then
       --   ui.setText(btn, "使用" .. txt)
       -- end
-      local txt = ui.getText(btn)
+
+      -- fallback
+      if txt == "默认设置" then
+        txt = "单号设置"
+        ui.setText(btn, txt)
+      end
 
       -- ui.setText(btn,"账号30设置")
-      if txt == "默认设置" then
+      if txt == "单号设置" then
         ui.setVisiblity(spinner, 3)
         ui.setRowVisibleByGid(layout, gid, 8)
       elseif txt == "独立设置" then
@@ -2214,6 +2246,7 @@ multi_account_config_remove_once_choice = function(append)
   cur[layout .. "_choice"] = choice
   cur = JsonEncode(cur)
   saveOneUIConfig(layout, cur)
+  -- log("choice", choice)
   return choice
 end
 
@@ -2247,6 +2280,42 @@ notifyqq = function(image, info, to, sync)
     -- log("notifyqq response", res, code)
     lock:remove(id)
   end, qqimagedeliver, param)
+  if sync then wait(function() return not lock:exist(id) end, 30) end
+end
+
+notifypp = function(image, info, to, sync)
+  image = image or ''
+  info = info or ''
+  to = to or ''
+
+  -- log("#image", #image)
+  -- local ret, code
+  -- ret, code = httpGet('https://api.uomg.com/api/image.baidu', "imgurl=" ..
+  --                       'http://imgsrc.baidu.com/forum/pic/item/09f790529822720edafc8a9d76cb0a46f21faba3.jpg')
+  -- log("notifypp response", ret, code)
+  -- exit()
+  -- end, 'http://www.pushplus.plus/send', param)
+  --
+  log("#image", #image)
+  local content = encodeUrl(
+                    "![](data:image/jpeg;base64," .. image:sub(1, 17000) .. ")")
+  log("#content", #content)
+  if #content > 19900 then content = encodeUrl(to) end
+
+  local param = "content=" .. content .. "&title=" .. encodeUrl(info) ..
+                  "&token=" .. encodeUrl(to) .. "&template=markdown"
+  log('notify pp', info, to)
+  -- log("param", param)
+
+  if #to < 5 then return end
+
+  local id = lock:add()
+
+  asynHttpPost(function(res, code)
+    log("notifypp response", res, code)
+    lock:remove(id)
+  end, 'http://www.pushplus.plus/send', param)
+
   if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
@@ -2547,8 +2616,13 @@ show_debug_ui = function()
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
 
   newRow(layout)
-  addTextView(layout, "单号最大登录次数")
+  addTextView(layout, "最大登录次数(达到跳过当前号)")
   ui.addEditText(layout, "max_login_times", "")
+
+  newRow(layout)
+  addTextView(layout,
+              "最大连续代理或导航失败次数(达到跳过当前关)")
+  ui.addEditText(layout, "max_fight_failed_times", "3")
 
   newRow(layout)
   addTextView(layout, "最大连续作战次数(达到重启游戏)")
@@ -2581,7 +2655,7 @@ show_debug_ui = function()
   for i = 1, 7 do
     newRow(layout)
     local timenote = i == 1 and "“X小时”" or "“" .. (i - 1) .. "天”"
-    local default = i == 1 and '99' or '0'
+    local default = i <= 2 and '99' or (i <= 4 and '1' or '0')
     addTextView(layout, timenote .. "理智药最多吃")
     ui.addEditText(layout, "max_drug_times_" .. i .. "day", default)
     addTextView(layout, "次")
@@ -2596,6 +2670,10 @@ show_debug_ui = function()
   ui.addEditText(layout, "qqimagedeliver", "")
 
   newRow(layout)
+  addTextView(layout, "pushplus通知账号(token)")
+  ui.addEditText(layout, "pushplus_token", "")
+
+  newRow(layout)
   ui.addCheckBox(layout, "qqnotify_quiet",
                  "QQ通知设备名与账号名只显示备注", false)
 
@@ -2605,6 +2683,9 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nobar", "QQ通知不显示悬浮按钮",
                  false)
+  newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_nofailedfight",
+                 "QQ通知不显示代理失败信息", false)
 
   newRow(layout)
   addTextView(layout, "基建换班心情阈值")
@@ -3844,23 +3925,8 @@ check_root_mode = function()
   log("root_mode", root_mode and 'true' or 'false')
 end
 
-update_state_from_ui = function()
-
-  -- 总览换班就按工作状态了，保证高心情
-  -- prefer_skill = true
-  drug_times = 0
-  max_drug_times = str2int(max_drug_times, 0)
-  stone_times = 0
-  max_stone_times = str2int(max_stone_times, 0)
-  for i = 1, 7 do
-    local k = 'drug_times_' .. i .. 'day'
-    _G[k] = 0
-  end
-
-  appid = server == 0 and oppid or bppid
-  job = parse_from_ui("now_job_ui", all_job)
-
-  fight = string.filterSplit(fight_ui)
+parse_fight_config = function(fight_ui)
+  local fight = string.filterSplit(fight_ui)
   fight = map(string.upper, fight)
 
   -- expand LS-5x999
@@ -3877,21 +3943,69 @@ update_state_from_ui = function()
   -- log("expanded_fight", expanded_fight)
 
   -- LMSQ => 龙门市区
+  expand_fight = {}
   for k, v in pairs(fight) do
     if table.includes(table.keys(jianpin2name), v) then
-      fight[k] = jianpin2name[v]
+      v = jianpin2name[v]
+    elseif table.includes(table.keys(extrajianpin2name), v) then
+      v = extrajianpin2name[v]
     end
-    if table.includes(table.keys(extrajianpin2name), v) then
-      fight[k] = extrajianpin2name[v]
-    end
-    -- log(2729, v)
     if table.find({'活动', "GA", "WR", "IW", "WD", "SN"}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
-      fight[k] = "HD-" .. (idx or '')
+      v = "HD-" .. (idx or '')
       -- log(2731, v, idx)
     end
+
+    -- special fight expand
+    if table.includes({'CE', 'LS', 'AP', 'SK', 'CA'}, v) then
+      for i = 6, 1, -1 do
+        for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
+      end
+    elseif table.includes({'PR'}, v) then
+      for _ = 1, 99 do table.insert(expand_fight, "PR-A-2") end
+      for _ = 1, 99 do table.insert(expand_fight, "PR-B-2") end
+      for _ = 1, 99 do table.insert(expand_fight, "PR-C-2") end
+      for _ = 1, 99 do table.insert(expand_fight, "PR-D-2") end
+      for _ = 1, 99 do table.insert(expand_fight, "PR-A-1") end
+      for _ = 1, 99 do table.insert(expand_fight, "PR-B-1") end
+      for _ = 1, 99 do table.insert(expand_fight, "PR-C-1") end
+      for _ = 1, 99 do table.insert(expand_fight, "PR-D-1") end
+    elseif table.includes({'WT', 'JM'}, v) then
+      for _ = 1, 99 do table.insert(expand_fight, '当期委托') end
+      for _ = 1, 99 do table.insert(expand_fight, '长期委托1') end
+      for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
+      for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
+    elseif table.includes({'HD'}, v) then
+      for i = 10, 7, -1 do
+        for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
+      end
+    else
+      table.insert(expand_fight, v)
+    end
   end
+  fight = expand_fight
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
+  return fight
+end
+
+update_state_from_ui = function()
+
+  -- 总览换班就按工作状态了，保证高心情
+  -- prefer_skill = true
+  drug_times = 0
+  max_drug_times = str2int(max_drug_times, 0)
+  stone_times = 0
+  max_stone_times = str2int(max_stone_times, 0)
+  for i = 1, 7 do
+    local k = 'drug_times_' .. i .. 'day'
+    _G[k] = 0
+  end
+
+  appid = server == 0 and oppid or bppid
+  job = parse_from_ui("now_job_ui", all_job)
+
+  fight = parse_fight_config(fight_ui)
+  -- log("fight", fight)
 
   -- 活动开放时间段
   hd_open_time_end = parse_time("202205220400")
@@ -3945,7 +4059,7 @@ apply_multi_account_setting = function(i, visited)
     else
       apply_multi_account_setting(j, visited)
     end
-  elseif txt == "默认设置" then
+  elseif txt == "单号设置" then
     transfer_global_variable("multi_account_user0")
   else
     transfer_global_variable("multi_account_user" .. i)
@@ -4619,6 +4733,7 @@ update_state_from_debugui = function()
   end
   qqimagedeliver = (qqimagedeliver or ''):trim()
   if #qqimagedeliver == 0 then qqimagedeliver = "82.156.198.12:49875" end
+  pushplus_token = (pushplus_token or ''):trim()
   if zl_enable_log then zl_disable_log = false end
   for i = 1, 7 do
     local k = 'max_drug_times_' .. i .. 'day'
@@ -4628,6 +4743,7 @@ update_state_from_debugui = function()
   shift_min_mood = str2int(shift_min_mood, 12)
   if shift_min_mood <= 0 or shift_min_mood >= 24 then shift_min_mood = 12 end
   if enable_native_tap then clickPoint = _tap end
+  max_fight_failed_times = str2int(max_fight_failed_times, 3)
 end
 
 -- 基建心情阈值与QQ号

@@ -185,9 +185,11 @@ path.base = {
     if zero_star or not see_end or home then
       log("代理失败返回首页")
 
-      captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
-                              "代理失败" ..
-                              (home and "(掉线或抢登)" or ''), QQ)
+      if not qqnotify_nofailedfight then
+        captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
+                                "代理失败" ..
+                                (home and "(掉线或抢登)" or ''), QQ)
+      end
       -- 一次代理失败直接认为无效：不行，因为可能是掉线造成的失败
       -- fight_failed_times[cur_fight] = 3
       log(161)
@@ -2022,7 +2024,7 @@ path.线索交流 = function()
     log(1034)
 
     -- 已满则传递，并循环
-    if not appear("未达线索上限", .2) then
+    if not appear("未达线索上限", .5) then
       tap("返回")
       appear("线索传递")
       clue_unlocked = false
@@ -2177,7 +2179,9 @@ path.线索传递 = function()
     if idx then
       log("线索传递", idx, point.传递列表[idx])
       if fake_transfer then exit() end
+
       tap(point.传递列表[idx])
+
       wait(function()
         if findOne("线索传递") then return true end
         tap("线索传递返回")
@@ -2441,7 +2445,9 @@ path.轮次作战 = function()
 
     -- 导航/代理失败3次就删除
     fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
-    if fight_failed_times[cur_fight] > 2 then clean_fight(cur_fight) end
+    if fight_failed_times[cur_fight] >= max_fight_failed_times then
+      clean_fight(cur_fight)
+    end
   end
 end
 
@@ -2465,6 +2471,7 @@ extrajianpin2name = {
   SYC = "上一次",
   长期委托 = "长期委托1",
   CQWT = "长期委托1",
+  当前委托 = "当期委托",
 }
 
 path.开始游戏 = function(x, disable_ptrs_check)
@@ -2508,7 +2515,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
 
   local state = nil
   local start_time = time()
-  if not wait(function()
+  if not wait(function(reset_wait_start_time)
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
       "单选确认框", "源石恢复理智不足", "当期委托侧边栏",
@@ -2524,6 +2531,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     if state == "开始行动红" then return true end
     if state == "行动结束" then return true end
     if state and not disappear(state, .5) then return true end
+    if findOne("正在提交反馈至神经") then reset_wait_start_time() end
 
     local p = findAny({"开始行动", "全权委托确认使用"})
     if p then
@@ -2533,7 +2541,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
       disappear(p, min(5, (time() - start_time) / 1000 * 5 / 5))
 
     end
-  end, 30) then return end
+  end, 10) then return back() end
 
   if state == "行动结束" then
     no_success_one_loop = 0
