@@ -2289,23 +2289,27 @@ path.信用购买 = function()
 
   local f
   local order = {}
-  f = function(i)
-    if not findOne("信用交易所横线") then
-      if not wait(function()
-        if findOne("信用交易所横线") then return true end
-        tap("收取信用有")
-      end, 5) then return end
-    end
+  f = function()
+    local i = 0
+
+    tap("收取信用有")
+    if not wait(function()
+      if findOne("信用交易所横线") then return true end
+      tap("收取信用有")
+    end, 5) then return end
+
     log(832)
-    if not appear({
-      "信用交易所列表" .. i, "信用交易所已购列表" .. i,
-    }) then return end
+    if not appear({"信用交易所列表" .. 5,
+                  "信用交易所已购列表" .. 5}) then return end
+    -- if not appear({
+    --   "信用交易所列表" .. i, "信用交易所已购列表" .. i,
+    -- }) then return end
     log(833)
 
-    if not findOne("信用交易所列表" .. i) then
-      log(845, i)
-      return
-    end
+    -- if not findOne("信用交易所列表" .. i) then
+    --   log(845, i)
+    --   return
+    -- end
 
     -- 获取遗漏物品
     for _, j in pairs(order) do
@@ -2314,6 +2318,9 @@ path.信用购买 = function()
         break
       end
     end
+
+    -- 全买完了或者有问题
+    if i == 0 then return end
 
     if not wait(function()
       if not findOne("信用交易所横线") then return true end
@@ -2329,7 +2336,7 @@ path.信用购买 = function()
       findTap("购买物品")
     end, 5) then return end
 
-    if findOne("信用不足") then
+    if findOne("信用不足") and findOne("信用交易所横线") then
       log("信用不足")
       return true
     end
@@ -2346,7 +2353,8 @@ path.信用购买 = function()
       return
     end
   end
-  if speedrun then return f(2) end
+
+  -- if speedrun then return f(2) end
 
   -- 按优先级排
   if type(low_priority_goods) == 'string' and type(high_priority_goods) ==
@@ -2381,7 +2389,8 @@ path.信用购买 = function()
 
   log(1635, "信用物品排序", order)
   -- exit()
-  for _, i in pairs(order) do if f(i) then return end end
+  -- for _, i in pairs(order) do if f(i) then break end end
+  for _, i in pairs(range(20)) do if f() then break end end
 end
 
 get_fight_type = function(x)
@@ -2492,6 +2501,9 @@ path.开始游戏 = function(x, disable_ptrs_check)
     tap("代理指挥开1")
     if not appear("代理指挥开", .5) then
       clean_fight(x)
+      back()
+      appear("主页")
+      path.跳转("首页")
       return
     end
     -- if not wait(function()
@@ -2541,7 +2553,12 @@ path.开始游戏 = function(x, disable_ptrs_check)
       disappear(p, min(5, (time() - start_time) / 1000 * 5 / 5))
 
     end
-  end, 10) then return back() end
+  end, 10) then
+    back()
+    appear("主页")
+    path.跳转("首页")
+    return
+  end
 
   if state == "行动结束" then
     no_success_one_loop = 0
@@ -3994,10 +4011,12 @@ path.前瞻投资 = function(lighter)
   local in_fight_return = ''
   local restart = function()
     toast(in_fight_return or '重开')
+
     ssleep(3)
     if not restart_game_check(zl_restart_interval) then
       path.前瞻投资(true)
     end
+
     -- 脚本内存泄漏45M/h => 每小时重启acc进程
     -- 游戏内存泄漏66M/h => 每小时重启游戏
 

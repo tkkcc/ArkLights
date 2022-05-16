@@ -528,6 +528,7 @@ end
 -- a,a+1,...b
 range = function(a, b, s)
   local t = {}
+  if not b and not s then a, b = 1, a end
   s = s or 1
   for i = a, b, s do table.insert(t, i) end
   return t
@@ -1775,7 +1776,7 @@ captureqqimagedeliver = function(info, to)
   f:close()
   local img = getWorkPath() .. "/tmp.jpg"
 
-  if qqnotify_nobar then
+  if not qqnotify_bar then
     hideControlBar()
     ssleep(1)
     snapShot(img)
@@ -1898,11 +1899,7 @@ all_job = {
   "信用购买", "公开招募", "任务收集", "限时活动",
 }
 
-now_job = {
-  "邮件收取", "轮次作战", "访问好友", "基建收获",
-  "基建换班", "制造加速", "线索交流", "副手换人",
-  "信用购买", "公开招募", "任务收集", "限时活动",
-}
+now_job = table.filter(all_job, function(x) return x ~= "副手换人" end)
 
 make_account_ui = function(layout, prefix)
   layout = layout or "main"
@@ -2622,7 +2619,7 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout,
               "最大连续代理或导航失败次数(达到跳过当前关)")
-  ui.addEditText(layout, "max_fight_failed_times", "3")
+  ui.addEditText(layout, "max_fight_failed_times", "2")
 
   newRow(layout)
   addTextView(layout, "最大连续作战次数(达到重启游戏)")
@@ -2681,11 +2678,19 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "qqnotify_notime", "QQ通知不显示时间", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "qqnotify_nobar", "QQ通知不显示悬浮按钮",
-                 false)
+  ui.addCheckBox(layout, "qqnotify_bar", "QQ通知显示悬浮按钮", false)
+
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nofailedfight",
                  "QQ通知不显示代理失败信息", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_login",
+                 "QQ通知显示执行前情况", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_building",
+                 "QQ通知显示基建情况", false)
 
   newRow(layout)
   addTextView(layout, "基建换班心情阈值")
@@ -3380,6 +3385,25 @@ predebug_hook = function()
   -- log(colorDiff('ffcfcfcf','fffcfcfc'))
   -- exit()
   ssleep(1)
+
+  point.r = {1028, 13, 1100, 73}
+  point.r = {1049, 38, 1088, 62}
+  point.r = {1034, 14, 1244, 116}
+  while true do
+    ssleep(1)
+    -- local p = ocrBinaryEx(1010, 13, 1106, 73, "FFB525-755316",100)
+    -- local p = ocrEx(1056, 575, 1251, 659)
+    -- local p = ocrBinaryEx(1056, 575, 1251, 659,"FFFFFF-303030")
+    -- local p = ocrBinaryEx(0,0,1280,720,"FFB525-755316")
+    -- local p = ocrBinaryEx( 1014-200,0,1254,132,"FFB525-755316")
+    -- local p = ocrBinaryEx( 1014-200,0,1254,132,"FFB525-755316")
+    -- local p = ocrBinaryEx( 1014-200,39,1254,78,"000000-64461C")
+    local p = ocrBinaryEx(1020, 39, 1254, 70, "000000-64461C")
+    -- local p = ocrBinaryEx( 1014-200,0,1254,78,"FFFFFF-755316")
+    log(type(p), p)
+    -- log(map(function(x) return x.text end,p))
+  end
+  exit()
   path.前瞻投资(true)
   -- tap("幕后筹备升级右列表5")
   -- tap("幕后筹备升级列表9")
@@ -3677,14 +3701,6 @@ predebug_hook = function()
   end
   exit()
   -- point.r= {615,18,706,44}
-  point.r = {738, 25, 1255, 66}
-
-  while true do
-    ssleep(1)
-    local p = ocr("r")
-    log(p)
-  end
-  exit()
 
   for i = 1, 10 do if findOne("当前进度列表" .. i) then log(i) end end
   log("---")
@@ -4059,7 +4075,7 @@ apply_multi_account_setting = function(i, visited)
     else
       apply_multi_account_setting(j, visited)
     end
-  elseif txt == "单号设置" then
+  elseif txt == "单号设置" or txt == "默认设置" then
     transfer_global_variable("multi_account_user0")
   else
     transfer_global_variable("multi_account_user" .. i)
