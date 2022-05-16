@@ -588,6 +588,11 @@ path.限时活动 = function(retry)
 end
 
 path.邮件收取 = function()
+  if qqnotify_beforemail then
+    path.跳转("首页")
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. " 邮件收取前", QQ)
+  end
+
   path.跳转("邮件")
   local state = sample("邮件提示")
   if not wait(function()
@@ -598,6 +603,7 @@ path.邮件收取 = function()
   -- 卡在邮件的获取
   local start_time = time()
   local last_time_tap_return = time()
+
   wait(function()
     local timeout = min(2, (time() - start_time) / 1000 * 2 / 10)
     -- local timeout = 0
@@ -615,6 +621,7 @@ path.邮件收取 = function()
     end
 
   end, 30)
+
 end
 
 path.基建收获 = function()
@@ -665,6 +672,32 @@ path.基建收获 = function()
   log(findAny({"小蓝圈", "进驻总览"}))
   log(134)
 
+  if findOne("小蓝圈") and findOne("训练室") then
+    if not wait(function()
+      tap("训练室")
+      log(678)
+      if disappear("小蓝圈", 1) then return true end
+    end, 5) then return end
+
+    if not appear({"进驻信息", "进驻信息选中"}) then return end
+
+    if not wait(function(reset_wait_start_time)
+      tap("贸易站进度")
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
+      if not findOne("主页") then return true end
+    end, 5) then return end
+
+    if not wait(function()
+      tap("训练室")
+      if findOne("隐藏") and findOne("返回") and
+        findAny({"进驻信息", "进驻信息选中"}) then return true end
+    end, 5) then return end
+    return
+
+  end
+
   -- 回到进驻总览
   if not wait(function()
     if findOne("进驻总览") then return true end
@@ -678,6 +711,20 @@ end
 -- 注意 从好友 以及 到采购中心的跳转
 -- TODO 从好友跳转失败时有5秒等待
 path.跳转 = function(x, disable_quick_jump, disable_postprocess)
+
+  -- 存在嵌套跳转，加载开头应该可以？
+  if prev_jump == "基建" and x ~= "基建" and collect_beforeleaving and
+    not_first_time_jump then path.基建收获() end
+
+  -- 退出基建前截图
+  if prev_jump == "基建" and x ~= "基建" and qqnotify_beforeleaving and
+    not_first_time_jump then
+    path.跳转("基建")
+    captureqqimagedeliver(
+      table.join(qqmessage, ' ') .. " " .. "基建离开前", QQ)
+  end
+  not_first_time_jump = true
+
   local sign = {
     好友 = "个人名片",
     基建 = "进驻总览",
@@ -823,6 +870,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   end
 
   stay_in_dorm_once = x == "基建"
+
   auto(p, path.fallback)
 
   -- post processing especially for 基建
@@ -1992,7 +2040,8 @@ path.线索交流 = function()
   -- 接收线索
   wait(function()
     if not findOne("线索传递") then return true end
-    if not findOne("接收线索有") then return true end
+    -- TODO 暂时妥协这0.5秒，丢失率太高
+    if not appear("接收线索有", .5) then return true end
     if not wait(function()
       if not findOne("线索传递") then return true end
       tap("接收线索有")
@@ -2299,8 +2348,9 @@ path.信用购买 = function()
     end, 5) then return end
 
     log(832)
-    if not appear({"信用交易所列表" .. 5,
-                  "信用交易所已购列表" .. 5}) then return end
+    if not appear({
+      "信用交易所列表" .. 5, "信用交易所已购列表" .. 5,
+    }) then return end
     -- if not appear({
     --   "信用交易所列表" .. i, "信用交易所已购列表" .. i,
     -- }) then return end
@@ -2336,7 +2386,7 @@ path.信用购买 = function()
       findTap("购买物品")
     end, 5) then return end
 
-    if findOne("信用不足") and findOne("信用交易所横线") then
+    if findOne("信用不足") then
       log("信用不足")
       return true
     end

@@ -2685,12 +2685,16 @@ show_debug_ui = function()
                  "QQ通知不显示代理失败信息", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "qqnotify_login",
-                 "QQ通知显示执行前情况", false)
+  ui.addCheckBox(layout, "qqnotify_beforemail",
+                 "QQ通知显示邮件收取前情况", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "qqnotify_building",
-                 "QQ通知显示基建情况", false)
+  ui.addCheckBox(layout, "qqnotify_beforeleaving",
+                 "QQ通知显示基建退出前情况", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "collect_beforeleaving",
+                 "基建离开前加一次基建收获", false)
 
   newRow(layout)
   addTextView(layout, "基建换班心情阈值")
@@ -3384,7 +3388,22 @@ predebug_hook = function()
 
   -- log(colorDiff('ffcfcfcf','fffcfcfc'))
   -- exit()
+  -- ssleep(1)
+  -- log(1, findOne("小蓝圈"))
+  -- ssleep(1)
+
+  exit()
+  if findOne("训练室") then
+    if not wait(function()
+      tap("训练室") 
+      if disappear("") then return true end
+    end,5) then return end
+
+    tap("电流")
+  end
+
   ssleep(1)
+  exit()
 
   point.r = {1028, 13, 1100, 73}
   point.r = {1049, 38, 1088, 62}

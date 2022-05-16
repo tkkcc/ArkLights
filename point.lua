@@ -716,6 +716,7 @@ point = {
   -- 342 is choose to avoid tapping 干员 if 进驻信息选中
   会客厅 = {1523, 342},
   办公室 = "1650|588|4E4E4E",
+  训练室 = "1740|699|FFFFFF",
   无人机加速最小 = "889|484|1A1A19",
   无人机加速最大 = "1444|473|535353",
   无人机加速加 = "1323|473|313131",
@@ -1544,6 +1545,7 @@ center = {
   会客厅有 = "center_center_maxscale",
   会客厅 = "center_center_maxscale",
   办公室 = "center_center_maxscale",
+  训练室 = "center_center_maxscale",
 
   无人机加速最小 = "center_center",
   无人机加速最大 = "center_center",
