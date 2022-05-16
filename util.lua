@@ -2613,13 +2613,19 @@ show_debug_ui = function()
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
 
   newRow(layout)
-  addTextView(layout, "最大登录次数(达到跳过当前号)")
+  addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
+
+  -- newRow(layout)
+  -- addTextView(layout, "单号10分钟内最大登录次数(达到跳过当前号)")
+  -- ui.addEditText(layout, "max_login_times_10min", "")
 
   newRow(layout)
   addTextView(layout,
-              "最大连续代理或导航失败次数(达到跳过当前关)")
+              "单关卡最大连续代理/导航失败次数")
   ui.addEditText(layout, "max_fight_failed_times", "2")
+
+
 
   newRow(layout)
   addTextView(layout, "最大连续作战次数(达到重启游戏)")

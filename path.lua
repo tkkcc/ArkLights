@@ -723,6 +723,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
     captureqqimagedeliver(
       table.join(qqmessage, ' ') .. " " .. "基建离开前", QQ)
   end
+
   not_first_time_jump = true
 
   local sign = {
@@ -892,6 +893,7 @@ init_state = function()
   fight_tick = 0
   no_success_one_loop = 0
   prev_jump = "基建"
+  not_first_time_jump = false
 
   update_state_last_day = 0
   update_state_last_week = 0
