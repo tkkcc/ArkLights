@@ -1981,7 +1981,7 @@ show_multi_account_ui = function()
   -- ui.setBackground(layout .. "_start", ui_submit_color)
   -- ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
 
-  addButton(layout, nil, "单号", make_jump_ui_command(layout, "main"), nil,
+  addButton(layout, nil, "返回", make_jump_ui_command(layout, "main"), nil,
             nil)
 
   -- addButton(layout, nil, "启动", make_jump_ui_command(layout, nil,
@@ -2739,6 +2739,9 @@ show_debug_ui = function()
                  "QQ通知显示邮件收取前情况", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_afterenter",
+                 "QQ通知显示基建进入后情况", false)
+  newRow(layout)
   ui.addCheckBox(layout, "qqnotify_beforeleaving",
                  "QQ通知显示基建退出前情况", false)
 
@@ -2924,6 +2927,8 @@ show_extra_ui = function()
   newRow(layout)
   addTextView(layout, [[商品需求]])
   ui.addEditText(layout, "zl_need_goods", [[]])
+  addTextView(layout, [[等级需求]])
+  ui.addEditText(layout, "zl_max_level", [[]])
 
   -- ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", false)
   -- newRow(layout)
@@ -3452,24 +3457,24 @@ predebug_hook = function()
   -- log(1, findOne("小蓝圈"))
   -- ssleep(1)
 
-  exit()
-  if findOne("训练室") then
-    if not wait(function()
-      tap("训练室")
-      if disappear("") then return true end
-    end, 5) then return end
-
-    tap("电流")
-  end
-
-  ssleep(1)
-  exit()
+  -- exit()
+  -- if findOne("训练室") then
+  --   if not wait(function()
+  --     tap("训练室")
+  --     if disappear("") then return true end
+  --   end, 5) then return end
+  --
+  --   tap("电流")
+  -- end
+  --
+  -- ssleep(1)
+  -- exit()
 
   point.r = {1028, 13, 1100, 73}
   point.r = {1049, 38, 1088, 62}
   point.r = {1034, 14, 1244, 116}
   while true do
-    ssleep(1)
+    -- ssleep(1)
     -- local p = ocrBinaryEx(1010, 13, 1106, 73, "FFB525-755316",100)
     -- local p = ocrEx(1056, 575, 1251, 659)
     -- local p = ocrBinaryEx(1056, 575, 1251, 659,"FFFFFF-303030")
@@ -3477,7 +3482,11 @@ predebug_hook = function()
     -- local p = ocrBinaryEx( 1014-200,0,1254,132,"FFB525-755316")
     -- local p = ocrBinaryEx( 1014-200,0,1254,132,"FFB525-755316")
     -- local p = ocrBinaryEx( 1014-200,39,1254,78,"000000-64461C")
-    local p = ocrBinaryEx(1020, 39, 1254, 70, "000000-64461C")
+    -- local p = ocrBinaryEx(1020, 39, 1254, 70, "000000-64461C")
+    -- local p = ocrBinaryEx(1020, 39, 1254, 70, "000000-755120")
+    
+    local p = ocrBinaryEx(1020, 39, 1280 - 1, 70, "000000-755120")
+
     -- local p = ocrBinaryEx( 1014-200,0,1254,78,"FFFFFF-755316")
     log(type(p), p)
     -- log(map(function(x) return x.text end,p))

@@ -24,6 +24,8 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
+  战略等级 = {1530, 58, 1918, 105},
+
   幕后筹备界面 = "364|184|999999",
   幕后筹备升级 = function()
     return findAny({
@@ -1226,6 +1228,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  战略等级 = "right_top",
   幕后筹备升级有 = "right_center",
   幕后筹备升级无 = "right_center",
   幕后筹备升级不 = "right_center",

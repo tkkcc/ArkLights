@@ -884,6 +884,13 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   -- post processing especially for 基建
   if x == "基建" and not disable_postprocess then zoom() end
 
+  -- 进入基建后截图
+  if prev_jump ~= "基建" and x == "基建" and qqnotify_afterenter and
+    not_first_time_jump then
+    captureqqimagedeliver(
+      table.join(qqmessage, ' ') .. " " .. "基建进入后", QQ)
+  end
+
   prev_jump = x
 
   -- disable repeat fight after any jump complete
@@ -2043,7 +2050,7 @@ path.线索交流 = function()
 
   -- 等待前一任务的通知消失
   appear("接收线索白", 5)
-
+  appear("线索传递", 5)
   log(1031)
 
   -- 接收线索
@@ -2077,7 +2084,7 @@ path.线索交流 = function()
     if not wait(function()
       if findOne("信用奖励返回") then return true end
       tap("信用奖励有")
-    end, 5) then return end
+    end, 10) then return end
 
     log(1034)
 
@@ -4118,6 +4125,20 @@ path.前瞻投资 = function(lighter)
     end, 5) then return end
   end
 
+  if zl_level_enough then stop("肉鸽等级已满" .. zl_max_level, false) end
+
+  -- 检测等级
+  if #zl_max_level:trim() > 0 and findOne("常规行动") then
+    local r = point["战略等级"]
+    local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
+    x = (x[1] or {}).text
+    x = tonumber(x:match("^(%d+).*"))
+    log("4127", x)
+    if x and x >= 0 and x <= 125 and x >= tonumber(zl_max_level) then
+      zl_level_enough = true
+    end
+  end
+
   -- 放弃探索
   if findOne("放弃探索") then
     if not wait(function()
@@ -4168,6 +4189,11 @@ path.前瞻投资 = function(lighter)
     end, 30) then return end
   end
   if jumpout then return end
+
+  -- 等级满了，放弃行动后回到
+  if zl_level_enough then return end
+
+  -- 回到常规行动？
 
   -- 点幕后筹备后继续
   if lighter and not lighter_enough and not zl_disable_lighter then
