@@ -590,6 +590,9 @@ end
 path.邮件收取 = function()
   if qqnotify_beforemail then
     path.跳转("首页")
+
+    if disappear("面板", 1) then return path.邮件收取() end
+    if findOne("正在提交反馈至神经") then return path.邮件收取() end
     captureqqimagedeliver(table.join(qqmessage, ' ') .. " 邮件收取前", QQ)
   end
 
@@ -673,13 +676,17 @@ path.基建收获 = function()
   log(134)
 
   if findOne("小蓝圈") and findOne("训练室") then
+    tap("点击全部收取2")
     if not wait(function()
       tap("训练室")
       log(678)
-      if disappear("小蓝圈", 1) then return true end
+      disappear("训练室", 1)
+      if not findAny({"进驻信息", "进驻信息选中"}) then
+        return true
+      end
     end, 5) then return end
 
-    if not appear({"进驻信息", "进驻信息选中"}) then return end
+    -- if not appear({"进驻信息", "进驻信息选中"}) then return end
 
     if not wait(function(reset_wait_start_time)
       tap("贸易站进度")
@@ -2057,7 +2064,7 @@ path.线索交流 = function()
       tap("解锁线索上")
     end, 5) then return true end
   end, 10)
-  if not findOne("线索传递") then return end
+  if not appear("线索传递") then return end
 
   log(1032)
 
