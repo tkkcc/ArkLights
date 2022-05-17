@@ -1971,21 +1971,45 @@ show_multi_account_ui = function()
   local num = multi_account_num
   toast("正在加载多账号设置...")
   local layout = "multi_account"
+  saveConfig('last_layout', layout)
+
   ui.newLayout(layout, ui_page_width, -2)
   ui.setTitleText(layout, "多账号")
 
-  newRow(layout, layout .. "_save_row")
-  ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
-  ui.setBackground(layout .. "_start", ui_submit_color)
-  ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
+  newRow(layout)
+  -- ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
+  -- ui.setBackground(layout .. "_start", ui_submit_color)
+  -- ui.setOnClick(layout .. "_start", make_jump_ui_command(layout, "main"))
+
+  addButton(layout, nil, "单号", make_jump_ui_command(layout, "main"), nil,
+            nil)
+
+  -- addButton(layout, nil, "启动", make_jump_ui_command(layout, nil,
+  --                                                       "crontab_enable=false;lock:remove(main_ui_lock)"),
+  -- ui_small_submit_width)
+  addButton(layout, nil, "定时", make_jump_ui_command(layout, nil,
+                                                        "crontab_enable_only=true;lock:remove(main_ui_lock)"),
+            ui_small_submit_width)
+
+  addButton(layout, nil, "启动并定时",
+            make_jump_ui_command(layout, nil, "lock:remove(main_ui_lock)"),
+            ui_small_submit_width, ui_small_submit_height, ui_submit_color)
+
+  -- newRow(layout)
+  -- addButton(layout, nil, "退出",
+  --           make_jump_ui_command(layout, nil, "peaceExit()"))
+  -- addButton(layout, nil, "必读", make_jump_ui_command(layout, nil,
+  --                                                       "saveConfig('readme_already_read','1');jump_vercel()"))
+  -- addButton(layout, nil, "高级设置", make_jump_ui_command(layout, "debug"))
+  -- make_continue_account_ui(layout)
 
   newRow(layout)
   addButton(layout, randomString(32), "导出帐密", make_jump_ui_command(
-              layout, "main", "multi_account_config_export(1)"))
+              layout, layout, "multi_account_config_export(1)"))
   addButton(layout, randomString(32), "导出全部", make_jump_ui_command(
-              layout, "main", "multi_account_config_export()"))
+              layout, layout, "multi_account_config_export()"))
   addButton(layout, randomString(32), "导入", make_jump_ui_command(layout,
-                                                                     "main",
+                                                                     layout,
                                                                      "multi_account_config_import()"))
 
   newRow(layout)
@@ -2048,7 +2072,8 @@ show_multi_account_ui = function()
     -- addTextView(layout, "账号" .. padi .. "用")
 
     addTextView(layout, "用")
-    addButton(layout, "multi_account_inherit_toggle" .. i, "继承设置",
+    addButton(layout, "multi_account_inherit_toggle" .. i,
+              i == 1 and '独立设置' or "继承设置",
               "multi_account_inherit_toggle(" .. i .. ")")
 
     --
@@ -2401,17 +2426,8 @@ make_jump_ui_command = function(cur, next, extra)
   return table.join(cmd, ';')
 end
 
-show_main_ui = function()
-  local layout = "main"
-  ui.newLayout(layout, ui_page_width, -2)
-
-  local screen = getScreen()
-  local resolution = screen.width .. 'x' .. screen.height
-
-  -- ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate", ''))
-  ui.setTitleText(layout,
-                  "明日方舟速通  " .. release_date .. '  ' .. resolution)
-
+-- 快速启动
+make_continue_account_ui = function(layout)
   continue_account = loadConfig("continue_account", '')
   continue_all_account = loadConfig("continue_all_account", '')
   if #continue_account > 0 and #continue_all_account > 0 then
@@ -2429,6 +2445,9 @@ show_main_ui = function()
                                                            "multi_account_config_remove_once_choice(continue_all_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
               -1, nil, ui_submit_color)
   end
+end
+
+make_continue_extra_ui = function(layout)
 
   continue_extra_mode = loadConfig("continue_extra_mode", '')
   if #continue_extra_mode > 0 then
@@ -2438,24 +2457,9 @@ show_main_ui = function()
                                    "extra_mode=continue_extra_mode;saveConfig('continue_extra_mode','');lock:remove(main_ui_lock)"),
               -1, nil, ui_submit_color)
   end
+end
 
-  if appid_need_user_select then
-    newRow(layout)
-    addTextView(layout, "服务器选")
-    -- ui.addRadioGroup(layout, "server", {"官服", "B服"}, 0, -2, -2, true)
-
-    ui.addSpinner(layout, "server", {"官服", "B服"}, 0)
-  end
-
-  make_account_ui(layout)
-
-  -- newRow(layout)
-  -- addTextView(layout, "完成后通知QQ")
-  -- ui.addEditText(layout, "QQ", "")
-
-  -- addButton(layout, layout .. "jump_qq_btn", "加机器人好友",
-  --           make_jump_ui_command(layout, nil, 'jump_qq()'))
-
+make_afterjob_ui = function(layout)
   newRow(layout)
   addTextView(layout, "完成之后")
   ui.addCheckBox(layout, "end_home", "返回桌面", true)
@@ -2465,30 +2469,22 @@ show_main_ui = function()
   newRow(layout)
   addTextView(layout, "定时启动")
   ui.addEditText(layout, "crontab_text", "8:00 16:00 24:00")
+end
+make_jump_ui = function(layout)
 
-  -- ui.addCheckBox(layout, "crontab_enable", "启用", true)
-  -- newRow(layout)
-  -- addTextView(layout, "点击间隔(毫秒)")
-  -- ui.addEditText(layout, "click_interval", "")
-
-  -- ui.addEditText(layout, "enable_log", "")
-
-  -- 无法实现
-  -- ui.addCheckBox(layout, "end_poweroff", "关机")
-
-  -- newRow(layout)
-  -- addTextView(layout,
-  --             [[开基建退出提示，异形屏适配设为0。关游戏模式、全局侧边栏、深色夜间护眼模式、隐藏刘海。关懒人输入法，音量加停止脚本。有问题看必读。]])
-
-  -- local max_checkbox_one_row = getScreen().width // 200
   local max_checkbox_one_row = 3
   local readme_btn = randomString(32)
+  -- local jump_btn
+  -- if layout == 'multi_account' then
+  --   jump_btn = {nil, "单号", make_jump_ui_command(layout, 'main')}
+  -- else
+  -- jump_btn = {nil, "多号", make_jump_ui_command(layout, 'multi_account')}
+  -- end
+
   local buttons = {
-    {randomString(32), "多号", make_jump_ui_command(layout, 'multi_account')},
-    {
-      randomString(32), "解锁",
-      make_jump_ui_command(layout, 'gesture_capture'),
-    }, -- {
+    {nil, "多号", make_jump_ui_command(layout, 'multi_account')},
+    -- jump_btn, --
+    {nil, "解锁", make_jump_ui_command(layout, 'gesture_capture')}, -- {
     --   layout .. "crontab", "定时执行",
     --   make_jump_ui_command(layout, 'crontab'),
     -- },
@@ -2500,16 +2496,12 @@ show_main_ui = function()
     --   layout .. "qqgroup", "反馈群",
     --   make_jump_ui_command(layout, nil, "jump_qqgroup()"),
     -- },
-    {randomString(32), "肉鸽/公招", make_jump_ui_command(layout, "extra")},
-    -- {randomString(32), "必读", make_jump_ui_command(layout, "help")},
-    {
-      randomString(32), "退出",
-      make_jump_ui_command(layout, nil, "peaceExit()"),
-    }, {
+    {nil, "肉鸽/公招", make_jump_ui_command(layout, "extra")},
+    -- {nil, "必读", make_jump_ui_command(layout, "help")},
+    {nil, "退出", make_jump_ui_command(layout, nil, "peaceExit()")}, {
       readme_btn, "必读", make_jump_ui_command(layout, nil,
                                                  "saveConfig('readme_already_read','1');jump_vercel()"),
-    },
-    {randomString(32), "高级设置", make_jump_ui_command(layout, "debug")},
+    }, {nil, "高级设置", make_jump_ui_command(layout, "debug")},
     -- {
     --   layout .. "demo", "视频演示",
     --   make_jump_ui_command(layout, nil, "jump_bilibili()"),
@@ -2529,6 +2521,7 @@ show_main_ui = function()
   -- addButton(layout, layout .. "_stop", "退出",
   --           make_jump_ui_command(layout, nil, "peaceExit()"))
   -- ui.setBackground(layout .. "_stop", ui_cancel_color)
+
   addButton(layout, nil, "启动", make_jump_ui_command(layout, nil,
                                                         "crontab_enable=false;lock:remove(main_ui_lock)"),
             ui_small_submit_width)
@@ -2538,6 +2531,59 @@ show_main_ui = function()
   addButton(layout, nil, "启动并定时",
             make_jump_ui_command(layout, nil, "lock:remove(main_ui_lock)"),
             ui_small_submit_width, ui_small_submit_height, ui_submit_color)
+end
+
+show_main_ui = function()
+  local layout = "main"
+
+  saveConfig('last_layout', layout)
+  ui.newLayout(layout, ui_page_width, -2)
+
+  local screen = getScreen()
+  local resolution = screen.width .. 'x' .. screen.height
+
+  -- ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate", ''))
+  ui.setTitleText(layout,
+                  "明日方舟速通  " .. release_date .. '  ' .. resolution)
+
+  -- make_continue_account_ui(layout)
+  -- make_continue_extra_ui(layout)
+
+  if appid_need_user_select then
+    newRow(layout)
+    addTextView(layout, "服务器选")
+    -- ui.addRadioGroup(layout, "server", {"官服", "B服"}, 0, -2, -2, true)
+
+    ui.addSpinner(layout, "server", {"官服", "B服"}, 0)
+  end
+
+  make_account_ui(layout)
+
+  make_afterjob_ui(layout)
+
+  -- newRow(layout)
+  -- addTextView(layout, "完成后通知QQ")
+  -- ui.addEditText(layout, "QQ", "")
+
+  -- addButton(layout, layout .. "jump_qq_btn", "加机器人好友",
+  --           make_jump_ui_command(layout, nil, 'jump_qq()'))
+
+  -- ui.addCheckBox(layout, "crontab_enable", "启用", true)
+  -- newRow(layout)
+  -- addTextView(layout, "点击间隔(毫秒)")
+  -- ui.addEditText(layout, "click_interval", "")
+
+  -- ui.addEditText(layout, "enable_log", "")
+
+  -- 无法实现
+  -- ui.addCheckBox(layout, "end_poweroff", "关机")
+
+  -- newRow(layout)
+  -- addTextView(layout,
+  --             [[开基建退出提示，异形屏适配设为0。关游戏模式、全局侧边栏、深色夜间护眼模式、隐藏刘海。关懒人输入法，音量加停止脚本。有问题看必读。]])
+
+  -- local max_checkbox_one_row = getScreen().width // 200
+  make_jump_ui(layout)
 
   ui.loadProfile(getUIConfigPath(layout))
   -- log(getUIConfigPath(layout))
@@ -2610,7 +2656,8 @@ show_debug_ui = function()
   newRow(layout)
   ui.addButton(layout, layout .. "_stop", "返回")
   ui.setBackground(layout .. "_stop", ui_cancel_color)
-  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+  ui.setOnClick(layout .. "_stop",
+                make_jump_ui_command(layout, loadConfig("last_layout", "main")))
 
   newRow(layout)
   addTextView(layout, "单号最大登录次数")
@@ -2621,11 +2668,8 @@ show_debug_ui = function()
   -- ui.addEditText(layout, "max_login_times_10min", "")
 
   newRow(layout)
-  addTextView(layout,
-              "单关卡最大连续代理/导航失败次数")
+  addTextView(layout, "单关卡最大连续代理/导航失败次数")
   ui.addEditText(layout, "max_fight_failed_times", "2")
-
-
 
   newRow(layout)
   addTextView(layout, "最大连续作战次数(达到重启游戏)")
@@ -2828,6 +2872,8 @@ end
 
 show_extra_ui = function()
   local layout = "extra"
+  saveConfig('last_layout', layout)
+
   ui.newLayout(layout, ui_page_width, -2)
   ui.setTitleText(layout, "其他功能")
 
@@ -2835,6 +2881,14 @@ show_extra_ui = function()
   ui.addButton(layout, layout .. "_stop", "返回")
   ui.setBackground(layout .. "_stop", ui_cancel_color)
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+
+  make_continue_extra_ui(layout)
+
+  -- {nil, "退出", make_jump_ui_command(layout, nil, "peaceExit()")}, {
+  --   readme_btn, "必读", make_jump_ui_command(layout, nil,
+  --                                              "saveConfig('readme_already_read','1');jump_vercel()"),
+  -- }, {nil, "高级设置", make_jump_ui_command(layout, "debug")},
+
   newRow(layout)
   addTextView(layout, [[以下功能将沿用脚本主页设置]])
 
@@ -3401,9 +3455,9 @@ predebug_hook = function()
   exit()
   if findOne("训练室") then
     if not wait(function()
-      tap("训练室") 
+      tap("训练室")
       if disappear("") then return true end
-    end,5) then return end
+    end, 5) then return end
 
     tap("电流")
   end
@@ -4197,11 +4251,12 @@ showUI = function()
     saveConfig("hideUIOnce", "false")
   else
     main_ui_lock = lock:add()
-    -- if loadConfig("多账号")
-    show_main_ui()
+    local last_layout = loadConfig("last_layout", "main")
+    _G["show_" .. last_layout .. "_ui"]()
     if not wait(function() return not lock:exist(main_ui_lock) end, math.huge) then
       peaceExit()
     end
+
   end
 end
 
@@ -4473,9 +4528,13 @@ killacc = function()
   local cmd = [[sh root sh -c ' \
 settings put global heads_up_notifications_enabled 0
 kill $(pidof ]] .. package .. [[:acc)
+kill $(pidof ]] .. package .. [[)
 timeout 5 sh -c "
 while :;do
   pidof ]] .. package .. [[:acc && break
+done
+while :;do
+  pidof ]] .. package .. [[ && break
 done
 "
 '
