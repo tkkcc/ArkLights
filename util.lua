@@ -2009,8 +2009,8 @@ show_multi_account_ui = function()
   addButton(layout, randomString(32), "导出全部", make_jump_ui_command(
               layout, layout, "multi_account_config_export()"))
   addButton(layout, randomString(32), "导入", make_jump_ui_command(layout,
-                                                                     layout,
-                                                                     "multi_account_config_import()"))
+                                                                     nil,
+                                                                     "multi_account_config_import();show_multi_account_ui()"))
 
   newRow(layout)
   ui.addCheckBox(layout, layout .. '_enable', "启用账号", false)

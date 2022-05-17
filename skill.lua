@@ -637,6 +637,12 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
       -- base = base + standard * 0.05 * all['bskill_man_skill_spd']
       base = base + 0.05
     end
+
+    -- 禁止过小容量
+    if maxStorage + table.sum(storage) < 20 then
+      base = -1
+    end
+
     if debug_mode then log(428.5, icon, icons, base, station, storage) end
 
     if station_only then
