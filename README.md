@@ -29,10 +29,12 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 ## 安装
 
-下载明日方舟速通：
-[123pan](https://www.123pan.com/s/6MR9-zIv7d) /
-[蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) /
-[github release](https://github.com/tkkcc/ArkLights/releases/download/v0.0.18/arknightsspeedrun2.apk)  
+<!-- ： -->
+<!-- [123pan](https://www.123pan.com/s/6MR9-zIv7d) / -->
+<!-- [蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) / -->
+<!-- [github release](https://github.com/tkkcc/ArkLights/releases/download/v0.0.18/arknightsspeedrun2.apk)   -->
+
+[下载明日方舟速通](https://arklights.vercel.app/guide.html)
 
 [设备兼容](https://arklights.vercel.app/guide.html#%E8%AE%BE%E5%A4%87%E5%85%BC%E5%AE%B9)
 
