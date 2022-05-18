@@ -2360,7 +2360,8 @@ end
 hotUpdate = function()
   toast("正在检查更新...")
   if disable_hotupdate then return end
-  local url = 'https://gitee.com/bilabila/arknights/raw/master/script.lr'
+  -- local url = 'https://gitee.com/bilabila/arknights/raw/master/script.lr'
+  local url = update_source .. '/script.lr'
   if beta_mode then url = url .. '.beta' end
   local md5url = url .. '.md5'
   local path = getWorkPath() .. '/newscript.lr'
