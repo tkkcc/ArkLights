@@ -1,8 +1,8 @@
 # 必读
 
-下载：[123pan](https://www.123pan.com/s/6MR9-zIv7d) /
+下载：[123pan](https://www.123pan.com/s/6MR9-5Fv7d) /
 [蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) /
-[github release](https://github.com/tkkcc/ArkLights/releases/download/v0.0.18/arknightsspeedrun2.apk)
+[github release](https://github.com/tkkcc/ArkLights/releases/download/v0.0.19/arknightsspeedrun2.apk)
 
 反馈群：[1009619697](https://qm.qq.com/cgi-bin/qm/qr?k=ZtJVQZ1LI_9nMh3tj7fKgYu5PrwqBCje&jump_from=webapi)
 
