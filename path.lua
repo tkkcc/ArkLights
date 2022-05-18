@@ -4147,6 +4147,7 @@ path.前瞻投资 = function(lighter)
 
   zl_captcha_time = zl_captcha_time or time()
   if time() - zl_captcha_time > 3600 * 1000 then
+    zl_captcha_time = time()
     captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. (zl_level or ''),
                           QQ)
   end
