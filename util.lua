@@ -1244,6 +1244,12 @@ run = function(...)
     path.跳转("首页")
     captureqqimagedeliver(table.join(qqmessage, ' '), QQ)
   end
+
+  if snapshot_after_run then
+    local img = '/sdcard/' .. package .. '/' .. (username or 'default') ..
+                  '.jpg'
+    snapShot(img)
+  end
 end
 
 half_hour_cron = function(x, h)
@@ -2794,6 +2800,10 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "zl_disable_lighter",
                  "前瞻投资禁用升级幕后筹备", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "snapshot_after_run",
+                 "保存账号完成后截屏至/sdcard", false)
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)

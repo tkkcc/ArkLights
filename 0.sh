@@ -60,6 +60,20 @@
     git commit --amend --date=now -m "$md5"
     git push --force
   }
+  release() {
+    local lr=${1:-docs/.vuepress/public/script.lr}
+    git add -u
+    # cd release
+    cp /F:/software/懒人精灵3.6.0/out/main.lr $lr
+    # cp ../README.md README.md
+    numfmt --to=iec $(stat -c %s $lr)
+
+    local md5=$(md5sum $lr | cut -d' ' -f1)
+    echo $md5 >$lr.md5
+    # git add -A
+    # git commit --amend --date=now -m "$md5"
+    # git push --force
+  }
   stop() {
     i3-msg 'focus left'
     xte 'keydown F6'
@@ -192,9 +206,11 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     git submodule update --init --recursive
     ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
 
-    zip release/skill.zip -q -r -j png_noalpha
-    local md5=$(md5sum release/skill.zip | cut -d' ' -f1)
-    echo $md5 >release/skill.zip.md5
+    local release=docs/.vuepress/public
+    zip $release/skill.zip -q -r -j png_noalpha
+    local md5=$(md5sum $release/skill.zip | cut -d' ' -f1)
+    echo $md5 >$release/skill.zip.md5
+    # cp release/skill.zip 
 
   }
   recruit() {

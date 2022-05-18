@@ -4140,7 +4140,7 @@ path.前瞻投资 = function(lighter)
     x = tonumber(x:match("^(%d+).*"))
     log("4127", x)
     zl_level = x
-    if x and x >= 0 and x <= 125 and x >= tonumber(zl_max_level) then
+    if x and x >= 0 and x <= 140 and x >= tonumber(zl_max_level) then
       zl_level_enough = true
     end
   end
