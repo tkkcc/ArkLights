@@ -1,6 +1,3 @@
-[submodule "release"]
-	path = release
-	url = git@gitee.com:bilabila/arknights
 [submodule "ArknightsGameData"]
 	path = ArknightsGameData
 	url = https://github.com/Kengxxiao/ArknightsGameData
