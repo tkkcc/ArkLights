@@ -591,8 +591,8 @@ path.邮件收取 = function()
   if qqnotify_beforemail then
     path.跳转("首页")
 
-    if disappear("面板", 1) then return path.邮件收取() end
-    if findOne("正在提交反馈至神经") then return path.邮件收取() end
+    -- if disappear("面板", 1) then return path.邮件收取() end
+    -- if findOne("正在提交反馈至神经") then return path.邮件收取() end
     captureqqimagedeliver(table.join(qqmessage, ' ') .. " 邮件收取前", QQ)
   end
 
@@ -2059,8 +2059,8 @@ path.线索交流 = function()
     -- TODO 暂时妥协这0.5秒，丢失率太高
     if not appear("接收线索有", .5) then return true end
     if not wait(function()
-      if not findOne("线索传递") then return true end
       tap("接收线索有")
+      if disappear("线索传递", 1) then return true end
     end, 5) then return true end
 
     if not appear("接收线索", 5) then return true end
@@ -2402,7 +2402,8 @@ path.信用购买 = function()
       findTap("购买物品")
     end, 5) then return end
 
-    if findOne("信用不足") then
+    -- 有可能进皮肤界面
+    if findOne("信用不足") and findOne("主页") then
       log("信用不足")
       return true
     end

@@ -749,8 +749,8 @@ stop = function(msg, try_next_account)
   msg = msg or ''
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
-  toast(msg)
   captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
+  toast(msg)
   home()
   ssleep(2)
   if try_next_account then restart_next_account() end
@@ -1778,7 +1778,7 @@ captureqqimagedeliver = function(info, to)
 
   if not qqnotify_bar then
     hideControlBar()
-    ssleep(1)
+    ssleep(.5)
     snapShot(img)
     setControlBar()
   else
