@@ -73,7 +73,7 @@ fetchSkillIcon = function()
   if downloadFile(md5url, md5path) == -1 then
     toast("下载基建图标校验数据失败")
     ssleep(3)
-    return restartScript()
+    return
   end
   local f = io.open(md5path, 'r')
   local expectmd5 = f:read() or '1'
@@ -85,12 +85,12 @@ fetchSkillIcon = function()
   if downloadFile(url, path) == -1 then
     toast("下载最新基建图标失败")
     ssleep(3)
-    return restartScript()
+    return
   end
   if fileMD5(path) ~= expectmd5 then
     toast("基建图标校验失败")
     ssleep(3)
-    return restartScript()
+    return
   end
   unZip(path, extract_path)
   saveConfig("skill_md5", expectmd5)
@@ -639,9 +639,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     end
 
     -- 禁止过小容量
-    if maxStorage + table.sum(storage) < 20 then
-      base = -1
-    end
+    if maxStorage + table.sum(storage) < 20 then base = -1 end
 
     if debug_mode then log(428.5, icon, icons, base, station, storage) end
 

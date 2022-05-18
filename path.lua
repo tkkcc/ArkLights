@@ -378,13 +378,13 @@ path.fallback = {
     tap("断罪返回")
     disappear("断罪返回")
   end,
-  断罪 = function()
-    if appear("跳过剧情") then
-      tap("跳过剧情")
-      ssleep(1)
-      tap("跳过剧情确认")
-    end
-  end,
+  -- 断罪 = function()
+  --   if appear("跳过剧情") then
+  --     tap("跳过剧情")
+  --     ssleep(1)
+  --     tap("跳过剧情确认")
+  --   end
+  -- end,
   签到返回黄 = function() return path.fallback.签到返回() end,
   回坑返回 = function() return path.fallback.签到返回() end,
   签到返回 = function()
@@ -925,6 +925,7 @@ update_state = function()
   zero_san = false
   login_error_times = 0
   login_times = 0
+  login_time_history = {}
 
   local day = (parse_time() - start_time) // (24 * 3600)
   if day == update_state_last_day then return end
@@ -4033,6 +4034,7 @@ path.退出账号 = function()
 end
 
 path.前瞻投资 = function(lighter)
+
   -- 防止日志占用资源过多把脚本挤掉
   if zl_disable_log then disable_log = true end
   -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）
@@ -4051,6 +4053,7 @@ path.前瞻投资 = function(lighter)
   --     if disappear("手机验证码登录") then return true end
   --   end, 10) then stop("登录需要密码", false) end
   -- end
+
 
   if findOne("凋零残响") then
     -- local last_time_see = time()
@@ -4129,15 +4132,23 @@ path.前瞻投资 = function(lighter)
   if zl_level_enough then stop("肉鸽等级已满" .. zl_max_level, false) end
 
   -- 检测等级
+  local zl_level = 0
   if #zl_max_level:trim() > 0 and findOne("常规行动") then
     local r = point["战略等级"]
     local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
     x = (x[1] or {}).text
     x = tonumber(x:match("^(%d+).*"))
     log("4127", x)
+    zl_level = x
     if x and x >= 0 and x <= 125 and x >= tonumber(zl_max_level) then
       zl_level_enough = true
     end
+  end
+
+  zl_captcha_time = zl_captcha_time or time()
+  if time() - zl_captcha_time > 3600 * 1000 then
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. (zl_level or ''),
+                          QQ)
   end
 
   -- 放弃探索

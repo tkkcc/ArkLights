@@ -2008,9 +2008,9 @@ show_multi_account_ui = function()
               layout, layout, "multi_account_config_export(1)"))
   addButton(layout, randomString(32), "导出全部", make_jump_ui_command(
               layout, layout, "multi_account_config_export()"))
-  addButton(layout, randomString(32), "导入", make_jump_ui_command(layout,
-                                                                     nil,
-                                                                     "multi_account_config_import();show_multi_account_ui()"))
+  addButton(layout, randomString(32), "导入",
+            make_jump_ui_command(layout, nil,
+                                 "multi_account_config_import();show_multi_account_ui()"))
 
   newRow(layout)
   ui.addCheckBox(layout, layout .. '_enable', "启用账号", false)
@@ -2362,7 +2362,7 @@ hotUpdate = function()
   if downloadFile(md5url, md5path) == -1 then
     toast("下载校验数据失败")
     ssleep(3)
-    return restartScript()
+    return
   end
   local f = io.open(md5path, 'r')
   local expectmd5 = f:read() or '1'
@@ -2375,12 +2375,12 @@ hotUpdate = function()
   if downloadFile(url, path) == -1 then
     toast("下载最新脚本失败")
     ssleep(3)
-    return restartScript()
+    return
   end
   if fileMD5(path) ~= expectmd5 then
     toast("脚本校验失败")
     ssleep(3)
-    return restartScript()
+    return
   end
   installLrPkg(path)
   saveConfig("lr_md5", expectmd5)
@@ -2663,9 +2663,9 @@ show_debug_ui = function()
   addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
 
-  -- newRow(layout)
-  -- addTextView(layout, "单号10分钟内最大登录次数(达到跳过当前号)")
-  -- ui.addEditText(layout, "max_login_times_10min", "")
+  newRow(layout)
+  addTextView(layout, "单号5分钟内最大登录次数")
+  ui.addEditText(layout, "max_login_times_5min", "")
 
   newRow(layout)
   addTextView(layout, "单关卡最大连续代理/导航失败次数")
@@ -3484,7 +3484,7 @@ predebug_hook = function()
     -- local p = ocrBinaryEx( 1014-200,39,1254,78,"000000-64461C")
     -- local p = ocrBinaryEx(1020, 39, 1254, 70, "000000-64461C")
     -- local p = ocrBinaryEx(1020, 39, 1254, 70, "000000-755120")
-    
+
     local p = ocrBinaryEx(1020, 39, 1280 - 1, 70, "000000-755120")
 
     -- local p = ocrBinaryEx( 1014-200,0,1254,78,"FFFFFF-755316")
@@ -4520,6 +4520,14 @@ check_login_frequency = function()
   if login_times >= max_login_times then
     stop("登录次数达到" .. login_times)
   end
+
+  table.insert(login_time_history, time())
+  if max_login_times_5min > 0 and #login_time_history >= max_login_times_5min and
+    login_time_history[#login_time_history] -
+    login_time_history[#login_time_history - max_login_times_5min + 1] < 5 * 60 *
+    1000 then stop("5分钟内登录次数达到" .. max_login_times_5min) end
+  log("login_time_history", login_time_history)
+
 end
 
 keepalive = function()
@@ -4828,6 +4836,7 @@ update_state_from_debugui = function()
   zl_skill_idx = str2int(zl_skill_idx, 1)
   tapall_duration = str2int(tapall_duration, -1)
   max_login_times = str2int(max_login_times, math.huge)
+  max_login_times_5min = str2int(max_login_times_5min, math.huge)
   milesecond_after_click = str2int(tap_wait, milesecond_after_click)
   if not always_enable_log and not enable_log then
     run = disable_log_wrapper(run)
