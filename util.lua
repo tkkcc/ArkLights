@@ -2673,7 +2673,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "单号5分钟内最大登录次数")
-  ui.addEditText(layout, "max_login_times_5min", "2")
+  ui.addEditText(layout, "max_login_times_5min", "3")
 
   newRow(layout)
   addTextView(layout, "单关卡最大连续代理/导航失败次数")
