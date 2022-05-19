@@ -3478,8 +3478,11 @@ predebug_hook = function()
   --   tap("电流")
   -- end
   --
-  -- ssleep(1)
-  -- exit()
+  --
+  ssleep(1)
+  tap("面板活动2")
+  ssleep(1)
+  exit()
 
   point.r = {1028, 13, 1100, 73}
   point.r = {1049, 38, 1088, 62}
