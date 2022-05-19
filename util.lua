@@ -4556,7 +4556,7 @@ keepalive = function()
   log("keepalive")
   -- log("enable_keepalive",enable_keepalive)
   -- if not enable_keepalive then return end
-  killacc()
+  -- killacc()
   log("killacc finish")
   oom_score_adj()
   log("keepalive finish")
