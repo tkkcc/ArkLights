@@ -57,9 +57,9 @@
     local md5=$(md5sum $lr | cut -d' ' -f1)
     echo $md5 >$lr.md5
 
-    # ==== 用js后缀会变快吗
-    cp $lr $lr.js
-    cp $lr.md5 $lr.md5.js
+    # # ==== 用js后缀会变快吗，不会
+    # cp $lr $lr.js
+    # cp $lr.md5 $lr.md5.js
 
     # git add -A
     # git commit --amend --date=now -m "$md5"
@@ -203,9 +203,9 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     echo $md5 >$skill.md5
     # cp release/skill.zip
 
-    # ==== 用js后缀会变快吗
-    cp $skill $skill.js
-    cp $skill.md5 $skill.md5.js
+    # # ==== 用js后缀会变快吗，不会
+    # cp $skill $skill.js
+    # cp $skill.md5 $skill.md5.js
 
   }
   recruit() {

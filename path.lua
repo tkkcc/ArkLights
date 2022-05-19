@@ -920,6 +920,7 @@ end
 
 -- 对于单个用户的不同任务
 update_state = function()
+  no_friend = false
   cur_fight = ''
   fight_failed_times = {}
   zero_san = false
@@ -4053,7 +4054,6 @@ path.前瞻投资 = function(lighter)
   --     if disappear("手机验证码登录") then return true end
   --   end, 10) then stop("登录需要密码", false) end
   -- end
-
 
   if findOne("凋零残响") then
     -- local last_time_see = time()

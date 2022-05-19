@@ -2672,7 +2672,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "单号5分钟内最大登录次数")
-  ui.addEditText(layout, "max_login_times_5min", "")
+  ui.addEditText(layout, "max_login_times_5min", "2")
 
   newRow(layout)
   addTextView(layout, "单关卡最大连续代理/导航失败次数")
@@ -4847,7 +4847,7 @@ update_state_from_debugui = function()
   zl_skill_idx = str2int(zl_skill_idx, 1)
   tapall_duration = str2int(tapall_duration, -1)
   max_login_times = str2int(max_login_times, math.huge)
-  max_login_times_5min = str2int(max_login_times_5min, math.huge)
+  max_login_times_5min = str2int(max_login_times_5min, 2)
   milesecond_after_click = str2int(tap_wait, milesecond_after_click)
   if not always_enable_log and not enable_log then
     run = disable_log_wrapper(run)

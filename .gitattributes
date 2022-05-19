@@ -1,2 +1,5 @@
 *.jpg -text
 *.png -text
+*.zip -text
+*.lr -text
+
