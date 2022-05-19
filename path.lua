@@ -2458,8 +2458,8 @@ path.信用购买 = function()
 
   log(1635, "信用物品排序", order)
   -- exit()
-  -- for _, i in pairs(order) do if f(i) then break end end
-  for _, i in pairs(range(20)) do if f() then break end end
+  for _, i in pairs(order) do if f() then break end end
+  -- for _, i in pairs(range(20)) do if f() then break end end
 end
 
 get_fight_type = function(x)
@@ -4145,8 +4145,7 @@ path.前瞻投资 = function(lighter)
     end
   end
 
-  zl_captcha_time = zl_captcha_time or time()
-  if time() - zl_captcha_time > 3600 * 1000 then
+  if not zl_captcha_time or time() - zl_captcha_time > 3600 * 1000 then
     zl_captcha_time = time()
     captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. (zl_level or ''),
                           QQ)
