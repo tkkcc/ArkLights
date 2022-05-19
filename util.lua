@@ -4564,23 +4564,30 @@ end
 
 killacc = function()
   if not root_mode then return end
-  local cmd = [[sh root sh -c ' \
+  local cmd = [[su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
-kill $(pidof ]] .. package .. [[:acc)
-kill $(pidof ]] .. package .. [[)
-timeout 5 sh -c "
-while :;do
-  pidof ]] .. package .. [[:acc && break
-done
-while :;do
-  pidof ]] .. package .. [[ && break
-done
-"
+ kill $(pidof ]] .. package .. [[:acc)
+ timeout 5 sh -c \'
+ while :;do
+   pidof ]] .. package .. [[:acc && break
+ done
+ \'
+# 这个也有内存泄漏，但是不能杀
+# kill $(pidof ]] .. package .. [[)
+# timeout 5 sh -c \'
+# while :;do
+#   pidof ]] .. package .. [[ && break
+# done
+# \'
 '
 ]]
-  exec(cmd)
+  log("cmd",cmd)
+  log(exec(cmd))
+  log(1)
+
 
   tap({screen.width + 1, screen.height + 1}, true, true)
+  -- exit()
 
   cmd = [[nohup su root sh -c ' \
 sleep 5
