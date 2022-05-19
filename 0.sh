@@ -212,6 +212,18 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     ./extract.py recruit
   }
 
+  # ==== 华云外置保活
+  hy() {
+
+    # for x in "$@"; do
+    local x=$1
+    [[ -z $x ]] && continue
+    # echo === $x
+    adb connect $x >/dev/null
+    adb -s $x shell "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2>&1 &"
+    # done
+  }
+
   "$@"
   wait
 }

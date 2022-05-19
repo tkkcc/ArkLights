@@ -31,6 +31,7 @@ disable_log_wrapper = function(func)
   end
 end
 
+
 -- 无障碍函数替换
 if not openPermissionSetting then
   openPermissionSetting =
@@ -1858,11 +1859,11 @@ restartapp = function(package)
   wait_game_up()
 end
 screenoff = function()
-  if root_mode then exec('su root sh -c "input keyevent 223"') end
+  if root_mode then exec([[su root sh -c 'input keyevent 223']]) end
 end
 screenon = function()
   if root_mode then
-    exec('su root sh -c "input keyevent 224"')
+    exec([[su root sh -c 'input keyevent 224']])
   else
     -- stop("无障碍亮屏未实现")
   end
@@ -4024,7 +4025,14 @@ predebug_hook = function()
   exit()
 end
 
+_exec = exec
 check_root_mode = function()
+  log(4040)
+  if hy_exec("echo aaa"):trim() == 'aaa' then
+    exec = hy_exec
+    log('华云')
+  end
+
   if not disable_root_mode and #exec("su root sh -c 'echo aaa'") > 1 then
     root_mode = true
     disableRootToast()
@@ -4896,6 +4904,10 @@ qqhide = function(x)
   -- if #x<=7 then return x end
   -- return x:sub(1,3) + '***' + x:sub(#x-4,#x)
   return x:sub(#x - 3, #x)
+end
+
+hy_exec = function(x)
+  return _exec('echo "' .. x .. '"|nc localhost 49876')
 end
 
 -- eager post_util_hook
