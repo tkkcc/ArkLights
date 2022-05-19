@@ -47,21 +47,7 @@
     ./extract.py unpack
   }
   release() {
-    local lr=${1:-script.lr}
-    git add -u
-    cd release
-    cp /F:/software/懒人精灵3.6.0/out/main.lr $lr
-    cp ../README.md README.md
-    numfmt --to=iec $(stat -c %s $lr)
-
-    local md5=$(md5sum $lr | cut -d' ' -f1)
-    echo $md5 >$lr.md5
-    git add -A
-    git commit --amend --date=now -m "$md5"
-    git push --force
-  }
-  release() {
-    local lr=${1:-docs/.vuepress/public/script.lr}
+    local lr=docs/.vuepress/public/${1:-script.lr}
     git add -u
     # cd release
     cp /F:/software/懒人精灵3.6.0/out/main.lr $lr
@@ -70,6 +56,11 @@
 
     local md5=$(md5sum $lr | cut -d' ' -f1)
     echo $md5 >$lr.md5
+
+    # ==== 用js后缀会变快吗
+    cp $lr $lr.js
+    cp $lr.md5 $lr.md5.js
+
     # git add -A
     # git commit --amend --date=now -m "$md5"
     # git push --force
@@ -206,11 +197,15 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     git submodule update --init --recursive
     ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
 
-    local release=docs/.vuepress/public
-    zip $release/skill.zip -q -r -j png_noalpha
-    local md5=$(md5sum $release/skill.zip | cut -d' ' -f1)
-    echo $md5 >$release/skill.zip.md5
-    # cp release/skill.zip 
+    local skill=docs/.vuepress/public/skill.zip
+    zip $skill -q -r -j png_noalpha
+    local md5=$(md5sum $skill | cut -d' ' -f1)
+    echo $md5 >$skill.md5
+    # cp release/skill.zip
+
+    # ==== 用js后缀会变快吗
+    cp $skill $skill.js
+    cp $skill.md5 $skill.md5.js
 
   }
   recruit() {
