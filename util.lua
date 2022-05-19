@@ -4028,10 +4028,10 @@ end
 _exec = exec
 check_root_mode = function()
   log(4040)
-  if hy_exec("echo aaa"):trim() == 'aaa' then
-    exec = hy_exec
-    log('华云')
-  end
+  -- if hy_exec("echo aaa"):trim() == 'aaa' then
+  --   exec = hy_exec
+  --   log('华云')
+  -- end
 
   if not disable_root_mode and #exec("su root sh -c 'echo aaa'") > 1 then
     root_mode = true
