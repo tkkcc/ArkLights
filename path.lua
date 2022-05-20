@@ -4167,8 +4167,11 @@ path.前瞻投资 = function(lighter)
 
   if not zl_captcha_time or time() - zl_captcha_time > 3600 * 1000 then
     zl_captcha_time = time()
-    captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. (zl_level or ''),
-                          QQ)
+    local level = ''
+    if str2int(zl_max_level, 0) > 0 then
+      level = zl_level .. '/' .. zl_max_level
+    end
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. level, QQ)
   end
 
   -- 放弃探索
