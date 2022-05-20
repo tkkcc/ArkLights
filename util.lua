@@ -4587,7 +4587,7 @@ done
   log("cmd", cmd)
   if #exec(cmd):trim() == 0 then
     stop(
-      "acc进程重启失败，看到请反馈。可在高级设置中关闭",
+      "acc进程重启失败，华云必须按必读操作，其他请反馈。可在高级设置中暂时关闭，但会引入内存泄漏导致各种问题。",
       false)
   end
   log(1)
@@ -4921,7 +4921,9 @@ qqhide = function(x)
   return x:sub(#x - 3, #x)
 end
 
-hy_exec = function(x) return _exec('echo "' .. x .. '"|nc localhost 49876') end
+hy_exec = function(x)
+  return _exec('echo "' .. x:gsub('%$', '\\$') .. '"|nc localhost 49876')
+end
 
 -- eager post_util_hook
 loadUIConfig({"debug"})
