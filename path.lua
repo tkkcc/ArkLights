@@ -4131,7 +4131,7 @@ path.前瞻投资 = function(lighter)
   end
 
   if zl_level_enough then
-    run(no_extra_job)
+    if zl_no_waste then run(no_extra_job) end
     disable_log = false
     log("肉鸽等级已满" .. zl_max_level)
     peaceExit()
@@ -4139,23 +4139,18 @@ path.前瞻投资 = function(lighter)
 
   -- 检测等级
   local zl_level_check = function()
-    -- if not findOne("常规行动") then
-    --   wait(function()
-    --     if findOne("常规行动") then return true end
-    --     tap("战略确认")
-    --   end, 1)
-    -- end
+    if not (str2int(zl_max_level, 0) > 0) then return 0 end
+    return wait(function()
+      if not findOne("常规行动") then return 0 end
 
-    if str2int(zl_max_level, 0) > 0 and not disappear("常规行动", .5) then
       local r = point["战略等级"]
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
       x = (x[1] or {}).text
       x = tonumber(x:match("^(%d+).*"))
       log("4127", x)
       if x and x >= 0 and x <= 140 then return x end
-    end
 
-    return 0
+    end, 5) or 0
   end
   local zl_level = zl_level_check()
   if zl_level >= str2int(zl_max_level, 10000) then

@@ -181,12 +181,14 @@ username3 password3 b
 表示1次最新剿灭+99次活动9+1次CA-5+1次10-17。
 
 ::: tip 简写对应表
-- jm => dqwt*99 cqwt1*99 cqwt2*99 cqwt3*99
-- hd => hd-10*99 hd-9*99 hd-8*99 hd-7*99
-- ce => ce-6*99 ce-5*99 ... ce-1*99
-- ls/ap/sk/ca 同 ce
-- pr => pr-a-2*99 pr-b-2*99 ... pr-a-1*99 pr-b-1*99 ...
-- 简写后不可再接次数
+```txt
+jm => dqwt*99 cqwt1*99 cqwt2*99 cqwt3*99
+hd => hd-10*99 hd-9*99 hd-8*99 hd-7*99
+ce => ce-6*99 ce-5*99 ... ce-1*99
+ls/ap/sk/ca 同 ce
+pr => pr-a-2*99 pr-b-2*99 ... pr-a-1*99 pr-b-1*99 ...
+```
+简写后不可再接次数
 :::
 
 
@@ -388,6 +390,7 @@ username3 password3 b
 #### 不能选助战干员
 
 是。选任一精一满级近卫刷。可以和其他助战脚本对比下效率。
+
 
 ## 托管功能
 
