@@ -31,7 +31,6 @@ disable_log_wrapper = function(func)
   end
 end
 
-
 -- 无障碍函数替换
 if not openPermissionSetting then
   openPermissionSetting =
@@ -2668,6 +2667,11 @@ show_debug_ui = function()
                 make_jump_ui_command(layout, loadConfig("last_layout", "main")))
 
   newRow(layout)
+  -- addTextView(layout, "禁用重启acc进程")
+  -- ui.addEditText(layout, "disable_killacc", "")
+  ui.addCheckBox(layout, "disable_killacc", "禁用重启acc进程", false)
+
+  newRow(layout)
   addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
 
@@ -4560,7 +4564,7 @@ keepalive = function()
   log("keepalive")
   -- log("enable_keepalive",enable_keepalive)
   -- if not enable_keepalive then return end
-  -- killacc()
+  killacc()
   log("killacc finish")
   oom_score_adj()
   log("keepalive finish")
@@ -4568,27 +4572,26 @@ end
 
 killacc = function()
   if not root_mode then return end
+  if disable_killacc then return end
   local cmd = [[su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
- kill $(pidof ]] .. package .. [[:acc)
- timeout 5 sh -c \'
- while :;do
-   pidof ]] .. package .. [[:acc && break
- done
- \'
-# 这个也有内存泄漏，但是不能杀
-# kill $(pidof ]] .. package .. [[)
-# timeout 5 sh -c \'
-# while :;do
-#   pidof ]] .. package .. [[ && break
-# done
-# \'
+kill $(pidof ]] .. package .. [[:acc)
+
+secs=5
+endTime=$(( $(date +%s) + secs ))
+while [ $(date +%s) -lt $endTime ]; do
+  pidof ]] .. package .. [[:acc && break
+done
 '
 ]]
-  log("cmd",cmd)
-  log(exec(cmd))
+  log("cmd", cmd)
+  if #exec(cmd):trim() == 0 then
+    stop(
+      "acc进程重启失败，看到请反馈。可在高级设置中关闭",
+      false)
+  end
   log(1)
-
+  -- exit()
 
   tap({screen.width + 1, screen.height + 1}, true, true)
   -- exit()
@@ -4918,9 +4921,7 @@ qqhide = function(x)
   return x:sub(#x - 3, #x)
 end
 
-hy_exec = function(x)
-  return _exec('echo "' .. x .. '"|nc localhost 49876')
-end
+hy_exec = function(x) return _exec('echo "' .. x .. '"|nc localhost 49876') end
 
 -- eager post_util_hook
 loadUIConfig({"debug"})
