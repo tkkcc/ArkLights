@@ -677,6 +677,7 @@ path.基建收获 = function()
 
   if findOne("小蓝圈") and findOne("训练室") then
     tap("点击全部收取2")
+    zoom()
     if not wait(function()
       tap("训练室")
       log(678)
@@ -4145,7 +4146,7 @@ path.前瞻投资 = function(lighter)
     --   end, 1)
     -- end
 
-    if #zl_max_level:trim() > 0 and findOne("常规行动") then
+    if #zl_max_level:trim() > 0 and not disappear("常规行动", .5) then
       local r = point["战略等级"]
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
       x = (x[1] or {}).text

@@ -56,6 +56,9 @@
 
     local md5=$(md5sum $lr | cut -d' ' -f1)
     echo $md5 >$lr.md5
+    git add -u
+    git status
+
 
     # # ==== 用js后缀会变快吗，不会
     # cp $lr $lr.js
