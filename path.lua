@@ -4146,7 +4146,7 @@ path.前瞻投资 = function(lighter)
     --   end, 1)
     -- end
 
-    if #zl_max_level:trim() > 0 and not disappear("常规行动", .5) then
+    if str2int(zl_max_level, 0) > 0 and not disappear("常规行动", .5) then
       local r = point["战略等级"]
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
       x = (x[1] or {}).text
@@ -4158,10 +4158,10 @@ path.前瞻投资 = function(lighter)
     return 0
   end
   local zl_level = zl_level_check()
-  if zl_level >= tonumber(zl_max_level) then
+  if zl_level >= str2int(zl_max_level, 10000) then
     -- 达到需求后1秒再做一次
     ssleep(1)
-    if zl_level_check() >= tonumber(zl_max_level) then
+    if zl_level_check() >= str2int(zl_max_level, 10000) then
       zl_level_enough = true
       captureqqimagedeliver(table.join(qqmessage, ' ') .. " " ..
                               (zl_level or '') .. "等级已满", QQ)
