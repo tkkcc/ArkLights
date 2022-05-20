@@ -216,7 +216,8 @@ path.base = {
     log(cur_fight, next_fight)
 
     if table.includes({"剿灭"}, get_fight_type(cur_fight)) then
-
+      jmfight_times = (jmfight_times or 0) + 1
+      if jmfight_times >= max_jmfight_times then clean_jmfight() end
       -- if appear("全权委托", 1) then
       --   wait(function()
       --     tap("全权委托")
@@ -921,6 +922,7 @@ end
 
 -- 对于单个用户的不同任务
 update_state = function()
+  jmfight_times = 0
   no_friend = false
   cur_fight = ''
   fight_failed_times = {}

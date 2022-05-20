@@ -2680,6 +2680,10 @@ show_debug_ui = function()
   ui.addEditText(layout, "max_fight_failed_times", "2")
 
   newRow(layout)
+  addTextView(layout, "单号最大剿灭次数")
+  ui.addEditText(layout, "max_jmfight_times", "")
+
+  newRow(layout)
   addTextView(layout, "最大连续作战次数(达到重启游戏)")
   ui.addEditText(layout, "max_fight_times", "")
 
@@ -4856,6 +4860,7 @@ hd_wrapper = function(func)
 end
 
 update_state_from_debugui = function()
+  max_jmfight_times = str2int(max_jmfight_times, math.huge)
   findOne_interval = str2int(findOne_interval, -1)
   max_fight_times = str2int(max_fight_times, math.huge)
   tap_interval = str2int(tap_interval, -1)
