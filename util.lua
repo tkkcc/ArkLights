@@ -2672,7 +2672,7 @@ show_debug_ui = function()
   ui.addEditText(layout, "max_login_times", "")
 
   newRow(layout)
-  addTextView(layout, "单号5分钟内最大登录次数")
+  addTextView(layout, "单号10分钟内最大登录次数")
   ui.addEditText(layout, "max_login_times_5min", "3")
 
   newRow(layout)
@@ -4550,8 +4550,8 @@ check_login_frequency = function()
   table.insert(login_time_history, time())
   if max_login_times_5min > 0 and #login_time_history >= max_login_times_5min and
     login_time_history[#login_time_history] -
-    login_time_history[#login_time_history - max_login_times_5min + 1] < 5 * 60 *
-    1000 then stop("5分钟内登录次数达到" .. max_login_times_5min) end
+    login_time_history[#login_time_history - max_login_times_5min + 1] < 10 * 60 *
+    1000 then stop("10分钟内登录次数达到" .. max_login_times_5min) end
   log("login_time_history", login_time_history)
 
 end
