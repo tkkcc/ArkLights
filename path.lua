@@ -4142,20 +4142,21 @@ path.前瞻投资 = function(lighter)
   -- 检测等级
   local zl_level_check = function()
     if not (str2int(zl_max_level, 0) > 0) then return 0 end
+    local prex = -1
     return wait(function()
       if not findOne("常规行动") then return 0 end
 
       local r = point["战略等级"]
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
-      x = (x[1] or {}).text
-      x = tonumber(x:match("^(%d+).*"))
+      x = (x[1] or {}).text or ""
+      x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
-      if x and x >= 0 and x <= 140 then return x end
-
+      if x >= 0 and x <= 140 and prex == x then return x end
+      prex = x
     end, 5) or 0
   end
   local zl_level = zl_level_check()
-  if zl_level >= str2int(zl_max_level, 10000) then
+  if not zl_level_enough and zl_level >= str2int(zl_max_level, 10000) then
     -- 达到需求后1秒再做一次
     ssleep(1)
     if zl_level_check() >= str2int(zl_max_level, 10000) then

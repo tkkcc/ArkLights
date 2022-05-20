@@ -4584,10 +4584,10 @@ while [ $(date +%s) -lt $endTime ]; do
 done
 '
 ]]
-  log("cmd", cmd)
+  -- log("cmd", cmd)
   if #exec(cmd):trim() == 0 then
     stop(
-      "acc进程重启失败，华云必须按必读操作，其他请反馈。可在高级设置中暂时关闭，但会引入内存泄漏导致各种问题。",
+      "acc进程重启失败，华云必须按必读操作，其他请反馈。可在高级设置中暂时关闭，但会引入内存泄漏无法长时间运行。",
       false)
   end
   log(1)
