@@ -4224,10 +4224,16 @@ path.前瞻投资 = function(lighter)
 
   -- 等级满了，放弃行动后回到首页再截个图
   if zl_level_enough then
+
+    -- wait(function(reset_wait_start_time)
+    --   if not findOne("常规行动") then return true end
+    --   tap("战略确认")
+    -- end,5)
+
     captureqqimagedeliver(
       table.join(qqmessage, ' ') .. " " .. (zl_level or '') ..
         "等级已满后放弃行动", QQ)
-    return
+    return path.fallback.签到返回()
   end
 
   -- 回到常规行动？
