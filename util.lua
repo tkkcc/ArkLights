@@ -2670,7 +2670,7 @@ show_debug_ui = function()
   newRow(layout)
   -- addTextView(layout, "禁用重启acc进程")
   -- ui.addEditText(layout, "disable_killacc", "")
-  ui.addCheckBox(layout, "disable_killacc", "禁用重启acc进程", false)
+  ui.addCheckBox(layout, "enable_killacc", "启用重启acc进程", false)
 
   newRow(layout)
   addTextView(layout, "单号最大登录次数")
@@ -4573,7 +4573,7 @@ end
 
 killacc = function()
   if not root_mode then return end
-  if disable_killacc then return end
+  if not enable_killacc then return end
   local cmd = [[su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
 kill $(pidof ]] .. package .. [[:acc)
