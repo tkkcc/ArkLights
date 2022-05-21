@@ -3504,9 +3504,34 @@ predebug_hook = function()
   -- end
   --
   --
-  ssleep(1)
-  tap("面板活动2")
-  ssleep(1)
+  -- ssleep(1)
+  -- tap("面板活动2")
+  -- ssleep(1)
+  -- exit()
+  --
+  -- x = "9O古像绪记"
+  -- log(x:match("^(%d+).*"))
+  -- exit()
+  zl_max_level = '10000'
+  local zl_level_check = function()
+    if not (str2int(zl_max_level, 0) > 0) then return 0 end
+    local prex = -1
+    return wait(function()
+      if not findOne("常规行动") then return 0 end
+
+      local r = point["战略等级"]
+      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
+      log(x)
+      x = (x[1] or {}).text or ""
+      x = x:map({O='0'})
+      x = str2int(x:match("^(%d+).*"), -1)
+      log("4127", x)
+      -- 等级10以下的多等等
+      if x >= 10 and x <= 140 and x == prex then return x end
+      prex = x
+    end, 5) or 0
+  end
+  zl_level_check()
   exit()
 
   point.r = {1028, 13, 1100, 73}

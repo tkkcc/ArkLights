@@ -4157,6 +4157,7 @@ path.前瞻投资 = function(lighter)
       local r = point["战略等级"]
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
       x = (x[1] or {}).text or ""
+      x = x:map({O = '0'})
       x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
       -- 等级10以下的多等等
