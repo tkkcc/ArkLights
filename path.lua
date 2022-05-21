@@ -4207,7 +4207,8 @@ path.前瞻投资 = function(lighter)
       if jumpout then return end
 
     end
-    if not wait(function()
+    if not wait(function(reset_wait_start_time)
+      if findOne("正在提交反馈至神经") then reset_wait_start_time() end
       if findOne("返回确认界面") then
         tap("右右确认")
         return
