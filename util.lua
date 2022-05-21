@@ -1987,7 +1987,7 @@ show_multi_account_ui = function()
   saveConfig('last_layout', layout)
 
   ui.newLayout(layout, ui_page_width, -2)
-  ui.setTitleText(layout, "多账号")
+  ui.setTitleText(layout, "多账号 " .. release_date .. '  ' .. resolution)
 
   newRow(layout)
   -- ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
@@ -2674,10 +2674,10 @@ show_debug_ui = function()
   ui.setOnClick(layout .. "_stop",
                 make_jump_ui_command(layout, loadConfig("last_layout", "main")))
 
-  newRow(layout)
+  -- newRow(layout)
   -- addTextView(layout, "禁用重启acc进程")
   -- ui.addEditText(layout, "disable_killacc", "")
-  ui.addCheckBox(layout, "enable_killacc", "启用重启acc进程", false)
+  -- ui.addCheckBox(layout, "enable_killacc", "启用重启acc进程", false)
 
   newRow(layout)
   addTextView(layout, "单号最大登录次数")
@@ -2906,7 +2906,7 @@ show_extra_ui = function()
   saveConfig('last_layout', layout)
 
   ui.newLayout(layout, ui_page_width, -2)
-  ui.setTitleText(layout, "其他功能")
+  ui.setTitleText(layout, "其他功能 " .. release_date .. '  ' .. resolution)
 
   newRow(layout)
   ui.addButton(layout, layout .. "_stop", "返回")
@@ -3478,6 +3478,8 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+
+  -- while true do tap({500, 500}) end
 
   -- log(colorDiff('ffcfcfcf','fffcfcfc'))
   -- exit()
@@ -4580,7 +4582,9 @@ end
 
 killacc = function()
   if not root_mode then return end
-  if not enable_killacc then return end
+  collectgarbage("collect")
+  if 1 then return end
+  -- if not di_killacc then return end
   local cmd = [[su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
 kill $(pidof ]] .. package .. [[:acc)
