@@ -228,6 +228,11 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     # done
   }
 
+  # === adb 修改模式
+  mode(){
+    ./dlt.py mode "$@"
+  }
+
   "$@"
   wait
 }

@@ -1788,6 +1788,7 @@ captureqqimagedeliver = function(info, to)
   local f = io.open(getWorkPath() .. '/.nomedia', 'w')
   f:close()
   local img = getWorkPath() .. "/tmp.jpg"
+  local img_src = img
 
   if not qqnotify_bar then
     hideControlBar()
@@ -1822,6 +1823,18 @@ captureqqimagedeliver = function(info, to)
   info = tostring(info):trim()
   to = tostring(to)
   notify(img, info, to)
+
+  if qqnotify_save then
+    local f = io.open(img_src, 'rb')
+    img = f:read()
+    f:close()
+    local img_dst = '/sdcard/' .. package .. '/' .. path_name_escape(info) ..
+                      '.jpg'
+    log("img_dst", img_dst)
+    f = io.open(img_dst, 'wb')
+    f:write(img)
+    f:close()
+  end
 end
 
 poweroff =
@@ -2748,6 +2761,10 @@ show_debug_ui = function()
   ui.addEditText(layout, "pushplus_token", "")
 
   newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_save",
+                 "QQ通知保存到/sdcard/包名 (自行清理)", false)
+
+  newRow(layout)
   ui.addCheckBox(layout, "qqnotify_quiet",
                  "QQ通知设备名与账号名只显示备注", false)
 
@@ -2768,6 +2785,7 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_afterenter",
                  "QQ通知显示基建进入后情况", false)
+
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_beforeleaving",
                  "QQ通知显示基建退出前情况", false)
@@ -2821,10 +2839,6 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "zl_disable_lighter",
                  "前瞻投资禁用升级幕后筹备", false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "snapshot_after_run",
-                 "保存账号完成后截屏至/sdcard", false)
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
@@ -3523,7 +3537,7 @@ predebug_hook = function()
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
       log(x)
       x = (x[1] or {}).text or ""
-      x = x:map({O='0'})
+      x = x:map({O = '0'})
       x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
       -- 等级10以下的多等等
@@ -4967,6 +4981,8 @@ end
 hy_exec = function(x)
   return _exec('echo "' .. x:gsub('%$', '\\$') .. '"|nc localhost 49876')
 end
+
+path_name_escape = function(x) return x:map({['/'] = '_'}) end
 
 -- eager post_util_hook
 loadUIConfig({"debug"})
