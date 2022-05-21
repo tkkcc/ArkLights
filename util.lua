@@ -1987,6 +1987,9 @@ show_multi_account_ui = function()
   saveConfig('last_layout', layout)
 
   ui.newLayout(layout, ui_page_width, -2)
+
+  local screen = getScreen()
+  local resolution = screen.width .. 'x' .. screen.height
   ui.setTitleText(layout, "多账号 " .. release_date .. '  ' .. resolution)
 
   newRow(layout)
@@ -2906,6 +2909,9 @@ show_extra_ui = function()
   saveConfig('last_layout', layout)
 
   ui.newLayout(layout, ui_page_width, -2)
+
+  local screen = getScreen()
+  local resolution = screen.width .. 'x' .. screen.height
   ui.setTitleText(layout, "其他功能 " .. release_date .. '  ' .. resolution)
 
   newRow(layout)
