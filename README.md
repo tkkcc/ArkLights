@@ -17,6 +17,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 ![](cover.jpg)
 
+
 ## 特点
 
 1. 支持明日方舟官服与B服。
@@ -368,4 +369,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 1. [明日方舟中间人攻击框架](https://github.com/LXG-Shadow/Arknights-Dolos)
 1. [Rhine-DFramwork](https://github.com/Rhine-Department-0xf/Rhine-DFramwork)
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tkkcc/ArkLights,ArknightsAutoHelper/ArknightsAutoHelper,MaaAssistantArknights/MaaAssistantArknights&type=Date)](https://star-history.com/#tkkcc/ArkLights&ArknightsAutoHelper/ArknightsAutoHelper&MaaAssistantArknights/MaaAssistantArknights&Date)
 

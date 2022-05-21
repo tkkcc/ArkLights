@@ -58,6 +58,7 @@
     echo $md5 >$lr.md5
     git add -u
     git status
+    git commit
 
 
     # # ==== 用js后缀会变快吗，不会
