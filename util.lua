@@ -2330,7 +2330,8 @@ notifypp = function(image, info, to, sync)
   log("#content", #content)
   if #content > 19900 then content = encodeUrl(to) end
 
-  local param = "content=" .. content .. "&title=" .. encodeUrl(info) ..
+  -- 不发图更好
+  local param = "content=" .. encodeUrl(info) .. "&title=" .. encodeUrl(info) ..
                   "&token=" .. encodeUrl(to) .. "&template=markdown"
   log('notify pp', info, to)
   -- log("param", param)

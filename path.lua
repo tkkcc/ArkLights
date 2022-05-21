@@ -3040,6 +3040,11 @@ clean_jmfight = function()
     return get_fight_type(v) == '剿灭'
   end)
   log("after jmfight clean", fight, fight_tick)
+
+  -- if qqnotify_jmfight then
+  --   captureqqimagedeliver(table.join(qqmessage, ' ') .. " " ..
+  --                           "剿灭合成玉", QQ)
+  -- end
   -- end
 end
 
@@ -4151,7 +4156,8 @@ path.前瞻投资 = function(lighter)
       x = (x[1] or {}).text or ""
       x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
-      if x >= 0 and x <= 140 and prex == x then return x end
+      -- 等级10以下的多等等
+      if x >= 10 and x <= 140 and x == prex then return x end
       prex = x
     end, 5) or 0
   end
@@ -4208,7 +4214,9 @@ path.前瞻投资 = function(lighter)
 
     end
     if not wait(function(reset_wait_start_time)
-      if findOne("正在提交反馈至神经") then reset_wait_start_time() end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
       if findOne("返回确认界面") then
         tap("右右确认")
         return
