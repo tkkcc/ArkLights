@@ -1149,13 +1149,20 @@ zoom = function(retry)
 end
 
 -- 为什么auto要有两组状态： 第二组状态点唯一性不足，比如返回与邮件同时出现时，需要的是邮件。没有优先级。
-auto = function(p, fallback, timeout, total_timeout)
+auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
   if type(p) == "function" then return p() end
   if type(p) ~= "table" then return true end
   local start_time = time()
   while true do
     if total_timeout and time() - start_time > total_timeout * 1000 then
-      return true
+      if total_timeout_restart then
+        -- should be a hook, by defualt restartapp
+        -- 应对进关卡黑屏、启动游戏黑屏、卡死
+        restartapp(appid)
+        return auto(p, fallback, timeout, total_timeout, total_timeout_restart)
+      else
+        return true
+      end
     end
     -- local found = false
     local finish = false

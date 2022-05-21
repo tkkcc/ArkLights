@@ -259,7 +259,9 @@ path.base = {
       end
     end
   end,
-  bilibili_framelayout_only = function() auto(path.bilibili_login) end,
+  bilibili_framelayout_only = function()
+    auto(path.bilibili_login, nil, 0, 300, true)
+  end,
   -- bilibili_account_switch = function() auto(path.bilibili_login) end,
 }
 
@@ -881,7 +883,8 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
 
   stay_in_dorm_once = x == "基建"
 
-  auto(p, path.fallback)
+  -- 5分钟跳转失败
+  auto(p, path.fallback, 0, 300, true)
 
   -- post processing especially for 基建
   if x == "基建" and not disable_postprocess then zoom() end
@@ -4021,7 +4024,7 @@ path.退出账号 = function()
     [function()
       return findOne("bilibili_framelayout_only") and
                not findOne("bilibili_username_inputbox")
-    end] = function() auto(path.bilibili_login_change) end,
+    end] = function() auto(path.bilibili_login_change, nil, 0, 300, true) end,
     面板 = function()
       tap("面板设置", true)
       if not appear("返回3") then return end
@@ -4039,7 +4042,7 @@ path.退出账号 = function()
     end,
     bilibili_username_inputbox = true,
     手机验证码登录 = true,
-  }, nil, true), path.fallback)
+  }, nil, true), path.fallback, 0, 300)
 end
 
 path.前瞻投资 = function(lighter)
