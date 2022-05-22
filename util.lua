@@ -2977,6 +2977,7 @@ show_extra_ui = function()
   ui.addEditText(layout, "zl_need_goods", [[]])
   addTextView(layout, [[等级需求]])
   ui.addEditText(layout, "zl_max_level", [[]])
+  newRow(layout)
   addTextView(layout, [[源石锭需求]])
   ui.addEditText(layout, "zl_max_coin", [[]])
 
@@ -3551,7 +3552,6 @@ predebug_hook = function()
   -- zl_level_check()
   -- exit()
 
-
   point.r = {1028, 13, 1100, 73}
   point.r = {1049, 38, 1088, 62}
   point.r = {1034, 14, 1244, 116}
@@ -3560,7 +3560,7 @@ predebug_hook = function()
     -- local p = ocrBinaryEx(1010, 13, 1106, 73, "FFB525-755316",100)
     -- local p = ocrEx(1056, 575, 1251, 659)
     -- local p = ocrEx( 160,542,311,596)
-    local p = ocrBinaryEx( 161,542,270,589, "000000-3a3a3a")
+    local p = ocrBinaryEx(161, 542, 270, 589, "000000-3a3a3a")
     -- local p = ocrBinaryEx(1056, 575, 1251, 659,"FFFFFF-303030")
     -- local p = ocrBinaryEx(0,0,1280,720,"FFB525-755316")
     -- local p = ocrBinaryEx( 1014-200,0,1254,132,"FFB525-755316")
@@ -4989,6 +4989,20 @@ hy_exec = function(x)
 end
 
 path_name_escape = function(x) return x:map({['/'] = '_'}) end
+
+number_ocr_correct = function(x)
+  return x:map({
+    ["O"] = '0',
+    ["o"] = '0',
+    ["|"] = '1',
+    ["z"] = '2',
+    ["Z"] = '2',
+    ['s'] = '5',
+    ['S'] = '5',
+    ['e'] = '8',
+    ['B'] = '8',
+  })
+end
 
 -- eager post_util_hook
 loadUIConfig({"debug"})

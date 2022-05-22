@@ -4164,7 +4164,7 @@ path.前瞻投资 = function(lighter)
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-bc8522") or {}
       log("4126", x)
       x = (x[1] or {}).text or ""
-      x = x:map({O = '0', ["|"] = '1'})
+      x = number_ocr_correct(x)
       x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
       if x >= 0 and x <= 140 and x == prex then return x end
@@ -4194,7 +4194,7 @@ path.前瞻投资 = function(lighter)
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-3a3a3a") or {}
       log(4195, x)
       x = (x[1] or {}).text or ""
-      x = x:map({O = '0', ["|"] = '1'})
+      x = number_ocr_correct(x)
       x = str2int(x:match("^(%d+).*"), -1)
       log("4128", x)
       if x >= 0 and x == prex then return x end
