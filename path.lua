@@ -4146,6 +4146,12 @@ path.前瞻投资 = function(lighter)
     log("肉鸽等级已满" .. zl_max_level)
     peaceExit()
   end
+  if zl_coin_enough then
+    if zl_no_waste then run(no_extra_job) end
+    disable_log = false
+    log("肉鸽源石锭已满" .. zl_max_coin)
+    peaceExit()
+  end
 
   -- 检测等级
   local zl_level_check = function()
@@ -4155,13 +4161,13 @@ path.前瞻投资 = function(lighter)
       if not findOne("常规行动") then return 0 end
 
       local r = point["战略等级"]
-      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
+      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-bc8522") or {}
+      log("4126", x)
       x = (x[1] or {}).text or ""
       x = x:map({O = '0', ["|"] = '1'})
       x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
-      -- 等级10以下的多等等
-      if x >= 10 and x <= 140 and x == prex then return x end
+      if x >= 0 and x <= 140 and x == prex then return x end
       prex = x
     end, 5) or 0
   end
@@ -4178,13 +4184,49 @@ path.前瞻投资 = function(lighter)
     end
   end
 
+  -- 检测源石锭
+  local zl_coin_check = function()
+    if not (str2int(zl_max_coin, 0) > 0) then return 0 end
+    local prex = -1
+    return wait(function()
+      if not findOne("常规行动") then return 0 end
+      local r = point["战略源石锭"]
+      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-3a3a3a") or {}
+      log(4195, x)
+      x = (x[1] or {}).text or ""
+      x = x:map({O = '0', ["|"] = '1'})
+      x = str2int(x:match("^(%d+).*"), -1)
+      log("4128", x)
+      if x >= 0 and x == prex then return x end
+      prex = x
+    end, 5) or 0
+  end
+
+  local zl_coin = zl_coin_check()
+  if not zl_coin_enough and zl_coin >= str2int(zl_max_coin, 10000) then
+    -- 达到需求后1秒再做一次
+    ssleep(1)
+    if zl_coin_check() >= str2int(zl_max_coin, 10000) then
+      zl_coin_enough = true
+      captureqqimagedeliver(
+        table.join(qqmessage, ' ') .. " " .. (zl_coin or '') ..
+          "源石锭已满", QQ)
+    else
+      zl_coin = 0
+    end
+  end
+
+  -- 等级/源石锭 阶段性通知
   if not zl_captcha_time or time() - zl_captcha_time > 3600 * 1000 then
     zl_captcha_time = time()
-    local level = ''
+    local info = ''
     if str2int(zl_max_level, 0) > 0 then
-      level = zl_level .. '/' .. zl_max_level
+      info = info .. zl_level .. '/' .. zl_max_level .. ' '
     end
-    captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. level, QQ)
+    if str2int(zl_max_coin, 0) > 0 then
+      info = info .. zl_coin .. '/' .. zl_max_coin
+    end
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. info, QQ)
   end
 
   -- 放弃探索
@@ -4242,16 +4284,14 @@ path.前瞻投资 = function(lighter)
   if jumpout then return end
 
   -- 等级满了，放弃行动后回到首页再截个图
-  if zl_level_enough then
+  if zl_level_enough or zl_coin_enough then
 
     -- wait(function(reset_wait_start_time)
     --   if not findOne("常规行动") then return true end
     --   tap("战略确认")
     -- end,5)
 
-    captureqqimagedeliver(
-      table.join(qqmessage, ' ') .. " " .. (zl_level or '') ..
-        "等级已满后放弃行动", QQ)
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. "放弃行动后", QQ)
     return path.fallback.签到返回()
   end
 

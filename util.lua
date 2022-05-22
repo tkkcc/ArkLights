@@ -2977,6 +2977,8 @@ show_extra_ui = function()
   ui.addEditText(layout, "zl_need_goods", [[]])
   addTextView(layout, [[等级需求]])
   ui.addEditText(layout, "zl_max_level", [[]])
+  addTextView(layout, [[源石锭需求]])
+  ui.addEditText(layout, "zl_max_coin", [[]])
 
   -- ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", false)
   -- newRow(layout)
@@ -3526,27 +3528,29 @@ predebug_hook = function()
   -- x = "9O古像绪记"
   -- log(x:match("^(%d+).*"))
   -- exit()
-  zl_max_level = '10000'
-  local zl_level_check = function()
-    if not (str2int(zl_max_level, 0) > 0) then return 0 end
-    local prex = -1
-    return wait(function()
-      if not findOne("常规行动") then return 0 end
+  -- zl_max_level = '10000'
+  -- local zl_level_check = function()
+  --   if not (str2int(zl_max_level, 0) > 0) then return 0 end
+  --   local prex = -1
+  --   return wait(function()
+  --     if not findOne("常规行动") then return 0 end
+  --
+  --     local r = point["战略等级"]
+  --     -- local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-bc8522") or {}
+  --     local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-bc8522") or {}
+  --     log(x)
+  --     x = (x[1] or {}).text or ""
+  --     x = x:map({O = '0'})
+  --     x = str2int(x:match("^(%d+).*"), -1)
+  --     log("4127", x)
+  --     -- 等级10以下的多等等
+  --     if x >= 10 and x <= 140 and x == prex then return x end
+  --     prex = x
+  --   end, 5) or 0
+  -- end
+  -- zl_level_check()
+  -- exit()
 
-      local r = point["战略等级"]
-      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-755120") or {}
-      log(x)
-      x = (x[1] or {}).text or ""
-      x = x:map({O = '0'})
-      x = str2int(x:match("^(%d+).*"), -1)
-      log("4127", x)
-      -- 等级10以下的多等等
-      if x >= 10 and x <= 140 and x == prex then return x end
-      prex = x
-    end, 5) or 0
-  end
-  zl_level_check()
-  exit()
 
   point.r = {1028, 13, 1100, 73}
   point.r = {1049, 38, 1088, 62}
@@ -3555,6 +3559,8 @@ predebug_hook = function()
     -- ssleep(1)
     -- local p = ocrBinaryEx(1010, 13, 1106, 73, "FFB525-755316",100)
     -- local p = ocrEx(1056, 575, 1251, 659)
+    -- local p = ocrEx( 160,542,311,596)
+    local p = ocrBinaryEx( 161,542,270,589, "000000-3a3a3a")
     -- local p = ocrBinaryEx(1056, 575, 1251, 659,"FFFFFF-303030")
     -- local p = ocrBinaryEx(0,0,1280,720,"FFB525-755316")
     -- local p = ocrBinaryEx( 1014-200,0,1254,132,"FFB525-755316")
@@ -3563,7 +3569,7 @@ predebug_hook = function()
     -- local p = ocrBinaryEx(1020, 39, 1254, 70, "000000-64461C")
     -- local p = ocrBinaryEx(1020, 39, 1254, 70, "000000-755120")
 
-    local p = ocrBinaryEx(1020, 39, 1280 - 1, 70, "000000-755120")
+    -- local p = ocrBinaryEx(1020, 39, 1280 - 1, 70, "000000-755120")
 
     -- local p = ocrBinaryEx( 1014-200,0,1254,78,"FFFFFF-755316")
     log(type(p), p)
