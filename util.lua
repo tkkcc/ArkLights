@@ -1840,7 +1840,7 @@ end
 poweroff =
   function() if root_mode then exec("su root sh -c 'reboot -p'") end end
 closeapp = function(package)
-  log("closeapp", package)
+  -- log("closeapp", package)
   if not isAppInstalled(package) then return end
   if root_mode then
     exec("su root sh -c 'am force-stop " .. package .. "'")
@@ -2827,18 +2827,22 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "disable_free_draw",
                  "限时活动禁用赠送寻访(每日单抽)", false)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "zl_disable_lighter",
+                 "前瞻投资禁用升级幕后筹备", false)
   newRow(layout)
   ui.addCheckBox(layout, "disable_strick_account_check",
                  "多账号允许不填帐密(双服单号玩家)", false)
+  newRow(layout)
+  addTextView(layout, "多账号双休日跳过账号")
+  ui.addEditText(layout, "multi_account_choice_weekday_only", '')
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_keepalive",
   --                "保活模式(需关root通知与“X正在运行”通知)",
   --                false)
 
-  newRow(layout)
-  ui.addCheckBox(layout, "zl_disable_lighter",
-                 "前瞻投资禁用升级幕后筹备", false)
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
@@ -4933,6 +4937,9 @@ hd_wrapper = function(func)
 end
 
 update_state_from_debugui = function()
+  multi_account_choice_weekday_only = expand_number_config(
+                                        multi_account_choice_weekday_only or '')
+
   max_jmfight_times = str2int(max_jmfight_times, math.huge)
   findOne_interval = str2int(findOne_interval, -1)
   max_fight_times = str2int(max_fight_times, math.huge)
@@ -5009,6 +5016,12 @@ number_ocr_correct = function(x)
     ['e'] = '8',
     ['B'] = '8',
   })
+end
+
+isweekday = function()
+  local cur_time = tonumber(os.date("%w", os.time()))
+  if cur_time == 0 then cur_time = 7 end
+  if cur_time < 6 then return true end
 end
 
 -- eager post_util_hook

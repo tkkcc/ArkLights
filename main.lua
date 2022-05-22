@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.05.22 17:31"
+release_date = "2022.05.22 19:08"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -156,10 +156,20 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
                                 table.slice(multi_account_choice, 1, idx - 1)),
                    ' '))
 
-    if disable_strick_account_check or #username > 0 and #password > 0 then
-      run(job)
+    -- 账密有一为空
+    local skip_account = false
+    if not (disable_strick_account_check or #username > 0 and #password > 0) then
+      skip_account = true
     end
 
+    -- 双休日不上号
+    if not isweekday() and table.includes(multi_account_choice_weekday_only, i) then
+      skip_account = true
+    end
+
+    if not skip_account then
+      run(job)
+    end
   end
   saveConfig("continue_account", '')
 elseif not crontab_enable_only then
