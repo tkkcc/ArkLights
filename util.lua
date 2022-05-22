@@ -2709,7 +2709,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "单号最大剿灭次数")
-  ui.addEditText(layout, "max_jmfight_times", "")
+  ui.addEditText(layout, "max_jmfight_times", "1")
 
   newRow(layout)
   addTextView(layout, "最大连续作战次数(达到重启游戏)")
@@ -2773,6 +2773,7 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_bar", "QQ通知显示悬浮按钮", false)
+
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nofailedfight",
@@ -2977,12 +2978,11 @@ show_extra_ui = function()
   ui.addCheckBox(layout, "zl_no_waste", "每8小时做日常", false)
 
   newRow(layout)
-  addTextView(layout, [[商品需求]])
+  addTextView(layout, [[需求商品]])
   ui.addEditText(layout, "zl_need_goods", [[]])
-  addTextView(layout, [[等级需求]])
+  addTextView(layout, [[等级]])
   ui.addEditText(layout, "zl_max_level", [[]])
-  newRow(layout)
-  addTextView(layout, [[源石锭需求]])
+  addTextView(layout, [[源石锭]])
   ui.addEditText(layout, "zl_max_coin", [[]])
 
   -- ui.addCheckBox(layout, "zl_disable_game_up_check", "禁用前台检查", false)
