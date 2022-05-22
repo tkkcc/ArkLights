@@ -2532,6 +2532,7 @@ path.轮次作战 = function()
     if fight_failed_times[cur_fight] >= max_fight_failed_times then
       clean_fight(cur_fight)
     end
+    request_memory_clean()
   end
 end
 

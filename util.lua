@@ -786,10 +786,10 @@ findOne = function(x, confidence, disable_game_up_check)
     wait_game_up()
   end
 
-  if (time() - findOne_keepalive_check_last_time > keepalive_interval * 1000) then
-    findOne_keepalive_check_last_time = time()
-    keepalive()
-  end
+  -- if (time() - findOne_keepalive_check_last_time > keepalive_interval * 1000) then
+  --   findOne_keepalive_check_last_time = time()
+  --   keepalive()
+  -- end
 
   local x0 = x
   confidence = confidence or default_findcolor_confidence
@@ -1876,6 +1876,7 @@ restartapp = function(package)
   login_times = (login_times or 0) - 1
   closeapp(package)
   wait_game_up()
+  request_memory_clean()
 end
 screenoff = function()
   if root_mode then exec([[su root sh -c 'input keyevent 223']]) end
@@ -2774,7 +2775,6 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_bar", "QQ通知显示悬浮按钮", false)
 
-
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nofailedfight",
                  "QQ通知不显示代理失败信息", false)
@@ -2843,7 +2843,6 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "enable_keepalive",
   --                "保活模式(需关root通知与“X正在运行”通知)",
   --                false)
-
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "disable_shift_mood", "高产换班忽略心情", false)
@@ -3342,8 +3341,8 @@ input = function(selector, text)
 end
 -- input = disable_game_up_check_wrapper(input)
 
-enable_accessibility_service = function()
-  if isAccessibilityServiceRun() then return end
+enable_accessibility_service = function(force)
+  if isAccessibilityServiceRun() and not force then return end
   if root_mode then
     local service = package .. "/com.nx.assist.AssistService"
     local services = exec(
@@ -3385,6 +3384,7 @@ settings put secure enabled_accessibility_services ]] ..
 settings put secure enabled_accessibility_services ]] .. other_services ..
            (#other_services > 0 and ':' or '') .. service .. [[;
 ']])
+    log(3386)
     if wait(function() return isAccessibilityServiceRun() end) then return end
   end
   openPermissionSetting()
@@ -3506,7 +3506,7 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
 
-  -- while true do tap({500, 500}) end
+  while true do if not isAccessibilityServiceRun() then log(1) end end
 
   -- log(colorDiff('ffcfcfcf','fffcfcfc'))
   -- exit()
@@ -4535,7 +4535,7 @@ end
 
 restart_game_check_last_time = nil
 restart_game_check = function(timeout)
-  timeout = timeout or 1800 -- 半小时
+  timeout = timeout or 3600
   log(3145, timeout)
   restart_game_check_last_time = restart_game_check_last_time or time()
   if (time() - restart_game_check_last_time) > timeout * 1000 then
@@ -4645,33 +4645,36 @@ end
 killacc = function()
   if not root_mode then return end
   collectgarbage("collect")
-  if 1 then return end
+  -- if 1 then return end
   -- if not di_killacc then return end
   local cmd = [[su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
 kill $(pidof ]] .. package .. [[:acc)
 
-secs=5
+secs=2
 endTime=$(( $(date +%s) + secs ))
 while [ $(date +%s) -lt $endTime ]; do
   pidof ]] .. package .. [[:acc && break
 done
 '
 ]]
+  exec(cmd)
+  log(4662)
+  enable_accessibility_service()
   -- log("cmd", cmd)
-  if #exec(cmd):trim() == 0 then
-    stop(
-      "acc进程重启失败，华云必须按必读操作，其他请反馈。可在高级设置中暂时关闭，但会引入内存泄漏无法长时间运行。",
-      false)
-  end
-  log(1)
+  -- if #exec(cmd):trim() == 0 then
+  -- stop(
+  --   "acc进程重启失败，华云必须按必读操作，其他请反馈。可在高级设置中暂时关闭，但会引入内存泄漏无法长时间运行。",
+  --   false)
+  -- end
+  -- log(1)
   -- exit()
 
   tap({screen.width + 1, screen.height + 1}, true, true)
   -- exit()
 
   cmd = [[nohup su root sh -c ' \
-sleep 5
+sleep 10
 settings put global heads_up_notifications_enabled 1
 ' > /dev/null & ]]
   exec(cmd)
@@ -5022,6 +5025,14 @@ isweekday = function()
   local cur_time = tonumber(os.date("%w", os.time()))
   if cur_time == 0 then cur_time = 7 end
   if cur_time < 6 then return true end
+end
+
+memory_clean_last_time = 0
+request_memory_clean = function()
+  if (time() - memory_clean_last_time > keepalive_interval * 1000) then
+    memory_clean_last_time = time()
+    keepalive()
+  end
 end
 
 -- eager post_util_hook
