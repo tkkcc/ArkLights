@@ -3385,7 +3385,7 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
            (#other_services > 0 and ':' or '') .. service .. [[;
 ']])
     log(3386)
-    if wait(function() return isAccessibilityServiceRun() end) then return end
+    if wait(function() return isAccessibilityServiceRun() end,5) then return end
   end
   openPermissionSetting()
   toast("请开启无障碍权限")
