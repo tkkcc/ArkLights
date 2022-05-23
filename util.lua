@@ -2695,6 +2695,7 @@ show_debug_ui = function()
   -- addTextView(layout, "禁用重启acc进程")
   -- ui.addEditText(layout, "disable_killacc", "")
   -- ui.addCheckBox(layout, "enable_killacc", "启用重启acc进程", false)
+  --
 
   newRow(layout)
   addTextView(layout, "单号最大登录次数")
@@ -2710,7 +2711,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "单号最大剿灭次数")
-  ui.addEditText(layout, "max_jmfight_times", "1")
+  ui.addEditText(layout, "max_jmfight_times", "")
 
   newRow(layout)
   addTextView(layout, "最大连续作战次数(达到重启游戏)")
@@ -2748,6 +2749,10 @@ show_debug_ui = function()
     ui.addEditText(layout, "max_drug_times_" .. i .. "day", default)
     addTextView(layout, "次")
   end
+
+  newRow(layout)
+  ui.addCheckBox(layout, "zero_san_after_fight",
+                 "作战理智不足无法继续时跑1-7", false)
 
   newRow(layout)
   addTextView(layout, "QQ通知账号")
@@ -2835,6 +2840,7 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "disable_strick_account_check",
                  "多账号允许不填帐密(双服单号玩家)", false)
+
   newRow(layout)
   addTextView(layout, "多账号双休日跳过账号")
   ui.addEditText(layout, "multi_account_choice_weekday_only", '')
@@ -2864,6 +2870,12 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "重启acc进程间隔(acc进程有内存泄漏)")
   ui.addEditText(layout, "keepalive_interval1", "3600")
+
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_killacc1", "禁用重启acc进程", false)
+  -- addTextView(layout, "禁用重启acc")
+  -- ui.addEditText(layout, "disable_killacc", "")
+  -- ui.addCheckBox(layout, "enable_killacc", "启用重启acc进程", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "enable_log", "开启日志(会导致闪退)", false)
@@ -2989,15 +3001,16 @@ show_extra_ui = function()
   -- addTextView(layout, [[重启间隔(秒)]])
   -- ui.addEditText(layout, "zl_restart_interval", [[]])
 
-  newRow(layout)
-  addTextView(layout,
-              [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2 可打观光驯兽，更多干员测试见群精华消息。]] ..
-                [[支持凌晨4点数据更新、支持掉线抢登情况、支持每8小时做日常。支持16:9及以上分辨率，但建议16:9，否则可能选不到后勤队。]] ..
-                [[游戏本体存在内存泄漏，因此会抽空重启。如果1小时内就出现脚本停止运行、随机界面卡住、悬浮按钮消失，应把“高级设置”中两个3600重启间隔调小(如900)。]] ..
-                [[999源石锭刷取耗时与难度、幕后筹备无关，与是否通关三结局、网络延迟有关，双结局耗时10时14分(97个/时)，三结局耗时8时10分(122个/时)，低网络延迟+三结局耗时7时21分(135个/时)。]] ..
-                [[如需刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”。]] ..
-                [[商品需求可填商品名称关键字，用空格隔开(如填“玩 金 骑士”)，则刷到其中任一商品就会停止并通知QQ]])
-
+  -- newRow(layout)
+  -- addTextView(layout,
+  --             [[用于刷源石锭投资、等级(蜡烛)、藏品、剧目等。应选择常见5、6星近卫，临光1、煌2、山2、羽毛笔1、帕拉斯1、赫拉格2、史尔特尔2、银灰1、幽灵鲨1、拉狗2，更多干员测试见群精华消息。]] ..
+  --   [[刷源石锭应选“观光难度”，不勾“多点蜡烛”、“跳过投币”]]
+  --               [[支持凌晨4点数据更新、支持掉线抢登情况、支持每8小时做日常。支持16:9及以上分辨率，但建议16:9，否则可能选不到后勤队。]] ..
+  --               [[游戏本体存在内存泄漏，因此会抽空重启。如果1小时内就出现脚本停止运行、随机界面卡住、悬浮按钮消失，应把“高级设置”中两个3600重启间隔调小(如900)。]] ..
+  --               [[999源石锭刷取耗时与难度、幕后筹备无关，与是否通关三结局、网络延迟有关，双结局耗时10时14分(97个/时)，三结局耗时8时10分(122个/时)，低网络延迟+三结局耗时7时21分(135个/时)。]] ..
+  --               [[如需刷等级(蜡烛)，应选普通难度，勾“多点蜡烛”与“跳过投币”。]] ..
+  --               [[商品需求可填商品名称关键字，用空格隔开(如填“玩 金 骑士”)，则刷到其中任一商品就会停止并通知QQ]])
+  --
   -- ui.(layout, layout .. "_invest", "集成战略前瞻性投资")
   -- ui.setOnClick(layout .. "_invest", make_jump_ui_command(layout, nil,
   --                                                         "extra_mode='前瞻投资';lock:remove(main_ui_lock)"))
@@ -3008,9 +3021,9 @@ show_extra_ui = function()
                                  "extra_mode='公开招募加急';lock:remove(main_ui_lock)"))
   addTextView(layout, [[保留标签]])
   ui.addEditText(layout, layout .. "_recruit_important_tag", [[]])
-  newRow(layout)
-  addTextView(layout,
-              [[用于刷黄绿票，或刷出指定标签。使用加急券在第一个公招位反复执行“公开招募”任务，沿用脚本主页的“自动招募”设置。“自动招募”只勾“其他”时，刷出保底标签就停；只勾“其他”、“4”时，刷出保底小车、保底5星、资深就停；其余同理。如果想刷到指定标签就停，则“保留标签”填期望标签（例如填“削弱 快速复活”）。]])
+  -- newRow(layout)
+  -- addTextView(layout,
+  --             [[用于刷黄绿票，或刷出指定标签。使用加急券在第一个公招位反复执行“公开招募”任务，沿用脚本主页的“自动招募”设置。“自动招募”只勾“其他”时，刷出保底标签就停；只勾“其他”、“4”时，刷出保底小车、保底5星、资深就停；其余同理。如果想刷到指定标签就停，则“保留标签”填期望标签（例如填“削弱 快速复活”）。]])
 
   -- newRow(layout)
   -- addButton(layout, layout .. "_hd2_shop", "遗尘漫步任务与商店",
@@ -3385,7 +3398,7 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
            (#other_services > 0 and ':' or '') .. service .. [[;
 ']])
     log(3386)
-    if wait(function() return isAccessibilityServiceRun() end,5) then return end
+    if wait(function() return isAccessibilityServiceRun() end, 5) then return end
   end
   openPermissionSetting()
   toast("请开启无障碍权限")
@@ -3505,6 +3518,9 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+  ssleep(1)
+  log(findOne("开始行动"))
+  exit()
 
   while true do if not isAccessibilityServiceRun() then log(1) end end
 
@@ -4646,12 +4662,12 @@ killacc = function()
   if not root_mode then return end
   collectgarbage("collect")
   -- if 1 then return end
-  -- if not di_killacc then return end
+  if disable_killacc1 then return end
   local cmd = [[su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
 kill $(pidof ]] .. package .. [[:acc)
 
-secs=2
+secs=5
 endTime=$(( $(date +%s) + secs ))
 while [ $(date +%s) -lt $endTime ]; do
   pidof ]] .. package .. [[:acc && break

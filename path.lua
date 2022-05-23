@@ -227,6 +227,7 @@ path.base = {
       --   end, 30)
       -- end
       -- 剿灭必须回主页
+      -- if not appear("主页") then back() end
       path.跳转("首页")
     elseif next_fight == cur_fight then
       fight_tick = next_fight_tick
@@ -919,6 +920,7 @@ init_state = function()
   communication_enough = false
   jmfight_enough = false
   zero_san = false
+  zero_san_hit = 0
 
   first_time_swipe = true
 end
@@ -2522,7 +2524,7 @@ path.轮次作战 = function()
     log(971, cur_fight)
     if cur_fight == 'BREAK' then break end
     if not same_page_fight(pre_fight, cur_fight) then path.跳转("首页") end
-    log(820, fight, fight_tick)
+    log(820, fight, fight_tick_ui)
     pre_fight = nil
 
     path[get_fight_type(cur_fight)](cur_fight)
@@ -2532,8 +2534,18 @@ path.轮次作战 = function()
     if fight_failed_times[cur_fight] >= max_fight_failed_times then
       clean_fight(cur_fight)
     end
+
+    -- 清光理智: 第一次理智不足时，转为1-7
+    if zero_san_after_fight and zero_san then
+      if zero_san_hit > 0 then break end
+      zero_san_hit = zero_san_hit + 1
+      zero_san = false
+      fight_tick = 0
+      fight = {"1-7"}
+    end
     request_memory_clean()
   end
+
 end
 
 jianpin2name = {
@@ -2577,8 +2589,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     tap("代理指挥开1")
     if not appear("代理指挥开", .5) then
       clean_fight(x)
-      back()
-      appear("主页")
+      if not appear("主页") then back() end
       path.跳转("首页")
       return
     end
