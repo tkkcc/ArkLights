@@ -907,6 +907,11 @@ start_time = parse_time("202101010400")
 
 -- 对于不同用户的首次任务
 init_state = function()
+end
+
+-- 对于单个用户的不同任务
+update_state = function()
+
   -- 启用重复刷模式
   repeat_fight_mode = true
 
@@ -923,10 +928,6 @@ init_state = function()
   zero_san_hit = 0
 
   first_time_swipe = true
-end
-
--- 对于单个用户的不同任务
-update_state = function()
   jmfight_times = 0
   no_friend = false
   cur_fight = ''

@@ -1223,7 +1223,7 @@ run = function(...)
       server == 0 and "官服" or "B服",
     })
   end
-  init_state()
+  -- init_state()
 
   -- 目前每个账号不同任务的状态共享，因此只在外层执行一次
   update_state()
@@ -3360,11 +3360,15 @@ enable_accessibility_service = function(force)
     local service = package .. "/com.nx.assist.AssistService"
     local services = exec(
                        "su root sh -c 'settings get secure enabled_accessibility_services'")
+    log("3363", services)
     services = table.filter(services:trim():split(':'),
                             function(x) return x ~= 'null' end)
+
+    log("3365", services)
     local other_services = table.join(table.filter(services, function(x)
       return x ~= service
     end), ':')
+    log("3366", other_services)
     -- log(2042, services)
     -- if table.includes(services, service) then
     -- 即 “无障碍故障情况”, 需要先停
@@ -3387,18 +3391,22 @@ enable_accessibility_service = function(force)
     --       (#other_services > 0 and other_services or '""') .. "'")
 
     -- 秘诀：先开再关再开
-    exec([[su root sh -c '
+    local cmd = [[su root sh -c '
 settings put secure enabled_accessibility_services ]] .. other_services ..
-           (#other_services > 0 and ':' or '') .. service .. [[;
-
+                  (#other_services > 0 and ':' or '') .. service .. [[;
+sleep 1
 settings put secure enabled_accessibility_services ]] ..
-           (#other_services > 0 and other_services or '""') .. [[;
-
+                  (#other_services > 0 and other_services or [['\'\'']]) .. [[;
+sleep 1
 settings put secure enabled_accessibility_services ]] .. other_services ..
-           (#other_services > 0 and ':' or '') .. service .. [[;
-']])
-    log(3386)
-    if wait(function() return isAccessibilityServiceRun() end, 5) then return end
+                  (#other_services > 0 and ':' or '') .. service .. [[;
+
+' 2>&1 ]]
+    local out = exec(cmd)
+    log(3386, cmd)
+    log(3387, out)
+    if wait(function() return isAccessibilityServiceRun() end, 2) then return end
+    -- wait(function() return isAccessibilityServiceRun() end, 5) return
   end
   openPermissionSetting()
   toast("请开启无障碍权限")
@@ -3518,9 +3526,9 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  ssleep(1)
-  log(findOne("开始行动"))
-  exit()
+  -- ssleep(1)
+  -- log(findOne("开始行动"))
+  -- exit()
 
   while true do if not isAccessibilityServiceRun() then log(1) end end
 
@@ -4665,17 +4673,20 @@ killacc = function()
   if disable_killacc1 then return end
   local cmd = [[su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
-kill $(pidof ]] .. package .. [[:acc)
+kill -9 $(pidof ]] .. package .. [[:acc)
 
-secs=5
+secs=2
 endTime=$(( $(date +%s) + secs ))
 while [ $(date +%s) -lt $endTime ]; do
   pidof ]] .. package .. [[:acc && break
 done
 '
 ]]
-  exec(cmd)
-  log(4662)
+  -- exec(cmd)
+  log(4661, isAccessibilityServiceRun())
+  log(4662, exec(cmd), isAccessibilityServiceRun())
+  wait(function() return isAccessibilityServiceRun() end, 5)
+  -- exit()
   enable_accessibility_service()
   -- log("cmd", cmd)
   -- if #exec(cmd):trim() == 0 then
