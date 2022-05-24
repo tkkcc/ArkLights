@@ -990,7 +990,7 @@ meetingStationOperatorBest = function(operator)
   local remain = {}
   for _, o in pairs(operator) do
     if o[1] == "bskill_meet_spd&cost" or o[2] == "bskill_meet_spd&cost" then
-      table.insert(best, o, 1)
+      table.insert(best, 1, o)
     elseif o[1] == "bskill_meet_spd3" or o[2] == "bskill_meet_spd3" then
       table.insert(best, o)
     else
