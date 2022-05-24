@@ -906,8 +906,7 @@ end
 start_time = parse_time("202101010400")
 
 -- 对于不同用户的首次任务
-init_state = function()
-end
+init_state = function() end
 
 -- 对于单个用户的不同任务
 update_state = function()
@@ -1636,6 +1635,9 @@ path.总览换班 = function()
     tap("进驻总览")
   end, 10) then return end
 
+  path.控制中枢换班()
+  path.会客厅换班()
+
   local swipd = function()
     local flipd = 150
     local flips = 50
@@ -1658,7 +1660,8 @@ path.总览换班 = function()
     sleep(100)
   end
 
-  local first_look = true
+  local first_look = false
+  if disable_control_shift and disable_meeting_shift then first_look = true end
   local visitedy = {}
   f = function()
     -- 0.1 是 从干员列表退出后 取消连续点击 保证滑动手势有效
@@ -1854,8 +1857,8 @@ path.基建换班 = function()
 
   path.宿舍换班()
   path.基建信息获取()
-  path.控制中枢换班()
-  path.会客厅换班()
+  -- path.控制中枢换班()
+  -- path.会客厅换班()
   path.办公室换班()
   path.制造换班()
   path.贸易换班()
@@ -1925,11 +1928,18 @@ path.会客厅换班 = function(stationType)
 
   stationType = stationType or "会客厅"
   -- 进总览
-  path.跳转("基建")
-  if not wait(function()
-    if findOne("撤下干员") then return true end
-    tap("进驻总览")
-  end, 10) then return end
+  -- path.跳转("基建")
+  -- if not wait(function()
+  --   if findOne("撤下干员") then return true end
+  --   tap("进驻总览")
+  -- end, 10) then return end
+
+  -- 检查是否缺人，不缺不换
+  if not appear("入驻干员" .. stationType, .5) and findOne("撤下干员") and
+    not findOne("入驻干员" .. stationType) then
+    log("无入驻干员")
+    return
+  end
 
   -- 进干员列表
   if not wait(function()

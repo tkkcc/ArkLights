@@ -3394,10 +3394,8 @@ enable_accessibility_service = function(force)
     local cmd = [[su root sh -c '
 settings put secure enabled_accessibility_services ]] .. other_services ..
                   (#other_services > 0 and ':' or '') .. service .. [[;
-sleep 1
 settings put secure enabled_accessibility_services ]] ..
                   (#other_services > 0 and other_services or [['\'\'']]) .. [[;
-sleep 1
 settings put secure enabled_accessibility_services ]] .. other_services ..
                   (#other_services > 0 and ':' or '') .. service .. [[;
 
@@ -4673,18 +4671,18 @@ killacc = function()
   if disable_killacc1 then return end
   local cmd = [[su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
-kill -9 $(pidof ]] .. package .. [[:acc)
+kill $(pidof ]] .. package .. [[:acc)
 
-secs=2
-endTime=$(( $(date +%s) + secs ))
-while [ $(date +%s) -lt $endTime ]; do
-  pidof ]] .. package .. [[:acc && break
-done
+# secs=2
+# endTime=$(( $(date +%s) + secs ))
+# while [ $(date +%s) -lt $endTime ]; do
+#   pidof ]] .. package .. [[:acc && break
+# done
 '
 ]]
-  -- exec(cmd)
-  log(4661, isAccessibilityServiceRun())
-  log(4662, exec(cmd), isAccessibilityServiceRun())
+  exec(cmd)
+  -- log(4661, isAccessibilityServiceRun())
+  -- log(4662, exec(cmd), isAccessibilityServiceRun())
   wait(function() return isAccessibilityServiceRun() end, 5)
   -- exit()
   enable_accessibility_service()

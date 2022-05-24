@@ -65,7 +65,7 @@ fetchSkillIcon = function()
   toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
   local url = update_source .. '/skill.zip'
-  log("url",url)
+  log("url", url)
   -- if beta_mode then url = url .. '.beta' end
   local md5url = url .. '.md5'
   local path = getWorkPath() .. '/skill.zip'
@@ -989,7 +989,9 @@ meetingStationOperatorBest = function(operator)
   local best_score = -1
   local remain = {}
   for _, o in pairs(operator) do
-    if o[1] == "bskill_meet_spd3" or o[2] == "bskill_meet_spd3" then
+    if o[1] == "bskill_meet_spd&cost" or o[2] == "bskill_meet_spd&cost" then
+      table.insert(best, o, 1)
+    elseif o[1] == "bskill_meet_spd3" or o[2] == "bskill_meet_spd3" then
       table.insert(best, o)
     else
       table.insert(remain, o)
