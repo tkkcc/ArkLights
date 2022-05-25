@@ -61,7 +61,7 @@
     cp $lr.md5 release/${lr##*/}.md5
     git -C release add -u
     git -C release commit --amend --allow-empty-message -m "" 
-    git push --force
+    git -C release push --force
 
     git add -u
     git status
