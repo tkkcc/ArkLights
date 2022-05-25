@@ -2187,7 +2187,14 @@ path.线索布置 = function()
     end, 10) then return end
   end
 
-  if findOne("解锁线索") then
+  -- 只送线索
+  local disable_clue_unlock = account_idx and
+                                table.includes(
+                                  multi_account_disable_clue_unlock, account_idx)
+  log("disable_clue_unlock", disable_clue_unlock)
+  -- exit()
+
+  if findOne("解锁线索") and not disable_clue_unlock then
     clue_unlocked = true
 
     wait(function() tap("解锁线索") end, .5)

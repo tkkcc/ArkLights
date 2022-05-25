@@ -2103,7 +2103,7 @@ show_multi_account_ui = function()
 
     addTextView(layout, "用")
     addButton(layout, "multi_account_inherit_toggle" .. i,
-              i == 1 and '独立设置' or "继承设置",
+              i == 1 and '单号设置' or "继承设置",
               "multi_account_inherit_toggle(" .. i .. ")")
 
     --
@@ -2844,6 +2844,9 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "多账号双休日跳过账号")
   ui.addEditText(layout, "multi_account_choice_weekday_only", '')
+  newRow(layout)
+  addTextView(layout, "多账号不解锁线索账号(线索小号)")
+  ui.addEditText(layout, "multi_account_disable_clue_unlock", '')
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_keepalive",
@@ -4967,6 +4970,8 @@ end
 update_state_from_debugui = function()
   multi_account_choice_weekday_only = expand_number_config(
                                         multi_account_choice_weekday_only or '')
+  multi_account_disable_clue_unlock = expand_number_config(
+                                        multi_account_disable_clue_unlock or '')
 
   max_jmfight_times = str2int(max_jmfight_times, math.huge)
   findOne_interval = str2int(findOne_interval, -1)
