@@ -3283,7 +3283,7 @@ end
 loadOneUIConfig = function(layout)
   local config = getUIConfigPath(layout)
   if not fileExist(config) then return {} end
-  log("load", config)
+  -- log("load", config)
   local f = io.open(config, 'r')
   local content = f:read() or '{}'
   f:close()

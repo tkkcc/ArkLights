@@ -65,7 +65,7 @@ fetchSkillIcon = function()
   toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
   local url = update_source .. '/skill.zip'
-  log("url", url)
+  -- log("url", url)
   -- if beta_mode then url = url .. '.beta' end
   local md5url = url .. '.md5'
   local path = getWorkPath() .. '/skill.zip'

@@ -4,7 +4,7 @@
 [蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) /
 [github release](https://github.com/tkkcc/ArkLights/releases/download/v0.0.21/arknightsspeedrun2.apk)
 
-反馈群：[1009619697](https://qm.qq.com/cgi-bin/qm/qr?k=ZtJVQZ1LI_9nMh3tj7fKgYu5PrwqBCje&jump_from=webapi)
+闲聊群：[1009619697](https://qm.qq.com/cgi-bin/qm/qr?k=ZtJVQZ1LI_9nMh3tj7fKgYu5PrwqBCje&jump_from=webapi)
 
 源码与其他明日方舟脚本：[github.com/tkkcc/ArkLights](https://github.com/tkkcc/ArkLights)
 觉得好用请在github上给个star，这是对开发者最大的帮助。无法访问请看[国内主页](https://gitee.com/bilabila/arknights)。
@@ -13,14 +13,14 @@
 
 <!-- - 默认不自动重启acc进程，但这样刷肉鸽每小时内存泄漏44M，一天1G。启用后会定期释放脚本内存，但在部分设备上会造成启动失败与闪退。 -->
 <!-- - 单号最大剿灭次数默认为1。 -->
-- 华云需手动运行(外置root指令)[#设备兼容]，才有完整root权限。
-- 5月19日前下载的用户需要重下apk，可覆盖安装，设置不丢
-- 幕后筹备抽空升级默认开启，高级设置中可关
-- 控制中枢与会客厅换班默认开启，高级设置中可关
+- 华云需手动运行指定命令，才有完整root权限。
+<!-- - 5月19日前下载的用户需要重下apk，可覆盖安装，设置不丢 -->
+<!-- - 幕后筹备抽空升级默认开启，高级设置中可关 -->
+<!-- - 控制中枢与会客厅换班默认开启，高级设置中可关 -->
 - 多账号跳过空账密默认开启，高级设置中可关
-- 自动用全权委托
-- 新增活动关SN-1~SN-10，1280x720分辨率可用关卡名，**其他分辨率只能用“上一次”**
-- 新增CE-6、LS-6
+<!-- - 自动用全权委托 -->
+<!-- - 新增活动关SN-1~SN-10，1280x720分辨率可用关卡名，**其他分辨率只能用“上一次”** -->
+<!-- - 新增CE-6、LS-6 -->
 - magisk hide设备需**手动关闭root授权提示**
 
 ## 设备兼容
@@ -33,9 +33,9 @@
 
 #### 模拟器
 
-支持 雷电、逍遥（选OpenGL渲染）、蓝叠（选高级/高阶/兼容图形引擎）、genymotion(安卓10)、redroid(安卓10)、Android Emulator
+支持 雷电4、逍遥（选OpenGL渲染）、蓝叠（选高级/高阶/兼容图形引擎）、genymotion(安卓10)、redroid(安卓10)、Android Emulator
 
-不支持 夜神、mumu6、mumu9（能用，但启动闪屏）
+不支持 雷电3、夜神、mumu6、mumu9（能用，但启动闪屏）
 
 #### 云手机
 
@@ -48,12 +48,13 @@
 <!-- 1. 华云的root保活仍存在问题，但api较全。 -->
 
 
-::: tip 华云外置root指令
+::: tip 华云需要执行以下命令使脚本获得完整root权限
 ```sh
-adb connect 1.2.3.4:5678
-adb -s 1.2.3.4:5678 shell "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2>&1 &"
+adb connect 123.456.789.101:234
+adb -s 123.456.789.101:234 shell "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2>&1 &"
 ```
-其中49876是固定值不可更改。每次重启手机后需要执行一次，执行后再运行脚本。
+其中123.456.789.101:234是adb地址，49876是预设端口不可更改。
+每次重启手机后需要执行一次，执行后再运行脚本。
 :::
 
 
@@ -119,7 +120,10 @@ adb -s 1.2.3.4:5678 shell "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2>&1 &"
 
 #### 怎么导入导出设置
 
-日志开头会打印设置文件路径，可直接操作文件。
+设置以json形式保存在
+```txt
+/data/user/0/com.bilabila.arknightsspeedrun2/assistdir/3205c0ded576131ea255ad2bd38b0fb2/root/
+```
 
 多账号设置可导入导出。导入也支持如下简单格式(即“导出帐密”的格式)
 ```txt
@@ -270,6 +274,10 @@ pr => pr-a-2*99 pr-b-2*99 ... pr-a-1*99 pr-b-1*99 ...
 #### 作战有没有状态或记忆
 
 没有，脚本每次运行完全独立。每次启动从第一关开始执行。
+
+#### 作战理智不足后能不能刷1-7清空理智
+
+高级设置中开。
 
 ### 基建换班
 

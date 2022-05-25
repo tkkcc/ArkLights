@@ -56,6 +56,13 @@
 
     local md5=$(md5sum $lr | cut -d' ' -f1)
     echo $md5 >$lr.md5
+
+    cp $lr release/${lr##*/}
+    cp $lr.md5 release/${lr##*/}.md5
+    git -C release add -u
+    git -C release commit --amend --allow-empty-message -m "" 
+    git push --force
+
     git add -u
     git status
     git commit
@@ -205,11 +212,10 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     zip $skill -q -r -j png_noalpha
     local md5=$(md5sum $skill | cut -d' ' -f1)
     echo $md5 >$skill.md5
-    # cp release/skill.zip
 
-    # # ==== 用js后缀会变快吗，不会
-    # cp $skill $skill.js
-    # cp $skill.md5 $skill.md5.js
+    cp $skill release/${skill##*/}
+    cp $skill.md5 release/${skill##*/}.md5
+
 
   }
   recruit() {
