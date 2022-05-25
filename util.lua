@@ -2385,6 +2385,7 @@ end
 hotUpdate = function()
   toast("正在检查更新...")
   if disable_hotupdate then return end
+  -- https://gitee.com/bilabila/arknights/raw/master
   -- local url = 'https://gitee.com/bilabila/arknights/raw/master/script.lr'
   local url = update_source .. '/script.lr'
   if beta_mode then url = url .. '.beta' end
@@ -2399,6 +2400,12 @@ hotUpdate = function()
   local f = io.open(md5path, 'r')
   local expectmd5 = f:read() or '1'
   f:close()
+  if #expectmd5 ~= #'b966ddd58fd64b2f963a0c6b61b463ce' and update_source ~=
+    update_source_fallback then
+    log(2405)
+    update_source = update_source_fallback
+    return hotUpdate()
+  end
   if expectmd5 == loadConfig("lr_md5", "2") then
     toast("已经是最新版")
     return
