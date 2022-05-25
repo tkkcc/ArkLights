@@ -1,4 +1,9 @@
 print('util')
+
+oppid = "com.hypergryph.arknights"
+if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
+bppid = "com.hypergryph.arknights.bilibili"
+
 disable_game_up_check_wrapper = function(func)
   return function(...)
     local state = disable_game_up_check
@@ -1223,7 +1228,8 @@ run = function(...)
       server == 0 and "官服" or "B服",
     })
   end
-  -- init_state()
+
+  local run_start_time = time()
 
   -- 目前每个账号不同任务的状态共享，因此只在外层执行一次
   update_state()
@@ -1246,17 +1252,22 @@ run = function(...)
     end
   end
 
+  if qqnotify_run_time_measure then
+    table.insert(qqmessage,
+                 math.floor((time() - run_start_time) / 1000 / 60) .. "分钟")
+  end
+
   -- 对每个账号的远程提醒，本地无需装QQ。
   if #QQ > 0 then
     path.跳转("首页")
     captureqqimagedeliver(table.join(qqmessage, ' '), QQ)
   end
 
-  if snapshot_after_run then
-    local img = '/sdcard/' .. package .. '/' .. (username or 'default') ..
-                  '.jpg'
-    snapShot(img)
-  end
+  -- if snapshot_after_run then
+  --   local img = '/sdcard/' .. package .. '/' .. (username or 'default') ..
+  --                 '.jpg'
+  --   snapShot(img)
+  -- end
 end
 
 half_hour_cron = function(x, h)
@@ -1839,7 +1850,12 @@ end
 
 poweroff =
   function() if root_mode then exec("su root sh -c 'reboot -p'") end end
+
+kill_game_last_time = {[oppid] = time(), [bppid] = time()}
 closeapp = function(package)
+  -- log("package",package)
+  -- 记录app被杀时间
+  kill_game_last_time[package] = time()
   -- log("closeapp", package)
   if not isAppInstalled(package) then return end
   if root_mode then
@@ -2788,6 +2804,10 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "qqnotify_bar", "QQ通知显示悬浮按钮", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_run_time_measure",
+                 "QQ通知显示耗时信息", false)
+
+  newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nofailedfight",
                  "QQ通知不显示代理失败信息", false)
 
@@ -2873,12 +2893,12 @@ show_debug_ui = function()
 以下为调试设置，请根据开发者建议使用！
 ]])
 
-  newRow(layout)
-  addTextView(layout, "前瞻投资重启游戏间隔(游戏有内存泄漏)")
-  ui.addEditText(layout, "zl_restart_interval1", "3600")
+  -- newRow(layout)
+  -- addTextView(layout, "前瞻投资重启游戏间隔(游戏有内存泄漏)")
+  -- ui.addEditText(layout, "zl_restart_interval1", "3600")
 
   newRow(layout)
-  addTextView(layout, "重启acc进程间隔(acc进程有内存泄漏)")
+  addTextView(layout, "内存清理时间间隔")
   ui.addEditText(layout, "keepalive_interval1", "3600")
 
   newRow(layout)
@@ -5066,10 +5086,19 @@ end
 
 memory_clean_last_time = 0
 request_memory_clean = function()
+  local did = false
   if (time() - memory_clean_last_time > keepalive_interval * 1000) then
     memory_clean_last_time = time()
     keepalive()
+    did = true
   end
+  if (time() - kill_game_last_time[appid] > keepalive_interval * 1000) then
+    restartapp(appid)
+    did = true
+  end
+  -- log("kill_game_last_time",kill_game_last_time)
+  -- exit()
+  return did
 end
 
 -- eager post_util_hook

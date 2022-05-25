@@ -4124,7 +4124,8 @@ path.前瞻投资 = function(lighter)
     toast(in_fight_return or '重开')
 
     ssleep(3)
-    if not restart_game_check(zl_restart_interval) then
+    -- if not restart_game_check(zl_restart_interval) then
+    if not request_memory_clean() then
       path.前瞻投资(true)
     end
 

@@ -19,9 +19,6 @@ wscale = screen.width / 1920
 minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
-oppid = "com.hypergryph.arknights"
-if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
-bppid = "com.hypergryph.arknights.bilibili"
 
 point = {
   战略等级 = {1530, 58, 1918, 105},
