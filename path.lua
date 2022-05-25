@@ -4078,9 +4078,9 @@ end
 path.前瞻投资 = function(lighter)
 
   -- 防止日志占用资源过多把脚本挤掉
-  if zl_disable_log then disable_log = true end
+  -- if zl_disable_log then disable_log = true end
   -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）
-  if zl_disable_game_up_check then disable_game_up_check = true end
+  -- if zl_disable_game_up_check then disable_game_up_check = true end
   -- 3.6.0发现当节点获取失效时，点击、找色其实都出问题了
   --
   -- path.base.账号登录 = function()
@@ -4125,9 +4125,7 @@ path.前瞻投资 = function(lighter)
 
     ssleep(3)
     -- if not restart_game_check(zl_restart_interval) then
-    if not request_memory_clean() then
-      path.前瞻投资(true)
-    end
+    if not request_memory_clean() then path.前瞻投资(true) end
 
     -- 脚本内存泄漏45M/h => 每小时重启acc进程
     -- 游戏内存泄漏66M/h => 每小时重启游戏
@@ -4174,13 +4172,15 @@ path.前瞻投资 = function(lighter)
   if zl_level_enough then
     if zl_no_waste then run(no_extra_job) end
     disable_log = false
-    log("肉鸽等级已满" .. zl_max_level)
+    toast("肉鸽等级已满" .. zl_max_level)
+    ssleep(5)
     peaceExit()
   end
   if zl_coin_enough then
     if zl_no_waste then run(no_extra_job) end
     disable_log = false
-    log("肉鸽源石锭已满" .. zl_max_coin)
+    toast("肉鸽源石锭已满" .. zl_max_coin)
+    ssleep(5)
     peaceExit()
   end
 

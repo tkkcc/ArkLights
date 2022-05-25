@@ -1,8 +1,8 @@
 -- predebug = true
+-- always_enable_log = true
 -- test_fight = true
 -- fake_fight = true
--- always_enable_log = true
-zl_disable_log = true
+-- zl_disable_log = true
 -- enable_drug_24hour = true
 -- prefer_speed = true
 -- enable_shift_log = true
@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.05.25 22:00"
+release_date = "2022.05.25 23:31"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -118,13 +118,14 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
     account_idx = i
     username = (_G["username" .. i] or ''):map({
       ["＃"] = "#",
+      ["\n"] = "",
       [" "] = "",
-      ["　"] = " ",
+      ["　"] = "",
     })
     password = (_G["password" .. i] or ''):map({
       ["\n"] = "",
       [" "] = "",
-      ["　"] = " ",
+      ["　"] = "",
     })
     server = _G["server" .. i] or 0
     usernote = ''

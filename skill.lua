@@ -635,8 +635,9 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     end
     if all['bskill_man_skill_spd'] then
       -- 水月，标准化技能数量
-      -- base = base + standard * 0.05 * all['bskill_man_skill_spd']
-      base = base + 0.05
+      base = base + standard * 0.05 * all['bskill_man_skill_spd']
+      -- base = base + 0
+      -- 目前水月还是选0.25
     end
 
     -- 禁止过小容量

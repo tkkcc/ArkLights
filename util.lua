@@ -1,5 +1,4 @@
-print('util')
-
+-- print('util')
 oppid = "com.hypergryph.arknights"
 if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
@@ -1262,7 +1261,12 @@ run = function(...)
     path.跳转("首页")
     captureqqimagedeliver(table.join(qqmessage, ' '), QQ)
   end
+  -- log("qqmessage",qqmessage)
 
+  if qqnotify_run_time_measure then table.remove(qqmessage, #qqmessage) end
+
+  -- log("qqmessage",qqmessage)
+  -- exit()
   -- if snapshot_after_run then
   --   local img = '/sdcard/' .. package .. '/' .. (username or 'default') ..
   --                 '.jpg'
@@ -2736,9 +2740,9 @@ show_debug_ui = function()
   addTextView(layout, "单号最大剿灭次数")
   ui.addEditText(layout, "max_jmfight_times", "")
 
-  newRow(layout)
-  addTextView(layout, "最大连续作战次数(达到重启游戏)")
-  ui.addEditText(layout, "max_fight_times", "")
+  -- newRow(layout)
+  -- addTextView(layout, "最大连续作战次数(达到重启游戏)")
+  -- ui.addEditText(layout, "max_fight_times", "")
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "zl_enable_slow_drag", "前瞻投资长部署时间",
@@ -2801,15 +2805,15 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "qqnotify_notime", "QQ通知不显示时间", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_nofailedfight",
+                 "QQ通知不显示代理失败信息", false)
+
+  newRow(layout)
   ui.addCheckBox(layout, "qqnotify_bar", "QQ通知显示悬浮按钮", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_run_time_measure",
                  "QQ通知显示耗时信息", false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "qqnotify_nofailedfight",
-                 "QQ通知不显示代理失败信息", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_beforemail",
@@ -2898,7 +2902,7 @@ show_debug_ui = function()
   -- ui.addEditText(layout, "zl_restart_interval1", "3600")
 
   newRow(layout)
-  addTextView(layout, "内存清理时间间隔")
+  addTextView(layout, "内存清理间隔(s)")
   ui.addEditText(layout, "keepalive_interval1", "3600")
 
   newRow(layout)
@@ -2908,13 +2912,13 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "enable_killacc", "启用重启acc进程", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "enable_log", "开启日志(会导致闪退)", false)
+  ui.addCheckBox(layout, "enable_log", "启用日志(会导致闪退)", false)
 
-  newRow(layout)
-  ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "zl_enable_log", "前瞻投资开启日志", false)
 
-  newRow(layout)
-  ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "enable_shift_log", "高产换班开启日志", false)
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "debug_disable_log", "禁用全部日志", false)
@@ -2935,22 +2939,22 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "enable_simultaneous_tap", "启用多点同步点击",
                  false)
 
-  newRow(layout)
-  addTextView(layout, "强制分辨率")
-  ui.addEditText(layout, "force_width", [[]])
-  addTextView(layout, "x")
-  ui.addEditText(layout, "force_height", [[]])
+  -- newRow(layout)
+  -- addTextView(layout, "强制分辨率")
+  -- ui.addEditText(layout, "force_width", [[]])
+  -- addTextView(layout, "x")
+  -- ui.addEditText(layout, "force_height", [[]])
 
   newRow(layout)
-  addTextView(layout, "点击后等待")
+  addTextView(layout, "点击后等待(ms)")
   ui.addEditText(layout, "tap_wait", "")
 
   newRow(layout)
-  addTextView(layout, "最小点击间隔(丢包模式)")
+  addTextView(layout, "最小点击间隔(丢包模式)(ms)")
   ui.addEditText(layout, "tap_interval", "")
 
   newRow(layout)
-  addTextView(layout, "最小截屏间隔")
+  addTextView(layout, "最小截屏间隔(ms)")
   ui.addEditText(layout, "findOne_interval", "")
 
   newRow(layout)
@@ -3445,9 +3449,9 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
 end
 
 enable_snapshot_service = function()
-  log("snapshot service check")
+  -- log("snapshot service check")
   if isSnapshotServiceRun() then return end
-  log("snapshot service disabled")
+  -- log("snapshot service disabled")
   if skip_snapshot_service_check then return end
   if root_mode then
     log("enable snapshot service by root")
@@ -3873,9 +3877,9 @@ predebug_hook = function()
   log(cur)
   exit()
 
-  log(time())
+  -- log(time())
   keepalive()
-  log(time())
+  -- log(time())
   -- log(findOne("凋零残响"))
   exit()
 
@@ -4154,7 +4158,7 @@ end
 
 _exec = exec
 check_root_mode = function()
-  log(4040)
+  -- log(4040)
   if hy_exec("echo aaa"):trim() == 'aaa' then
     exec = hy_exec
     log('华云')
@@ -5012,12 +5016,10 @@ update_state_from_debugui = function()
   max_login_times = str2int(max_login_times, math.huge)
   max_login_times_5min = str2int(max_login_times_5min, 2)
   milesecond_after_click = str2int(tap_wait, milesecond_after_click)
-  if not always_enable_log and not enable_log then
-    run = disable_log_wrapper(run)
-  end
-  if not enable_shift_log then
-    chooseOperator = disable_log_wrapper(chooseOperator)
-  end
+  if not (always_enable_log or enable_log) then run = disable_log_wrapper(run) end
+  -- if not enable_shift_log then
+  --   chooseOperator = disable_log_wrapper(chooseOperator)
+  -- end
   QQ = (QQ or ''):commonmap():trim()
   if QQ:find('#') then
     devicenote = QQ:sub(QQ:find('#') + 1, #QQ):trim()
@@ -5026,7 +5028,7 @@ update_state_from_debugui = function()
   qqimagedeliver = (qqimagedeliver or ''):trim()
   if #qqimagedeliver == 0 then qqimagedeliver = "82.156.198.12:49875" end
   pushplus_token = (pushplus_token or ''):trim()
-  if zl_enable_log then zl_disable_log = false end
+  -- if zl_enable_log then zl_disable_log = false end
   for i = 1, 7 do
     local k = 'max_drug_times_' .. i .. 'day'
     _G[k] = str2int(_G[k], 0)

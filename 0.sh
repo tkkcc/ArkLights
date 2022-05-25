@@ -60,13 +60,12 @@
     cp $lr release/${lr##*/}
     cp $lr.md5 release/${lr##*/}.md5
     git -C release add -u
-    git -C release commit --amend --allow-empty-message -m "" 
+    git -C release commit --amend --allow-empty-message -m ""
     git -C release push --force
 
     git add -u
     git status
     git commit
-
 
     # # ==== 用js后缀会变快吗，不会
     # cp $lr $lr.js
@@ -216,8 +215,8 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     cp $skill release/${skill##*/}
     cp $skill.md5 release/${skill##*/}.md5
 
-
   }
+
   recruit() {
     ./extract.py recruit
   }
@@ -235,8 +234,17 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   }
 
   # === adb 修改模式
-  mode(){
+  m() {
     ./dlt.py mode "$@"
+  }
+  u() {
+    ./dlt.js upload --search=$1' ' --path=$D/qq.jpg
+  }
+  d() {
+    ./dlt.js detail --search=$1' '
+  }
+  o() {
+    ./dlt.js order --search=$1' '
   }
 
   "$@"
