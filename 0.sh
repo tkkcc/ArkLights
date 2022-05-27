@@ -65,7 +65,7 @@
 
     git add -u
     git status
-    git commit
+
 
     # # ==== 用js后缀会变快吗，不会
     # cp $lr $lr.js
@@ -240,11 +240,20 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   u() {
     ./dlt.js upload --search=$1' ' --path=$D/qq.jpg
   }
-  d() {
-    ./dlt.js detail --search=$1' '
+ d() {
+    # ./dlt.js detail --search=$1' '
+    ./dlt.py DLT detail $1
   }
   o() {
-    ./dlt.js order --search=$1' '
+    # ./dlt.js order --search=$1' '
+    ./dlt.py DLT order $@
+  }
+  submit() {
+    # ./dlt.js order --search=$1' '
+    ./dlt.py DLT submit $@
+  }
+  my() {
+    ./dlt.py DLT my
   }
 
   "$@"

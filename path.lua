@@ -299,7 +299,7 @@ path.bilibili_login = {
       stop("账号或密码为空", account_idx and true or false)
     end
     tap("bilibili_login")
-    if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 5) then
+    if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 10) then
       stop("B服登录失败", true)
     end
     -- 小米
@@ -2298,6 +2298,9 @@ end
 path.任务收集 = function()
   path.跳转("任务")
   appear({"任务未选中列表2", "任务有列表2", "任务无列表2"})
+  if qqnotify_beforemission then
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. "任务收集前", QQ)
+  end
 
   if speedrun then
     -- 只保留日常任务
@@ -2306,7 +2309,7 @@ path.任务收集 = function()
   end
 
   for _ = 1, #point.任务有列表 do
-    local p = findAny(point.任务有列表)
+    local p = appear(point.任务有列表, 0.5)
     if not p then break end
 
     log(795, p)
@@ -3518,7 +3521,8 @@ path.访问好友 = function()
   log(2255)
   if not wait(function()
     tap('访问基建')
-    if findAny({"访问下位灰", "访问下位橘"}) then return true end
+    if findAny({"访问下位灰", "访问下位橘"}) and
+      not findOne("好友列表") then return true end
     -- if not findOne("好友列表") then return true end
   end, 10) then return end -- 无好友或网络超时10秒
   log(2256)
@@ -3667,10 +3671,8 @@ path.公开招募 = function()
                     function(x)
             return extra_recruit_importance_tag:find(x)
           end) then
-          disable_log = false
-          toast("已找到保留标签：" .. extra_recruit_importance_tag)
-          ssleep(5)
-          peaceExit()
+          stop("已找到保留标签：" .. extra_recruit_importance_tag,
+               false, true)
         end
 
         if debug_tag then
@@ -3720,10 +3722,7 @@ path.公开招募 = function()
               end
             end, 5) then return end
             if recruit_accelerate_mode then
-              disable_log = false
-              toast("已遇到需保留情况")
-              ssleep(5)
-              peaceExit()
+              stop("已遇到需保留情况", false, true)
             end
           end
         else
@@ -3746,9 +3745,7 @@ path.公开招募 = function()
             log("notify 存在", max_star, list)
             table.insert(qqmessage, "可招募：" .. table.join(list))
             if recruit_accelerate_mode then
-              toast("可招募：" .. table.join(list))
-              ssleep(5)
-              peaceExit()
+              stop("可招募：" .. table.join(list), false, true)
             end
           end
 
@@ -4171,17 +4168,11 @@ path.前瞻投资 = function(lighter)
 
   if zl_level_enough then
     if zl_no_waste then run(no_extra_job) end
-    disable_log = false
-    toast("肉鸽等级已满" .. zl_max_level)
-    ssleep(5)
-    peaceExit()
+    stop("肉鸽结束", false)
   end
   if zl_coin_enough then
     if zl_no_waste then run(no_extra_job) end
-    disable_log = false
-    toast("肉鸽源石锭已满" .. zl_max_coin)
-    ssleep(5)
-    peaceExit()
+    stop("肉鸽结束", false)
   end
 
   -- 检测等级

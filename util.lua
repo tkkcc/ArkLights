@@ -748,14 +748,14 @@ open = function(id)
   runApp(id)
 end
 
-stop = function(msg, try_next_account)
+stop = function(msg, try_next_account, nohome)
   if try_next_account == nil then try_next_account = true end
   msg = msg or ''
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
   captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
   toast(msg)
-  home()
+  if not nohome then home() end
   ssleep(2)
   if try_next_account then restart_next_account() end
   exit()
@@ -2826,6 +2826,9 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_beforeleaving",
                  "QQ通知显示基建退出前情况", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_beforemission",
+                 "QQ通知显示任务收集前情况", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "collect_beforeleaving",
@@ -2939,11 +2942,11 @@ show_debug_ui = function()
   ui.addCheckBox(layout, "enable_simultaneous_tap", "启用多点同步点击",
                  false)
 
-  -- newRow(layout)
-  -- addTextView(layout, "强制分辨率")
-  -- ui.addEditText(layout, "force_width", [[]])
-  -- addTextView(layout, "x")
-  -- ui.addEditText(layout, "force_height", [[]])
+  newRow(layout)
+  addTextView(layout, "强制分辨率")
+  ui.addEditText(layout, "force_width", [[]])
+  addTextView(layout, "x")
+  ui.addEditText(layout, "force_height", [[]])
 
   newRow(layout)
   addTextView(layout, "点击后等待(ms)")
