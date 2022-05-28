@@ -754,6 +754,9 @@ stop = function(msg, try_next_account, nohome)
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
   captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
+  if QQ2 then
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg, QQ2)
+  end
   toast(msg)
   if not nohome then home() end
   ssleep(2)
@@ -5039,7 +5042,13 @@ update_state_from_debugui = function()
   if QQ:find('#') then
     devicenote = QQ:sub(QQ:find('#') + 1, #QQ):trim()
     QQ = QQ:sub(1, QQ:find('#') - 1):trim()
+    if QQ:find(' ') then
+      QQ = QQ:split(' ')
+      QQ, QQ2 = QQ[1], QQ[2]
+    end
   end
+  -- log("QQ,QQ2,devicenote", QQ, QQ2, devicenote)
+  -- exit()
   qqimagedeliver = (qqimagedeliver or ''):trim()
   if #qqimagedeliver == 0 then qqimagedeliver = "82.156.198.12:49875" end
   pushplus_token = (pushplus_token or ''):trim()
