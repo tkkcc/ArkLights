@@ -4385,7 +4385,7 @@ path.前瞻投资 = function(lighter)
   end
 
   -- 开始探索
-  if not wait(function()
+  if not wait(function(reset_wait_start_time)
     if findOne("战略返回") then return true end
     -- 第二次数据更新处理
     if findAny({
@@ -4395,15 +4395,21 @@ path.前瞻投资 = function(lighter)
       jumpout = true
       return true
     end
+    if findOne("正在提交反馈至神经") then reset_wait_start_time() end
     tap("战略确认")
     tap("继续探索")
-  end, 70) then return end
+  end, 5) then
+    -- 初始选难度
+    tap("战略难度列表" .. (zl_more_experience and "2" or "1"))
+    return
+  end
   if jumpout then return end
 
   -- 开始探索 一路按到 招募干员
   local first_time_see_first_card = 0
-  if not wait(function()
+  if not wait(function(reset_wait_start_time)
     if findOne("初始招募") then return true end
+    if findOne("正在提交反馈至神经") then reset_wait_start_time() end
     tap("战略确认")
     tap("战略确认")
     tap("战略确认")
@@ -4435,7 +4441,7 @@ path.前瞻投资 = function(lighter)
 
   end, 10) then return end
 
-  if not wait(function()
+  if not wait(function(reset_wait_start_time)
     if findOne("初始招募") then return true end
     tap("近卫招募券")
   end, 10) then return end
@@ -4500,6 +4506,9 @@ path.前瞻投资 = function(lighter)
       ssleep(.5)
     end
     log(28, zl_best_operator)
+    if str2int(zl_best_operator, -1) < 1 then
+      stop("请设置近卫干员序号(1~12)", false, true)
+    end
     tap("近卫招募列表" .. (zl_best_operator or 1))
     findTap("确认招募")
     tap("开包skip")

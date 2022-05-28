@@ -1840,15 +1840,20 @@ captureqqimagedeliver = function(info, to)
   notify(img, info, to)
 
   if qqnotify_save then
+    -- exec()
+    -- log("img_src",img_src)
     local f = io.open(img_src, 'rb')
-    img = f:read()
+    img = f:read('*a')
     f:close()
     local img_dst = '/sdcard/' .. package .. '/' .. path_name_escape(info) ..
                       '.jpg'
-    log("img_dst", img_dst)
+    -- log("#img",#img)
+    -- log("img_dst", img_dst)
     f = io.open(img_dst, 'wb')
     f:write(img)
     f:close()
+    -- log(1852)
+    -- exit()
   end
 end
 
@@ -2795,7 +2800,7 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_save",
-                 "QQ通知保存到/sdcard/包名 (自行清理)", false)
+                 "QQ通知保存到/sdcard/包名/ (保留一周)", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_quiet",
@@ -3024,6 +3029,8 @@ show_extra_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "zl_skip_hard", "不打驯兽", false)
   ui.addCheckBox(layout, "zl_no_waste", "每8小时做日常", false)
+
+  -- ui.addSpinner(layout, "zl_hard_level", {"观光", "正式"}, 0)
 
   newRow(layout)
   addTextView(layout, [[需求商品]])
@@ -3561,11 +3568,16 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  -- ssleep(1)
-  -- log(findOne("开始行动"))
-  -- exit()
+  ssleep(1)
+  tap("战略难度列表2")
+  tap("战略难度列表3")
+  tap("战略难度列表2")
+  ssleep(1)
+  exit()
 
-  while true do if not isAccessibilityServiceRun() then log(1) end end
+  -- log(findOne("开始行动"))
+
+  -- while true do if not isAccessibilityServiceRun() then log(1) end end
 
   -- log(colorDiff('ffcfcfcf','fffcfcfc'))
   -- exit()
@@ -5104,6 +5116,19 @@ request_memory_clean = function()
   -- log("kill_game_last_time",kill_game_last_time)
   -- exit()
   return did
+end
+
+remove_old_log = function()
+  -- 一周前的文件
+  exec("find /sdcard/" .. package .. '/ -ctime +7 -type f -delete')
+end
+
+clear_hook = function()
+  local config = loadOneUIConfig("debug")
+  config["before_account_hook"] = '-- before_account_hook'
+  config["after_require_hook"] = '-- after_require_hook'
+  config["after_all_hook"] = '-- after_all_hook'
+  saveOneUIConfig("debug", config)
 end
 
 -- eager post_util_hook

@@ -19,8 +19,8 @@ wscale = screen.width / 1920
 minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
-
 point = {
+  战略难度列表 = {{1747, 523}, {1747, 613}, {1747, 703}},
   战略等级 = {1530, 58, 1918, 105},
   -- 战略源石锭 = {241,813,367,883},
   -- 战略源石锭 = { 206,567,182,549},
@@ -1238,6 +1238,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  战略难度列表 = "right_center",
   战略等级 = "right_top",
   幕后筹备升级有 = "right_center",
   幕后筹备升级无 = "right_center",
