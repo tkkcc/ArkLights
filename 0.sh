@@ -66,7 +66,6 @@
     git add -u
     git status
 
-
     # # ==== 用js后缀会变快吗，不会
     # cp $lr $lr.js
     # cp $lr.md5 $lr.md5.js
@@ -234,26 +233,36 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   }
 
   # === adb 修改模式
+  dlt() {
+    ./dlt.py dlt
+  }
   m() {
     ./dlt.py mode "$@"
   }
   u() {
     ./dlt.js upload --search=$1' ' --path=$D/qq.jpg
   }
- d() {
+  d() {
     # ./dlt.js detail --search=$1' '
-    ./dlt.py DLT detail $1
+    ./dlt.py DLT detail "$1"
   }
   o() {
     # ./dlt.js order --search=$1' '
-    ./dlt.py DLT order $@
+    ./dlt.py DLT order "$@"
   }
   submit() {
     # ./dlt.js order --search=$1' '
-    ./dlt.py DLT submit $@
+    ./dlt.py DLT submit "$@"
+  }
+  over() {
+    # ./dlt.js order --search=$1' '
+    ./dlt.py DLT over "$1"
   }
   my() {
     ./dlt.py DLT my
+  }
+  serial() {
+    ./dlt.py DLT all2serial $@
   }
 
   "$@"

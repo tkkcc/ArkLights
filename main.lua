@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.05.28 23:10"
+release_date = "2022.05.29 13:58"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -71,6 +71,7 @@ require("tag")
 require('skill')
 require("fight")
 
+-- log("after_require_hook",after_require_hook)
 load(after_require_hook or '')()
 
 consoleInit()
@@ -117,6 +118,8 @@ if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
   for idx, i in pairs(multi_account_choice) do
     multi_account_choice_idx = idx
     account_idx = i
+    -- log("type(i)",type(i))
+    -- log('_G["username" .. i]',_G["username" .. i])
     username = (_G["username" .. i] or ''):map({
       ["＃"] = "#",
       ["\n"] = "",
