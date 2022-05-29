@@ -125,7 +125,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
       <td>&#10006;</td>
       <td>&#10006;</td>
       <td>&#10004;</td>
-      <td>用户量大，兼容性高，autojs实现，群号852749806、1087079756、942502024</td>
+      <td>用户量大，兼容性强，autojs实现，群号852749806、1087079756、942502024</td>
    </tr>
    <tr>
 

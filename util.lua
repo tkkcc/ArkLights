@@ -2092,12 +2092,12 @@ show_multi_account_ui = function()
   -- addTextView(layout, "单号最大登录次数")
   -- ui.addEditText(layout, "max_login_times", "")
 
-  newRow(layout)
+  -- newRow(layout)
   -- addTextView(layout,[[启用账号]])
   -- newRow(layout)
-  addTextView(layout,
-              [[“启用账号”填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。临时账号写在#号后，填“1-10 # 5-10”表示跑前10个号，但本次启动只跑第5到第10个。账密为空跳过，高级设置中可调。抢登处理看必读。]])
-
+  -- addTextView(layout,
+  --             [[“启用账号”填“1-10”表示跑前10个号，填“7 10-8 7 1-3”等价于“7 10 9 8 7 1 2 3”。临时账号写在#号后，填“1-10 # 5-10”表示跑前10个号，但本次启动只跑第5到第10个。账密为空跳过，高级设置中可调。抢登处理看必读。]])
+  --
   newRow(layout)
 
   multi_account_all_inherit_choice = map(function(x)
@@ -2779,7 +2779,7 @@ show_debug_ui = function()
   for i = 1, 7 do
     newRow(layout)
     local timenote = i == 1 and "“X小时”" or "“" .. (i - 1) .. "天”"
-    local default = i <= 2 and '99' or (i <= 4 and '1' or '0')
+    local default = i == 1 and '99' or '0'
     addTextView(layout, timenote .. "理智药最多吃")
     ui.addEditText(layout, "max_drug_times_" .. i .. "day", default)
     addTextView(layout, "次")
@@ -3401,8 +3401,8 @@ input = function(selector, text)
 end
 -- input = disable_game_up_check_wrapper(input)
 
-enable_accessibility_service = function(force)
-  if isAccessibilityServiceRun() and not force then return end
+enable_accessibility_service = function()
+  if isAccessibilityServiceRun() then return end
   if root_mode then
     local service = package .. "/com.nx.assist.AssistService"
     local services = exec(
@@ -3416,28 +3416,6 @@ enable_accessibility_service = function(force)
       return x ~= service
     end), ':')
     log("3366", other_services)
-    -- log(2042, services)
-    -- if table.includes(services, service) then
-    -- 即 “无障碍故障情况”, 需要先停
-    -- exec("su root sh -c 'settings put secure enabled_accessibility_services " ..
-    --        (#other_services > 0 and other_services or '""') .. "'")
-    -- log(2037, other_services, service)
-    -- wait(function()
-    --   local current = exec(
-    --                     "su root sh -c 'settings get secure enabled_accessibility_services'")
-    --   return not current:find(service)
-    -- end)
-    -- local current = exec(
-    --                   "su root sh -c 'settings get secure enabled_accessibility_services'")
-    -- log(current)
-
-    -- log("su root sh -c 'settings put secure enabled_accessibility_services " ..
-    --       other_services .. (#other_services > 0 and ':' or '') .. service ..
-    --       "'")
-    -- log("su root sh -c 'settings put secure enabled_accessibility_services " ..
-    --       (#other_services > 0 and other_services or '""') .. "'")
-
-    -- 秘诀：先开再关再开
     local cmd = [[su root sh -c '
 settings put secure enabled_accessibility_services ]] .. other_services ..
                   (#other_services > 0 and ':' or '') .. service .. [[;
@@ -3451,7 +3429,6 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
     log(3386, cmd)
     log(3387, out)
     if wait(function() return isAccessibilityServiceRun() end, 2) then return end
-    -- wait(function() return isAccessibilityServiceRun() end, 5) return
   end
   openPermissionSetting()
   toast("请开启无障碍权限")
@@ -5092,6 +5069,9 @@ path_name_escape = function(x) return x:map({['/'] = '_'}) end
 
 number_ocr_correct = function(x)
   return x:map({
+    [','] = '',
+    ['.'] = '',
+    [' '] = '',
     ["O"] = '0',
     ["o"] = '0',
     ["|"] = '1',

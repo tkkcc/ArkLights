@@ -120,9 +120,20 @@ path.base = {
     end
   end,
   接管作战 = function()
-    if not disappear("接管作战", 8 * 60 * 60, 1) then
-      stop("接管作战超8小时")
-    end
+    -- 超时5分钟后重启游戏
+    if not wait(function()
+      if not findOne("接管作战") then return true end
+      -- log(126)
+      if findOne("暂停中") then
+        tap("开包skip")
+        disappear("暂停中")
+      end
+    end, 5 * 60) then return restartapp(appid) end
+    -- log(127)
+
+    -- if not disappear("接管作战", 8 * 60 * 60, 1) then
+    --       stop("接管作战超8小时")
+    --     end
 
     -- this calllback only works for 主线、资源、剿灭
     local unfinished
@@ -4181,7 +4192,6 @@ path.前瞻投资 = function(lighter)
     local prex = -1
     return wait(function()
       if not findOne("常规行动") then return 0 end
-
       local r = point["战略等级"]
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-bc8522") or {}
       log("4126", x)
@@ -4196,14 +4206,15 @@ path.前瞻投资 = function(lighter)
   local zl_level = zl_level_check()
   if not zl_level_enough and zl_level >= str2int(zl_max_level, 10000) then
     -- 达到需求后1秒再做一次
-    ssleep(1)
-    if zl_level_check() >= str2int(zl_max_level, 10000) then
-      zl_level_enough = true
-      captureqqimagedeliver(table.join(qqmessage, ' ') .. " " ..
-                              (zl_level or '') .. "等级已满", QQ)
-    else
-      zl_level = 0
-    end
+    -- ssleep(1)
+    -- if zl_level_check() >= str2int(zl_max_level, 10000) then
+    zl_level_enough = true
+    captureqqimagedeliver(
+      table.join(qqmessage, ' ') .. " " .. (zl_level or '') .. "等级已满",
+      QQ)
+    -- else
+    --   zl_level = 0
+    -- iend
   end
 
   -- 检测源石锭
@@ -4227,15 +4238,15 @@ path.前瞻投资 = function(lighter)
   local zl_coin = zl_coin_check()
   if not zl_coin_enough and zl_coin >= str2int(zl_max_coin, 10000) then
     -- 达到需求后1秒再做一次
-    ssleep(1)
-    if zl_coin_check() >= str2int(zl_max_coin, 10000) then
-      zl_coin_enough = true
-      captureqqimagedeliver(
-        table.join(qqmessage, ' ') .. " " .. (zl_coin or '') ..
-          "源石锭已满", QQ)
-    else
-      zl_coin = 0
-    end
+    -- ssleep(1)
+    -- if zl_coin_check() >= str2int(zl_max_coin, 10000) then
+    zl_coin_enough = true
+    captureqqimagedeliver(
+      table.join(qqmessage, ' ') .. " " .. (zl_coin or '') .. "源石锭已满",
+      QQ)
+    -- else
+    --   zl_coin = 0
+    -- end
   end
 
   -- 等级/源石锭 阶段性通知
