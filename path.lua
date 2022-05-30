@@ -4331,7 +4331,16 @@ path.前瞻投资 = function(lighter)
     -- end,5)
 
     captureqqimagedeliver(table.join(qqmessage, ' ') .. "放弃行动后", QQ)
-    return path.fallback.签到返回()
+
+    wait(function(reset_wait_start_time)
+      if not disappear("常规行动") then return true end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
+      tap("战略确认")
+    end, 5)
+    return
+    -- return path.fallback.签到返回()
   end
 
   -- 回到常规行动？
