@@ -35,8 +35,6 @@ serial_alias = {
 
 
 
-
-
 def mode(serial, f="help", *args, **kwargs):
     serial = str(serial)
     package = "com.bilabila.arknightsspeedrun2"
@@ -232,14 +230,26 @@ am force-stop com.android.smspush
         x = {}
         save("config_multi_account.json", x)
 
-    def findNode(text="",path='tmp.xml'):
+    def findNode(text=""):
         import xml.etree.ElementTree as ET
 
-        x = adb("shell", "uiautomator", "dump", "/sdcard/window_dump.xml")
-        adb("pull", "/sdcard/window_dump.xml", path)
-        tree = ET.parse(path)
+        x = adb("exec-out", "uiautomator", "dump", "/dev/tty")
+        x = re.search("(<.+>)", x).group(1)
+        tree = ET.XML(x)
+        btn = None
+        for elem in tree.iter():
+            elem = elem.attrib
+            if elem.get("text", None) == text:
+                btn = elem.get("bounds", None)
+                break
+        else:
+            return
+        btn = re.search("(\d+)[^\d]+(\d+)[^\d]+(\d+)[^\d]+(\d+)", btn).groups()
+        x = (int(btn[0]) + int(btn[2])) // 2
+        y = (int(btn[1]) + int(btn[3])) // 2
+        return x, y
 
-        return tree
+        # return ET.tostring(tree, encoding='unicode')
 
     def foreground():
         x = adb("shell", "dumpsys", "activity", "recents")
@@ -259,7 +269,6 @@ am force-stop com.android.smspush
         adb("shell", "am", "force-stop", app)
 
     def start():
-        # 720x1280 only 华云
         adb("shell", "input", "home")
         adb(
             "shell",
@@ -278,7 +287,9 @@ am force-stop com.android.smspush
             # print("see_package",see_package)
             if foreground() == package:
                 see_package = True
-                adb("shell", "input", "tap", "300", "1250")
+                x, y = findNode("确定")
+                if x and y:
+                    adb("shell", "input", "tap", str(x), str(y))
                 # adb("shell", "input", "tap", "300", "1160")
             elif see_package:
                 break
@@ -350,7 +361,7 @@ am force-stop com.android.smspush
         # 重启
         restart(rg=True)
 
-    def restart(account='', hide=True, rg=False, game=False):
+    def restart(account="", hide=True, rg=False, game=False):
         if account:
             x = load("config_multi_account.json")
             c(

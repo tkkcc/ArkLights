@@ -2,4 +2,6 @@
 *.png -text
 *.zip -text
 *.lr -text
+/dlt.py filter=dlt
+
 

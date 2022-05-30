@@ -2745,7 +2745,7 @@ show_debug_ui = function()
   ui.addEditText(layout, "max_fight_failed_times", "2")
 
   newRow(layout)
-  addTextView(layout, "单号最大剿灭次数")
+  addTextView(layout, "单号最大成功剿灭次数")
   ui.addEditText(layout, "max_jmfight_times", "")
 
   -- newRow(layout)

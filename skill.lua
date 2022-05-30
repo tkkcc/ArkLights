@@ -642,6 +642,8 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
 
     -- 禁止过小容量
     if maxStorage + table.sum(storage) < 20 then base = -1 end
+    -- 禁止多次减容量
+    if table.sum(storage) < -15 then base = -1 end
 
     if debug_mode then log(428.5, icon, icons, base, station, storage) end
 

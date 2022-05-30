@@ -4517,7 +4517,8 @@ path.前瞻投资 = function(lighter)
       ssleep(.5)
     end
     log(28, zl_best_operator)
-    if str2int(zl_best_operator, -1) < 1 then
+    local idx = str2int(zl_best_operator, -1)
+    if idx < 1 or idx > 12 then
       stop("请设置近卫干员序号(1~12)", false, true)
     end
     tap("近卫招募列表" .. (zl_best_operator or 1))
