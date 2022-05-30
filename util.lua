@@ -753,10 +753,9 @@ stop = function(msg, try_next_account, nohome)
   msg = msg or ''
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
-  captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
-  if QQ2 then
-    captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg, QQ2)
-  end
+  local info = table.join(qqmessage, ' ') .. ' ' .. msg
+  captureqqimagedeliver(info, QQ)
+  captureqqimagedeliver(info, QQ2)
   toast(msg)
   if not nohome then home() end
   ssleep(2)
@@ -3549,9 +3548,33 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   ssleep(1)
-  tap("战略难度列表2")
-  tap("战略难度列表3")
-  tap("战略难度列表2")
+
+  local zl_level_check = function()
+    local prex = -1
+    return wait(function()
+      if not findOne("常规行动") then return 0 end
+      local r = point["战略等级"]
+      -- local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-bc8522") or {}
+      -- local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-fab025") or {}
+      log(r)
+      -- local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-fab020") or {}
+      -- local x = ocrBinaryEx(r[1], r[2], 140, r[4], "000000-fab020") or {}
+      local x = ocrBinaryEx(1040, 39, 1130, 65, "000000-fab020") or {}
+
+      log("4126", x)
+      x = (x[1] or {}).text or ""
+      x = number_ocr_correct(x)
+      x = str2int(x:match("^(%d+).*"), -1)
+      log("4127", x)
+      if x >= 0 and x <= 140 and x == prex then return x end
+      prex = x
+    end, 5) or 0
+  end
+  log(zl_level_check())
+  -- tap("战略难度列表2")
+  --
+  -- tap("战略难度列表3")
+  -- tap("战略难度列表2")
   ssleep(1)
   exit()
 
@@ -4214,12 +4237,12 @@ parse_fight_config = function(fight_ui)
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'PR'}, v) then
-      for _ = 1, 99 do table.insert(expand_fight, "PR-A-2") end
       for _ = 1, 99 do table.insert(expand_fight, "PR-B-2") end
+      for _ = 1, 99 do table.insert(expand_fight, "PR-A-2") end
       for _ = 1, 99 do table.insert(expand_fight, "PR-C-2") end
       for _ = 1, 99 do table.insert(expand_fight, "PR-D-2") end
-      for _ = 1, 99 do table.insert(expand_fight, "PR-A-1") end
       for _ = 1, 99 do table.insert(expand_fight, "PR-B-1") end
+      for _ = 1, 99 do table.insert(expand_fight, "PR-A-1") end
       for _ = 1, 99 do table.insert(expand_fight, "PR-C-1") end
       for _ = 1, 99 do table.insert(expand_fight, "PR-D-1") end
     elseif table.includes({'WT', 'JM'}, v) then
@@ -4267,7 +4290,7 @@ update_state_from_ui = function()
   all_open_time_end = parse_time("202206020400")
   update_open_time()
 
-  -- 危机合约时间段，只为加速信用交易所
+  -- 危机合约时间段，只为加速平时的信用交易所
   during_crisis_contract = false
   local crisis_contract_start = parse_time("202205191600")
   local crisis_contract_end = parse_time("202206020400")
@@ -5069,10 +5092,12 @@ path_name_escape = function(x) return x:map({['/'] = '_'}) end
 
 number_ocr_correct = function(x)
   return x:map({
+    ['〇'] = '0',
     [','] = '',
     ['.'] = '',
     [' '] = '',
     ["O"] = '0',
+    ["Q"] = '0',
     ["o"] = '0',
     ["|"] = '1',
     ["z"] = '2',

@@ -286,10 +286,10 @@ am force-stop com.android.smspush
             # print("package",package)
             # print("see_package",see_package)
             if foreground() == package:
-                see_package = True
                 x, y = findNode("确定")
                 if x and y:
                     adb("shell", "input", "tap", str(x), str(y))
+                    see_package = True
                 # adb("shell", "input", "tap", "300", "1160")
             elif see_package:
                 break

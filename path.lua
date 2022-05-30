@@ -197,9 +197,12 @@ path.base = {
       log("代理失败返回首页")
 
       if not qqnotify_nofailedfight then
-        captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
-                                "代理失败" ..
-                                (home and "(掉线或抢登)" or ''), QQ)
+        local info = table.join(qqmessage, ' ') .. " " .. cur_fight ..
+                       "代理失败" .. (home and "(掉线或抢登)" or '') ..
+                       (zero_star and 'zero_star' or '') ..
+                       (see_end and 'see_end' or '')
+        captureqqimagedeliver(info, QQ)
+        captureqqimagedeliver(info, QQ2)
       end
       -- 一次代理失败直接认为无效：不行，因为可能是掉线造成的失败
       -- fight_failed_times[cur_fight] = 3
@@ -4193,7 +4196,8 @@ path.前瞻投资 = function(lighter)
     return wait(function()
       if not findOne("常规行动") then return 0 end
       local r = point["战略等级"]
-      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-bc8522") or {}
+      -- 1040, 39, 1130, 65, "000000-fab020"
+      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-fab020") or {}
       log("4126", x)
       x = (x[1] or {}).text or ""
       x = number_ocr_correct(x)

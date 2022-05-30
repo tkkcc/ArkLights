@@ -259,7 +259,7 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     ./dlt.py DLT over "$1"
   }
   my() {
-    ./dlt.py DLT my
+    ./dlt.py DLT my "$@"
   }
   serial() {
     ./dlt.py DLT all2serial $@
