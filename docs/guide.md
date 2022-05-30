@@ -619,7 +619,7 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 
 以下命令中`0 m ...`等价于`./0.sh mode ...`，也等价于`./dlt.py mode ...`
 
-仅支持可adb连接的设备
+仅支持可adb连接的设备。
 
 ```sh
 ### 设备管理
@@ -633,7 +633,8 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 0 m 9 free
 0 m 9 top
 0 m 9 ps
-# 下载含有1234的最新通知
+# 查看最近通知，下载查看最新通知图片
+0 m 9 pic
 0 m 9 pic 1234
 # 华云root设置
 0 m 9 hy
@@ -657,7 +658,7 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 0 m 9 user 12345 '' --idx=10
 # 开打
 0 m 9 restart
-# 开打，临时打第10个
+# 开打，本次只打第10个
 0 m 9 restart 10
 
 ### 肉鸽模式
@@ -667,8 +668,10 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 0 m 9 rg1 12345 67890 b --fight='pr ls'
 # 不做日常，导航到近卫干员选择界面停止
 0 m 9 rg2
-# 设置干员，设置等级，开打
-0 m 9 rg2 1 0 1 --level=95
+# 设置干员技能，设置等级125，开打
+0 m 9 rg2 1 0 1 125
+# 开打
+0 m 9 restart --rg
 ```
 
 #### 平台相关
@@ -689,4 +692,5 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 0 s 13888888888
 # 列表
 0 my
+0 my --rg
 ```
