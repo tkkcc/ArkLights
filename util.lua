@@ -1842,20 +1842,9 @@ captureqqimagedeliver = function(info, to)
   notify(img, info, to)
 
   if qqnotify_save then
-    -- exec()
-    -- log("img_src",img_src)
-    local f = io.open(img_src, 'rb')
-    img = f:read('*a')
-    f:close()
     local img_dst = '/sdcard/' .. package .. '/' .. path_name_escape(info) ..
                       '.jpg'
-    -- log("#img",#img)
-    -- log("img_dst", img_dst)
-    f = io.open(img_dst, 'wb')
-    f:write(img)
-    f:close()
-    -- log(1852)
-    -- exit()
+    exec("cp '" .. img_src .. "' '" .. img_dst .. "'")
   end
 end
 
@@ -3420,6 +3409,7 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
                   (#other_services > 0 and ':' or '') .. service .. [[;
 settings put secure enabled_accessibility_services ]] ..
                   (#other_services > 0 and other_services or [['\'\'']]) .. [[;
+
 settings put secure enabled_accessibility_services ]] .. other_services ..
                   (#other_services > 0 and ':' or '') .. service .. [[;
 
@@ -3427,7 +3417,11 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
     local out = exec(cmd)
     log(3386, cmd)
     log(3387, out)
-    if wait(function() return isAccessibilityServiceRun() end, 2) then return end
+    if not wait(function() return isAccessibilityServiceRun() end, 5) then
+      stop("无障碍服务启动失败", false)
+    else
+      return
+    end
   end
   openPermissionSetting()
   toast("请开启无障碍权限")
@@ -4258,9 +4252,7 @@ parse_fight_config = function(fight_ui)
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
-      for i = 10, 1, -1 do
-        table.insert(expand_fight, 'HD' .. '-' .. i)
-      end
+      for i = 10, 1, -1 do table.insert(expand_fight, 'HD' .. '-' .. i) end
       table.insert(expand_fight, "BREAK")
     else
       table.insert(expand_fight, v)
@@ -4725,27 +4717,56 @@ keepalive = function()
 end
 
 killacc = function()
-  if not root_mode then return end
   collectgarbage("collect")
-  -- if 1 then return end
+  if not root_mode then return end
   if disable_killacc1 then return end
-  local cmd = [[su root sh -c ' \
-settings put global heads_up_notifications_enabled 0
-kill $(pidof ]] .. package .. [[:acc)
 
-# secs=2
-# endTime=$(( $(date +%s) + secs ))
-# while [ $(date +%s) -lt $endTime ]; do
-#   pidof ]] .. package .. [[:acc && break
-# done
-'
-]]
+  local service = package .. "/com.nx.assist.AssistService"
+  local services = exec(
+                     "su root sh -c 'settings get secure enabled_accessibility_services'")
+  log("3363", services)
+  services = table.filter(services:trim():split(':'),
+                          function(x) return x ~= 'null' end)
+
+  log("3365", services)
+  local other_services = table.join(table.filter(services, function(x)
+    return x ~= service
+  end), ':')
+  log("3366", other_services)
+  local cmd = [[su root sh -c '
+pid=$(pidof ]] .. package .. [[:acc)
+settings put global heads_up_notifications_enabled 0
+settings put secure enabled_accessibility_services ]] .. other_services ..
+                (#other_services > 0 and ':' or '') .. service .. [[;
+settings put secure enabled_accessibility_services ]] ..
+                (#other_services > 0 and other_services or [['\'\'']]) .. [[;
+kill $pid
+settings put secure enabled_accessibility_services ]] .. other_services ..
+                (#other_services > 0 and ':' or '') .. service .. [[;
+
+' 2>&1 ]]
+
+  --   local cmd = [[su root sh -c ' \
+  -- settings put global heads_up_notifications_enabled 0
+  -- # kill $(pidof ]] .. package .. [[:acc)
+  --
+  -- # secs=2
+  -- # endTime=$(( $(date +%s) + secs ))
+  -- # while [ $(date +%s) -lt $endTime ]; do
+  -- #   pidof ]] .. package .. [[:acc && break
+  -- # done
+  -- '
+  -- ]]
   exec(cmd)
   -- log(4661, isAccessibilityServiceRun())
   -- log(4662, exec(cmd), isAccessibilityServiceRun())
-  wait(function() return isAccessibilityServiceRun() end, 5)
+  if not wait(function() return isAccessibilityServiceRun() end, 5) then
+    stop("无障碍服务启动失败，可以勾选禁用重启acc", false)
+  else
+    return
+  end
   -- exit()
-  enable_accessibility_service()
+  -- enable_accessibility_service()
   -- log("cmd", cmd)
   -- if #exec(cmd):trim() == 0 then
   -- stop(
@@ -5096,7 +5117,15 @@ hy_exec = function(x)
   return _exec('echo "' .. x:gsub('%$', '\\$') .. '"|nc localhost 49876')
 end
 
-path_name_escape = function(x) return x:map({['/'] = '_'}) end
+path_name_escape = function(x)
+  return x:map({
+    ['/'] = '_',
+    ["'"] = '_',
+    ['"'] = '_',
+    ['$'] = '_',
+    ['\\'] = '_',
+  })
+end
 
 number_ocr_correct = function(x)
   return x:map({
