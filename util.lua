@@ -4257,6 +4257,11 @@ parse_fight_config = function(fight_ui)
       for i = 10, 7, -1 do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
+    elseif table.includes({'HD1'}, v) then
+      for i = 10, 1, -1 do
+        table.insert(expand_fight, 'HD' .. '-' .. i)
+      end
+      table.insert(expand_fight, "BREAK")
     else
       table.insert(expand_fight, v)
     end

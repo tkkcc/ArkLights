@@ -204,6 +204,7 @@ username3 password3 b
 ```txt
 jm => dqwt*99 cqwt1*99 cqwt2*99 cqwt3*99
 hd => hd-10*99 hd-9*99 ... 蓝材料及以上关卡
+hd1 => hd-10 hd-9 ... hd-1 break 普通活动关各1次并退出
 ce => ce-6*99 ce-5*99 ...
 ls/ap/sk/ca 同 ce
 pr => pr-b-2*99 pr-a-2*99 pr-c-2*99 pr-d-2*99 pr-b-1*99 pr-a-1*99 pr-c-1*99 pr-d-1*99
