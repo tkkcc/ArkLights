@@ -151,6 +151,8 @@ am force-stop com.android.smspush
             path,
         )
 
+        subprocess.run(["feh", "--title", "float", path])
+
     def user(
         username=None,
         password=None,
@@ -230,24 +232,34 @@ am force-stop com.android.smspush
         x = {}
         save("config_multi_account.json", x)
 
-    def findNode(text=""):
+    def findNode(text="", id=""):
         import xml.etree.ElementTree as ET
 
         x = adb("exec-out", "uiautomator", "dump", "/dev/tty")
-        x = re.search("(<.+>)", x).group(1)
+        x = re.search("(<.+>)", x)
+        if not x:
+            return
+        x = x.group(1)
         tree = ET.XML(x)
         btn = None
+        # ans = []
         for elem in tree.iter():
             elem = elem.attrib
-            if elem.get("text", None) == text:
+            # print(elem)
+            if (
+                text
+                and elem.get("text", None) == text
+                or id
+                and elem.get("resource-id", None) == id
+            ):
                 btn = elem.get("bounds", None)
-                break
-        else:
-            return
-        btn = re.search("(\d+)[^\d]+(\d+)[^\d]+(\d+)[^\d]+(\d+)", btn).groups()
-        x = (int(btn[0]) + int(btn[2])) // 2
-        y = (int(btn[1]) + int(btn[3])) // 2
-        return x, y
+                btn = re.search("(\d+)[^\d]+(\d+)[^\d]+(\d+)[^\d]+(\d+)", btn).groups()
+                x = (int(btn[0]) + int(btn[2])) // 2
+                y = (int(btn[1]) + int(btn[3])) // 2
+                # print(text, x, y)
+                return x, y
+                # ans.append([x, y])
+        # return ans
 
         # return ET.tostring(tree, encoding='unicode')
 
@@ -286,11 +298,15 @@ am force-stop com.android.smspush
             # print("package",package)
             # print("see_package",see_package)
             if foreground() == package:
-                x, y = findNode("确定")
-                if x and y:
+                ok = findNode("确定")
+                cancel = findNode("取消")
+                if cancel:
+                    x, y = cancel
+                    adb("shell", "input", "tap", str(x), str(y))
+                elif ok:
+                    x, y = ok
                     adb("shell", "input", "tap", str(x), str(y))
                     see_package = True
-                # adb("shell", "input", "tap", "300", "1160")
             elif see_package:
                 break
 
@@ -329,7 +345,7 @@ am force-stop com.android.smspush
         c(x, "zl_skip_hard", False)
         c(x, "zl_no_waste", False)
         c(x, "zl_need_goods", "")
-        c(x, "zl_max_level", "110")
+        c(x, "zl_max_level", "125")
         c(x, "zl_max_coin", "")
         save("config_extra.json", x)
 

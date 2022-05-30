@@ -3527,7 +3527,7 @@ test_fight_hook = function()
     -- "R8-8", "R8-9", "R8-10", "R8-11", "JT8-2", "JT8-3", "M8-6", "M8-7", "M8-8",
   }
   fight = table.filter(fight, function(v) return point['作战列表' .. v] end)
-  log(fight)
+  log("fight", fight)
   repeat_fight_mode = false
   run("轮次作战")
   exit()
@@ -3548,6 +3548,9 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   ssleep(1)
+  swip("HD-1")
+  -- ssleep(1)
+  exit()
 
   local zl_level_check = function()
     local prex = -1
@@ -3675,7 +3678,7 @@ predebug_hook = function()
   -- ssleep(1)
   exit()
 
-  -- swip("HD-1")
+  swip("HD-1")
   ssleep(1)
   -- log(findOne("开始行动"))
   -- log(findOne("代理指挥开"))
@@ -4225,7 +4228,7 @@ parse_fight_config = function(fight_ui)
     elseif table.includes(table.keys(extrajianpin2name), v) then
       v = extrajianpin2name[v]
     end
-    if table.find({'活动', "GA", "WR", "IW", "WD", "SN"}, startsWithX(v)) then
+    if table.find({'活动', "GA", "WR", "IW", "WD", "SN", "SV"}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
       -- log(2731, v, idx)
@@ -4283,7 +4286,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202205220400")
+  hd_open_time_end = parse_time("202206090400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202205191600")

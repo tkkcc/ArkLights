@@ -367,6 +367,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+  覆巢之下主页 = function() tap("返回") end,
   全权委托 = function()
     wait(function()
 
@@ -3220,13 +3221,14 @@ clean_hdfight = function()
 end
 
 path.活动 = function(x)
+  log(3223, x)
   local t = parse_time()
   if t >= hd_open_time_end then
     clean_hdfight()
     return
   end
   path.跳转("首页")
-  tap("面板活动2")
+  tap("面板活动")
   if not wait(function()
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then
@@ -3235,12 +3237,12 @@ path.活动 = function(x)
       tap("跳过剧情确认")
     end
   end, 10) then return end
+
   if not wait(function()
-    local level = str2int(x:sub(#x), 1)
-    local level2nav = {4, 2, 2, 2, 2, 2, 3, 3, 3, 4}
-    tap("活动导航" .. level2nav[(level + 1)])
+    tap("活动导航2")
     if not findOne("活动导航1") then return true end
   end, 5) then return end
+
   ssleep(2)
   swip(x)
   tap("作战列表" .. x)
@@ -3254,7 +3256,7 @@ path.活动 = function(x)
   end
   path.开始游戏(x)
 end
-path.活动 = hd_wrapper(path.活动)
+-- path.活动 = hd_wrapper(path.活动)
 
 path.活动2任务与商店 = function()
 
