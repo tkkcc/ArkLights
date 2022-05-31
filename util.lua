@@ -1252,7 +1252,7 @@ run = function(...)
     end
   end
 
-  if qqnotify_run_time_measure then
+  if not qqnotify_noruntime then
     table.insert(qqmessage,
                  math.floor((time() - run_start_time) / 1000 / 60) .. "分钟")
   end
@@ -1266,7 +1266,7 @@ run = function(...)
   end
 
   if not qqnotify_nofight then table.remove(qqmessage, #qqmessage) end
-  if qqnotify_run_time_measure then table.remove(qqmessage, #qqmessage) end
+  if not qqnotify_noruntime then table.remove(qqmessage, #qqmessage) end
 end
 
 half_hour_cron = function(x, h)
@@ -2788,21 +2788,22 @@ show_debug_ui = function()
                  "QQ通知设备名与账号名只显示备注", false)
 
   newRow(layout)
-  ui.addCheckBox(layout, "qqnotify_notime", "QQ通知不显示时间", false)
+  ui.addCheckBox(layout, "qqnotify_notime", "QQ通知不显示发送时间",
+                 false)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nofailedfight",
                  "QQ通知不显示代理失败信息", false)
+
   newRow(layout)
-  ui.addCheckBox(layout, "qqnotify_nofight",
-                 "QQ通知不显示作战信息", false)
+  ui.addCheckBox(layout, "qqnotify_nofight", "QQ通知不显示作战信息",
+                 false)
+  newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_noruntime", "QQ通知不显示耗时信息",
+                 false)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_bar", "QQ通知显示悬浮按钮", false)
-
-  newRow(layout)
-  ui.addCheckBox(layout, "qqnotify_run_time_measure",
-                 "QQ通知显示耗时信息", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_beforemail",

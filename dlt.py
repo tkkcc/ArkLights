@@ -68,6 +68,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 cat /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score_adj
 ps|grep nc
 am force-stop com.android.smspush
+pm disable com.iflytek.inputmethod.miui
         '""",
         )
 
@@ -174,13 +175,13 @@ am force-stop com.android.smspush
                     first_empty_i = i
                 continue
             print(
-                i,
                 x["username" + str(i)],
                 x["password" + str(i)],
-                "b" if x["server" + str(i)] == 1 else "",
-                x["multi_account_user" + str(i) + "fight_ui"]
+                "--server" if x["server" + str(i)] == 1 else "",
+                ("--fight='" + x["multi_account_user" + str(i) + "fight_ui"] + "'")
                 if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
                 else "",
+                "--idx=" + str(i),
             )
         if not username and not password:
             return
@@ -189,17 +190,18 @@ am force-stop com.android.smspush
         print("==> 添加至账号" + str(first_empty_i))
         c(x, f"username{first_empty_i}", str(username))
         c(x, f"password{first_empty_i}", str(password))
-        c(x, f"multi_account_inherit_toggle{first_empty_i}", "继承设置")
         c(x, f"multi_account_inherit_spinner{first_empty_i}", "0")
         c(x, f"server{first_empty_i}", 1 if server else 0)
         if fight:
             c(x, f"multi_account_user{first_empty_i}fight_ui", fight)
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
-        c(
-            x,
-            "multi_account_choice",
-            x["multi_account_choice"].split("#")[0] + "#" + str(first_empty_i),
-        )
+        else:
+            c(x, f"multi_account_inherit_toggle{first_empty_i}", "继承设置")
+        # c(
+        #     x,
+        #     "multi_account_choice",
+        #     x["multi_account_choice"].split("#")[0] + "#" + str(first_empty_i),
+        # )
 
         save("config_multi_account.json", x)
         # print("username", username)
@@ -418,8 +420,11 @@ am force-stop com.android.smspush
         c(x, "max_login_times_5min", "3")
         if name:
             c(x, "QQ", name)
-        if weekday_only:
-            c(x, "multi_account_choice_weekday_only", weekday_only)
+        c(
+            x,
+            "multi_account_choice_weekday_only",
+            weekday_only or x["multi_account_choice_weekday_only"],
+        )
         c(x, "qqnotify_run_time_measure", True)
         c(x, "qqnotify_beforemail", True)
         c(x, "qqnotify_afterenter", True)
@@ -444,7 +449,7 @@ am force-stop com.android.smspush
 
         x = load("config_multi_account.json")
         c(x, "multi_account_end_closeotherapp", True)
-        c(x, "multi_account_end_closeapp", False)
+        c(x, "multi_account_end_closeapp", True)
         c(x, "multi_account_choice", "1-30")
         save("config_multi_account.json", x)
 
