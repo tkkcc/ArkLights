@@ -196,7 +196,6 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     echo $md5 >release/skill.zip.md5
   }
   buildingskill() {
-
     local png=$root/arknights_extract/assets/torappu/dynamicassets/arts/building/skills
     rm -rf png_noalpha
     mkdir png_noalpha
@@ -204,11 +203,13 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     find png_noalpha -type f -not -name 'bskill_*' -delete
     touch png_noalpha/.nomedia
 
-    git submodule update --init --recursive
+    git submodule update --init --recursive --remote
     ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
 
     # local skill=docs/.vuepress/public/skill.zip
+    # mkdir -p "$(dirname "$skill")"
     local skill=release/skill.zip
+
     zip $skill -q -r -j png_noalpha
     local md5=$(md5sum $skill | cut -d' ' -f1)
     echo $md5 >$skill.md5
