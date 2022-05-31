@@ -2489,13 +2489,13 @@ make_continue_account_ui = function(layout)
     newRow(layout, nil, nil, -1)
     continue_account = shrink_number_config(continue_account)
     addButton(layout, nil,
-              "启动并定时，本次只跑剩余账号" .. continue_account,
+              "启动并定时，本次只跑剩余账号 #" .. continue_account,
               make_jump_ui_command(layout, nil,
                                    "multi_account_config_remove_once_choice(continue_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
               -1, nil, ui_submit_color)
     newRow(layout, nil, nil, -1)
     continue_all_account = shrink_number_config(continue_all_account)
-    addButton(layout, nil, "启动并定时，本次先跑剩余账号" ..
+    addButton(layout, nil, "启动并定时，本次先跑剩余账号 #" ..
                 continue_all_account, make_jump_ui_command(layout, nil,
                                                            "multi_account_config_remove_once_choice(continue_all_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
               -1, nil, ui_submit_color)
@@ -2709,16 +2709,14 @@ show_debug_ui = function()
   ui.setTitleText(layout, "高级设置")
 
   newRow(layout)
-  ui.addButton(layout, layout .. "_stop", "返回")
-  ui.setBackground(layout .. "_stop", ui_cancel_color)
-  ui.setOnClick(layout .. "_stop",
-                make_jump_ui_command(layout, loadConfig("last_layout", "main")))
 
-  -- newRow(layout)
-  -- addTextView(layout, "禁用重启acc进程")
-  -- ui.addEditText(layout, "disable_killacc", "")
-  -- ui.addCheckBox(layout, "enable_killacc", "启用重启acc进程", false)
-  --
+  addButton(layout, nil, "返回",
+            make_jump_ui_command(layout, loadConfig("last_layout", "main")),
+            nil, nil)
+  -- ui.addButton(layout, layout .. "_stop", "返回")
+  -- ui.setBackground(layout .. "_stop", ui_cancel_color)
+  -- ui.setOnClick(layout .. "_stop",
+  --               make_jump_ui_command(layout, ))
 
   newRow(layout)
   addTextView(layout, "单号最大登录次数")
@@ -2893,7 +2891,6 @@ show_debug_ui = function()
 
 
 
-以下为调试设置，请根据开发者建议使用！
 ]])
 
   -- newRow(layout)
@@ -2903,6 +2900,10 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "内存清理间隔(s)")
   ui.addEditText(layout, "keepalive_interval1", "3600")
+
+  newRow(layout)
+  ui.addCheckBox(layout, "enable_disable_lmk",
+                 "禁用LMK(测试中,专用挂机设备建议勾)", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "disable_killacc1", "禁用重启acc进程", false)
@@ -2978,11 +2979,14 @@ show_extra_ui = function()
   ui.setTitleText(layout, "其他功能 " .. release_date .. '  ' .. resolution)
 
   newRow(layout)
-  ui.addButton(layout, layout .. "_stop", "返回")
-  ui.setBackground(layout .. "_stop", ui_cancel_color)
-  ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
 
-  make_continue_extra_ui(layout)
+  addButton(layout, nil, "返回", make_jump_ui_command(layout, "main"), nil,
+            nil)
+  -- ui.addButton(layout, layout .. "_stop", "返回")
+  -- ui.setBackground(layout .. "_stop", ui_cancel_color)
+  -- ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
+
+  -- make_continue_extra_ui(layout)
 
   -- {nil, "退出", make_jump_ui_command(layout, nil, "peaceExit()")}, {
   --   readme_btn, "必读", make_jump_ui_command(layout, nil,
@@ -3189,8 +3193,7 @@ show_gesture_capture_ui = function()
 
   newRow(layout)
 
-  addButton(layout, nil, "返回", make_jump_ui_command(layout, "main"), nil,
-            nil, ui_cancel_color)
+  addButton(layout, nil, "返回", make_jump_ui_command(layout, "main"))
 
   newRow(layout)
   addTextView(layout,
@@ -4707,13 +4710,9 @@ check_login_frequency = function()
 end
 
 keepalive = function()
-  log("keepalive")
-  -- log("enable_keepalive",enable_keepalive)
-  -- if not enable_keepalive then return end
   killacc()
-  log("killacc finish")
   oom_score_adj()
-  log("keepalive finish")
+  disable_lmk()
 end
 
 killacc = function()
@@ -4803,9 +4802,9 @@ oom_score_adj = function()
   --   sleep 0.1
   -- done
   local cmd = [[nohup su root sh -c ' \
-echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
 echo -1000 > /proc/$(pidof ]] .. package .. [[:remote)/oom_score_adj
 echo -1000 > /proc/$(pidof ]] .. package .. [[)/oom_score_adj
+echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
 ' > /dev/null & ]]
 
   exec(cmd)
@@ -4843,6 +4842,15 @@ echo -1000 > /proc/$(pidof ]] .. package .. [[)/oom_score_adj
   -- exit()
   -- log("oom_score_adj:" .. get(package) .. get(package .. ":acc") ..
   --       get(package .. ":remote"))
+end
+
+disable_lmk = function()
+  if not root_mode then return end
+  if not enable_disable_lmk then return end
+  local cmd = [[nohup su root sh -c ' \
+echo 1,2,3,4,5,6 > /sys/module/lowmemorykiller/parameters/minfree
+' > /dev/null & ]]
+  exec(cmd)
 end
 
 solveCapture = function()
