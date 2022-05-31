@@ -1242,7 +1242,6 @@ run = function(...)
 
   for _, v in ipairs(arg) do
     setControlBar()
-    -- setControlBarPosNew(0.00001, 1)
     running = v
     if type(v) == 'function' then
       log(773)
@@ -1257,23 +1256,17 @@ run = function(...)
     table.insert(qqmessage,
                  math.floor((time() - run_start_time) / 1000 / 60) .. "分钟")
   end
+  if not qqnotify_nofight then
+    table.insert(qqmessage, shrink_fight_config(fight_history))
+  end
 
-  -- 对每个账号的远程提醒，本地无需装QQ。
   if #QQ > 0 then
     path.跳转("首页")
     captureqqimagedeliver(table.join(qqmessage, ' '), QQ)
   end
-  -- log("qqmessage",qqmessage)
 
+  if not qqnotify_nofight then table.remove(qqmessage, #qqmessage) end
   if qqnotify_run_time_measure then table.remove(qqmessage, #qqmessage) end
-
-  -- log("qqmessage",qqmessage)
-  -- exit()
-  -- if snapshot_after_run then
-  --   local img = '/sdcard/' .. package .. '/' .. (username or 'default') ..
-  --                 '.jpg'
-  --   snapShot(img)
-  -- end
 end
 
 half_hour_cron = function(x, h)
@@ -2488,10 +2481,9 @@ make_continue_account_ui = function(layout)
   if #continue_account > 0 and #continue_all_account > 0 then
     newRow(layout, nil, nil, -1)
     continue_account = shrink_number_config(continue_account)
-    addButton(layout, nil,
-              "启动并定时，本次只跑剩余账号 #" .. continue_account,
-              make_jump_ui_command(layout, nil,
-                                   "multi_account_config_remove_once_choice(continue_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
+    addButton(layout, nil, "启动并定时，本次只跑剩余账号 #" ..
+                continue_account, make_jump_ui_command(layout, nil,
+                                                       "multi_account_config_remove_once_choice(continue_account);saveConfig('continue_account','');lock:remove(main_ui_lock)"),
               -1, nil, ui_submit_color)
     newRow(layout, nil, nil, -1)
     continue_all_account = shrink_number_config(continue_all_account)
@@ -2801,6 +2793,9 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_nofailedfight",
                  "QQ通知不显示代理失败信息", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "qqnotify_nofight",
+                 "QQ通知不显示作战信息", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_bar", "QQ通知显示悬浮按钮", false)
@@ -3544,8 +3539,17 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  ssleep(1)
-  swip("HD-1")
+  log(shrink_fight_config({"1-7"}))
+  log(shrink_fight_config({"1-7", "1-7"}))
+  log(shrink_fight_config({"1-7", "1-7", "1-7"}))
+  log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6'}))
+  log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6', 'CE-6'}))
+  log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6', 'CE-6', '1-8'}))
+  log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6', '1-8', 'CE-6'}))
+  log(shrink_fight_config({"1-7", "1-7", "1-7", '1-8', 'CE-6', 'CE-6'}))
+  log(shrink_fight_config({"1-6", "1-7", "1-7", '1-8', 'CE-6', 'CE-6'}))
+  -- ssleep(1)
+  -- swip("HD-1")
   -- ssleep(1)
   exit()
 
@@ -4588,7 +4592,7 @@ equal_number_config = function(a, b)
   return table.equal(a, b)
 end
 
--- list to string annotation
+-- {1,2,3,6,9,8} => '1-3 6 9-8'
 shrink_number_config = function(x)
   local ans = ''
   x = x:split(' ')
@@ -4604,6 +4608,23 @@ shrink_number_config = function(x)
       ans = ans .. x[i] .. ' '
     else
       ans = ans .. x[i] .. '-' .. x[j - 1] .. ' '
+    end
+    i = j
+  end
+  return ans
+end
+
+-- {1-7 1-7 1-7 CE-6} => '1-7x3 CE-6'
+shrink_fight_config = function(x)
+  local ans = ''
+  local i = 1
+  while i <= #x do
+    local j = i + 1
+    while j <= #x and x[j] == x[j - 1] do j = j + 1 end
+    if j == i + 1 then
+      ans = ans .. x[i] .. ' '
+    else
+      ans = ans .. x[i] .. 'x' .. (j - i) .. ' '
     end
     i = j
   end

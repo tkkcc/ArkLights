@@ -210,6 +210,8 @@ path.base = {
       return path.跳转("首页")
     end
 
+    table.insert(fight_history, cur_fight)
+
     fight_times = (fight_times or 0) + 1
     if fight_times >= max_fight_times then
       fight_times = 0
@@ -926,8 +928,12 @@ init_state = function() end
 -- 对于单个用户的不同任务
 update_state = function()
 
-  -- 启用重复刷模式
-  repeat_fight_mode = true
+  -- 禁用重复刷模式
+  repeat_fight_mode = false
+  pre_fight = nil
+
+  -- 作战统计
+  fight_history = {}
 
   fight_tick = 0
   no_success_one_loop = 0
@@ -2547,8 +2553,6 @@ end
 
 path.轮次作战 = function()
   -- path.跳转("首页")
-  pre_fight = nil
-  no_success_one_loop = 0
   while not zero_san do
     if #fight == 0 then return true end
     fight_tick = fight_tick % #fight + 1

@@ -438,6 +438,7 @@ am force-stop com.android.smspush
         c(x, "max_drug_times_" + str(6) + "day", "0")
         c(x, "max_drug_times_" + str(7) + "day", "0")
         c(x, "enable_log", False)
+        c(x, "enable_disable_lmk", True)
 
         save("config_debug.json", x)
 
@@ -456,6 +457,9 @@ am force-stop com.android.smspush
         x = load("config_debug.json")
         c(x, "max_login_times_5min", "3")
         save("config_debug.json", x)
+
+    def lmk():
+        return adb("shell", "cat", "/sys/module/lowmemorykiller/parameters/minfree")
 
     def top():
         return adb("shell", "top", "-s", "rss", "-m", "10", "-n", "1")
