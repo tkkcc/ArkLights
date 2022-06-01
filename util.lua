@@ -25,15 +25,16 @@ still_wrapper = function(func)
     return ret
   end
 end
-disable_log_wrapper = function(func)
+disable_log_wrapper = function(func, enable)
   return function(...)
     local state = disable_log
-    disable_log = true
+    disable_log = not enable and true or false
     local ret = func(...)
     disable_log = state
     return ret
   end
 end
+enable_log_wrapper = function(func) return disable_log_wrapper(func, true) end
 
 -- 无障碍函数替换
 if not openPermissionSetting then
@@ -1234,7 +1235,7 @@ run = function(...)
 
   -- 目前每个账号不同任务的状态共享，因此只在外层执行一次
   update_state()
-
+  request_memory_clean()
   wait_game_up()
   setTimer(setControlBar, 500)
   setTimer(setControlBar, 1000)
@@ -1250,6 +1251,7 @@ run = function(...)
     else
       auto(path[v], path.fallback)
     end
+    request_memory_clean()
   end
 
   if not qqnotify_noruntime then
@@ -1525,8 +1527,8 @@ wait_game_up = function(retry)
   end
   retry = retry or 0
   if retry == 2 then home() end
-  if retry == 3 then closeapp(appid) end
-  if retry >= 4 then stop("无法启动游戏", false) end
+  if retry == 4 then closeapp(appid) end
+  if retry >= 6 then stop("无法启动游戏", false) end
 
   open(appid)
   screenon()
@@ -1884,8 +1886,8 @@ closeapp = disable_game_up_check_wrapper(closeapp)
 restartapp = function(package)
   login_times = (login_times or 0) - 1
   closeapp(package)
-  wait_game_up()
   request_memory_clean()
+  wait_game_up()
 end
 screenoff = function()
   if root_mode then exec([[su root sh -c 'input keyevent 223']]) end
@@ -3540,40 +3542,49 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  log(shrink_fight_config({"1-7"}))
-  log(shrink_fight_config({"1-7", "1-7"}))
-  log(shrink_fight_config({"1-7", "1-7", "1-7"}))
-  log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6'}))
-  log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6', 'CE-6'}))
-  log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6', 'CE-6', '1-8'}))
-  log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6', '1-8', 'CE-6'}))
-  log(shrink_fight_config({"1-7", "1-7", "1-7", '1-8', 'CE-6', 'CE-6'}))
-  log(shrink_fight_config({"1-6", "1-7", "1-7", '1-8', 'CE-6', 'CE-6'}))
+  -- log(shrink_fight_config({"1-7"}))
+  -- log(shrink_fight_config({"1-7", "1-7"}))
+  -- log(shrink_fight_config({"1-7", "1-7", "1-7"}))
+  -- log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6'}))
+  -- log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6', 'CE-6'}))
+  -- log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6', 'CE-6', '1-8'}))
+  -- log(shrink_fight_config({"1-7", "1-7", "1-7", 'CE-6', '1-8', 'CE-6'}))
+  -- log(shrink_fight_config({"1-7", "1-7", "1-7", '1-8', 'CE-6', 'CE-6'}))
+  -- log(shrink_fight_config({"1-6", "1-7", "1-7", '1-8', 'CE-6', 'CE-6'}))
   -- ssleep(1)
   -- swip("HD-1")
   -- ssleep(1)
-  exit()
+  -- exit()
 
   local zl_level_check = function()
     local prex = -1
     return wait(function()
-      if not findOne("常规行动") then return 0 end
+      -- if not findOne("常规行动") then return 0 end
       local r = point["战略等级"]
       -- local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-bc8522") or {}
       -- local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-fab025") or {}
-      log(r)
+      -- log(r)
       -- local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-fab020") or {}
       -- local x = ocrBinaryEx(r[1], r[2], 140, r[4], "000000-fab020") or {}
-      local x = ocrBinaryEx(1040, 39, 1130, 65, "000000-fab020") or {}
+      -- local x = ocrBinaryEx(1040, 39, 1153, 65, "000000-fab020") or {}
+      -- local x = ocrBinaryEx(1033, 39, 1153, 64, "000000-fab020") or {}
+      --
+      -- local x = ocrBinaryEx(1035, 39, 1105, 64, "000000-fab525") or {}
+      local x = ocrBinaryEx(1035, 39, 1105, 64, "000000-feb525") or {}
 
-      log("4126", x)
+      -- local x = ocrBinaryEx(1033, 39, 1103, 64, "000000-fab020") or {}
+      --
+      -- local x = ocrBinaryEx(1033, 39, 1103, 64, "000000-feb424") or {}
+
+      -- log("4126", x)
       x = (x[1] or {}).text or ""
       x = number_ocr_correct(x)
       x = str2int(x:match("^(%d+).*"), -1)
-      log("4127", x)
-      if x >= 0 and x <= 140 and x == prex then return x end
+      -- log("4127", x)
+      if x ~= 121 then log(x) end
+      -- if x >= 0 and x <= 140 and x == prex then return x end
       prex = x
-    end, 5) or 0
+    end, 50) or 0
   end
   log(zl_level_check())
   -- tap("战略难度列表2")
@@ -4732,6 +4743,7 @@ check_login_frequency = function()
 end
 
 keepalive = function()
+  enable_log_wrapper(function() log("keepalive") end)()
   killacc()
   oom_score_adj()
   disable_lmk()
@@ -4757,11 +4769,21 @@ killacc = function()
   local cmd = [[su root sh -c '
 pid=$(pidof ]] .. package .. [[:acc)
 settings put global heads_up_notifications_enabled 0
+# 开
 settings put secure enabled_accessibility_services ]] .. other_services ..
                 (#other_services > 0 and ':' or '') .. service .. [[;
+# 关
 settings put secure enabled_accessibility_services ]] ..
                 (#other_services > 0 and other_services or [['\'\'']]) .. [[;
 kill $pid
+sleep 1
+# 开
+settings put secure enabled_accessibility_services ]] .. other_services ..
+                (#other_services > 0 and ':' or '') .. service .. [[;
+# 关
+settings put secure enabled_accessibility_services ]] ..
+                (#other_services > 0 and other_services or [['\'\'']]) .. [[;
+# 开
 settings put secure enabled_accessibility_services ]] .. other_services ..
                 (#other_services > 0 and ':' or '') .. service .. [[;
 

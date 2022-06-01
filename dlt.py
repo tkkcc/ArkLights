@@ -43,8 +43,9 @@ def mode(serial, f="help", *args, **kwargs):
     # packagehash = "110625af36f2b330ccbaef8b987812df"
     path = Path("serial") / serial
     path.mkdir(exist_ok=True, parents=True)
+    alias = serial
     if len(serial) < 4:
-        serial = serial_alias[serial]
+        serial = serial_alias[alias]
 
     def help():
         return
@@ -126,7 +127,7 @@ pm disable com.iflytek.inputmethod.miui
             "-delete",
         )
 
-    def pic(name="jpg", path=img_path):
+    def pic(name="", path=img_path):
         path = Path(path)
         name = str(name)
         x = adb(
@@ -134,7 +135,7 @@ pm disable com.iflytek.inputmethod.miui
             "find",
             "/sdcard/" + package,
             "-iname",
-            "*" + name + "*",
+            "*" + name + "*.jpg",
         )
         x = x.split("\n")
         x = list(sorted(filter(None, x)))
@@ -153,6 +154,10 @@ pm disable com.iflytek.inputmethod.miui
         )
 
         subprocess.run(["feh", "--title", "float", path])
+
+    def users(x):
+        for x in filter(None, x.split("\n")):
+            subprocess.run(["./dlt.py", "mode", serial, "user", x])
 
     def user(
         username=None,
@@ -175,6 +180,7 @@ pm disable com.iflytek.inputmethod.miui
                     first_empty_i = i
                 continue
             print(
+                "0 m",alias,"user",
                 x["username" + str(i)],
                 x["password" + str(i)],
                 "--server" if x["server" + str(i)] == 1 else "",
@@ -220,16 +226,18 @@ pm disable com.iflytek.inputmethod.miui
         print("==> 当前账号")
         first_empty_i = 0
         for i in range(1, 31):
-            if not x["username" + str(i)] or not x["password" + str(i)]:
-                if first_empty_i == 0:
-                    first_empty_i = i
-                continue
-            print(
-                i,
-                x["username" + str(i)],
-                x["password" + str(i)],
-                "b" if x["server" + str(i)] == 1 else "",
-            )
+            c(x, "username" + str(i), "")
+            c(x, "password" + str(i), "")
+            # if not x["username" + str(i)] or not x["password" + str(i)]:
+            #     if first_empty_i == 0:
+            #         first_empty_i = i
+            #     continue
+            # print(
+            #     i,
+            #     x["username" + str(i)],
+            #     x["password" + str(i)],
+            #     "b" if x["server" + str(i)] == 1 else "",
+            # )
 
         x = {}
         save("config_multi_account.json", x)
@@ -425,7 +433,6 @@ pm disable com.iflytek.inputmethod.miui
             "multi_account_choice_weekday_only",
             weekday_only or x["multi_account_choice_weekday_only"],
         )
-        c(x, "qqnotify_run_time_measure", True)
         c(x, "qqnotify_beforemail", True)
         c(x, "qqnotify_afterenter", True)
         c(x, "qqnotify_beforeleaving", True)
@@ -443,7 +450,8 @@ pm disable com.iflytek.inputmethod.miui
         c(x, "max_drug_times_" + str(6) + "day", "0")
         c(x, "max_drug_times_" + str(7) + "day", "0")
         c(x, "enable_log", False)
-        c(x, "enable_disable_lmk", True)
+        c(x, "enable_disable_lmk", False)
+        c(x, "disable_killacc1", False)
 
         save("config_debug.json", x)
 

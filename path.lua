@@ -4203,7 +4203,7 @@ path.前瞻投资 = function(lighter)
       if not findOne("常规行动") then return 0 end
       local r = point["战略等级"]
       -- 1040, 39, 1130, 65, "000000-fab020"
-      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-fab020") or {}
+      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-feb525") or {}
       log("4126", x)
       x = (x[1] or {}).text or ""
       x = number_ocr_correct(x)
