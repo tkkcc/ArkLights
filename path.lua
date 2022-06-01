@@ -4202,16 +4202,18 @@ path.前瞻投资 = function(lighter)
     if not (str2int(zl_max_level, 0) > 0) then return end
 
     if not findOne("常规行动") then return end
-    if not wait(function()
-      if not findOne("常规行动") then return true end
-      tap("战略等级入口")
-    end) then return end
+    -- if not wait(function()
+    --   if not findOne("常规行动") then return true end
+    --   tap("战略等级入口")
+    -- end) then return end
     ssleep(.5)
 
     local prex = -1
     local ans = wait(function()
       -- if not findOne("常规行动") then return 0 end
-      local x = ocr("战略等级") or {}
+      -- local x = ocr("战略等级") or {}
+      local r = point["战略等级"]
+      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-feb525") or {}
       log("4126", x)
       x = (x[1] or {}).text or ""
       x = number_ocr_correct(x)
@@ -4222,10 +4224,10 @@ path.前瞻投资 = function(lighter)
       -- if x >= 0 then return x end
       prex = x
     end, 5)
-    wait(function()
-      tap("返回")
-      if appear("常规行动") then return true end
-    end, 5)
+    -- wait(function()
+    --   tap("返回")
+    --   if appear("常规行动") then return true end
+    -- end, 5)
     return ans
   end
 

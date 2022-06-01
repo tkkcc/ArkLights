@@ -3561,10 +3561,16 @@ predebug_hook = function()
     local prex = -1
     return wait(function()
       -- if not findOne("常规行动") then return 0 end
-      local r = point["战略源石锭"]
+      -- local r = point["战略等级"]
       -- "148|516|282320,284|570|1C1C1C"
       -- "1171|9|121A1A,1237|63|181818"
-      -- local x = ocrBinaryEx(1171,9,1237,63, "000000-3a3a3a") or {}
+      r = {1034, 39, 1130, 72}
+      log(r)
+      local id = createHUD()
+      -- showHUD(id, "等", 20, "0xffffb525", "0xff000000", 0, r[3], r[2], 0, 0) -- 显示HUD内容
+      -- ssleep(1)
+      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-feb525") or {}
+      -- local x = ocrEx(r[1], r[2], 1111, 95) or {}
       --
       -- 右上角源石锭 可
       -- local x = ocrEx(1078,9,1234,57) or {}
@@ -3575,7 +3581,10 @@ predebug_hook = function()
       --  右上角等级 可
       -- local x = ocrEx(1104,17,1204,45) or {}
       -- local x = ocrEx(1101, 17, 1204, 47) or {}
-      local x = ocrEx( 975,30,1050,61) or {}
+      --
+      -- local x = ocrEx( 975,30,1050,61) or {}
+      -- local x = ocrEx( 157,128,454,235) or {}
+
       -- local id = createHUD()
       -- showHUD(id,"的",11,"0xffffffff","0x00000000",0,240,540,40,32)--显示HUD内容
       -- ssleep(1)
