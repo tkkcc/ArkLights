@@ -2320,7 +2320,7 @@ path.任务收集 = function()
   path.跳转("任务")
   appear({"任务未选中列表2", "任务有列表2", "任务无列表2"})
   if qqnotify_beforemission then
-    captureqqimagedeliver(table.join(qqmessage, ' ') .. "任务收集前", QQ)
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. " 任务收集前", QQ)
   end
 
   if speedrun then
@@ -3763,9 +3763,10 @@ path.公开招募 = function()
 
           if max_star >= 0 and not _G['auto_recruit' .. max_star] then
             log("notify 存在", max_star, list)
-            table.insert(qqmessage, "可招募：" .. table.join(list))
+            -- table.insert(qqmessage, "可招募：" .. table.join(list))
+            table.insert(qqmessage, table.join(list))
             if recruit_accelerate_mode then
-              stop("可招募：" .. table.join(list), false, true)
+              stop(table.join(list), false, true)
             end
           end
 
@@ -4190,6 +4191,7 @@ path.前瞻投资 = function(lighter)
     if zl_no_waste then run(no_extra_job) end
     stop("肉鸽结束", false)
   end
+
   if zl_coin_enough then
     if zl_no_waste then run(no_extra_job) end
     stop("肉鸽结束", false)
@@ -4197,66 +4199,82 @@ path.前瞻投资 = function(lighter)
 
   -- 检测等级
   local zl_level_check = function()
-    if not (str2int(zl_max_level, 0) > 0) then return 0 end
+    if not (str2int(zl_max_level, 0) > 0) then return end
+
+    if not findOne("常规行动") then return end
+    if not wait(function()
+      if not findOne("常规行动") then return true end
+      tap("战略等级入口")
+    end) then return end
+    ssleep(.5)
+
     local prex = -1
-    return wait(function()
-      if not findOne("常规行动") then return 0 end
-      local r = point["战略等级"]
-      -- 1040, 39, 1130, 65, "000000-fab020"
-      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-feb525") or {}
+    local ans = wait(function()
+      -- if not findOne("常规行动") then return 0 end
+      local x = ocr("战略等级") or {}
       log("4126", x)
       x = (x[1] or {}).text or ""
       x = number_ocr_correct(x)
       x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
-      if x >= 0 and x <= 140 and x == prex then return x end
+      -- if x >= 0 and x <= 140 and x == prex then return x end
+      if x >= 0 and x <= 140 then return x end
+      -- if x >= 0 then return x end
       prex = x
-    end, 5) or 0
+    end, 5)
+    wait(function()
+      tap("返回")
+      if appear("常规行动") then return true end
+    end, 5)
+    return ans
   end
-  local zl_level = zl_level_check()
+
+  local zl_level = zl_level_check() or -1
   if not zl_level_enough and zl_level >= str2int(zl_max_level, 10000) then
-    -- 达到需求后1秒再做一次
-    -- ssleep(1)
-    -- if zl_level_check() >= str2int(zl_max_level, 10000) then
     zl_level_enough = true
     captureqqimagedeliver(
       table.join(qqmessage, ' ') .. " " .. (zl_level or '') .. "等级已满",
       QQ)
-    -- else
-    --   zl_level = 0
-    -- iend
   end
 
   -- 检测源石锭
   local zl_coin_check = function()
-    if not (str2int(zl_max_coin, 0) > 0) then return 0 end
+    if not (str2int(zl_max_coin, 0) > 0) then return end
+    if not findOne("常规行动") then return end
+    if not wait(function()
+      if not findOne("常规行动") then return true end
+      tap("战略源石锭入口")
+    end) then return end
+
+    ssleep(.5)
+
     local prex = -1
-    return wait(function()
-      if not findOne("常规行动") then return 0 end
-      local r = point["战略源石锭"]
-      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-3a3a3a") or {}
+    local ans = wait(function()
+      -- if not findOne("常规行动") then return 0 end
+      local x = ocr("战略源石锭") or {}
       log(4195, x)
       x = (x[1] or {}).text or ""
       x = number_ocr_correct(x)
-      x = str2int(x:match("^(%d+).*"), -1)
+      x = str2int(x:match("[^%d](%d+)$"), -1)
       log("4128", x)
-      if x >= 0 and x == prex then return x end
+      -- if x >= 0 and x == prex then return x end
+      if x >= 0 then return x end
       prex = x
-    end, 5) or 0
+    end, 5)
+    wait(function()
+      tap("返回")
+      if appear("常规行动") then return true end
+    end, 5)
+
+    return ans
   end
 
-  local zl_coin = zl_coin_check()
+  local zl_coin = zl_coin_check() or -1
   if not zl_coin_enough and zl_coin >= str2int(zl_max_coin, 10000) then
-    -- 达到需求后1秒再做一次
-    -- ssleep(1)
-    -- if zl_coin_check() >= str2int(zl_max_coin, 10000) then
     zl_coin_enough = true
     captureqqimagedeliver(
       table.join(qqmessage, ' ') .. " " .. (zl_coin or '') .. "源石锭已满",
       QQ)
-    -- else
-    --   zl_coin = 0
-    -- end
   end
 
   -- 等级/源石锭 阶段性通知
@@ -4272,6 +4290,10 @@ path.前瞻投资 = function(lighter)
     captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. info, QQ)
   end
 
+  if not findOne("常规行动") then return end
+
+  -- log(zl_coin, zl_level)
+  -- exit()
   -- 放弃探索
   if findOne("放弃探索") then
     if not wait(function()
@@ -4334,7 +4356,7 @@ path.前瞻投资 = function(lighter)
     --   tap("战略确认")
     -- end,5)
 
-    captureqqimagedeliver(table.join(qqmessage, ' ') .. "放弃行动后", QQ)
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. " 放弃行动后", QQ)
 
     wait(function(reset_wait_start_time)
       if not disappear("常规行动") then return true end

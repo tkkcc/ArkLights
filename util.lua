@@ -1832,7 +1832,8 @@ captureqqimagedeliver = function(info, to)
   else
     img = base64(img)
   end
-  info = tostring(info):trim()
+
+  info = tostring(info):trim():gsub("%s+", ' ')
   to = tostring(to)
   notify(img, info, to)
 
@@ -3555,6 +3556,44 @@ predebug_hook = function()
   -- swip("HD-1")
   -- ssleep(1)
   -- exit()
+  local zl_coin_check = function()
+    -- if not (str2int(zl_max_coin, 0) > 0) then return 0 end
+    local prex = -1
+    return wait(function()
+      -- if not findOne("常规行动") then return 0 end
+      local r = point["战略源石锭"]
+      -- "148|516|282320,284|570|1C1C1C"
+      -- "1171|9|121A1A,1237|63|181818"
+      -- local x = ocrBinaryEx(1171,9,1237,63, "000000-3a3a3a") or {}
+      --
+      -- 右上角源石锭 可
+      -- local x = ocrEx(1078,9,1234,57) or {}
+      --
+      --- 360
+      -- local x = ocrEx(1093, 15, 1247, 63) or {}
+
+      --  右上角等级 可
+      -- local x = ocrEx(1104,17,1204,45) or {}
+      -- local x = ocrEx(1101, 17, 1204, 47) or {}
+      local x = ocrEx( 975,30,1050,61) or {}
+      -- local id = createHUD()
+      -- showHUD(id,"的",11,"0xffffffff","0x00000000",0,240,540,40,32)--显示HUD内容
+      -- ssleep(1)
+
+      --  主页
+      -- local x = ocrEx(169,543,283,591) or {}
+      -- local x = ocrEx(1018,9,1228,69) or {}
+
+      -- local x = ocr("战略源石锭") or {}
+      log(4195, x)
+      x = (x[1] or {}).text or ""
+      x = number_ocr_correct(x)
+      x = str2int(x:match("^(%d+).*"), -1)
+      log("4128", x)
+      if x >= 0 and x == prex then return x end
+      prex = x
+    end, 5) or 0
+  end
 
   local zl_level_check = function()
     local prex = -1
@@ -3570,23 +3609,42 @@ predebug_hook = function()
       -- local x = ocrBinaryEx(1033, 39, 1153, 64, "000000-fab020") or {}
       --
       -- local x = ocrBinaryEx(1035, 39, 1105, 64, "000000-fab525") or {}
-      local x = ocrBinaryEx(1035, 39, 1105, 64, "000000-feb525") or {}
-
-      -- local x = ocrBinaryEx(1033, 39, 1103, 64, "000000-fab020") or {}
+      -- local x = ocrBinaryEx(1035, 39, 1105, 64, "000000-feb525") or {}
       --
-      -- local x = ocrBinaryEx(1033, 39, 1103, 64, "000000-feb424") or {}
+      -- good
+      -- local x = ocrBinaryEx(1017, 39, 1280, 64, "000000-feb525") or {}
+      -- good
+      -- local x = ocrBinaryEx(1034, 39, 1131, 64, "000000-feb525") or {}
+      -- local x = ocrBinaryEx(1034, 39, 1142, 64, "000000-feb525") or {}
+      --
+      -- local x = ocrBinaryEx(1034, 39, 1153, 64, "000000-feb525") or {}
 
-      -- log("4126", x)
-      x = (x[1] or {}).text or ""
-      x = number_ocr_correct(x)
-      x = str2int(x:match("^(%d+).*"), -1)
+      -- local x = ocrBinaryEx(1034, 39, 1175, 64, "000000-feb525") or {}
+      -- local x = ocrBinaryEx(1034, 39, 1197, 64, "000000-feb525") or {}
+
+      -- "1017|13|121212,1109|85|18130E"
+      -- local x = ocrBinaryEx(1017, 39, 1109, 72, "000000-feb525",200) or {}
+      -- local x = ocrBinaryEx( 915,3,1275,136, "000000-feb525") or {}
+      -- x = map(function(x) return x.text end,x)
+      -- local x = ocrEx(1035, 39, 1105, 64) or {}
+      -- x = (x[1] or {}).text or ""
+      -- x = number_ocr_correct(x)
+      -- x = str2int(x:match("^(%d+).*"), -1)
+
       -- log("4127", x)
-      if x ~= 121 then log(x) end
+      -- if x ~= 121 then log(x) end
       -- if x >= 0 and x <= 140 and x == prex then return x end
+      -- x = (x[1] or {}).text or ""
+      -- x = number_ocr_correct(x)
+      -- local x = ocr("公开招募标签框范围")
+      local x = ocrEx(0, 0, 0, 0)
+      log(x)
       prex = x
     end, 50) or 0
   end
-  log(zl_level_check())
+
+  -- log(zl_level_check())
+  log(zl_coin_check())
   -- tap("战略难度列表2")
   --
   -- tap("战略难度列表3")
@@ -4753,6 +4811,7 @@ killacc = function()
   collectgarbage("collect")
   if not root_mode then return end
   if disable_killacc1 then return end
+  if 1 then return 1 end
 
   local service = package .. "/com.nx.assist.AssistService"
   local services = exec(
@@ -5195,7 +5254,7 @@ number_ocr_correct = function(x)
     ['S'] = '5',
     -- ['e'] = '8',
     -- ['B'] = '8',
-  })
+  }):trim()
 end
 
 isweekday = function()

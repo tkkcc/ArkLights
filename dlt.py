@@ -127,7 +127,7 @@ pm disable com.iflytek.inputmethod.miui
             "-delete",
         )
 
-    def pic(name="", path=img_path):
+    def pic(name="", path=img_path, show=True):
         path = Path(path)
         name = str(name)
         x = adb(
@@ -153,7 +153,8 @@ pm disable com.iflytek.inputmethod.miui
             path,
         )
 
-        subprocess.run(["feh", "--title", "float", path])
+        if show:
+            subprocess.run(["feh", "--title", "float", path])
 
     def users(x):
         for x in filter(None, x.split("\n")):
@@ -180,7 +181,9 @@ pm disable com.iflytek.inputmethod.miui
                     first_empty_i = i
                 continue
             print(
-                "0 m",alias,"user",
+                "0 m",
+                alias,
+                "user",
                 x["username" + str(i)],
                 x["password" + str(i)],
                 "--server" if x["server" + str(i)] == 1 else "",
@@ -419,8 +422,10 @@ pm disable com.iflytek.inputmethod.miui
 
     def normal(name=None, weekday_only=None, fight=None):
         x = load("config_main.json")
-        # print("x.keys()", x.keys())
         c(x, "fight_ui", fight or "jm hd ce ls")
+        for i in range(13):
+            c(x, f"now_job_ui" + str(i), True)
+        c(x, f"now_job_ui8", False)
         save("config_main.json", x)
 
         x = load("config_debug.json")
@@ -471,11 +476,20 @@ pm disable com.iflytek.inputmethod.miui
         c(x, "max_login_times_5min", "3")
         save("config_debug.json", x)
 
-    def lmk():
+    def lmk(value=""):
+        print(adb("shell", "cat", "/sys/module/lowmemorykiller/parameters/minfree"))
+        if value:
+            adb(
+                "shell",
+                "echo",
+                value,
+                ">",
+                "/sys/module/lowmemorykiller/parameters/minfree",
+            )
         return adb("shell", "cat", "/sys/module/lowmemorykiller/parameters/minfree")
 
     def top():
-        return adb("shell", "top", "-s", "rss", "-m", "10", "-n", "1")
+        return adb("shell", "top", "-s", "rss", "-m", "20", "-n", "1")
 
     return locals()[f](*args, **kwargs)
 
