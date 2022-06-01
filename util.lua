@@ -3447,15 +3447,15 @@ enable_snapshot_service = function()
     if isSnapshotServiceRun() then return end
   end
 
-  if loadConfig("hideUIOnce", "false") ~= "false" then
-    log(2237)
-    log("定时模式启动，不敢弹录屏")
-    return
-  end
+  -- if loadConfig("hideUIOnce", "false") ~= "false" then
+  --   log(2237)
+  --   log("定时模式启动，不敢弹录屏")
+  --   return
+  -- end
 
   openPermissionSetting()
   toast("请开启录屏权限")
-  if not wait(function() return isSnapshotServiceRun() end, 600) then
+  if not wait(function() return isSnapshotServiceRun() end, 300) then
     stop("开启录屏权限超时", false)
   end
 end

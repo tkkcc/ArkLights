@@ -320,8 +320,14 @@ pm disable com.iflytek.inputmethod.miui
                     x, y = ok
                     adb("shell", "input", "tap", str(x), str(y))
                     see_package = True
-            elif see_package:
-                break
+            snap = findNode(id="com.bilabila.arknightsspeedrun2:id/switch_snap")
+            if snap:
+                x, y = snap
+                adb("shell", "input", "tap", str(x), str(y))
+            # if foreground() == oppid or foreground() == bppid:
+            #     break
+            # elif see_package:
+            #     break
 
     def rg1(username, password, server=None, fight=None):
         normal()
@@ -426,6 +432,7 @@ pm disable com.iflytek.inputmethod.miui
         for i in range(13):
             c(x, f"now_job_ui" + str(i), True)
         c(x, f"now_job_ui8", False)
+        c(x, f"crontab_text", '8:00 16:00 0:00')
         save("config_main.json", x)
 
         x = load("config_debug.json")
@@ -455,7 +462,7 @@ pm disable com.iflytek.inputmethod.miui
         c(x, "max_drug_times_" + str(6) + "day", "0")
         c(x, "max_drug_times_" + str(7) + "day", "0")
         c(x, "enable_log", False)
-        c(x, "enable_disable_lmk", False)
+        # c(x, "enable_disable_lmk", False)
         c(x, "disable_killacc1", False)
 
         save("config_debug.json", x)
