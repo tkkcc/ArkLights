@@ -2899,9 +2899,9 @@ show_debug_ui = function()
   addTextView(layout, "内存清理间隔(s)")
   ui.addEditText(layout, "keepalive_interval1", "3600")
 
-  newRow(layout)
-  ui.addCheckBox(layout, "enable_disable_lmk",
-                 "禁用LMK(测试中,专用挂机设备建议勾)", false)
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "enable_disable_lmk",
+  --                "禁用LMK(测试中,专用挂机设备建议勾)", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "disable_killacc1", "禁用重启acc进程", false)
@@ -4746,7 +4746,7 @@ keepalive = function()
   enable_log_wrapper(function() log("keepalive") end)()
   killacc()
   oom_score_adj()
-  disable_lmk()
+  -- disable_lmk()
 end
 
 killacc = function()
