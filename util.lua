@@ -3564,19 +3564,27 @@ predebug_hook = function()
       -- local r = point["战略等级"]
       -- "148|516|282320,284|570|1C1C1C"
       -- "1171|9|121A1A,1237|63|181818"
-      r = {1034, 39, 1130, 72}
-      log(r)
-      local id = createHUD()
+      -- r = {1034, 39, 1130, 72}
+      -- log(r)
+      -- local id = createHUD()
       -- showHUD(id, "等", 20, "0xffffb525", "0xff000000", 0, r[3], r[2], 0, 0) -- 显示HUD内容
       -- ssleep(1)
-      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-feb525") or {}
+      -- local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-feb525") or {}
+
+      -- local r = point["战略等级"]
+      -- r =  {1034, 39, 1153, 64}
+      -- local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-feb525") or {}
+
       -- local x = ocrEx(r[1], r[2], 1111, 95) or {}
       --
       -- 右上角源石锭 可
       -- local x = ocrEx(1078,9,1234,57) or {}
       --
-      --- 360
+      -- 360
       -- local x = ocrEx(1093, 15, 1247, 63) or {}
+      -- local x = ocrEx(1134,25,1238,51) or {}
+      local x = ocrEx(477,592,571,627,"0-01d3ae") or {}
+      -- local x = ocrBinaryEx(1093, 15, 1247, 63,"000000-555555") or {}
 
       --  右上角等级 可
       -- local x = ocrEx(1104,17,1204,45) or {}

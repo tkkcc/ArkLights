@@ -4294,8 +4294,8 @@ path.前瞻投资 = function(lighter)
 
   if not findOne("常规行动") then return end
 
-  -- log(zl_coin, zl_level)
-  -- exit()
+  log(zl_coin, zl_level)
+  exit()
   -- 放弃探索
   if findOne("放弃探索") then
     if not wait(function()

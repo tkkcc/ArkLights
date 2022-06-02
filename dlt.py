@@ -231,17 +231,6 @@ pm disable com.iflytek.inputmethod.miui
         for i in range(1, 31):
             c(x, "username" + str(i), "")
             c(x, "password" + str(i), "")
-            # if not x["username" + str(i)] or not x["password" + str(i)]:
-            #     if first_empty_i == 0:
-            #         first_empty_i = i
-            #     continue
-            # print(
-            #     i,
-            #     x["username" + str(i)],
-            #     x["password" + str(i)],
-            #     "b" if x["server" + str(i)] == 1 else "",
-            # )
-
         x = {}
         save("config_multi_account.json", x)
 
@@ -320,14 +309,14 @@ pm disable com.iflytek.inputmethod.miui
                     x, y = ok
                     adb("shell", "input", "tap", str(x), str(y))
                     see_package = True
-            snap = findNode(id="com.bilabila.arknightsspeedrun2:id/switch_snap")
-            if snap:
-                x, y = snap
-                adb("shell", "input", "tap", str(x), str(y))
+            # snap = findNode(id="com.bilabila.arknightsspeedrun2:id/switch_snap")
+            # if snap:
+            #     x, y = snap
+            #     adb("shell", "input", "tap", str(x), str(y))
             # if foreground() == oppid or foreground() == bppid:
             #     break
-            # elif see_package:
-            #     break
+            elif see_package:
+                break
 
     def rg1(username, password, server=None, fight=None):
         normal()
