@@ -3583,7 +3583,7 @@ predebug_hook = function()
       -- 360
       -- local x = ocrEx(1093, 15, 1247, 63) or {}
       -- local x = ocrEx(1134,25,1238,51) or {}
-      local x = ocrEx(477,592,571,627,"0-01d3ae") or {}
+      local x = ocrEx(477, 592, 571, 627, "0-01d3ae") or {}
       -- local x = ocrBinaryEx(1093, 15, 1247, 63,"000000-555555") or {}
 
       --  右上角等级 可
@@ -4828,60 +4828,58 @@ killacc = function()
   collectgarbage("collect")
   if not root_mode then return end
   if disable_killacc1 then return end
-  if 1 then return 1 end
+--   if 1 then return 1 end
+--
+--   local service = package .. "/com.nx.assist.AssistService"
+--   local services = exec(
+--                      "su root sh -c 'settings get secure enabled_accessibility_services'")
+--   log("3363", services)
+--   services = table.filter(services:trim():split(':'),
+--                           function(x) return x ~= 'null' end)
+--
+--   log("3365", services)
+--   local other_services = table.join(table.filter(services, function(x)
+--     return x ~= service
+--   end), ':')
+--   log("3366", other_services)
+--   local cmd = [[su root sh -c '
+-- pid=$(pidof ]] .. package .. [[:acc)
+-- settings put global heads_up_notifications_enabled 0
+-- # 开
+-- settings put secure enabled_accessibility_services ]] .. other_services ..
+--                 (#other_services > 0 and ':' or '') .. service .. [[;
+-- # 关
+-- settings put secure enabled_accessibility_services ]] ..
+--                 (#other_services > 0 and other_services or [['\'\'']]) .. [[;
+-- kill $pid
+-- sleep 1
+-- # 开
+-- settings put secure enabled_accessibility_services ]] .. other_services ..
+--                 (#other_services > 0 and ':' or '') .. service .. [[;
+-- # 关
+-- settings put secure enabled_accessibility_services ]] ..
+--                 (#other_services > 0 and other_services or [['\'\'']]) .. [[;
+-- # 开
+-- settings put secure enabled_accessibility_services ]] .. other_services ..
+--                 (#other_services > 0 and ':' or '') .. service .. [[;
+-- ' 2>&1 ]]
 
-  local service = package .. "/com.nx.assist.AssistService"
-  local services = exec(
-                     "su root sh -c 'settings get secure enabled_accessibility_services'")
-  log("3363", services)
-  services = table.filter(services:trim():split(':'),
-                          function(x) return x ~= 'null' end)
-
-  log("3365", services)
-  local other_services = table.join(table.filter(services, function(x)
-    return x ~= service
-  end), ':')
-  log("3366", other_services)
-  local cmd = [[su root sh -c '
-pid=$(pidof ]] .. package .. [[:acc)
+  local cmd = [[nohup su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
-# 开
-settings put secure enabled_accessibility_services ]] .. other_services ..
-                (#other_services > 0 and ':' or '') .. service .. [[;
-# 关
-settings put secure enabled_accessibility_services ]] ..
-                (#other_services > 0 and other_services or [['\'\'']]) .. [[;
-kill $pid
-sleep 1
-# 开
-settings put secure enabled_accessibility_services ]] .. other_services ..
-                (#other_services > 0 and ':' or '') .. service .. [[;
-# 关
-settings put secure enabled_accessibility_services ]] ..
-                (#other_services > 0 and other_services or [['\'\'']]) .. [[;
-# 开
-settings put secure enabled_accessibility_services ]] .. other_services ..
-                (#other_services > 0 and ':' or '') .. service .. [[;
-
-' 2>&1 ]]
-
-  --   local cmd = [[su root sh -c ' \
-  -- settings put global heads_up_notifications_enabled 0
-  -- # kill $(pidof ]] .. package .. [[:acc)
-  --
-  -- # secs=2
-  -- # endTime=$(( $(date +%s) + secs ))
-  -- # while [ $(date +%s) -lt $endTime ]; do
-  -- #   pidof ]] .. package .. [[:acc && break
-  -- # done
-  -- '
-  -- ]]
+kill $(pidof ]] .. package .. [[:acc)
+# secs=2
+# endTime=$(( $(date +%s) + secs ))
+# while [ $(date +%s) -lt $endTime ]; do
+#   pidof ]] .. package .. [[:acc && break
+# done
+' > /dev/null & ]]
   exec(cmd)
   -- log(4661, isAccessibilityServiceRun())
   -- log(4662, exec(cmd), isAccessibilityServiceRun())
   if not wait(function() return isAccessibilityServiceRun() end, 5) then
     stop("无障碍服务启动失败，可以勾选禁用重启acc", false)
   else
+    log("重启acc成功")
     return
   end
   -- exit()

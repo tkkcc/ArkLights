@@ -64,6 +64,8 @@
     git -C release commit --amend --allow-empty-message -m ""
     git -C release push --force
 
+    cp ../dlt/0.py dlt.py
+
     git add -u
     git status
 

@@ -50,6 +50,32 @@ def mode(serial, f="help", *args, **kwargs):
     def help():
         return
 
+    def hyi():
+        # 华云 系统精简
+        adb("shell","""
+
+pm uninstall -k --user 0 com.android.nfc
+pm uninstall -k --user 0 com.android.appstore
+pm uninstall -k --user 0 com.android.location
+pm uninstall -k --user 0 com.android.printspooler
+pm uninstall -k --user 0 com.android.cellbroadcastreceiver
+pm uninstall -k --user 0 com.android.keychain
+pm uninstall -k --user 0 com.android.providers.calendar
+pm uninstall -k --user 0 com.android.dialer
+pm uninstall -k --user 0 com.android.managedprovisioning
+pm uninstall -k --user 0 com.android.messaging
+pm uninstall com.android.location
+pm uninstall android.process.acore
+pm uninstall -k --user 0 android.process.acore
+pm uninstall com.android.phone
+pm uninstall -k --user 0 com.android.phone
+pm uninstall -k --user 0 com.iflytek.inputmethod.miui
+pm uninstall -k --user 0 com.cxinventor.file.explorer
+reboot
+""")
+
+        
+
     def hy():
         # 华云 adb root hook
         adb("shell", "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2>&1 &")
@@ -489,6 +515,7 @@ pm disable com.iflytek.inputmethod.miui
 
     return locals()[f](*args, **kwargs)
 
+m = mode
 
 def t(x):
     return x
