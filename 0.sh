@@ -64,7 +64,7 @@
     git -C release commit --amend --allow-empty-message -m ""
     git -C release push --force
 
-    cp ../dlt/0.py dlt.py
+    cp ../dlt/dlt.py dlt.py
 
     git add -u
     git status
@@ -239,38 +239,36 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
 
   # === adb 修改模式
   dlt() {
-    ./dlt.py dlt
+    ../dlt/dlt.py dlt
   }
   m() {
-    ./dlt.py mode "$@"
+    ../dlt/dlt.py mode "$@"
   }
   u() {
-    ./dlt.js upload --search=$1' ' --path=$D/qq.jpg
+    ../dlt/dlt.js upload --search=$1' ' --path=$D/qq.jpg
   }
   d() {
     # ./dlt.js detail --search=$1' '
-    ./dlt.py DLT detail "$1"
+    ../dlt/dlt.py DLT detail "$1"
   }
   o() {
     # ./dlt.js order --search=$1' '
-    ./dlt.py DLT order "$@"
+    ../dlt/dlt.py DLT order "$@"
   }
   submit() {
     # ./dlt.js order --search=$1' '
-    ./dlt.py DLT submit "$@"
+    ../dlt/dlt.py DLT submit "$@"
   }
   over() {
     # ./dlt.js order --search=$1' '
-    ./dlt.py DLT over "$1"
+    ../dlt/dlt.py DLT over "$1"
   }
   my() {
-    ./dlt.py DLT my "$@"
+    ../dlt/dlt.py DLT my "$@"
   }
   serial() {
-    ./dlt.py DLT all2serial $@
+    ../dlt/dlt.py DLT all2serial $@
   }
-
-
   "$@"
   wait
 }

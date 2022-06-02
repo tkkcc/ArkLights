@@ -52,7 +52,9 @@ def mode(serial, f="help", *args, **kwargs):
 
     def hyi():
         # 华云 系统精简
-        adb("shell","""
+        adb(
+            "shell",
+            """
 
 pm uninstall -k --user 0 com.android.nfc
 pm uninstall -k --user 0 com.android.appstore
@@ -72,9 +74,8 @@ pm uninstall -k --user 0 com.android.phone
 pm uninstall -k --user 0 com.iflytek.inputmethod.miui
 pm uninstall -k --user 0 com.cxinventor.file.explorer
 reboot
-""")
-
-        
+""",
+        )
 
     def hy():
         # 华云 adb root hook
@@ -411,7 +412,7 @@ pm disable com.iflytek.inputmethod.miui
         # 重启
         restart(rg=True)
 
-    def restart(account="", hide=True, rg=False, game=False):
+    def restart(account="", hide=True, rg=False, crontab=False, game=False):
         if account:
             x = load("config_multi_account.json")
             c(
@@ -422,11 +423,15 @@ pm disable com.iflytek.inputmethod.miui
             save("config_multi_account.json", x)
 
         x = load("config_debug.json")
-        x["after_require_hook"] = (
+        c(
+            x,
+            "after_require_hook",
             "clear_hook();"
-            + ("saveConfig('hideUIOnce','true')" if hide else "")
-            + ("extra_mode=[[战略前瞻投资]]" if rg else "")
+            + ("saveConfig('hideUIOnce','true');" if hide else "")
+            + ("extra_mode=[[战略前瞻投资]];" if rg else "")
+            + ("crontab_enable_only=1;" if crontab else ""),
         )
+
         save("config_debug.json", x)
         oppid = "com.hypergryph.arknights"
         bppid = "com.hypergryph.arknights.bilibili"
@@ -447,7 +452,7 @@ pm disable com.iflytek.inputmethod.miui
         for i in range(13):
             c(x, f"now_job_ui" + str(i), True)
         c(x, f"now_job_ui8", False)
-        c(x, f"crontab_text", '8:00 16:00 0:00')
+        c(x, f"crontab_text", "8:00 16:00 0:00")
         save("config_main.json", x)
 
         x = load("config_debug.json")
@@ -514,6 +519,7 @@ pm disable com.iflytek.inputmethod.miui
         return adb("shell", "top", "-s", "rss", "-m", "20", "-n", "1")
 
     return locals()[f](*args, **kwargs)
+
 
 m = mode
 

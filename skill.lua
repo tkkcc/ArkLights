@@ -133,8 +133,8 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     end
   end
 
-  log(114, card)
-  -- card = table.slice(card, 1, 1)
+  -- card = table.slice(card, 4, 4)
+  -- log(114, card)
   local empty1_num = 0
   for idx, v in pairs(card) do
     -- 技能判断
@@ -144,6 +144,7 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     local icon2 = {
       v[1] + scale(70), v[2] + scale(18), v[1] + scale(123), v[2] + scale(70),
     }
+    -- log(147, icon1)
     local png = ''
     local png2 = ''
     if not mood_only then
@@ -778,8 +779,10 @@ findBuildingSkill = function(x1, y1, x2, y2, pngdata)
     -- if k == 'bskill_tra_lappland2' then log(663, score, tmp) end
     -- if k == 'bskill_meet_spd3' then log(663, score, tmp) end
     -- if k == 'bskill_meet_spd2' then log(662, score, tmp) end
-    if k == 'bskill_man_spd2' then log(663, score, tmp) end
-    if k == 'bskill_man_exp2' then log(662, score, tmp) end
+    -- if k == 'bskill_man_spd2' then log(663, score, tmp) end
+    -- if k == 'bskill_man_exp2' then log(662, score, tmp) end
+    -- if k == 'bskill_ctrl_t_spd' then log('t', score, tmp) end
+    -- if k == 'bskill_ctrl_c_spd' then log('c', score, tmp) end
     -- exit()
 
     if best_score > score then
@@ -787,7 +790,7 @@ findBuildingSkill = function(x1, y1, x2, y2, pngdata)
       best = k
     end
   end
-  log(2208, best_score, best, x1, y1, x2, y2)
+  -- log(2208, best_score, best, x1, y1, x2, y2)
   -- exit()
   return best
 end
@@ -925,7 +928,7 @@ chooseOperator = function(stationType, goodType, stationLevel,
 
   start_time = time()
 
-  log(671, operator)
+  -- log(671, operator)
   -- exit()
 
   -- TODO 滑动时就可以开始计算
@@ -1088,14 +1091,21 @@ controlStationOperatorBest = function(operator)
   local trading_acc = false
 
   for _, o in pairs(operator) do
-    if o[1] == 'bskill_ctrl_t_spd' or o[2] == 'bskill_ctrl_t_spd' then
+    if table.includes({o[1], o[2]}, 'bskill_ctrl_t_spd') then
       if not trading_acc then
         trading_acc = true
         table.insert(best, o)
       end
-      -- c与p有概率判错，直接舍弃老鲤
-    elseif o[1] == 'bskill_ctrl_p_spd' or o[2] == 'bskill_ctrl_p_spd' or o[1] ==
-      'bskill_ctrl_c_spd' or o[2] == 'bskill_ctrl_c_spd' then
+    elseif table.includes({o[1], o[2]}, 'bskill_ctrl_c_spd') and
+      not table.includes({o[1], o[2]}, 'bskill_ctrl_lda') then
+      -- 老鲤c与t会判错
+      if not trading_acc then
+        trading_acc = true
+        table.insert(best, o)
+      end
+    elseif table.includes({o[1], o[2]}, 'bskill_ctrl_p_spd') then
+      -- or o[1] ==
+      -- 'bskill_ctrl_c_spd' or o[2] == 'bskill_ctrl_c_spd' then
       if not manu_acc then
         manu_acc = true
         table.insert(best, o)

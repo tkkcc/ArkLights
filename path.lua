@@ -4292,7 +4292,7 @@ path.前瞻投资 = function(lighter)
     captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. info, QQ)
   end
 
-  if not findOne("常规行动") then return end
+  -- if not findOne("常规行动") then return end
 
   -- log(zl_coin, zl_level)
   -- exit()

@@ -3556,6 +3556,13 @@ predebug_hook = function()
   -- swip("HD-1")
   -- ssleep(1)
   -- exit()
+  local operator = {}
+  initPngdata()
+  discover(operator, controlPngdata, 1)
+  -- discover(operator, manufacturingPngdata, 1)
+
+  log(operator)
+  exit()
   local zl_coin_check = function()
     -- if not (str2int(zl_max_coin, 0) > 0) then return 0 end
     local prex = -1
@@ -3753,13 +3760,6 @@ predebug_hook = function()
   -- path.
   ssleep(1)
   exit(0)
-  local operator = {}
-  initPngdata()
-  discover(operator, tradingPngdata, 1)
-  -- discover(operator, manufacturingPngdata, 1)
-
-  log(operator)
-  exit()
 
   -- unZip("/sdcard/skill.zip", "/sdcard/skill")
   -- unZip(getWorkPath() .. "/skill.zip", getWorkPath() .. "/skill")
