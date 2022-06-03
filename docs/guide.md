@@ -2,7 +2,7 @@
 
 下载：[123pan](https://www.123pan.com/s/6MR9-5Fv7d) /
 [蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) /
-[github release](https://github.com/tkkcc/ArkLights/releases/download/v0.0.21/arknightsspeedrun2.apk)
+[github release](https://github.com/tkkcc/ArkLights/releases)
 
 闲聊群：[1009619697](https://qm.qq.com/cgi-bin/qm/qr?k=ZtJVQZ1LI_9nMh3tj7fKgYu5PrwqBCje&jump_from=webapi)
 
@@ -10,7 +10,6 @@
 觉得好用请在github上给个star，这是对开发者最大的帮助。无法访问请看[国内主页](https://gitee.com/bilabila/arknights)。
 
 ## 最近更新
-
 
 - 默认定期`重启acc进程`来保证内存稳定，如多次出现无障碍启动失败、游戏启动失败，可禁用。
 <!-- - 默认不自动重启acc进程，但这样刷肉鸽每小时内存泄漏44M，一天1G。启用后会定期释放脚本内存，但在部分设备上会造成启动失败与闪退。 -->

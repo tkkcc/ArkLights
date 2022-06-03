@@ -2,6 +2,8 @@
 oppid = "com.hypergryph.arknights"
 if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
+-- apk502 = getApkVerInt() >= 502 or getApkVerInt() == 1
+apk502 = getApkVerInt() >= 502
 
 disable_game_up_check_wrapper = function(func)
   return function(...)
@@ -877,6 +879,9 @@ tap = function(x, noretry, allow_outside_game)
   else
     clickNode(x)
   end
+
+  collectgarbage("collect")
+  -- collectgarbage('collect')
   local start_time = time()
 
   -- 后置检查
@@ -1165,6 +1170,7 @@ auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
       if total_timeout_restart then
         -- should be a hook, by defualt restartapp
         -- 应对进关卡黑屏、启动游戏黑屏、卡死
+        toast("auto达到超时(s)" .. total_timeout)
         restartapp(appid)
         return auto(p, fallback, timeout, total_timeout, total_timeout_restart)
       else
@@ -3392,6 +3398,7 @@ end
 -- input = disable_game_up_check_wrapper(input)
 
 enable_accessibility_service = function()
+
   if isAccessibilityServiceRun() then return end
   if root_mode then
     local service = package .. "/com.nx.assist.AssistService"
@@ -3419,7 +3426,7 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
     local out = exec(cmd)
     log(3386, cmd)
     log(3387, out)
-    if not wait(function() return isAccessibilityServiceRun() end, 5) then
+    if not wait(function() return isAccessibilityServiceRun() end, 2) then
       stop("无障碍服务启动失败", false)
     else
       return
@@ -3427,31 +3434,48 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
   end
   openPermissionSetting()
   toast("请开启无障碍权限")
-  if not wait(function() return isAccessibilityServiceRun() end, 600) then
+  if not wait(function() return isAccessibilityServiceRun() end, 300) then
     stop("开启无障碍权限超时", false)
   end
   toast("已开启无障碍权限")
 end
 
 enable_snapshot_service = function()
-  -- log("snapshot service check")
   if isSnapshotServiceRun() then return end
-  -- log("snapshot service disabled")
   if skip_snapshot_service_check then return end
+
   if root_mode then
-    log("enable snapshot service by root")
+    -- log("enable snapshot service by root")
     -- TODO need this?
     exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
-    exec("su root sh -c 'appops set " .. package ..
-           " SYSTEM_ALERT_WINDOW allow'")
-    if isSnapshotServiceRun() then return end
+    -- exec("su root sh -c 'appops set " .. package ..
+    --        " SYSTEM_ALERT_WINDOW allow'")
   end
+
+  -- log("3444", 3444)
+  -- if apk502 then
+  --   import('java.lang.*')
+  --   import('android.content.Context')
+  --   import('com.nx.assist.lua.LuaEngine')
+  --   import('com.nx.assist.lua.IReqSnapshotServiceResult')
+  --   local cbReqSnapshot = IReqSnapshotServiceResult {
+  --     onResult = function(ret)
+  --       print(ret) -- ret是true或者false true表示成功，false失败
+  --     end,
+  --   }
+  --   LuaEngine.requestSnapshotService(cbReqSnapshot)
+  -- end
+
+  -- log(isSnapshotServiceRun())
+  -- exit()
 
   -- if loadConfig("hideUIOnce", "false") ~= "false" then
   --   log(2237)
   --   log("定时模式启动，不敢弹录屏")
   --   return
   -- end
+
+  if wait(function() return isSnapshotServiceRun() end) then return end
 
   openPermissionSetting()
   toast("请开启录屏权限")
@@ -3543,6 +3567,29 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+
+  collectgarbage("collect")
+  disable_log = true
+  log(1)
+
+  while true do
+    -- local gesture = Gesture:new()
+    clickPoint(0, 0)
+    -- print(1)
+    -- tap({0, 0})
+    -- tap("战略等级")
+    collectgarbage("collect")
+
+    -- ocr("战略等级")
+  end
+  log(2)
+  exit()
+
+  -- log(getApkVerInt())
+  -- log(1)
+  -- log(exec("su root sh -c 'dumpsys package "..package .."|grep versionName'"))
+  -- log(2)
+  -- exit()
   -- log(shrink_fight_config({"1-7"}))
   -- log(shrink_fight_config({"1-7", "1-7"}))
   -- log(shrink_fight_config({"1-7", "1-7", "1-7"}))
@@ -4482,7 +4529,7 @@ setEventCallback = function()
     -- log(exec("free -h"))
     -- log(exec("top -n 1"))
     -- if need_show_console then
-    -- console.show()
+    console.show()
     -- else
     --   console.dismiss()
     -- end
@@ -4828,41 +4875,42 @@ killacc = function()
   collectgarbage("collect")
   if not root_mode then return end
   if disable_killacc1 then return end
---   if 1 then return 1 end
---
---   local service = package .. "/com.nx.assist.AssistService"
---   local services = exec(
---                      "su root sh -c 'settings get secure enabled_accessibility_services'")
---   log("3363", services)
---   services = table.filter(services:trim():split(':'),
---                           function(x) return x ~= 'null' end)
---
---   log("3365", services)
---   local other_services = table.join(table.filter(services, function(x)
---     return x ~= service
---   end), ':')
---   log("3366", other_services)
---   local cmd = [[su root sh -c '
--- pid=$(pidof ]] .. package .. [[:acc)
--- settings put global heads_up_notifications_enabled 0
--- # 开
--- settings put secure enabled_accessibility_services ]] .. other_services ..
---                 (#other_services > 0 and ':' or '') .. service .. [[;
--- # 关
--- settings put secure enabled_accessibility_services ]] ..
---                 (#other_services > 0 and other_services or [['\'\'']]) .. [[;
--- kill $pid
--- sleep 1
--- # 开
--- settings put secure enabled_accessibility_services ]] .. other_services ..
---                 (#other_services > 0 and ':' or '') .. service .. [[;
--- # 关
--- settings put secure enabled_accessibility_services ]] ..
---                 (#other_services > 0 and other_services or [['\'\'']]) .. [[;
--- # 开
--- settings put secure enabled_accessibility_services ]] .. other_services ..
---                 (#other_services > 0 and ':' or '') .. service .. [[;
--- ' 2>&1 ]]
+  if apk502 then return end
+  --   if 1 then return 1 end
+  --
+  --   local service = package .. "/com.nx.assist.AssistService"
+  --   local services = exec(
+  --                      "su root sh -c 'settings get secure enabled_accessibility_services'")
+  --   log("3363", services)
+  --   services = table.filter(services:trim():split(':'),
+  --                           function(x) return x ~= 'null' end)
+  --
+  --   log("3365", services)
+  --   local other_services = table.join(table.filter(services, function(x)
+  --     return x ~= service
+  --   end), ':')
+  --   log("3366", other_services)
+  --   local cmd = [[su root sh -c '
+  -- pid=$(pidof ]] .. package .. [[:acc)
+  -- settings put global heads_up_notifications_enabled 0
+  -- # 开
+  -- settings put secure enabled_accessibility_services ]] .. other_services ..
+  --                 (#other_services > 0 and ':' or '') .. service .. [[;
+  -- # 关
+  -- settings put secure enabled_accessibility_services ]] ..
+  --                 (#other_services > 0 and other_services or [['\'\'']]) .. [[;
+  -- kill $pid
+  -- sleep 1
+  -- # 开
+  -- settings put secure enabled_accessibility_services ]] .. other_services ..
+  --                 (#other_services > 0 and ':' or '') .. service .. [[;
+  -- # 关
+  -- settings put secure enabled_accessibility_services ]] ..
+  --                 (#other_services > 0 and other_services or [['\'\'']]) .. [[;
+  -- # 开
+  -- settings put secure enabled_accessibility_services ]] .. other_services ..
+  --                 (#other_services > 0 and ':' or '') .. service .. [[;
+  -- ' 2>&1 ]]
 
   local cmd = [[nohup su root sh -c ' \
 settings put global heads_up_notifications_enabled 0
@@ -4876,6 +4924,7 @@ kill $(pidof ]] .. package .. [[:acc)
   exec(cmd)
   -- log(4661, isAccessibilityServiceRun())
   -- log(4662, exec(cmd), isAccessibilityServiceRun())
+  wait(function() return not isAccessibilityServiceRun() end, 5)
   if not wait(function() return isAccessibilityServiceRun() end, 5) then
     stop("无障碍服务启动失败，可以勾选禁用重启acc", false)
   else
@@ -5187,7 +5236,7 @@ update_state_from_debugui = function()
   zl_skill_idx = str2int(zl_skill_idx, 1)
   tapall_duration = str2int(tapall_duration, -1)
   max_login_times = str2int(max_login_times, math.huge)
-  max_login_times_5min = str2int(max_login_times_5min, 2)
+  max_login_times_5min = str2int(max_login_times_5min, 3)
   milesecond_after_click = str2int(tap_wait, milesecond_after_click)
   if not (always_enable_log or enable_log) then run = disable_log_wrapper(run) end
   -- if not enable_shift_log then
@@ -5216,7 +5265,7 @@ update_state_from_debugui = function()
   shift_min_mood = str2int(shift_min_mood, 12)
   if shift_min_mood <= 0 or shift_min_mood >= 24 then shift_min_mood = 12 end
   if enable_native_tap then clickPoint = _tap end
-  max_fight_failed_times = str2int(max_fight_failed_times, 3)
+  max_fight_failed_times = str2int(max_fight_failed_times, 2)
 end
 
 -- 基建心情阈值与QQ号
@@ -5280,6 +5329,7 @@ end
 
 memory_clean_last_time = 0
 request_memory_clean = function()
+  oom_score_adj()
   local did = false
   if (time() - memory_clean_last_time > keepalive_interval * 1000) then
     memory_clean_last_time = time()

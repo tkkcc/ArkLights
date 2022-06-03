@@ -26,12 +26,14 @@ serial_alias = {
     "2": "103.36.203.53:301",
     "3": "103.36.203.80:301",
     "4": "103.36.203.199:303",
-    "6": "103.36.203.90:302",
+    "6": "103.36.201.74:301",
     "7": "103.36.203.104:303",
     "8": "103.36.203.208:302",
     "9": "103.36.203.132:302",
     "5": "103.36.203.105:301",
 }
+oppid = "com.hypergryph.arknights"
+bppid = "com.hypergryph.arknights.bilibili"
 
 
 
@@ -77,27 +79,40 @@ reboot
 """,
         )
 
-    def hy():
+    def hy(dry=False):
         # 华云 adb root hook
-        adb("shell", "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2>&1 &")
-        return adb(
-            "shell",
-            "sh",
-            "-c",
-            """'
-cat /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score_adj
-cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
+        print(
+            adb(
+                "shell",
+                "sh",
+                "-c",
+                """'
+ps|grep nc
+cat /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score_adj;
 cat /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score_adj
+cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
+'""",
+            )
+        )
+        if dry:
+            return
+
+        adb("shell", "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2>&1 &")
+        print(
+            adb(
+                "shell",
+                "sh",
+                "-c",
+                """'
+ps|grep nc
 echo -1000 > /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score_adj
 echo -1000 > /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 echo -1000 > /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score_adj
 cat /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score_adj
-cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 cat /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score_adj
-ps|grep nc
-am force-stop com.android.smspush
-pm disable com.iflytek.inputmethod.miui
+cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         '""",
+            )
         )
 
     def adb(*args):
@@ -124,6 +139,9 @@ pm disable com.iflytek.inputmethod.miui
 
     def load(name):
         adbpull(name)
+        p = path / name
+        if not p.exists():
+            open(p, "w").write("{}")
         return defaultdict(str, json.load(open(path / name)))
 
     def save(name, data):
@@ -226,7 +244,7 @@ pm disable com.iflytek.inputmethod.miui
         print("==> 添加至账号" + str(first_empty_i))
         c(x, f"username{first_empty_i}", str(username))
         c(x, f"password{first_empty_i}", str(password))
-        c(x, f"multi_account_inherit_spinner{first_empty_i}", "0")
+        c(x, f"multi_account_inherit_spinner{first_empty_i}", 0)
         c(x, f"server{first_empty_i}", 1 if server else 0)
         if fight:
             c(x, f"multi_account_user{first_empty_i}fight_ui", fight)
@@ -306,11 +324,11 @@ pm disable com.iflytek.inputmethod.miui
             return x.group(1)
 
     def stop(app=package):
-        adb("shell", "input", "home")
+        adb("shell", "input", "keyevent", "KEYCODE_HOME")
         adb("shell", "am", "force-stop", app)
 
     def start():
-        adb("shell", "input", "home")
+        adb("shell", "input", "keyevent", "KEYCODE_HOME")
         adb(
             "shell",
             "monkey",
@@ -336,14 +354,14 @@ pm disable com.iflytek.inputmethod.miui
                     x, y = ok
                     adb("shell", "input", "tap", str(x), str(y))
                     see_package = True
-            # snap = findNode(id="com.bilabila.arknightsspeedrun2:id/switch_snap")
-            # if snap:
-            #     x, y = snap
-            #     adb("shell", "input", "tap", str(x), str(y))
-            # if foreground() == oppid or foreground() == bppid:
-            #     break
-            elif see_package:
+            snap = findNode(id="com.bilabila.arknightsspeedrun2:id/switch_snap")
+            if snap:
+                x, y = snap
+                adb("shell", "input", "tap", str(x), str(y))
+            if foreground() == oppid or foreground() == bppid and see_package:
                 break
+            # elif see_package:
+            #     break
 
     def rg1(username, password, server=None, fight=None):
         normal()
@@ -362,7 +380,7 @@ pm disable com.iflytek.inputmethod.miui
 
         # 肉鸽日常
         x = load("config_main.json")
-        c(x, f"fight_ui", fight or "ce ls")
+        # c(x, f"fight_ui", fight or "jm hd ce ls")
         c(x, "server", 1 if server else 0)
         save("config_main.json", x)
 
@@ -433,8 +451,6 @@ pm disable com.iflytek.inputmethod.miui
         )
 
         save("config_debug.json", x)
-        oppid = "com.hypergryph.arknights"
-        bppid = "com.hypergryph.arknights.bilibili"
         if game:
             stop(oppid)
             stop(bppid)
@@ -522,6 +538,7 @@ pm disable com.iflytek.inputmethod.miui
 
 
 m = mode
+
 
 def t(x):
     return x

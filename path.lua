@@ -153,7 +153,7 @@ path.base = {
         if time() - first_time_see_zero_star > 1200 then zero_star = true end
       end
 
-      if findOne("开始行动") and findOne("代理指挥开") then
+      if findOne("开始行动") and findOne("代理指挥开") and findOne("主页") then
         log(59)
         normal = true
         return true
@@ -200,7 +200,8 @@ path.base = {
         local info = table.join(qqmessage, ' ') .. " " .. cur_fight ..
                        "代理失败" .. (home and "(掉线或抢登)" or '') ..
                        (zero_star and 'zero_star' or '') ..
-                       (see_end and 'see_end' or '')
+                       (see_end and 'see_end' or '') ..
+                       (normal and 'normal' or '')
         captureqqimagedeliver(info, QQ)
         captureqqimagedeliver(info, QQ2)
       end
@@ -901,7 +902,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
 
   stay_in_dorm_once = x == "基建"
 
-  -- 5分钟跳转失败
+  -- 1分钟跳转失败
   auto(p, path.fallback, 0, 300, true)
 
   -- post processing especially for 基建
@@ -1852,7 +1853,7 @@ path.总览换班 = function()
 
   local bottom
   local reach_bottom = false
-  for i = 1, 30 do
+  for i = 1, 60 do
     if i ~= 1 then
       swipd()
       -- TODO wait bottom for stable
