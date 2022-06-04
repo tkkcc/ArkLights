@@ -173,12 +173,12 @@ getDisplaySize = function()
   if type(force_height) == 'number' and type(force_width) == 'number' and
     force_width > 0 and force_height > 0 then return force_width, force_height end
 
-  -- try to get from wm command, seems not work on real devices
-  local wmsize = exec("wm size")
-  local x, y = wmsize:match("(%d+)%s*x%s*(%d+)%s*$")
-  x = str2int(x, -1)
-  y = str2int(y, -1)
-  if x > 0 and y > 0 then return x, y end
+  -- -- try to get from wm command, seems not work on real devices
+  -- local wmsize = exec("wm size")
+  -- local x, y = wmsize:match("(%d+)%s*x%s*(%d+)%s*$")
+  -- x = str2int(x, -1)
+  -- y = str2int(y, -1)
+  -- if x > 0 and y > 0 then return x, y end
 
   -- use internal api
   return _getDisplaySize()
@@ -879,8 +879,8 @@ tap = function(x, noretry, allow_outside_game)
   else
     clickNode(x)
   end
-
   collectgarbage("collect")
+
   -- collectgarbage('collect')
   local start_time = time()
 
@@ -1531,10 +1531,17 @@ wait_game_up = function(retry)
     disable_game_up_check = prev
     return
   end
+
+  -- 减内存、自身重启
+  keepalive()
+  -- 确保无障碍在运行
+  enable_accessibility_service()
+
   retry = retry or 0
   if retry == 2 then home() end
   if retry == 4 then closeapp(appid) end
   if retry >= 6 then stop("无法启动游戏", false) end
+
 
   open(appid)
   screenon()
@@ -2904,7 +2911,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "内存清理间隔(s)")
-  ui.addEditText(layout, "keepalive_interval1", "3600")
+  ui.addEditText(layout, "keepalive_interval", "1800")
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_disable_lmk",
@@ -3567,6 +3574,13 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+  -- disable_log = 1
+  keepalive()
+  collectgarbage("collect")
+  while true do
+    tap({500, 100})
+  end
+  exit()
 
   collectgarbage("collect")
   disable_log = true
@@ -4868,6 +4882,7 @@ keepalive = function()
   enable_log_wrapper(function() log("keepalive") end)()
   killacc()
   oom_score_adj()
+  collectgarbage('collect')
   -- disable_lmk()
 end
 
@@ -5231,7 +5246,7 @@ update_state_from_debugui = function()
   max_fight_times = str2int(max_fight_times, math.huge)
   tap_interval = str2int(tap_interval, -1)
   zl_restart_interval = str2int(zl_restart_interval1, 3600)
-  keepalive_interval = str2int(keepalive_interval1, 3600)
+  keepalive_interval = str2int(keepalive_interval, 1800)
   zl_skill_times = str2int(zl_skill_times, 0)
   zl_skill_idx = str2int(zl_skill_idx, 1)
   tapall_duration = str2int(tapall_duration, -1)
@@ -5329,14 +5344,14 @@ end
 
 memory_clean_last_time = 0
 request_memory_clean = function()
-  oom_score_adj()
   local did = false
-  if (time() - memory_clean_last_time > keepalive_interval * 1000) then
+  if not did and (time() - memory_clean_last_time > keepalive_interval * 1000) then
     memory_clean_last_time = time()
     keepalive()
     did = true
   end
-  if (time() - kill_game_last_time[appid] > keepalive_interval * 1000) then
+  if not did and
+    (time() - kill_game_last_time[appid] > keepalive_interval * 1000) then
     restartapp(appid)
     did = true
   end

@@ -3250,6 +3250,7 @@ path.活动 = function(x)
 
   ssleep(2)
   swip(x)
+  ssleep(.5)
   tap("作战列表" .. x)
   if not appear("开始行动") then
 
