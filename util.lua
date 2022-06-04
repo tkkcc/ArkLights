@@ -1542,7 +1542,6 @@ wait_game_up = function(retry)
   if retry == 4 then closeapp(appid) end
   if retry >= 6 then stop("无法启动游戏", false) end
 
-
   open(appid)
   screenon()
   request_game_permission()
@@ -1900,7 +1899,6 @@ closeapp = disable_game_up_check_wrapper(closeapp)
 restartapp = function(package)
   login_times = (login_times or 0) - 1
   closeapp(package)
-  request_memory_clean()
   wait_game_up()
 end
 screenoff = function()
@@ -3575,10 +3573,16 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   -- disable_log = 1
-  keepalive()
-  collectgarbage("collect")
+  -- home()
   while true do
-    tap({500, 100})
+    keepalive()
+    -- open(appid)
+    -- screenon()
+    -- request_game_permission()
+    -- local p = appear({
+    --   "game", "keyguard_indication", "keyguard_input", "captcha",
+    -- }, 10)
+    -- break
   end
   exit()
 
@@ -4928,7 +4932,7 @@ killacc = function()
   -- ' 2>&1 ]]
 
   local cmd = [[nohup su root sh -c ' \
-settings put global heads_up_notifications_enabled 0
+# settings put global heads_up_notifications_enabled 0
 kill $(pidof ]] .. package .. [[:acc)
 # secs=2
 # endTime=$(( $(date +%s) + secs ))
@@ -4942,9 +4946,6 @@ kill $(pidof ]] .. package .. [[:acc)
   wait(function() return not isAccessibilityServiceRun() end, 5)
   if not wait(function() return isAccessibilityServiceRun() end, 5) then
     stop("无障碍服务启动失败，可以勾选禁用重启acc", false)
-  else
-    log("重启acc成功")
-    return
   end
   -- exit()
   -- enable_accessibility_service()
@@ -4958,13 +4959,14 @@ kill $(pidof ]] .. package .. [[:acc)
   -- exit()
 
   tap({screen.width + 1, screen.height + 1}, true, true)
+
   -- exit()
 
-  cmd = [[nohup su root sh -c ' \
-sleep 10
-settings put global heads_up_notifications_enabled 1
-' > /dev/null & ]]
-  exec(cmd)
+  --   cmd = [[nohup su root sh -c ' \
+  -- sleep 10
+  -- settings put global heads_up_notifications_enabled 1
+  -- ' > /dev/null & ]]
+  --   exec(cmd)
 end
 
 oom_score_adj = function()
@@ -5199,8 +5201,13 @@ disableRootToast = function(reenable)
 root_manager=$(pm list packages|grep -e .superuser -e .supersu -e .magisk | head -n1|cut -d: -f2)
 root_manager=${root_manager:-com.android.settings}
 appops set $root_manager TOAST_WINDOW ]] .. (reenable and "allow" or "deny") ..
-                [[' > /dev/null & ]]
+                [[; 
+settings put global heads_up_notifications_enabled ]] .. (reenable and 1 or 0) ..
+                [[;
+' > /dev/null & ]]
+  -- log(5208,cmd)
   exec(cmd)
+  -- ssleep(1000)
 end
 
 hd_wrapper = function(func)

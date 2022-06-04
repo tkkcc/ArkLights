@@ -160,6 +160,9 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
     def ps():
         return adb("shell", "ps|grep bila")
 
+    def df():
+        return adb("shell", "df -h")
+
     def rmpic():
         adb(
             "shell",
@@ -226,16 +229,15 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
                     first_empty_i = i
                 continue
             print(
-                "0 m",
-                alias,
-                "user",
-                x["username" + str(i)],
-                x["password" + str(i)],
-                "--server" if x["server" + str(i)] == 1 else "",
-                ("--fight='" + x["multi_account_user" + str(i) + "fight_ui"] + "'")
-                if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
-                else "",
-                "--idx=" + str(i),
+                f'0 m {alias} user {x["username" + str(i)]} {x["password" + str(i)]}'
+                + (" --server" if x["server" + str(i)] == 1 else "")
+                + (
+                    (" --fight='" + x["multi_account_user" + str(i) + "fight_ui"] + "'")
+                    if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
+                    else ""
+                )
+                + " --idx="
+                + str(i),
             )
         if not username and not password:
             return
@@ -279,11 +281,18 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         x = {}
         save("config_multi_account.json", x)
 
-    def findNode(text="", id=""):
-        import xml.etree.ElementTree as ET
+    findNodeCache = None
 
-        x = adb("exec-out", "uiautomator", "dump", "/dev/tty")
-        x = re.search("(<.+>)", x)
+    def findNode(text="", id="", cache=False):
+        import xml.etree.ElementTree as ET
+        global findNodeCache
+        if cache:
+            x = findNodeCache
+        else:
+            x = adb("exec-out", "uiautomator", "dump", "/dev/tty")
+            x = re.search("(<.+>)", x)
+        findNodeCache = x
+
         if not x:
             return
         x = x.group(1)
@@ -345,8 +354,9 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
             # print("package",package)
             # print("see_package",see_package)
             if foreground() == package:
-                ok = findNode("确定")
-                cancel = findNode("取消")
+                findNode()
+                ok = findNode("确定", cache=True)
+                cancel = findNode("取消", cache=True)
                 if cancel:
                     x, y = cancel
                     adb("shell", "input", "tap", str(x), str(y))
@@ -354,7 +364,9 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
                     x, y = ok
                     adb("shell", "input", "tap", str(x), str(y))
                     see_package = True
-            snap = findNode(id="com.bilabila.arknightsspeedrun2:id/switch_snap")
+            snap = findNode(
+                id="com.bilabila.arknightsspeedrun2:id/switch_snap", cache=True
+            )
             if snap:
                 x, y = snap
                 adb("shell", "input", "tap", str(x), str(y))
@@ -462,9 +474,16 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         print("serial", serial)
         subprocess.run(["scrcpy", "-s", serial], capture_output=True)
 
+    def name(qq=''):
+        if not qq:
+            return
+        x = load("config_debug.json")
+        c(x, "QQ", qq)
+        save("config_debug.json", x)
+        
     def normal(name=None, weekday_only=None, fight=None):
         x = load("config_main.json")
-        c(x, "fight_ui", fight or "jm hd ce ls")
+        c(x, "fight_ui", fight or "jm hd ce ls pr ap ca")
         for i in range(13):
             c(x, f"now_job_ui" + str(i), True)
         c(x, f"now_job_ui8", False)
@@ -474,6 +493,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         x = load("config_debug.json")
         c(x, "max_jmfight_times", "1")
         c(x, "max_login_times_5min", "3")
+
         if name:
             c(x, "QQ", name)
         c(
@@ -507,6 +527,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         c(x, "multi_account_end_closeotherapp", True)
         c(x, "multi_account_end_closeapp", True)
         c(x, "multi_account_choice", "1-30")
+        c(x, "multi_account_enable", True)
         save("config_multi_account.json", x)
 
     def soft():
