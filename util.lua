@@ -2529,7 +2529,7 @@ make_afterjob_ui = function(layout)
 
   newRow(layout)
   addTextView(layout, "定时启动")
-  ui.addEditText(layout, "crontab_text", "8:00 16:00 24:00")
+  ui.addEditText(layout, "crontab_text", "4:00 12:00 20:00")
 end
 make_jump_ui = function(layout)
 
@@ -3572,6 +3572,53 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+
+  local zl_level_check = function()
+    -- if not (str2int(zl_max_level, 0) > 0) then return end
+
+    -- if not findOne("常规行动") then return end
+    -- if not wait(function()
+    --   if not findOne("常规行动") then return true end
+    --   tap("战略等级入口")
+    -- end) then return end
+    -- ssleep(.5)
+
+    local prex = -1
+    local ans = wait(function()
+      -- if not findOne("常规行动") then return 0 end
+      -- local x = ocr("战略等级") or {}
+      local r = point["战略等级"]
+      r[3] = 1580
+      log("r", r)
+      -- r[3]=1084
+      -- r[4]=85
+
+      -- r = {983, 30, 1053, 58}
+      -- r = {991, 28, 1087, 82}
+      -- local x = ocrBinaryEx(r[1], r[2], 1280, r[4], "000000-feb525") or {}
+      local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-feb525") or {}
+      -- local x = ocrEx(r[1], r[2], r[3], r[4]) or {}
+      log("4126", x)
+      x = (x[1] or {}).text or ""
+      x = number_ocr_correct(x)
+      x = str2int(x:match("^(%d+).*"), -1)
+      log("4127", x)
+      -- if x >= 0 and x <= 140 and x == prex then return x end
+      if x >= 0 and x <= 140 then return x end
+      -- if x >= 0 then return x end
+      prex = x
+    end, 5)
+    -- wait(function()
+    --   tap("返回")
+    --   if appear("常规行动") then return true end
+    -- end, 5)
+    return ans
+  end
+  while true do if zl_level_check() ~= 88 then break end end
+  exit()
+
+  log(findOne("面板"))
+  exit()
   -- disable_log = 1
   -- home()
   while true do
@@ -5327,6 +5374,7 @@ end
 number_ocr_correct = function(x)
   return x:map({
     ['〇'] = '0',
+    ['C'] = '0',
     [','] = '',
     ['.'] = '',
     [' '] = '',

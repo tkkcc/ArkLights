@@ -259,8 +259,13 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     # ./dlt.js order --search=$1' '
     ../dlt/dlt.py DLT submit "$@"
   }
+  first() {
+    ../dlt/dlt.py DLT first "$@"
+  }
+  last() {
+    ../dlt/dlt.py DLT last "$@"
+  }
   over() {
-    # ./dlt.js order --search=$1' '
     ../dlt/dlt.py DLT over "$1"
   }
   my() {

@@ -153,7 +153,8 @@ path.base = {
         if time() - first_time_see_zero_star > 1200 then zero_star = true end
       end
 
-      if findOne("开始行动") and findOne("代理指挥开") and findOne("主页") then
+      if findOne("开始行动") and findOne("代理指挥开") and
+        findOne("主页") then
         log(59)
         normal = true
         return true
@@ -4202,27 +4203,27 @@ path.前瞻投资 = function(lighter)
   -- 检测等级
   local zl_level_check = function()
     if not (str2int(zl_max_level, 0) > 0) then return end
-
     if not findOne("常规行动") then return end
     -- if not wait(function()
     --   if not findOne("常规行动") then return true end
     --   tap("战略等级入口")
     -- end) then return end
-    ssleep(.5)
 
     local prex = -1
     local ans = wait(function()
+      ssleep(.5)
       -- if not findOne("常规行动") then return 0 end
       -- local x = ocr("战略等级") or {}
       local r = point["战略等级"]
       local x = ocrBinaryEx(r[1], r[2], r[3], r[4], "000000-feb525") or {}
+      -- local x = ocrEx(r[1], r[2], r[3], r[4]) or {}
       log("4126", x)
       x = (x[1] or {}).text or ""
       x = number_ocr_correct(x)
       x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
-      -- if x >= 0 and x <= 140 and x == prex then return x end
-      if x >= 0 and x <= 140 then return x end
+      if x >= 0 and x <= 140 and x == prex then return x end
+      -- if x >= 0 and x <= 140 then return x end
       -- if x >= 0 then return x end
       prex = x
     end, 5)
@@ -4250,10 +4251,9 @@ path.前瞻投资 = function(lighter)
       tap("战略源石锭入口")
     end) then return end
 
-    ssleep(.5)
-
     local prex = -1
     local ans = wait(function()
+      ssleep(.5)
       -- if not findOne("常规行动") then return 0 end
       local x = ocr("战略源石锭") or {}
       log(4195, x)
@@ -4261,8 +4261,8 @@ path.前瞻投资 = function(lighter)
       x = number_ocr_correct(x)
       x = str2int(x:match("[^%d](%d+)$"), -1)
       log("4128", x)
-      -- if x >= 0 and x == prex then return x end
-      if x >= 0 then return x end
+      if x >= 0 and x == prex then return x end
+      -- if x >= 0 then return x end
       prex = x
     end, 5)
     wait(function()

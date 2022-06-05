@@ -285,7 +285,8 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 
     def findNode(text="", id="", cache=False):
         import xml.etree.ElementTree as ET
-        global findNodeCache
+
+        nonlocal findNodeCache
         if cache:
             x = findNodeCache
         else:
@@ -474,20 +475,20 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         print("serial", serial)
         subprocess.run(["scrcpy", "-s", serial], capture_output=True)
 
-    def name(qq=''):
+    def name(qq=""):
         if not qq:
             return
         x = load("config_debug.json")
         c(x, "QQ", qq)
         save("config_debug.json", x)
-        
+
     def normal(name=None, weekday_only=None, fight=None):
         x = load("config_main.json")
         c(x, "fight_ui", fight or "jm hd ce ls pr ap ca")
         for i in range(13):
             c(x, f"now_job_ui" + str(i), True)
         c(x, f"now_job_ui8", False)
-        c(x, f"crontab_text", "8:00 16:00 0:00")
+        c(x, f"crontab_text", "4:00 12:00 20:00")
         save("config_main.json", x)
 
         x = load("config_debug.json")
