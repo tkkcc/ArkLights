@@ -2909,7 +2909,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "内存清理间隔(s)")
-  ui.addEditText(layout, "keepalive_interval", "1800")
+  ui.addEditText(layout, "keepalive_interval", "1200")
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_disable_lmk",
@@ -4765,6 +4765,7 @@ android.permission.WRITE_EXTERNAL_STORAGE]]
 end
 
 str2int = function(number, fallback)
+  if type(number) == 'number' then return number end
   return math.floor(tonumber(string.trim(number)) or fallback)
 end
 
@@ -5300,7 +5301,7 @@ update_state_from_debugui = function()
   max_fight_times = str2int(max_fight_times, math.huge)
   tap_interval = str2int(tap_interval, -1)
   zl_restart_interval = str2int(zl_restart_interval1, 3600)
-  keepalive_interval = str2int(keepalive_interval, 1800)
+  keepalive_interval = str2int(keepalive_interval, 1200)
   zl_skill_times = str2int(zl_skill_times, 0)
   zl_skill_idx = str2int(zl_skill_idx, 1)
   tapall_duration = str2int(tapall_duration, -1)

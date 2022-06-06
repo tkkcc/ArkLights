@@ -4136,6 +4136,9 @@ path.前瞻投资 = function(lighter)
     if not zl_no_waste_last_time or time() - zl_no_waste_last_time > 8 * 3600 *
       1000 then
       zl_no_waste_last_time = time()
+      -- todo
+      transfer_global_variable("multi_account_user0")
+      update_state_from_ui()
       run(no_extra_job)
     end
   end
@@ -4191,12 +4194,25 @@ path.前瞻投资 = function(lighter)
   end
 
   if zl_level_enough then
-    if zl_no_waste then run(no_extra_job) end
+
+    if zl_no_waste then
+
+      -- todo
+      transfer_global_variable("multi_account_user0")
+      update_state_from_ui()
+      run(no_extra_job)
+    end
     stop("肉鸽结束", false)
   end
 
   if zl_coin_enough then
-    if zl_no_waste then run(no_extra_job) end
+    if zl_no_waste then
+
+      -- todo
+      transfer_global_variable("multi_account_user0")
+      update_state_from_ui()
+      run(no_extra_job)
+    end
     stop("肉鸽结束", false)
   end
 

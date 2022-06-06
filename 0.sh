@@ -64,6 +64,7 @@
     git -C release commit --amend --allow-empty-message -m ""
     git -C release push --force
 
+   
     cp ../dlt/dlt.py dlt.py
 
     git add -u
@@ -270,6 +271,9 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   }
   my() {
     ../dlt/dlt.py DLT my "$@"
+  }
+  count() {
+    ../dlt/dlt.py DLT count "$@"
   }
   serial() {
     ../dlt/dlt.py DLT all2serial $@

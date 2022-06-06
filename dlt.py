@@ -20,6 +20,9 @@ from datetime import datetime, timedelta
 import fire
 
 img_path = "tmp.jpg"
+log_path = "log"
+log_path = Path(log_path)
+log_path.mkdir(exist_ok=True, parents=True)
 serial_alias = {
     "0": "127.0.0.1:5555",
     "1": "103.36.203.159:301",
@@ -201,6 +204,11 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
             path,
         )
 
+        logfile = log_path / "pic.txt"
+        logfile = open(logfile, "w")
+        logfile.write(x[-1] + "\n")
+        logfile.close()
+
         if show:
             subprocess.run(["feh", "--title", "float", path])
 
@@ -218,6 +226,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
     ):
         x = load("config_multi_account.json")
         x = defaultdict(str, x)
+        ans = ""
         print("==> 当前账号")
         first_empty_i = 0
         for i in range(1, 31):
@@ -228,7 +237,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
                 if first_empty_i == 0:
                     first_empty_i = i
                 continue
-            print(
+            ans += (
                 f'0 m {alias} user {x["username" + str(i)]} {x["password" + str(i)]}'
                 + (" --server" if x["server" + str(i)] == 1 else "")
                 + (
@@ -237,8 +246,15 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
                     else ""
                 )
                 + " --idx="
-                + str(i),
+                + str(i)
+                + "\n"
             )
+        ans = ans.strip()
+        logfile = open(log_path / "user.txt", "a")
+        logfile.write(ans)
+        logfile.close()
+        print(ans)
+
         if not username and not password:
             return
         if idx:
@@ -475,14 +491,14 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         print("serial", serial)
         subprocess.run(["scrcpy", "-s", serial], capture_output=True)
 
-    def name(qq=""):
+    def qq(qq=""):
         if not qq:
             return
         x = load("config_debug.json")
         c(x, "QQ", qq)
         save("config_debug.json", x)
 
-    def normal(name=None, weekday_only=None, fight=None):
+    def normal(qq=None, weekday_only=None, fight=None):
         x = load("config_main.json")
         c(x, "fight_ui", fight or "jm hd ce ls pr ap ca")
         for i in range(13):
@@ -495,8 +511,8 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         c(x, "max_jmfight_times", "1")
         c(x, "max_login_times_5min", "3")
 
-        if name:
-            c(x, "QQ", name)
+        if qq:
+            c(x, "QQ", f'{qq}#{alias}')
         c(
             x,
             "multi_account_choice_weekday_only",
@@ -508,19 +524,19 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         c(x, "qqnotify_beforemission", True)
         c(x, "qqnotify_save", True)
         c(x, "collect_beforeleaving", True)
-        # 一是完成日常任务，二是提高8小时容错
+        # 一是完成日常任务，二是间隔时间最长可以11小时，提高容错
         c(x, "zero_san_after_fight", True)
-
         c(x, "max_drug_times_" + str(1) + "day", "99")
         c(x, "max_drug_times_" + str(2) + "day", "99")
         c(x, "max_drug_times_" + str(3) + "day", "1")
         c(x, "max_drug_times_" + str(4) + "day", "1")
         c(x, "max_drug_times_" + str(5) + "day", "1")
-        c(x, "max_drug_times_" + str(6) + "day", "0")
-        c(x, "max_drug_times_" + str(7) + "day", "0")
+        c(x, "max_drug_times_" + str(6) + "day", "1")
+        c(x, "max_drug_times_" + str(7) + "day", "1")
         c(x, "enable_log", False)
         # c(x, "enable_disable_lmk", False)
-        c(x, "disable_killacc1", False)
+        c(x, "disable_killacc", False)
+        c(x, "keepalive_interval", "1200")
 
         save("config_debug.json", x)
 
@@ -554,12 +570,14 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         return adb("shell", "cat", "/sys/module/lowmemorykiller/parameters/minfree")
 
     def top():
-        return adb("shell", "top", "-s", "rss", "-m", "20", "-n", "1")
+        return adb("shell", "top", "-s", "rss", "-m", "10", "-n", "1")
 
     return locals()[f](*args, **kwargs)
 
 
 m = mode
+o = lambda *args, **kwargs: DLT().order(*args, **kwargs)
+d = lambda *args, **kwargs: DLT().detail(*args, **kwargs)
 
 
 def t(x):
