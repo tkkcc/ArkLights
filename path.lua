@@ -2780,7 +2780,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     log(2318, idx)
     local max_times = _G['max_drug_times_' .. idx .. 'day']
     local times = _G['drug_times_' .. idx .. 'day']
-    if not max_times or times >= max_times then
+    if not max_times or times >= max_times or max_drug_times == -1 then
       log(2326, idx, times, max_times)
       zero_san = true
       tap("开始行动蓝")
