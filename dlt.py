@@ -35,6 +35,8 @@ serial_alias = {
     "9": "103.36.203.132:302",
     "5": "103.36.203.105:301",
 }
+daily_device = ["4", "5", "9"]
+rg_device = ["1", "2", "3"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 
@@ -178,7 +180,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
             "-delete",
         )
 
-    def pic(name="", path=img_path, show=True):
+    def pic(name="", path=img_path, show=True, wait=False):
         path = Path(path)
         name = str(name)
         x = adb(
@@ -197,6 +199,8 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
             path.unlink()
         if len(x) == 0:
             print("未找到", name)
+            if wait:
+                return pic(name, path, show, wait)
             return
         adb(
             "pull",
@@ -227,7 +231,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         x = load("config_multi_account.json")
         x = defaultdict(str, x)
         ans = ""
-        print("==> 当前账号")
+        ans += "==> 当前账号\n"
         first_empty_i = 0
         for i in range(1, 31):
             if (
@@ -251,7 +255,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
             )
         ans = ans.strip()
         logfile = open(log_path / "user.txt", "a")
-        logfile.write(ans)
+        logfile.write(ans + "\n")
         logfile.close()
         print(ans)
 
@@ -444,14 +448,15 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         # 重启
         restart()
 
-    def rg2(operator=None, times=None, skill=None, level=None):
+    def rg2(operator=None, times=None, skill=None, level=None, waste=None):
         # 肉鸽选干员，做日常
         x = load("config_extra.json")
         if operator:
-            c(x, "zl_no_waste", True)
+            c(x, "zl_no_waste", True if not waste else False)
             c(x, "zl_best_operator", str(operator))
             c(x, "zl_skill_times", str(times))
             c(x, "zl_skill_idx", str(skill))
+
         if level:
             c(x, "zl_max_level", str(level))
         save("config_extra.json", x)
@@ -512,7 +517,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         c(x, "max_login_times_5min", "3")
 
         if qq:
-            c(x, "QQ", f'{qq}#{alias}')
+            c(x, "QQ", f"{qq}#{alias}")
         c(
             x,
             "multi_account_choice_weekday_only",
@@ -536,7 +541,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         c(x, "enable_log", False)
         # c(x, "enable_disable_lmk", False)
         c(x, "disable_killacc", False)
-        c(x, "keepalive_interval", "1200")
+        c(x, "keepalive_interval", "900")
 
         save("config_debug.json", x)
 
@@ -578,6 +583,57 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 m = mode
 o = lambda *args, **kwargs: DLT().order(*args, **kwargs)
 d = lambda *args, **kwargs: DLT().detail(*args, **kwargs)
+
+
+def check():
+    user = []
+    user2device = {}
+    user2idx = {}
+    serial2user = {}
+    device_account = []
+    dlt = DLT()
+    for device in daily_device:
+        y = mode(device, "load", "config_multi_account.json")
+        for i in range(1, 31):
+            if (
+                not str(y["username" + str(i)]).strip()
+                or not str(y["password" + str(i)]).strip()
+            ):
+                continue
+            username = y["username" + str(i)]
+            if username in my_account:
+                continue
+            serial = dlt.all2serial(username, quiet=True)
+            if not serial:
+                print("all2serial not found", username)
+                continue
+            user.append(username)
+            user2device[username] = device
+            user2idx[username] = i
+            serial2user[serial] = username
+            device_account.append(serial)
+
+    dlt_account = []
+    for m in dlt.my(raw=True):
+        dlt_account.append(m["SerialNo"])
+
+    dev_set = set(device_account)
+    assert len(dev_set) == len(device_account)
+    dlt_set = set(dlt_account)
+    assert len(dlt_set) == len(dlt_account)
+
+    waste_set = dev_set - dlt_set
+    print("==> waste_set", waste_set)
+    for serial in waste_set:
+        print(dlt.detail(serial, quiet=True))
+    for serial in waste_set:
+        user = serial2user[serial]
+        print(f"0 m {user2device[user]} user {user} '' --idx={user2idx[user]}")
+
+    insane_set = dlt_set - dev_set
+    print("==> insane_set", insane_set)
+    for x in insane_set:
+        print(dlt.detail(x, quiet=True))
 
 
 def t(x):

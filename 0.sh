@@ -275,6 +275,9 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   count() {
     ../dlt/dlt.py DLT count "$@"
   }
+  check() {
+    ../dlt/dlt.py check "$@"
+  }
   serial() {
     ../dlt/dlt.py DLT all2serial $@
   }

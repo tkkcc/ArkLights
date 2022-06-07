@@ -250,6 +250,7 @@ path.base = {
     elseif next_fight == cur_fight then
       fight_tick = next_fight_tick
       pre_fight = nil
+      request_memory_clean()
       return path.开始游戏(next_fight)
     elseif same_page_fight(cur_fight, next_fight) then
       if not wait(function()

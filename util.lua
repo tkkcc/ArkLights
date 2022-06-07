@@ -990,7 +990,7 @@ swipe = function(x)
   -- 作战中第一次右滑容易错位，先做一次
   if first_time_swipe then
     first_time_swipe = false
-    swip("9-2")
+    -- swip("9-2")
   end
 
   -- tap({scale(300), scale(150)})
@@ -1532,15 +1532,14 @@ wait_game_up = function(retry)
     return
   end
 
-  -- 减内存、自身重启
-  keepalive()
-  -- 确保无障碍在运行
-  enable_accessibility_service()
-
   retry = retry or 0
   if retry == 2 then home() end
   if retry == 4 then closeapp(appid) end
   if retry >= 6 then stop("无法启动游戏", false) end
+
+
+  -- 确保无障碍在运行
+  enable_accessibility_service()
 
   open(appid)
   screenon()
@@ -1553,6 +1552,9 @@ wait_game_up = function(retry)
   checkScreenLock()
   log(1213)
   log("wait_game_up next", retry)
+
+
+
   disable_game_up_check = prev
   return wait_game_up(retry + 1)
 end
@@ -2909,7 +2911,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "内存清理间隔(s)")
-  ui.addEditText(layout, "keepalive_interval", "1200")
+  ui.addEditText(layout, "keepalive_interval", "900")
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_disable_lmk",
@@ -4932,8 +4934,10 @@ end
 
 keepalive = function()
   enable_log_wrapper(function() log("keepalive") end)()
+  -- trim_game_memory()
   killacc()
   oom_score_adj()
+
   collectgarbage('collect')
   -- disable_lmk()
 end
@@ -5015,6 +5019,18 @@ kill $(pidof ]] .. package .. [[:acc)
   -- settings put global heads_up_notifications_enabled 1
   -- ' > /dev/null & ]]
   --   exec(cmd)
+end
+
+trim_game_memory = function()
+  if not root_mode then return end
+  local cmd = [[nohup su root sh -c ' \
+am send-trim-memory ]] .. appid .. [[ RUNNING_CRITICAL
+' > /dev/null & ]]
+
+  exec(cmd)
+
+
+
 end
 
 oom_score_adj = function()
@@ -5301,7 +5317,7 @@ update_state_from_debugui = function()
   max_fight_times = str2int(max_fight_times, math.huge)
   tap_interval = str2int(tap_interval, -1)
   zl_restart_interval = str2int(zl_restart_interval1, 3600)
-  keepalive_interval = str2int(keepalive_interval, 1200)
+  keepalive_interval = str2int(keepalive_interval, 900)
   zl_skill_times = str2int(zl_skill_times, 0)
   zl_skill_idx = str2int(zl_skill_idx, 1)
   tapall_duration = str2int(tapall_duration, -1)
