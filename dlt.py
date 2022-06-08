@@ -35,8 +35,8 @@ serial_alias = {
     "9": "103.36.203.132:302",
     "5": "103.36.203.105:301",
 }
-daily_device = ["4", "5", "9"]
-rg_device = ["1", "2", "3"]
+daily_device = ["4", "5", "9", "3"]
+rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
 
@@ -228,8 +228,11 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         idx=None,
         weekday_only=None,
     ):
+        weekday_only_list = load("config_debug.json")[
+            "multi_account_choice_weekday_only"
+        ].split()
+
         x = load("config_multi_account.json")
-        x = defaultdict(str, x)
         ans = ""
         ans += "==> 当前账号\n"
         first_empty_i = 0
@@ -241,14 +244,17 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
                 if first_empty_i == 0:
                     first_empty_i = i
                 continue
+            usernamei = x["username" + str(i)].replace("\s", "")
+            passwordi = x["password" + str(i)].replace("\s", "")
             ans += (
-                f'0 m {alias} user {x["username" + str(i)]} {x["password" + str(i)]}'
+                f"0 m {alias} user {usernamei} {passwordi}"
                 + (" --server" if x["server" + str(i)] == 1 else "")
                 + (
                     (" --fight='" + x["multi_account_user" + str(i) + "fight_ui"] + "'")
                     if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
                     else ""
                 )
+                + (" --weekday_only" if str(i) in weekday_only_list else "")
                 + " --idx="
                 + str(i)
                 + "\n"
@@ -259,10 +265,15 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         logfile.close()
         print(ans)
 
-        if not username and not password:
+        if not username or not password:
+            username = ""
+            password = ""
+
+        if not username and not password and not idx:
             return
         if idx:
             first_empty_i = idx
+
         print("==> 添加至账号" + str(first_empty_i))
         c(x, f"username{first_empty_i}", str(username))
         c(x, f"password{first_empty_i}", str(password))
@@ -281,15 +292,15 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 
         save("config_multi_account.json", x)
         # print("username", username)
+
+        x = load("config_debug.json")
+        l = x["multi_account_choice_weekday_only"].split()
+        l = [x for x in l if x != str(first_empty_i)]
         if weekday_only:
-            x = load("config_debug.json")
-            x = defaultdict(str, x)
-            c(
-                x,
-                "multi_account_choice_weekday_only",
-                x["multi_account_choice_weekday_only"] + " " + str(first_empty_i),
-            )
-            save("config_debug.json", x)
+            l.append(str(first_empty_i))
+        l = " ".join(l)
+        c(x, "multi_account_choice_weekday_only", l)
+        save("config_debug.json", x)
 
     def clear():
         x = load("config_multi_account.json")
@@ -600,7 +611,7 @@ def check():
                 or not str(y["password" + str(i)]).strip()
             ):
                 continue
-            username = y["username" + str(i)]
+            username = y["username" + str(i)].split("#")[0].strip()
             if username in my_account:
                 continue
             serial = dlt.all2serial(username, quiet=True)
@@ -615,6 +626,8 @@ def check():
 
     dlt_account = []
     for m in dlt.my(raw=True):
+        dlt_account.append(m["SerialNo"])
+    for m in dlt.my(raw=True, status=13):
         dlt_account.append(m["SerialNo"])
 
     dev_set = set(device_account)

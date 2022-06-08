@@ -1532,14 +1532,16 @@ wait_game_up = function(retry)
     return
   end
 
+  -- test
+  keepalive()
+  -- 确保无障碍在运行
+  -- enable_accessibility_service()
+
   retry = retry or 0
   if retry == 2 then home() end
   if retry == 4 then closeapp(appid) end
   if retry >= 6 then stop("无法启动游戏", false) end
 
-
-  -- 确保无障碍在运行
-  enable_accessibility_service()
 
   open(appid)
   screenon()
@@ -1552,8 +1554,6 @@ wait_game_up = function(retry)
   checkScreenLock()
   log(1213)
   log("wait_game_up next", retry)
-
-
 
   disable_game_up_check = prev
   return wait_game_up(retry + 1)
@@ -3404,7 +3404,7 @@ input = function(selector, text)
 end
 -- input = disable_game_up_check_wrapper(input)
 
-enable_accessibility_service = function()
+enable_accessibility_service = function(after_killacc)
 
   if isAccessibilityServiceRun() then return end
   if root_mode then
@@ -3434,7 +3434,8 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
     log(3386, cmd)
     log(3387, out)
     if not wait(function() return isAccessibilityServiceRun() end, 2) then
-      stop("无障碍服务启动失败", false)
+      stop("无障碍服务启动失败" ..
+             (after_killacc and "，可勾选禁用重启acc" or ''), false)
     else
       return
     end
@@ -4933,11 +4934,10 @@ check_login_frequency = function()
 end
 
 keepalive = function()
-  enable_log_wrapper(function() log("keepalive") end)()
+  -- enable_log_wrapper(function() log("keepalive") end)()
   -- trim_game_memory()
   killacc()
   oom_score_adj()
-
   collectgarbage('collect')
   -- disable_lmk()
 end
@@ -4985,19 +4985,23 @@ killacc = function()
 
   local cmd = [[nohup su root sh -c ' \
 # settings put global heads_up_notifications_enabled 0
+
 kill $(pidof ]] .. package .. [[:acc)
-# secs=2
-# endTime=$(( $(date +%s) + secs ))
-# while [ $(date +%s) -lt $endTime ]; do
-#   pidof ]] .. package .. [[:acc && break
-# done
+secs=5
+endTime=$(( $(date +%s) + secs ))
+while [ $(date +%s) -lt $endTime ]; do
+  pidof ]] .. package .. [[:acc && break
+done
+echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
+
 ' > /dev/null & ]]
   exec(cmd)
   -- log(4661, isAccessibilityServiceRun())
   -- log(4662, exec(cmd), isAccessibilityServiceRun())
   wait(function() return not isAccessibilityServiceRun() end, 5)
   if not wait(function() return isAccessibilityServiceRun() end, 5) then
-    stop("无障碍服务启动失败，可以勾选禁用重启acc", false)
+    enable_accessibility_service(true)
+    -- stop("无障碍服务启动失败，可以勾选禁用重启acc", false)
   end
   -- exit()
   -- enable_accessibility_service()
@@ -5028,8 +5032,6 @@ am send-trim-memory ]] .. appid .. [[ RUNNING_CRITICAL
 ' > /dev/null & ]]
 
   exec(cmd)
-
-
 
 end
 
