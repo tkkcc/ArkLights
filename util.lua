@@ -3507,8 +3507,11 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
-    "HD-9",
+    -- "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", 
+  -- "HD-6", 
+    -- "HD-7",
+    "HD-8",
+    -- "HD-9",
 
     -- "10-2",
     -- "10-3",
@@ -3586,16 +3589,17 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  ssleep(1)
+  -- ssleep(1)
   -- tap({1281,721})
   -- appid = bppid
-  log(findOne("同意并继续"))
-  log(findOne("bilibili_framelayout_only"))
-  log(findOne("game"))
+  -- log(findOne("同意并继续"))
+  -- log(findOne("bilibili_framelayout_only"))
+  -- log(findOne("game"))
   -- p = findOne("同意并继续")
   -- clickNode(p)
+  swip("HD-7")
 
-  ssleep(1)
+  -- ssleep(1)
   exit()
 
   local zl_level_check = function()
@@ -4479,7 +4483,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for i = 10, 7, -1 do
+      for i = 10, 5, -1 do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
@@ -4514,7 +4518,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202206090400")
+  hd_open_time_end = parse_time("202206230400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202205191600")

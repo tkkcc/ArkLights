@@ -385,7 +385,7 @@ path.fallback = {
     for k, v in pairs(point.阿米娅右列表) do tap(v) end
     for k, v in pairs(point.阿米娅左列表) do tap(v) end
     tap("返回")
-    if appear("阿米娅") then return path.fallback.阿米娅() end
+    if appear("阿米娅", 5) then return path.fallback.阿米娅() end
   end,
   阿米娅2 = function() return path.fallback.阿米娅() end,
   覆巢之下主页 = function() tap("返回") end,
@@ -3267,7 +3267,7 @@ path.活动 = function(x)
     if not findOne("活动导航1") then return true end
   end, 5) then return end
 
-  ssleep(2)
+  ssleep(1)
   swip(x)
   ssleep(.5)
   tap("作战列表" .. x)
