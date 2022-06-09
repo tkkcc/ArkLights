@@ -119,6 +119,7 @@ JsonEncode = jsonLib.encode
 findNode = function(selector) return nodeLib.findOne(selector, true) end
 findNodes = function(selector) return nodeLib.findAll(selector, true) end
 clickNode = function(x) nodeLib.click(x, true) end
+clickNodeFalse = function(x) nodeLib.click(x, false) end
 clickPoint = function(x, y)
   local gesture = Gesture:new()
   local path = Path:new()
@@ -164,7 +165,10 @@ catchClick = function()
     }
   end
 end
-home = function() keyPress(3) end
+home = function()
+  log("home")
+  keyPress(3)
+end
 back = function() keyPress(4) end
 power = function() keyPress(26) end
 _getDisplaySize = getDisplaySize
@@ -1538,16 +1542,23 @@ wait_game_up = function(retry)
   -- enable_accessibility_service()
 
   retry = retry or 0
-  if retry == 2 then home() end
+  if retry == 2 then  home() end
   if retry == 4 then closeapp(appid) end
   if retry >= 6 then stop("无法启动游戏", false) end
-
 
   open(appid)
   screenon()
   request_game_permission()
-  local p = appear({"game", "keyguard_indication", "keyguard_input", "captcha"},
-                   5)
+  local p = appear({
+    "game", "keyguard_indication", "keyguard_input", "captcha",
+    "同意并继续",
+  }, 5)
+  log(1552, p)
+  if p == "同意并继续" then
+    path.bilibili_login[p]()
+    -- ssleep(2)
+    -- clickNodeFalse(findNode(p))
+  end
   log(1211)
   trySolveCapture()
   log(1212)
@@ -3575,6 +3586,17 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+  ssleep(1)
+  -- tap({1281,721})
+  -- appid = bppid
+  log(findOne("同意并继续"))
+  log(findOne("bilibili_framelayout_only"))
+  log(findOne("game"))
+  -- p = findOne("同意并继续")
+  -- clickNode(p)
+
+  ssleep(1)
+  exit()
 
   local zl_level_check = function()
     -- if not (str2int(zl_max_level, 0) > 0) then return end
@@ -5445,6 +5467,14 @@ clear_hook = function()
   config["after_require_hook"] = '-- after_require_hook'
   config["after_all_hook"] = '-- after_all_hook'
   saveOneUIConfig("debug", config)
+end
+
+update_game = function()
+  if not enable_update_game then return end
+  -- curl 'https://line1-h5-pc-api.biligame.com/game/detail/gameinfo?game_base_id=101772'
+  -- "android_download_link":"https://pkg.biligame.com/games/mrfz_1.8.21_20220606_101833_1d3de.apk"
+  --
+  -- https://ak.hypergryph.com/downloads/android_lastest
 end
 
 -- eager post_util_hook

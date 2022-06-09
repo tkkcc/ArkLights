@@ -279,13 +279,22 @@ path.base = {
       end
     end
   end,
+
   bilibili_framelayout_only = function()
     auto(path.bilibili_login, nil, 0, 300, true)
   end,
+
   -- bilibili_account_switch = function() auto(path.bilibili_login) end,
 }
 
 path.bilibili_login = {
+  同意并继续 = function()
+    local p = findNode(point["同意并继续"])
+    if p then
+      clickNodeFalse(p)
+      disappear("同意并继续")
+    end
+  end,
   captcha = function() trySolveCapture() end,
   bgame = true,
   bilibili_license_ok = function() tap("bilibili_license_ok") end,
@@ -372,6 +381,13 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+  阿米娅 = function()
+    for k, v in pairs(point.阿米娅右列表) do tap(v) end
+    for k, v in pairs(point.阿米娅左列表) do tap(v) end
+    tap("返回")
+    if appear("阿米娅") then return path.fallback.阿米娅() end
+  end,
+  阿米娅2 = function() return path.fallback.阿米娅() end,
   覆巢之下主页 = function() tap("返回") end,
   全权委托 = function()
     wait(function()
@@ -540,7 +556,7 @@ path.fallback = {
       "返回确认", "返回确认2", "返回确认3", "活动公告返回",
       "签到返回", "签到返回黄", "活动签到返回", "抽签返回",
       "战略返回", '感谢庆典返回', '限时开放许可',
-      "限时幸运签", "线索传递界面",
+      "限时幸运签", "线索传递界面", "阿米娅",
     }, .1)
     log(251, x)
     if x then return tap(path.fallback[x]) end
@@ -820,6 +836,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
       appear({
         target, "活动公告返回", "签到返回", "签到返回黄",
         "活动签到返回", "抽签返回", "单选确认框", "返回3",
+        "阿米娅",
       }, timeout)
       log(209)
     end,
