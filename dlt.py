@@ -612,12 +612,13 @@ def check():
             ):
                 continue
             username = y["username" + str(i)].split("#")[0].strip()
+            password = y["password" + str(i)].split("#")[0].strip()[:-1]
             if username in my_account:
                 continue
-            serial = dlt.all2serial(username, quiet=True)
+            serial = dlt.all2serial(password, quiet=True)
             if not serial:
-                print("all2serial not found", username)
-                continue
+                print("all2serial not found", password)
+                exit()
             user.append(username)
             user2device[username] = device
             user2idx[username] = i
@@ -636,6 +637,7 @@ def check():
     assert len(dlt_set) == len(dlt_account)
 
     waste_set = dev_set - dlt_set
+    print("==> total", len(dev_set))
     print("==> waste_set", waste_set)
     for serial in waste_set:
         print(dlt.detail(serial, quiet=True))
@@ -647,6 +649,11 @@ def check():
     print("==> insane_set", insane_set)
     for x in insane_set:
         print(dlt.detail(x, quiet=True))
+
+
+def users():
+    for device in daily_device:
+        mode(device, "user")
 
 
 def t(x):

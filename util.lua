@@ -1542,7 +1542,7 @@ wait_game_up = function(retry)
   -- enable_accessibility_service()
 
   retry = retry or 0
-  if retry == 2 then  home() end
+  if retry == 2 then home() end
   if retry == 4 then closeapp(appid) end
   if retry >= 6 then stop("无法启动游戏", false) end
 
@@ -3508,7 +3508,7 @@ test_fight_hook = function()
   -- log(2392)
   fight = {
     -- "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", 
-  -- "HD-6", 
+    -- "HD-6", 
     -- "HD-7",
     "HD-8",
     -- "HD-9",
@@ -4457,7 +4457,8 @@ parse_fight_config = function(fight_ui)
     elseif table.includes(table.keys(extrajianpin2name), v) then
       v = extrajianpin2name[v]
     end
-    if table.find({'活动', "GA", "WR", "IW", "WD", "SN", "SV"}, startsWithX(v)) then
+    if table.find({'活动', "GA", "WR", "IW", "WD", "SN", "SV", "LE"},
+                  startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
       -- log(2731, v, idx)
@@ -4483,7 +4484,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for i = 10, 5, -1 do
+      for _, i in pairs({6, 7, 5}) do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then

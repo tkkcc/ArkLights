@@ -385,7 +385,10 @@ path.fallback = {
     for k, v in pairs(point.阿米娅右列表) do tap(v) end
     for k, v in pairs(point.阿米娅左列表) do tap(v) end
     tap("返回")
-    if appear("阿米娅", 5) then return path.fallback.阿米娅() end
+    if appear("阿米娅", 5) then
+      ssleep(1)
+      return path.fallback.阿米娅()
+    end
   end,
   阿米娅2 = function() return path.fallback.阿米娅() end,
   覆巢之下主页 = function() tap("返回") end,

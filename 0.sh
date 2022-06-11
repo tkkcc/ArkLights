@@ -278,6 +278,9 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   check() {
     ../dlt/dlt.py check "$@"
   }
+  users() {
+    ../dlt/dlt.py users "$@"
+  }
   serial() {
     ../dlt/dlt.py DLT all2serial $@
   }
