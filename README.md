@@ -46,7 +46,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 1. 数据提取
     ```sh
     # 解包
-    ./0.sh extract arknights-hg-1801.apk
+    ./0.sh extract
     # 提取基建图标数据
     ./0.sh buildingskill
     # 提取公招保底组合
@@ -55,6 +55,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 1. 发布
     ```sh
+    ./0.sh saverun
     ./0.sh release
     ```
 

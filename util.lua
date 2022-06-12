@@ -5012,9 +5012,14 @@ killacc = function()
 
   local cmd = [[nohup su root sh -c ' \
 # settings put global heads_up_notifications_enabled 0
-
 kill $(pidof ]] .. package .. [[:acc)
-secs=5
+secs=2
+endTime=$(( $(date +%s) + secs ))
+while [ $(date +%s) -lt $endTime ]; do
+  pidof ]] .. package .. [[:acc && continue
+  break
+done
+secs=2
 endTime=$(( $(date +%s) + secs ))
 while [ $(date +%s) -lt $endTime ]; do
   pidof ]] .. package .. [[:acc && break
@@ -5022,14 +5027,19 @@ done
 echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
 
 ' > /dev/null & ]]
+
+  log(5031)
   exec(cmd)
   -- log(4661, isAccessibilityServiceRun())
   -- log(4662, exec(cmd), isAccessibilityServiceRun())
-  wait(function() return not isAccessibilityServiceRun() end, 5)
-  if not wait(function() return isAccessibilityServiceRun() end, 5) then
+  wait(function() return not isAccessibilityServiceRun() end, 2)
+  if not wait(function() return isAccessibilityServiceRun() end, 2) then
     enable_accessibility_service(true)
     -- stop("无障碍服务启动失败，可以勾选禁用重启acc", false)
   end
+  log(5038)
+  -- log(5038)
+  -- ssleep(100)
   -- exit()
   -- enable_accessibility_service()
   -- log("cmd", cmd)
@@ -5041,7 +5051,7 @@ echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
   -- log(1)
   -- exit()
 
-  tap({screen.width + 1, screen.height + 1}, true, true)
+  -- tap({screen.width + 1, screen.height + 1}, true, true)
 
   -- exit()
 

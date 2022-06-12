@@ -15,6 +15,7 @@ import requests
 import threading
 from pathlib import Path
 from collections import defaultdict
+from collections import Counter
 from datetime import datetime, timedelta
 
 import fire
@@ -33,6 +34,7 @@ serial_alias = {
     "7": "103.36.203.104:303",
     "8": "103.36.203.208:302",
     "9": "103.36.203.132:302",
+    "10": "103.36.203.205:301",
     "5": "103.36.203.105:301",
 }
 daily_device = ["1", "4", "5", "9", "3"]
@@ -62,7 +64,6 @@ def mode(serial, f="help", *args, **kwargs):
         adb(
             "shell",
             """
-
 pm uninstall -k --user 0 com.android.nfc
 pm uninstall -k --user 0 com.android.appstore
 pm uninstall -k --user 0 com.android.location
@@ -80,6 +81,104 @@ pm uninstall com.android.phone
 pm uninstall -k --user 0 com.android.phone
 pm uninstall -k --user 0 com.iflytek.inputmethod.miui
 pm uninstall -k --user 0 com.cxinventor.file.explorer
+reboot
+""",
+        )
+
+    def hy2():
+        # 华云 系统精简 v2 64位开机剩余1.3G 32位开机剩余1.6G
+        # 安装应用后需要重启几次，内存才会释放，不知道为什么
+        # 启动过速通 64位开机剩余1.0G 32位开机剩余1.1G
+        adb(
+            "shell",
+            """
+# pm list packages -f|sed -r 's|[^/]+(/.+)=(.+)|rm \1 # \2|'
+
+
+# ok
+rm /system/app/PicoTts/PicoTts.apk # com.svox.pico
+rm /system/app/PrintRecommendationService/PrintRecommendationService.apk # com.android.printservice.recommendation
+rm /system/app/PrintSpooler/PrintSpooler.apk # com.android.printspooler
+rm /system/app/Protips/Protips.apk # com.android.protips
+rm /system/app/UserDictionaryProvider/UserDictionaryProvider.apk # com.android.providers.userdictionary
+rm /system/app/WallpaperBackup/WallpaperBackup.apk # com.android.wallpaperbackup
+rm /data/app/SoftKeyboard/SoftKeyboard.apk # com.example.android.softkeyboard
+rm /data/app/com.android.appstore-1/base.apk # com.android.appstore
+rm /data/app/com.android.camera-1/base.apk # com.android.camera
+rm /data/app/com.android.chrome-1/base.apk # com.android.chrome
+rm /data/app/com.android.location-1/base.apk # com.android.location
+rm /data/app/com.android.nfc-1/base.apk # com.android.nfc
+rm /data/app/com.cxinventor.file.explorer-1/base.apk # com.cxinventor.file.explorer
+rm /data/app/com.iflytek.inputmethod.miui-1/base.apk # com.iflytek.inputmethod.miui
+rm /data/app/com.mmbox.xbrowser-1/base.apk # com.mmbox.xbrowser
+rm /data/app/jackpal.androidterm-1/base.apk # jackpal.androidterm
+rm /system/app/BasicDreams/BasicDreams.apk # com.android.dreams.basic
+rm /system/app/BookmarkProvider/BookmarkProvider.apk # com.android.bookmarkprovider
+rm /system/app/Camera2/Camera2.apk # com.android.camera2
+rm /system/app/CaptivePortalLogin/CaptivePortalLogin.apk # com.android.captiveportallogin
+rm /system/app/EasterEgg/EasterEgg.apk # com.android.egg
+rm /system/app/KeyChain/KeyChain.apk # com.android.keychain
+rm /system/app/Gallery/Gallery.apk # com.android.gallery
+rm /system/app/LiveWallpapersPicker/LiveWallpapersPicker.apk # com.android.wallpaper.livepicker
+rm /system/app/PacProcessor/PacProcessor.apk # com.android.pacprocessor
+rm /system/priv-app/BackupRestoreConfirmation/BackupRestoreConfirmation.apk # com.android.backupconfirm
+rm /system/priv-app/BlockedNumberProvider/BlockedNumberProvider.apk # com.android.providers.blockednumber
+rm /system/priv-app/CalendarProvider/CalendarProvider.apk # com.android.providers.calendar
+rm /system/priv-app/CallLogBackup/CallLogBackup.apk # com.android.calllogbackup
+rm /system/priv-app/CarrierConfig/CarrierConfig.apk # com.android.carrierconfig
+rm /system/priv-app/CellBroadcastReceiver/CellBroadcastReceiver.apk # com.android.cellbroadcastreceiver
+rm /system/priv-app/Contacts/Contacts.apk # com.android.contacts
+rm /system/priv-app/ContactsProvider/ContactsProvider.apk # com.android.providers.contacts
+rm /system/priv-app/EmergencyInfo/EmergencyInfo.apk # com.android.emergency
+rm /system/priv-app/FusedLocation/FusedLocation.apk # com.android.location.fused
+rm /system/priv-app/TeleService/TeleService.apk # com.android.phone
+rm /system/priv-app/Telecom/Telecom.apk # com.android.server.telecom
+rm /system/priv-app/TelephonyProvider/TelephonyProvider.apk # com.android.providers.telephony
+rm /system/priv-app/VpnDialogs/VpnDialogs.apk # com.android.vpndialogs
+rm /system/priv-app/InputDevices/InputDevices.apk # com.android.inputdevices
+rm /system/priv-app/MmsService/MmsService.apk # com.android.mms.service
+rm /system/app/OpenWnn/OpenWnn.apk # jp.co.omronsoft.openwnn
+rm /system/priv-app/MtpDocumentsProvider/MtpDocumentsProvider.apk # com.android.mtp
+rm /system/priv-app/ProxyHandler/ProxyHandler.apk # com.android.proxyhandler
+rm /system/app/messaging/messaging.apk # com.android.messaging
+rm /system/app/Fallback/Fallback.apk # com.android.fallback
+rm /system/app/DownloadProviderUi/DownloadProviderUi.apk # com.android.providers.downloads.ui
+rm /system/priv-app/DownloadProvider/DownloadProvider.apk # com.android.providers.downloads
+
+rm /system/priv-app/Shell/Shell.apk # com.android.shell
+rm /system/app/CertInstaller/CertInstaller.apk # com.android.certinstaller
+
+rm /system/priv-app/ManagedProvisioning/ManagedProvisioning.apk # com.android.managedprovisioning
+rm /system/app/CtsShimPrebuilt/CtsShimPrebuilt.apk # com.android.cts.ctsshim
+rm /system/priv-app/MediaProvider/MediaProvider.apk # com.android.providers.media
+rm /system/priv-app/SharedStorageBackup/SharedStorageBackup.apk # com.android.sharedstoragebackup
+
+rm /system/priv-app/SdkSetup/SdkSetup.apk # com.android.sdksetup
+rm /system/priv-app/CtsShimPrivPrebuilt/CtsShimPrivPrebuilt.apk # com.android.cts.priv.ctsshim
+
+rm /system/priv-app/StorageManager/StorageManager.apk # com.android.storagemanager
+rm /system/priv-app/DocumentsUI/DocumentsUI.apk # com.android.documentsui
+rm /system/priv-app/Dialer/Dialer.apk # com.android.dialer
+rm /system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk # com.android.externalstorage
+
+# not for install apk
+# rm /system/priv-app/DefaultContainerService/DefaultContainerService.apk # com.android.defcontainer
+
+# no
+# rm /data/app/com.android.setting-1/base.apk # com.android.setting
+# rm /system/app/HTMLViewer/HTMLViewer.apk # com.android.htmlviewer
+# rm /system/app/LatinIME/LatinIME.apk # com.android.inputmethod.latin
+# rm /system/app/webview/webview.apk # com.google.android.webview
+# rm /system/framework/framework-res.apk # android
+# rm /system/priv-app/SystemUI/SystemUI.apk # com.android.systemui
+# rm /system/priv-app/Launcher/Launcher.apk # com.android.launcher2
+# rm /system/priv-app/PackageInstaller/PackageInstaller.apk # com.android.packageinstaller
+# rm /system/priv-app/Settings/Settings.apk # com.android.settings
+# rm /system/priv-app/SettingsProvider/SettingsProvider.apk # com.android.providers.settings
+# rm /system/app/Remote/Remote.apk # com.android.smspush
+# rm /system/priv-app/StatementService/StatementService.apk # com.android.statementservice
+# rm /system/priv-app/ExtServices/ExtServices.apk # android.ext.services
+# rm /system/app/ExtShared/ExtShared.apk # android.ext.shared
 reboot
 """,
         )
@@ -254,7 +353,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
                     if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
                     else ""
                 )
-                + (" --weekday_only" if str(i) in weekday_only_list else "")
+                + (" --weekday-only" if str(i) in weekday_only_list else "")
                 + " --idx="
                 + str(i)
                 + "\n"
@@ -516,7 +615,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 
     def normal(qq=None, weekday_only=None, fight=None):
         x = load("config_main.json")
-        c(x, "fight_ui", fight or "jm hd ce ls pr ap ca")
+        c(x, "fight_ui", fight or "jm hd ce ls ap pr")
         for i in range(13):
             c(x, f"now_job_ui" + str(i), True)
         c(x, f"now_job_ui8", False)
@@ -596,7 +695,7 @@ o = lambda *args, **kwargs: DLT().order(*args, **kwargs)
 d = lambda *args, **kwargs: DLT().detail(*args, **kwargs)
 
 
-def check():
+def check(key=""):
     user = []
     user2device = {}
     user2idx = {}
@@ -624,6 +723,16 @@ def check():
             user2idx[username] = i
             serial2user[serial] = username
             device_account.append(serial)
+    if key:
+        serial = dlt.all2serial(key)
+        user = serial2user[serial]
+        device = user2device[user]
+        # print("serial", serial)
+        # print("user", user)
+        # exit()
+        mode(device, "pic", user + "*分钟")
+
+        return
 
     dlt_account = []
     for m in dlt.my(raw=True):
@@ -632,7 +741,17 @@ def check():
         dlt_account.append(m["SerialNo"])
 
     dev_set = set(device_account)
-    assert len(dev_set) == len(device_account)
+    if len(dev_set) != len(device_account):
+        dup = [item for item, count in Counter(device_account).items() if count > 1]
+        for serial in dup:
+            print(
+                user2device[serial2user[serial]],
+                serial2user[serial],
+                user2idx[serial2user[serial]],
+            )
+
+        return
+
     dlt_set = set(dlt_account)
     assert len(dlt_set) == len(dlt_account)
 
@@ -656,8 +775,12 @@ def users():
         mode(device, "user")
 
 
-def t(x):
-    return x
+def t(x=""):
+    x = "主线4-10到第6章全部"
+    # y = "主线(第)[\d-]+到(第)[\d-]+"
+    y = "主线第?[\d-]+到(第)[\d-]+"
+    y = re.search(y, x)
+    return y is not None
 
 
 if __name__ == "__main__":
