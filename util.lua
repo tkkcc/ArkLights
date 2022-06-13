@@ -166,8 +166,8 @@ catchClick = function()
   end
 end
 home = function()
-  log("home")
-  keyPress(3)
+  open(package)
+  -- keyPress(3)
 end
 back = function() keyPress(4) end
 power = function() keyPress(26) end
@@ -1537,7 +1537,7 @@ wait_game_up = function(retry)
   end
 
   -- test
-  keepalive()
+  -- keepalive()
   -- 确保无障碍在运行
   -- enable_accessibility_service()
 
@@ -5009,6 +5009,8 @@ killacc = function()
   -- settings put secure enabled_accessibility_services ]] .. other_services ..
   --                 (#other_services > 0 and ':' or '') .. service .. [[;
   -- ' 2>&1 ]]
+  open(package)
+  appear({package = package}, 5)
 
   local cmd = [[nohup su root sh -c ' \
 # settings put global heads_up_notifications_enabled 0

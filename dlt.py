@@ -695,6 +695,15 @@ o = lambda *args, **kwargs: DLT().order(*args, **kwargs)
 d = lambda *args, **kwargs: DLT().detail(*args, **kwargs)
 
 
+def daily(*args, **kwargs):
+    for device in daily_device:
+        # print("args",args)
+        # print("device",deice)
+        # mode(device, *args, **kwargs)
+        print("==>", device, *args)
+        print(mode(device, *args, **kwargs))
+
+
 def check(key=""):
     user = []
     user2device = {}
@@ -735,10 +744,13 @@ def check(key=""):
         return
 
     dlt_account = []
+    dlt_wait_account = []
     for m in dlt.my(raw=True):
         dlt_account.append(m["SerialNo"])
     for m in dlt.my(raw=True, status=13):
+        # __import__('pdb').set_trace()
         dlt_account.append(m["SerialNo"])
+        dlt_wait_account.append(m["SerialNo"])
 
     dev_set = set(device_account)
     if len(dev_set) != len(device_account):
@@ -757,6 +769,9 @@ def check(key=""):
 
     waste_set = dev_set - dlt_set
     print("==> total", len(dev_set))
+
+    next_device = Counter(user2device.values()).most_common()[-1][0]
+
     print("==> waste_set", waste_set)
     for serial in waste_set:
         print(dlt.detail(serial, quiet=True))
@@ -766,22 +781,22 @@ def check(key=""):
 
     insane_set = dlt_set - dev_set
     print("==> insane_set", insane_set)
-    for x in insane_set:
-        print(dlt.detail(x, quiet=True))
+    for serial in insane_set:
+        if serial in dlt_wait_account:
+            continue
+        print(f"0 m {next_device} user",end=' ')
+        print(dlt.detail(serial, quiet=True))
+
+
+# every day upload
+def edu():
+    for username in everyday_upload:
+        check(username)
+        dlt().submit()
 
 
 def users():
-    for device in daily_device:
-        mode(device, "user")
-
-
-def t(x=""):
-    x = "主线4-10到第6章全部"
-    # y = "主线(第)[\d-]+到(第)[\d-]+"
-    y = "主线第?[\d-]+到(第)[\d-]+"
-    y = re.search(y, x)
-    return y is not None
-
+    daily("user")
 
 if __name__ == "__main__":
     fire.Fire()
