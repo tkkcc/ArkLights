@@ -166,8 +166,8 @@ catchClick = function()
   end
 end
 home = function()
-  open(package)
-  -- keyPress(3)
+  -- open(package)
+  keyPress(3)
 end
 back = function() keyPress(4) end
 power = function() keyPress(26) end
@@ -788,7 +788,7 @@ findColorAbsolute = function(color, confidence)
 end
 
 findOne_game_up_check_last_time = 0
-findOne_keepalive_check_last_time = 0
+findOne_keepalive_check_last_time = time()
 findOne_last_time = time()
 findOne_locked = false
 findOne = function(x, confidence, disable_game_up_check)
@@ -5011,6 +5011,7 @@ killacc = function()
   -- ' 2>&1 ]]
   open(package)
   appear({package = package}, 5)
+  ssleep(1)
 
   local cmd = [[nohup su root sh -c ' \
 # settings put global heads_up_notifications_enabled 0
@@ -5053,7 +5054,11 @@ echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
   -- log(1)
   -- exit()
 
-  -- tap({screen.width + 1, screen.height + 1}, true, true)
+  -- home()
+  -- tap({screen.width + 1, screen.width + 1}, true, true)
+  ssleep(1)
+  home()
+  wait_game_up()
 
   -- exit()
 
@@ -5455,8 +5460,10 @@ isweekday = function()
   if cur_time < 6 then return true end
 end
 
-memory_clean_last_time = 0
+memory_clean_last_time = time()
 request_memory_clean = function()
+  oom_score_adj()
+
   local did = false
   if not did and (time() - memory_clean_last_time > keepalive_interval * 1000) then
     memory_clean_last_time = time()

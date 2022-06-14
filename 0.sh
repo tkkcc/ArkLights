@@ -47,8 +47,8 @@
     ./extract.py unpack
   }
   release() {
-    # local lr=docs/.vuepress/public/${1:-script.lr}
-    local lr=release/${1:-script.lr}
+    local lr=docs/.vuepress/public/${1:-script.lr}
+    # local lr=release/${1:-script.lr}
     git add -u
     # cd release
     cp /F:/software/懒人精灵3.6.0/out/main.lr $lr
@@ -58,11 +58,11 @@
     local md5=$(md5sum $lr | cut -d' ' -f1)
     echo $md5 >$lr.md5
 
-    cp $lr release/${lr##*/}
-    cp $lr.md5 release/${lr##*/}.md5
-    git -C release add -u
-    git -C release commit --amend --allow-empty-message -m ""
-    git -C release push --force
+    # cp $lr release/${lr##*/}
+    # cp $lr.md5 release/${lr##*/}.md5
+    # git -C release add -u
+    # git -C release commit --amend --allow-empty-message -m ""
+    # git -C release push --force
 
    
     cp ../dlt/dlt.py dlt.py
@@ -209,9 +209,9 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     git submodule update --init --recursive --remote
     ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
 
-    # local skill=docs/.vuepress/public/skill.zip
-    # mkdir -p "$(dirname "$skill")"
-    local skill=release/skill.zip
+    local skill=docs/.vuepress/public/skill.zip
+    mkdir -p "$(dirname "$skill")"
+    # local skill=release/skill.zip
 
     zip $skill -q -r -j png_noalpha
     local md5=$(md5sum $skill | cut -d' ' -f1)
@@ -283,6 +283,9 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   }
   serial() {
     ../dlt/dlt.py DLT all2serial $@
+  }
+  edu() {
+    ../dlt/dlt.py edu $@
   }
   "$@"
   wait
