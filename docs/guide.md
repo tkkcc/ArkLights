@@ -698,4 +698,5 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 
 开发中
 
-明日方舟速通云控后端: [DazeCake/ArkLightsCloudBackEnd](https://github.com/DazeCake/ArkLightsCloudBackEnd)
+明日方舟速通云控后端: [AegirTech/Inquisition](https://github.com/AegirTech/Inquisition)
+

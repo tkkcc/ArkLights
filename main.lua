@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.06.14 20:33"
+release_date = "2022.06.15 23:58"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -70,8 +70,8 @@ require("path")
 require("tag")
 require('skill')
 require("fight")
+require("cloud")
 
--- log("after_require_hook",after_require_hook)
 load(after_require_hook or '')()
 
 consoleInit()
@@ -85,11 +85,11 @@ enable_snapshot_service()
 remove_old_log()
 detectServer()
 predebug_hook()
--- main_ui_config_transfer()
 showUI()
 loadUIConfig()
 restart_mode_hook()
 update_state_from_debugui()
+cloud.startHeartBeat()
 
 load(before_account_hook or '')()
 
@@ -97,12 +97,15 @@ no_extra_job = {}
 transfer_global_variable("multi_account_user1", "multi_account_user0")
 saveConfig("continue_account", '')
 saveConfig("continue_extra_mode", extra_mode or '')
--- log("extra_mode",extra_mode)
--- log("extra_mode_multi",extra_mode_multi)
--- exit()
--- 多帐号模式
-if not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
+
+-- log("100",cloud.enabled(),cloud_task)
+if cloud.enabled() and not cloud_task then
+  -- 云控模式冷启动
+  -- log("102",102)
+
+elseif not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
   multi_account_enable then
+  -- 多帐号模式
 
   -- 分隔临时账号设置
   multi_account_choice = multi_account_choice:commonmap()
@@ -187,7 +190,13 @@ elseif not crontab_enable_only then
     no_extra_job = job
     job = {extra_mode}
   end
+  if #strOr(username) > 0 and #strOr(password) > 0 then
+    username = username:trim()
+    password = password:trim()
+    table.insert(job, 1, "退出账号")
+  end
   run(job)
+
 end
 
 -- 完成后
@@ -205,6 +214,9 @@ wait(function() return lock.length == 0 end, 30)
 -- 本地通知
 vibrate(100)
 playAudio('/system/media/audio/ui/Effect_Tick.ogg')
+
+-- 云控模式
+cloud.fetchSolveTask()
 
 -- 定时任务
 check_crontab()

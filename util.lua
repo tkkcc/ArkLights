@@ -767,6 +767,7 @@ stop = function(msg, try_next_account, nohome)
   if not nohome then home() end
   ssleep(2)
   if try_next_account then restart_next_account() end
+  cloud.fetchSolveTask()
   exit()
 end
 
@@ -2738,11 +2739,19 @@ show_debug_ui = function()
   --               make_jump_ui_command(layout, ))
 
   newRow(layout)
+  addTextView(layout, "云控服务地址")
+  ui.addEditText(layout, "cloud_server", "")
+
+  newRow(layout)
+  addTextView(layout, "云控设备标识")
+  ui.addEditText(layout, "cloud_device_token", "")
+
+  newRow(layout)
   addTextView(layout, "单号最大登录次数")
   ui.addEditText(layout, "max_login_times", "")
 
   newRow(layout)
-  addTextView(layout, "单号10分钟内最大登录次数")
+  addTextView(layout, "单号15分钟内最大登录次数")
   ui.addEditText(layout, "max_login_times_5min", "3")
 
   newRow(layout)
@@ -4616,6 +4625,8 @@ setEventCallback = function()
   setStopCallBack(function()
     disable_log = false
     log("结束")
+    saveConfig("hideUIOnce", "false")
+    saveConfig("restart_mode_hook", '')
     disableRootToast(true)
     collectgarbage("collect")
     -- stopThread(keepalive_thread[1])
@@ -4954,8 +4965,8 @@ check_login_frequency = function()
   table.insert(login_time_history, time())
   if max_login_times_5min > 0 and #login_time_history >= max_login_times_5min and
     login_time_history[#login_time_history] -
-    login_time_history[#login_time_history - max_login_times_5min + 1] < 10 * 60 *
-    1000 then stop("10分钟内登录次数达到" .. max_login_times_5min) end
+    login_time_history[#login_time_history - max_login_times_5min + 1] < 15 * 60 *
+    1000 then stop("15分钟内登录次数达到" .. max_login_times_5min) end
   log("login_time_history", login_time_history)
 
 end
@@ -5398,6 +5409,10 @@ update_state_from_debugui = function()
   if shift_min_mood <= 0 or shift_min_mood >= 24 then shift_min_mood = 12 end
   if enable_native_tap then clickPoint = _tap end
   max_fight_failed_times = str2int(max_fight_failed_times, 2)
+
+  cloud.setDeviceToken(cloud_device_token)
+  cloud.setServer(cloud_server)
+
 end
 
 -- 基建心情阈值与QQ号
@@ -5500,6 +5515,12 @@ update_game = function()
   --
   -- https://ak.hypergryph.com/downloads/android_lastest
 end
+
+strOr = function(x, y)
+  if type(x) == 'string' and #x:trim() > 0 then return x end
+  return y or ''
+end
+str = tostring
 
 -- eager post_util_hook
 loadUIConfig({"debug"})
