@@ -3606,9 +3606,12 @@ predebug_hook = function()
   -- log(findOne("game"))
   -- p = findOne("同意并继续")
   -- clickNode(p)
-  swip("HD-7")
+  log(ocr("第一层作战"))
+  -- swip("HD-7")
+  deploy3(1, "死斗",
+          table.includes({"礼炮小队", "驯兽小屋"}, "死斗") and 2 or 4)
 
-  -- ssleep(1)
+  ssleep(10)
   exit()
 
   local zl_level_check = function()

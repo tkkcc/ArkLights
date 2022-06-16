@@ -4641,6 +4641,8 @@ path.前瞻投资 = function(lighter)
         fight1.text = "与虫为伴"
       elseif fight1.text:includes({"驯", "兽", "屋"}) then
         fight1.text = "驯兽小屋"
+      elseif fight1.text:includes({"死", "斗"}) then
+        fight1.text = "死斗"
       else
         log("不知道什么作战：" .. fight1.text)
         return
@@ -4669,14 +4671,12 @@ path.前瞻投资 = function(lighter)
   --   return
   -- end
 
-  if zl_skip_hard and
-    not (fight1.text == "意外" or fight1.text == "礼炮小队" or fight1.text ==
-      '与虫为伴') then
+  if zl_skip_hard and fight1.text == "驯兽小屋" then
     in_fight_return = "驯兽小屋重试"
     return restart()
   end
 
-  -- 幻觉直接放弃
+  -- 幻觉选择性放弃
   if findOne("偏执的") then
     local all = {
       "迷茫的", "盲目的", "暴怒的", "孤独的", "偏执的",
