@@ -25,6 +25,7 @@ log_path = "log"
 log_path = Path(log_path)
 log_path.mkdir(exist_ok=True, parents=True)
 serial_alias = {
+    "21": "103.36.203.196:301",
     "0": "127.0.0.1:5555",
     "1": "103.36.203.159:301",
     "2": "103.36.203.53:301",
@@ -226,6 +227,9 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         # print("out",out)
 
         return out.stdout.decode()
+
+    def adbserial(*args):
+        return serial
 
     def adbpull(name):
         adb(
@@ -558,7 +562,9 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         # 重启
         restart()
 
-    def rg2(operator=None, times=None, skill=None, level=None, waste=None):
+    def rg2(
+        operator=None, times=None, skill=None, level=None, waste=None, skip_hard=None
+    ):
         # 肉鸽选干员，做日常
         x = load("config_extra.json")
         if operator:
@@ -569,6 +575,8 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 
         if level:
             c(x, "zl_max_level", str(level))
+        if skip_hard:
+            c(x, "zl_skip_hard", True)
         save("config_extra.json", x)
 
         # 重启
@@ -616,7 +624,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
     def normal(qq=None, weekday_only=None, fight=None):
         x = load("config_main.json")
         c(x, "fight_ui", fight or "jm hd ce ls ap pr")
-        for i in range(13):
+        for i in range(1, 13):
             c(x, f"now_job_ui" + str(i), True)
         c(x, f"now_job_ui8", False)
         c(x, f"crontab_text", "4:00 12:00 20:00")
@@ -784,7 +792,7 @@ def check(key=""):
     for serial in insane_set:
         if serial in dlt_wait_account:
             continue
-        print(f"0 m {next_device} user",end=' ')
+        print(f"0 m {next_device} user", end=" ")
         print(dlt.detail(serial, quiet=True))
 
 
@@ -792,11 +800,12 @@ def check(key=""):
 def edu():
     for username in everyday_upload:
         check(username)
-        dlt().submit()
+        DLT().submit()
 
 
 def users():
     daily("user")
+
 
 if __name__ == "__main__":
     fire.Fire()
