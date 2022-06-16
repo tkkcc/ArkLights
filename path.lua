@@ -2198,6 +2198,13 @@ path.线索布置 = function()
   end
   log(643)
 
+  if disable_clue_unlock then
+    path.线索传递()
+    path.线索传递()
+    path.线索传递()
+    return
+  end
+
   -- 在左侧判断，不会右侧提示挡住
   wait(function()
     if findOne("线索布置展开") and disappear("线索布置白列表5", 1) then
@@ -2232,9 +2239,6 @@ path.线索布置 = function()
   end
 
   -- 只送线索
-  local disable_clue_unlock = account_idx and
-                                table.includes(
-                                  multi_account_disable_clue_unlock, account_idx)
   log("disable_clue_unlock", disable_clue_unlock)
   -- exit()
 
@@ -4282,6 +4286,8 @@ path.前瞻投资 = function(lighter)
   -- 检测源石锭
   local zl_coin_check = function()
     if not (str2int(zl_max_coin, 0) > 0) then return end
+    if str2int(zl_max_coin, 0) >= 999 then return end
+
     if not findOne("常规行动") then return end
     if not wait(function()
       if not findOne("常规行动") then return true end
@@ -4670,6 +4676,7 @@ path.前瞻投资 = function(lighter)
   --   toast("不知道什么作战：" .. fight1.text)
   --   return
   -- end
+  -- if fight1.text == '死斗' then ssleep(1000) end
 
   if zl_skip_hard and fight1.text == "驯兽小屋" then
     in_fight_return = "驯兽小屋重试"
@@ -4935,8 +4942,12 @@ path.前瞻投资 = function(lighter)
     tap("干员费用够列表1")
     disappear("干员费用够列表1", 0.5)
     -- 部署 拖拽当前第一个干员至部署位dst，方向朝左或右
-    deploy3(1, fight1.text, table.includes({"礼炮小队", "驯兽小屋"},
-                                           fight1.text) and 2 or 4)
+    local direction = 4
+    if table.includes({"礼炮小队", "驯兽小屋"}, fight1.text) then
+      direction = 2
+    end
+    if fight1.text == '死斗' then direction = 1 end
+    deploy3(1, fight1.text, direction)
     log(4106)
     wait(function()
       if findOne("生命值") then return true end

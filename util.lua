@@ -3608,8 +3608,7 @@ predebug_hook = function()
   -- clickNode(p)
   log(ocr("第一层作战"))
   -- swip("HD-7")
-  deploy3(1, "死斗",
-          table.includes({"礼炮小队", "驯兽小屋"}, "死斗") and 2 or 4)
+  deploy3(1, "死斗", 1)
 
   ssleep(10)
   exit()
@@ -4512,6 +4511,10 @@ parse_fight_config = function(fight_ui)
 end
 
 update_state_from_ui = function()
+
+  disable_clue_unlock = account_idx and
+                          table.includes(multi_account_disable_clue_unlock,
+                                         account_idx)
 
   -- 总览换班就按工作状态了，保证高心情
   -- prefer_skill = true
@@ -5524,6 +5527,16 @@ strOr = function(x, y)
   return y or ''
 end
 str = tostring
+
+get = function(Obj, Field, ...)
+  if Obj == nil or Field == nil or type(Obj) ~= 'table' then
+    return Obj
+  else
+    return get(Obj[Field], ...)
+  end
+end
+
+istable = function(x) return type(x) == 'table' end
 
 -- eager post_util_hook
 loadUIConfig({"debug"})

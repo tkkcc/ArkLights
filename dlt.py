@@ -26,6 +26,7 @@ log_path = Path(log_path)
 log_path.mkdir(exist_ok=True, parents=True)
 serial_alias = {
     "21": "103.36.203.196:301",
+    "22": "103.36.203.133:301",
     "0": "127.0.0.1:5555",
     "1": "103.36.203.159:301",
     "2": "103.36.203.53:301",
@@ -756,7 +757,9 @@ def check(key=""):
     for m in dlt.my(raw=True):
         dlt_account.append(m["SerialNo"])
     for m in dlt.my(raw=True, status=13):
-        # __import__('pdb').set_trace()
+        dlt_account.append(m["SerialNo"])
+        dlt_wait_account.append(m["SerialNo"])
+    for m in dlt.my(raw=True, status=14):
         dlt_account.append(m["SerialNo"])
         dlt_wait_account.append(m["SerialNo"])
 

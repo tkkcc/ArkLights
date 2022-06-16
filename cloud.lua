@@ -30,8 +30,9 @@ end
 
 m.failTask = function(imageUrl, type)
   type = type or 'failTask'
+  imageUrl = imageUrl or ''
   local data = {deviceToken = m.deviceToken, imageUrl = imageUrl}
-  local res, code = httpPost(m.server .. "/" .. type, JsonEncode(data),
+  local res, code = httpPost(m.server .. "/" .. type, JsonEncode(data), 30,
                              'Content-Type: application/json')
   return res, code
 end
@@ -127,6 +128,7 @@ restartSimpleMode = function(taskType, username, password, server, config)
   -- set task config
   if #strOr(username) == 0 or #strOr(password) == 0 then return end
   if not table.includes({0, 1}, server) then return end
+  if not type(config) == 'table' then return end
 
   local hook = [[
 clossapp(appid)
@@ -140,26 +142,74 @@ server=]] .. server
   if taskType == 'rogue' then
     hook = hook .. [[;extra_mode="战略前瞻投资"]]
   end
-  if #strOr(config.fight) > 0 then
-    hook = hook .. [[;fight_ui=]] .. string.format("%q", config.fight)
+
+  -- 日常
+  local x
+  x = get(config, 'daily', 'fight')
+  if istable(x) then
+    local y = ''
+    for _, v in pairs(x) do
+      y = y .. str(get(v, 'level')) .. 'x' .. str(get(v, 'num'))
+    end
+    hook = hook .. [[;fight_ui=]] .. string.format("%q", y)
+    hook = hook .. [[;now_job_ui2=]] .. str(#y > 0)
   end
-  if config.maxDrugTimes then
-    hook = hook .. [[;max_drug_times=]] .. str(config.maxDrugTimes)
-  end
-  if config.maxStoneTimes then
-    hook = hook .. [[;max_stone_times=]] .. str(config.maxStoneTimes)
-  end
-  if type(config.operator) == 'table' then
-    hook = hook .. [[;zl_best_operator=]] .. str(config.operator[1])
-    hook = hook .. [[;zl_skill_times=]] .. str(config.operator[2])
-    hook = hook .. [[;zl_skill_idx=]] .. str(config.operator[3])
-  end
-  if config.skipHard == true then
-    hook = hook .. [[;zl_skip_hard=]] .. str(config.skipHard)
-  end
-  if config.maxLevel then
-    hook = hook .. [[;zl_max_level=]] .. str(config.maxLevel)
-  end
+
+  x = get(config, 'daily', 'sanity', 'drug')
+  if x then hook = hook .. [[;max_drug_times=]] .. str(x) end
+
+  x = get(config, 'daily', 'sanity', 'stone')
+  if x then hook = hook .. [[;max_stone_times=]] .. str(x) end
+
+  hook = hook .. [[;now_job_ui1=]] .. str(get(config, 'daily', 'mail'))
+  hook = hook .. [[;now_job_ui3=]] .. str(get(config, 'daily', 'friend'))
+
+  hook = hook .. [[;now_job_ui4=]] ..
+           str(get(config, 'daily', 'infrastructure', 'harvest'))
+  hook = hook .. [[;now_job_ui5=]] ..
+           str(get(config, 'daily', 'infrastructure', 'shift'))
+  hook = hook .. [[;now_job_ui6=]] ..
+           str(get(config, 'daily', 'infrastructure', 'acceleration'))
+
+  hook = hook .. [[;now_job_ui7=]] ..
+           str(get(config, 'daily', 'infrastructure', 'communication'))
+  hook = hook .. [[;now_job_ui8=]] ..
+           str(get(config, 'daily', 'infrastructure', 'deputy'))
+  hook = hook .. [[;now_job_ui9=]] .. str(get(config, 'daily', 'credit'))
+
+  hook = hook .. [[;now_job_ui10=]] ..
+           str(get(config, 'daily', 'offer', 'enable'))
+  hook = hook .. [[;now_job_ui11=]] .. str(get(config, 'daily', 'task'))
+  hook = hook .. [[;now_job_ui12=]] .. str(get(config, 'daily', 'activity'))
+
+  hook = hook .. [[;auto_recruit0=]] .. str(get(config, 'offer', 'other'))
+  hook = hook .. [[;auto_recruit1=]] .. str(get(config, 'offer', 'car'))
+  hook = hook .. [[;auto_recruit4=]] .. str(get(config, 'offer', 'star4'))
+  hook = hook .. [[;auto_recruit5=]] .. str(get(config, 'offer', 'star5'))
+  hook = hook .. [[;auto_recruit6=]] .. str(get(config, 'offer', 'star6'))
+
+  -- 肉鸽
+  hook = hook .. [[;zl_best_operator=]] ..
+           str(get(config, 'rogue', 'operator', 'index'))
+  hook = hook .. [[;zl_skill_times=]] ..
+           str(get(config, 'rogue', 'operator', 'num'))
+  hook = hook .. [[;zl_skill_idx=]] ..
+           str(get(config, 'rogue', 'operator', 'skill'))
+  hook = hook .. [[;zl_max_coin=]] .. str(get(config, 'rogue', 'coin'))
+  hook = hook .. [[;zl_max_level=]] .. str(get(config, 'rogue', 'level'))
+  hook = hook .. [[;zl_more_repertoire=false]]
+  hook = hook .. [[;zl_more_experience=true]]
+  hook = hook .. [[;zl_skip_coin=]] .. str(get(config, 'rogue', 'skip', 'coin'))
+  hook = hook .. [[;zl_skip_hard=]] ..
+           str(get(config, 'rogue', 'skip', 'beast'))
+  hook = hook .. [[;zl_no_waste=]] ..
+           str(not get(config, 'rogue', 'skip', 'daily'))
+  hook = hook .. [[;zl_accept_mg=]] ..
+           str(not get(config, 'rogue', 'skip', 'sensitive'))
+  hook = hook .. [[;zl_accept_yx=]] ..
+           str(not get(config, 'rogue', 'skip', 'illusion'))
+  hook = hook .. [[;zl_accept_sc=]] ..
+           str(not get(config, 'rogue', 'skip', 'survive'))
 
   hook = hook .. [[;saveConfig("restart_mode_hook",]] ..
            string.format("%q", hook) .. ')'
