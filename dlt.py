@@ -331,6 +331,8 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         fight=None,
         idx=None,
         weekday_only=None,
+        drug=None,
+        recruit=None,
     ):
         weekday_only_list = load("config_debug.json")[
             "multi_account_choice_weekday_only"
@@ -350,12 +352,30 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
                 continue
             usernamei = x["username" + str(i)].replace("\s", "")
             passwordi = x["password" + str(i)].replace("\s", "")
+            # print(x["multi_account_user" + str(i) + "max_drug_times"])
+            # exit()
             ans += (
                 f"0 m {alias} user {usernamei} {passwordi}"
                 + (" --server" if x["server" + str(i)] == 1 else "")
                 + (
                     (" --fight='" + x["multi_account_user" + str(i) + "fight_ui"] + "'")
                     if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
+                    else ""
+                )
+                + (
+                    (
+                        " --drug"
+                    )
+                    if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
+                    and int(x["multi_account_user" + str(i) + "max_drug_times"]) > 0
+                    else ""
+                )
+                + (
+                    (
+                        " --recruit"
+                    )
+                    if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
+                    and x["multi_account_user" + str(i) + "auto_recruit0"]
                     else ""
                 )
                 + (" --weekday-only" if str(i) in weekday_only_list else "")
@@ -383,17 +403,13 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         c(x, f"password{first_empty_i}", str(password))
         c(x, f"multi_account_inherit_spinner{first_empty_i}", 0)
         c(x, f"server{first_empty_i}", 1 if server else 0)
-        if fight:
-            c(x, f"multi_account_user{first_empty_i}fight_ui", fight)
+        if fight or drug or recruit:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
         else:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "继承设置")
-        # c(
-        #     x,
-        #     "multi_account_choice",
-        #     x["multi_account_choice"].split("#")[0] + "#" + str(first_empty_i),
-        # )
-
+        c(x, f"multi_account_user{first_empty_i}fight_ui", fight or 'jm hd ce ls ap pr')
+        c(x, f"multi_account_user{first_empty_i}max_drug_times", str(2 if drug else 0))
+        c(x, f"multi_account_user{first_empty_i}auto_recruit0", True if recruit else False)
         save("config_multi_account.json", x)
         # print("username", username)
 
@@ -629,6 +645,10 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
             c(x, f"now_job_ui" + str(i), True)
         c(x, f"now_job_ui8", False)
         c(x, f"crontab_text", "4:00 12:00 20:00")
+        c(x, f"auto_recruit0", True)
+        c(x, f"auto_recruit4", True)
+        c(x, f"auto_recruit5", True)
+        c(x, f"auto_recruit6", False)
         save("config_main.json", x)
 
         x = load("config_debug.json")
@@ -659,7 +679,8 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         c(x, "max_drug_times_" + str(7) + "day", "1")
         c(x, "enable_log", False)
         # c(x, "enable_disable_lmk", False)
-        c(x, "disable_killacc", False)
+        # c(x, "disable_killacc", False)
+        c(x, "enable_restart_package", True)
         c(x, "keepalive_interval", "900")
 
         save("config_debug.json", x)
@@ -732,7 +753,7 @@ def check(key=""):
             password = y["password" + str(i)].split("#")[0].strip()[:-1]
             if username in my_account:
                 continue
-            serial = dlt.all2serial(password, quiet=True)
+            serial = dlt.all2serial(" " + password, quiet=True)
             if not serial:
                 print("all2serial not found", password)
                 exit()

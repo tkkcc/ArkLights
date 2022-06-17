@@ -246,12 +246,15 @@ path.base = {
       -- end
       -- 剿灭必须回主页
       -- if not appear("主页") then back() end
-      path.跳转("首页")
+      return path.跳转("首页")
     elseif next_fight == cur_fight then
       fight_tick = next_fight_tick
       pre_fight = nil
-      request_memory_clean()
-      return path.开始游戏(next_fight)
+      if not request_memory_clean() then
+        return path.开始游戏(next_fight)
+      else
+        return path.跳转("首页")
+      end
     elseif same_page_fight(cur_fight, next_fight) then
       if not wait(function()
         if not findOne("开始行动") then return true end
@@ -2610,7 +2613,7 @@ path.轮次作战 = function()
       fight_tick = 0
       fight = {"1-7"}
     end
-    request_memory_clean()
+    if request_memory_clean() then path.跳转("首页") end
   end
 
 end
@@ -4157,10 +4160,19 @@ path.前瞻投资 = function(lighter)
   end
 
   -- 每8小时做日常
-  if zl_no_waste then
-    if not zl_no_waste_last_time or time() - zl_no_waste_last_time > 8 * 3600 *
-      1000 then
-      zl_no_waste_last_time = time()
+  if not zl_no_waste_last_time or time() - zl_no_waste_last_time > 8 * 3600 *
+    1000 then
+
+    -- 并非首次
+    if zl_no_waste_last_time then
+      saveConfig("hideUIOnce", "true")
+      save_extra_mode(extra_mode, extra_mode_multi)
+      restartScript()
+    end
+
+    -- 首次
+    zl_no_waste_last_time = time()
+    if zl_no_waste then
       -- todo
       transfer_global_variable("multi_account_user0")
       update_state_from_ui()
@@ -4174,7 +4186,11 @@ path.前瞻投资 = function(lighter)
 
     ssleep(3)
     -- if not restart_game_check(zl_restart_interval) then
-    if not request_memory_clean() then path.前瞻投资(true) end
+    if not request_memory_clean() then
+      path.前瞻投资(true)
+    else
+      path.跳转("首页")
+    end
 
     -- 脚本内存泄漏45M/h => 每小时重启acc进程
     -- 游戏内存泄漏66M/h => 每小时重启游戏

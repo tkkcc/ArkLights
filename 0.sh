@@ -287,6 +287,9 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   edu() {
     ../dlt/dlt.py edu $@
   }
+  daily() {
+    ../dlt/dlt.py daily $@
+  }
   "$@"
   wait
 }

@@ -38,6 +38,8 @@ disable_log_wrapper = function(func, enable)
 end
 enable_log_wrapper = function(func) return disable_log_wrapper(func, true) end
 
+_restartScript = restartScript
+
 -- 无障碍函数替换
 if not openPermissionSetting then
   openPermissionSetting =
@@ -2463,7 +2465,7 @@ hotUpdate = function()
   sleep(1000)
   -- log(5, expectmd5, loadConfig("lr_md5", "2"))
   log("已更新至最新")
-  return restartScript()
+  return _restartScript()
 end
 
 styleButton = function(layout)
@@ -2899,13 +2901,13 @@ show_debug_ui = function()
                  "前瞻投资禁用升级幕后筹备", false)
   newRow(layout)
   ui.addCheckBox(layout, "disable_strick_account_check",
-                 "多账号允许不填帐密(双服单号玩家)", false)
+                 "多账号允许不填帐密(双号双服玩家)", false)
 
   newRow(layout)
   addTextView(layout, "多账号双休日跳过账号")
   ui.addEditText(layout, "multi_account_choice_weekday_only", '')
   newRow(layout)
-  addTextView(layout, "多账号不解锁线索账号(线索小号)")
+  addTextView(layout, "多账号只传递线索账号(线索小号)")
   ui.addEditText(layout, "multi_account_disable_clue_unlock", '')
 
   -- newRow(layout)
@@ -2936,9 +2938,13 @@ show_debug_ui = function()
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_disable_lmk",
   --                "禁用LMK(测试中,专用挂机设备建议勾)", false)
+  newRow(layout)
+  ui.addCheckBox(layout, "enable_restart_package",
+                 "启用完全重启(测试中，有问题反馈)", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "disable_killacc1", "禁用重启acc进程", false)
+
   -- addTextView(layout, "禁用重启acc")
   -- ui.addEditText(layout, "disable_killacc", "")
   -- ui.addCheckBox(layout, "enable_killacc", "启用重启acc进程", false)
@@ -3606,9 +3612,12 @@ predebug_hook = function()
   -- log(findOne("game"))
   -- p = findOne("同意并继续")
   -- clickNode(p)
-  log(ocr("第一层作战"))
+  -- log(ocr("第一层作战"))
   -- swip("HD-7")
-  deploy3(1, "死斗", 1)
+  -- deploy3(1, "死斗", 1)
+  ssleep(1)
+
+  -- killacc2()
 
   ssleep(10)
   exit()
@@ -4653,7 +4662,7 @@ setEventCallback = function()
 
   setUserEventCallBack(function(type)
     collectgarbage("collect")
-    restartScript()
+    _restartScript()
   end)
 end
 
@@ -4991,6 +5000,7 @@ killacc = function()
   if not root_mode then return end
   if disable_killacc1 then return end
   if apk502 then return end
+  -- if enable_killacc2 then return killacc2() end
   --   if 1 then return 1 end
   --
   --   local service = package .. "/com.nx.assist.AssistService"
@@ -5084,6 +5094,38 @@ echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
   -- settings put global heads_up_notifications_enabled 1
   -- ' > /dev/null & ]]
   --   exec(cmd)
+end
+
+restartScript = function()
+  closeapp(appid)
+  closeapp(bppid)
+  if not root_mode or not enable_restart_package then return _restartScript() end
+  local cmd = [[nohup su root sh -c ' \
+input keyevent KEYCODE_HOME
+sleep 1
+am force-stop ]] .. package .. [[;
+sleep 1
+monkey -p ]] .. package .. [=[ -c android.intent.category.LAUNCHER 1
+secs=60
+endTime=$(( $(date +%s) + secs ))
+while [ $(date +%s) -lt $endTime ]; do
+  uiautomator dump /sdcard/window_dump.xml
+  ok=$(sed -rn '\''s|.*text=.确定.[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  if [[ -n $start ]]; then
+    eval $start
+  elif [[ -n $cancel ]]; then
+    eval $cancel
+  elif [[ -n $ok ]]; then
+    eval $ok
+  fi
+done
+' > /dev/null & ]=]
+
+  exec(cmd)
+  ssleep(5)
+  _restartScript()
 end
 
 trim_game_memory = function()
@@ -5482,6 +5524,7 @@ isweekday = function()
 end
 
 memory_clean_last_time = time()
+-- memory_clean_last_time = 0
 request_memory_clean = function()
   oom_score_adj()
 
