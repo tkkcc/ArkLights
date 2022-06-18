@@ -330,7 +330,9 @@ path.bilibili_login = {
       stop("账号或密码为空", account_idx and true or false)
     end
     tap("bilibili_login")
-    if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 10) then
+    disappear("bilibili_login",15)
+    tap("bilibili_login")
+    if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 15) then
       stop("B服登录失败", true)
     end
     -- 小米
@@ -483,6 +485,7 @@ path.fallback = {
     log(191)
     leaving_jump = false
     if not wait(function()
+      if findOne("进驻总览") then zoom() end
       if not findOne("返回确认") then return true end
 
       -- 宽屏上有误判
@@ -501,7 +504,7 @@ path.fallback = {
       else
         tap("右确认")
       end
-    end, 60) then stop("基建返回提示不消失") end
+    end, 60) then return restartapp(appid) end
     stay_in_dorm_once = false
 
     if appear("进驻总览", 1) then leaving_jump = true end
@@ -2655,13 +2658,13 @@ path.开始游戏 = function(x, disable_ptrs_check)
   -- log(findOne("开始行动"))
   -- safeexit()
 
-  if not appear("代理指挥开", .5) then
+  if not appear("代理指挥开", 1) then
     tap("代理指挥开1")
-    if not appear("代理指挥开", .5) then
-      clean_fight(x)
+    if not appear("代理指挥开", 1) then
+      -- clean_fight(x)
+      fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
       if not appear("主页") then back() end
-      path.跳转("首页")
-      return
+      return path.跳转("首页")
     end
     -- if not wait(function()
     --   if findOne("代理指挥开") and not disappear("代理指挥开", .5) then

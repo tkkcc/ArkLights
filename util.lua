@@ -1840,7 +1840,7 @@ captureqqimagedeliver = function(info, to)
   end
 
   if not qqnotify_notime then
-    info = os.date('%Y.%m.%d %H:%M:%S') .. ' ' .. info
+    info = os.date('%m.%d %H:%M:%S') .. ' ' .. info
   end
 
   local notify = notifyqq
@@ -1973,7 +1973,7 @@ make_account_ui = function(layout, prefix)
   newRow(layout)
   addTextView(layout, "作战关卡")
   ui.addEditText(layout, prefix .. "fight_ui",
-                 [[当期委托x5 活动9*99 10-17*2 JT8-3 PR-D-2 CE-6 上一次]])
+                 [[jm hd ce ls pr ap]])
 
   newRow(layout)
   addTextView(layout, "作战吃药")
@@ -2014,10 +2014,10 @@ make_account_ui = function(layout, prefix)
 
   newRow(layout)
   addTextView(layout, "自动招募")
-  ui.addCheckBox(layout, prefix .. "auto_recruit0", "其他", false)
-  ui.addCheckBox(layout, prefix .. "auto_recruit1", "车", false)
+  ui.addCheckBox(layout, prefix .. "auto_recruit0", "其他", true)
+  ui.addCheckBox(layout, prefix .. "auto_recruit1", "车", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit4", "4", true)
-  ui.addCheckBox(layout, prefix .. "auto_recruit5", "5", false)
+  ui.addCheckBox(layout, prefix .. "auto_recruit5", "5", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit6", "6", false)
 
   -- local max_checkbox_one_row = getScreen().width //200
@@ -2741,16 +2741,19 @@ show_debug_ui = function()
   --               make_jump_ui_command(layout, ))
 
   newRow(layout)
-  addTextView(layout, "云控服务地址")
+  addTextView(layout, "审判庭服务地址")
   ui.addEditText(layout, "cloud_server", "")
 
   newRow(layout)
-  addTextView(layout, "云控设备标识")
+  addTextView(layout, "审判庭设备标识")
   ui.addEditText(layout, "cloud_device_token", "")
 
   newRow(layout)
-  addTextView(layout, "单号最大登录次数")
-  ui.addEditText(layout, "max_login_times", "")
+  ui.addCheckBox(layout, "cloud_get_task", "审判庭接受任务", false)
+
+  -- newRow(layout)
+  -- addTextView(layout, "单号最大登录次数")
+  -- ui.addEditText(layout, "max_login_times", "")
 
   newRow(layout)
   addTextView(layout, "单号15分钟内最大登录次数")
@@ -2762,7 +2765,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "单号最大成功剿灭次数")
-  ui.addEditText(layout, "max_jmfight_times", "")
+  ui.addEditText(layout, "max_jmfight_times", "1")
 
   -- newRow(layout)
   -- addTextView(layout, "最大连续作战次数(达到重启游戏)")
@@ -2795,7 +2798,7 @@ show_debug_ui = function()
   for i = 1, 7 do
     newRow(layout)
     local timenote = i == 1 and "“X小时”" or "“" .. (i - 1) .. "天”"
-    local default = i == 1 and '99' or '0'
+    local default = i < 3 and '99' or '1'
     addTextView(layout, timenote .. "理智药最多吃")
     ui.addEditText(layout, "max_drug_times_" .. i .. "day", default)
     addTextView(layout, "次")
@@ -2803,7 +2806,7 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "zero_san_after_fight",
-                 "作战理智不足无法继续时跑1-7", false)
+                 "作战理智不足无法继续时跑1-7", true)
 
   newRow(layout)
   addTextView(layout, "QQ通知账号")
@@ -2819,7 +2822,7 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_save",
-                 "QQ通知保存到/sdcard/包名/ (保留一周)", false)
+                 "QQ通知保存到/sdcard/包名/ (保留一周)", true)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_quiet",
@@ -2845,22 +2848,22 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_beforemail",
-                 "QQ通知显示邮件收取前情况", false)
+                 "QQ通知显示邮件收取前情况", true)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_afterenter",
-                 "QQ通知显示基建进入后情况", false)
+                 "QQ通知显示基建进入后情况", true)
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_beforeleaving",
-                 "QQ通知显示基建退出前情况", false)
+                 "QQ通知显示基建退出前情况", true)
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_beforemission",
-                 "QQ通知显示任务收集前情况", false)
+                 "QQ通知显示任务收集前情况", true)
 
   newRow(layout)
   ui.addCheckBox(layout, "collect_beforeleaving",
-                 "基建离开前加一次基建收获", false)
+                 "基建离开前加一次基建收获", true)
 
   newRow(layout)
   addTextView(layout, "基建换班心情阈值")
@@ -2907,7 +2910,7 @@ show_debug_ui = function()
   addTextView(layout, "多账号双休日跳过账号")
   ui.addEditText(layout, "multi_account_choice_weekday_only", '')
   newRow(layout)
-  addTextView(layout, "多账号只传递线索账号(线索小号)")
+  addTextView(layout, "多账号仅传递线索账号(线索小号)")
   ui.addEditText(layout, "multi_account_disable_clue_unlock", '')
 
   -- newRow(layout)
@@ -3042,7 +3045,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout, [[选第]])
-  ui.addEditText(layout, "zl_best_operator", [[1]])
+  ui.addEditText(layout, "zl_best_operator", [[0]])
   addTextView(layout, [[个近卫 开]])
   ui.addEditText(layout, "zl_skill_times", [[0]])
   addTextView(layout, [[次]])
@@ -3604,7 +3607,10 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  -- ssleep(1)
+  ssleep(1)
+  log(is_network_unstable() == true)
+  ssleep(1)
+  exit()
   -- tap({1281,721})
   -- appid = bppid
   -- log(findOne("同意并继续"))
@@ -4972,6 +4978,8 @@ restart_mode_hook = function()
 end
 
 check_login_frequency = function()
+  if is_network_unstable() then return end
+
   login_times = (login_times or 0) + 1
   if login_times >= max_login_times then
     stop("登录次数达到" .. login_times)
@@ -5105,14 +5113,20 @@ input keyevent KEYCODE_HOME
 sleep 1
 am force-stop ]] .. package .. [[;
 sleep 1
-monkey -p ]] .. package .. [=[ -c android.intent.category.LAUNCHER 1
+secs=60
+endTime=$(( $(date +%s) + secs ))
+while [ $(date +%s) -lt $endTime ]; do
+  monkey -p ]] .. package .. [=[ -c android.intent.category.LAUNCHER 1
+  sleep 5
+  [[ $(pidof ]=] .. package .. [=[) ]] && break
+done
 secs=60
 endTime=$(( $(date +%s) + secs ))
 while [ $(date +%s) -lt $endTime ]; do
   uiautomator dump /sdcard/window_dump.xml
-  ok=$(sed -rn '\''s|.*text=.确定.[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
-  cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
-  start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  ok=$(sed -rn '\''s|.*text=.确定.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   if [[ -n $start ]]; then
     eval $start
   elif [[ -n $cancel ]]; then
@@ -5442,25 +5456,19 @@ update_state_from_debugui = function()
       QQ, QQ2 = QQ[1], QQ[2]
     end
   end
-  -- log("QQ,QQ2,devicenote", QQ, QQ2, devicenote)
-  -- exit()
   qqimagedeliver = (qqimagedeliver or ''):trim()
   if #qqimagedeliver == 0 then qqimagedeliver = "82.156.198.12:49875" end
   pushplus_token = (pushplus_token or ''):trim()
-  -- if zl_enable_log then zl_disable_log = false end
   for i = 1, 7 do
     local k = 'max_drug_times_' .. i .. 'day'
     _G[k] = str2int(_G[k], 0)
   end
-  if disable_drug_24hour then max_drug_times_1day = 0 end
   shift_min_mood = str2int(shift_min_mood, 12)
   if shift_min_mood <= 0 or shift_min_mood >= 24 then shift_min_mood = 12 end
   if enable_native_tap then clickPoint = _tap end
   max_fight_failed_times = str2int(max_fight_failed_times, 2)
-
   cloud.setDeviceToken(cloud_device_token)
   cloud.setServer(cloud_server)
-
 end
 
 -- 基建心情阈值与QQ号
@@ -5521,6 +5529,21 @@ isweekday = function()
   local cur_time = tonumber(os.date("%w", os.time()))
   if cur_time == 0 then cur_time = 7 end
   if cur_time < 6 then return true end
+end
+
+is_network_unstable = function()
+  local cur_time = parse_time()
+  local s, e
+  s = os.time(update(os.date("*t"), {hour = 4, min = 0}))
+  e = os.time(update(os.date("*t"), {hour = 4, min = 15}))
+  if s < cur_time and cur_time < e then return true end
+  s = os.time(update(os.date("*t"), {hour = 16, min = 0}))
+  e = os.time(update(os.date("*t"), {hour = 16, min = 15}))
+  if s < cur_time and cur_time < e then return true end
+
+  -- local cur_time = tonumber(os.date("%w", os.time()))
+  -- if cur_time == 0 then cur_time = 7 end
+  -- if cur_time < 6 then return true end
 end
 
 memory_clean_last_time = time()

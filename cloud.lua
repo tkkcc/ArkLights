@@ -54,6 +54,7 @@ end
 
 m.fetchSolveTask = function()
   if not m.enabled() then return end
+  if not cloud_get_task then return end
   while true do
     local res, code = m.getTask()
     log("code", code)
@@ -131,8 +132,6 @@ restartSimpleMode = function(taskType, username, password, server, config)
   if not type(config) == 'table' then return end
 
   local hook = [[
-clossapp(appid)
-clossapp(bppid)
 cloud_task=true
 crontab_enable=false
 multi_account_enable=false

@@ -272,7 +272,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
     def df():
         return adb("shell", "df -h")
 
-    def rmpic():
+    def rmpic(x=""):
         adb(
             "shell",
             "find",
@@ -280,7 +280,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
             "-type",
             "f",
             "-iname",
-            "*.jpg",
+            "*" + str(x) + "*.jpg",
             "-delete",
         )
 
@@ -363,21 +363,19 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
                     else ""
                 )
                 + (
-                    (
-                        " --drug"
-                    )
+                    (" --drug")
                     if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
                     and int(x["multi_account_user" + str(i) + "max_drug_times"]) > 0
                     else ""
                 )
-                + (
-                    (
-                        " --recruit"
-                    )
-                    if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
-                    and x["multi_account_user" + str(i) + "auto_recruit0"]
-                    else ""
-                )
+                # + (
+                #     (
+                #         " --recruit"
+                #     )
+                #     if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
+                #     and x["multi_account_user" + str(i) + "auto_recruit0"]
+                #     else ""
+                # )
                 + (" --weekday-only" if str(i) in weekday_only_list else "")
                 + " --idx="
                 + str(i)
@@ -403,13 +401,16 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         c(x, f"password{first_empty_i}", str(password))
         c(x, f"multi_account_inherit_spinner{first_empty_i}", 0)
         c(x, f"server{first_empty_i}", 1 if server else 0)
-        if fight or drug or recruit:
+        c(x, f"multi_account_user{first_empty_i}auto_recruit0", True)
+        c(x, f"multi_account_user{first_empty_i}auto_recruit1", True)
+        c(x, f"multi_account_user{first_empty_i}auto_recruit4", True)
+        c(x, f"multi_account_user{first_empty_i}auto_recruit5", True)
+        if fight or drug:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
         else:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "继承设置")
-        c(x, f"multi_account_user{first_empty_i}fight_ui", fight or 'jm hd ce ls ap pr')
+        c(x, f"multi_account_user{first_empty_i}fight_ui", fight or "jm hd ce ls ap pr")
         c(x, f"multi_account_user{first_empty_i}max_drug_times", str(2 if drug else 0))
-        c(x, f"multi_account_user{first_empty_i}auto_recruit0", True if recruit else False)
         save("config_multi_account.json", x)
         # print("username", username)
 
@@ -752,11 +753,12 @@ def check(key=""):
             username = y["username" + str(i)].split("#")[0].strip()
             password = y["password" + str(i)].split("#")[0].strip()[:-1]
             if username in my_account:
+                user2device[username] = device
                 continue
             serial = dlt.all2serial(" " + password, quiet=True)
             if not serial:
                 print("all2serial not found", password)
-                exit()
+                continue
             user.append(username)
             user2device[username] = device
             user2idx[username] = i
@@ -802,6 +804,11 @@ def check(key=""):
     waste_set = dev_set - dlt_set
     print("==> total", len(dev_set))
 
+    print("user2device", user2device)
+    print(
+        "Counter(user2device.values()).most_common()",
+        Counter(user2device.values()).most_common(),
+    )
     next_device = Counter(user2device.values()).most_common()[-1][0]
 
     print("==> waste_set", waste_set)
