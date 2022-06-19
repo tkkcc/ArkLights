@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "2022.06.19  4:25"
+release_date = "2022.06.19 23:23"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -99,7 +99,7 @@ saveConfig("continue_account", '')
 saveConfig("continue_extra_mode", extra_mode or '')
 
 -- log("100",cloud.enabled(),cloud_task)
-if cloud.enabled() and not cloud_task then
+if cloud.getTaskEnabled() and not cloud_task then
   -- 云控模式冷启动
   -- log("102",102)
 
@@ -196,7 +196,7 @@ elseif not crontab_enable_only then
     table.insert(job, 1, "退出账号")
   end
   run(job)
-
+  cloud.completeTask('')
 end
 
 -- 完成后

@@ -692,7 +692,15 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 
 ## 云端控制
 
-开发中
+开发测试中
+
+明日方舟速通云控前端: [AegirTech/IberiaEye](https://github.com/AegirTech/IberiaEye)
 
 明日方舟速通云控后端: [AegirTech/Inquisition](https://github.com/AegirTech/Inquisition)
+
+打开[https://dashboard-skadid.vercel.app](https://dashboard-skadid.vercel.app)，注册登录，新增设备，将设备token填写到速通高级设置`审判庭设备标识`，启动。
+
+若不勾选`审判庭接受任务`，则速通仍处理本地任务，但可使用心跳与日志服务。
+
+若勾选`审判庭接受任务`，则速通只处理云端分发的任务。
 

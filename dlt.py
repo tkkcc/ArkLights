@@ -25,8 +25,8 @@ log_path = "log"
 log_path = Path(log_path)
 log_path.mkdir(exist_ok=True, parents=True)
 serial_alias = {
-    "21": "103.36.203.196:301",
-    "22": "103.36.203.133:301",
+    "21": "103.36.203.215:301",
+    "22": "103.36.203.125:301",
     "0": "127.0.0.1:5555",
     "1": "103.36.203.159:301",
     "2": "103.36.203.53:301",
@@ -804,11 +804,11 @@ def check(key=""):
     waste_set = dev_set - dlt_set
     print("==> total", len(dev_set))
 
-    print("user2device", user2device)
-    print(
-        "Counter(user2device.values()).most_common()",
-        Counter(user2device.values()).most_common(),
-    )
+    # print("user2device", user2device)
+    # print(
+    #     "Counter(user2device.values()).most_common()",
+    #     Counter(user2device.values()).most_common(),
+    # )
     next_device = Counter(user2device.values()).most_common()[-1][0]
 
     print("==> waste_set", waste_set)

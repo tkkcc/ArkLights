@@ -6,12 +6,19 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 <!-- <p align="center">明日方舟速通：明日方舟最速全托管脚本</a> </p> -->
 <p align="center">明日方舟速通 —— 最快的明日方舟全托管脚本</a> </p>
+
+
 <p align="center" >
 <a href=https://arklights.vercel.app>使用文档</a>
 <!-- <a href=https://www.bilibili.com/read/cv16183975>特色功能介绍</a> -->
 <!-- <a href=https://www.bilibili.com/video/BV1LM4y1F7kA>老版日常演示</a> -->
 <a href=https://www.bilibili.com/video/BV11T4y1S7cj>999源石锭速刷记录7时21分</a>
 <a href=https://www.bilibili.com/video/BV1eQ4y1C7Ch>每日任务速通记录35.25s</a>
+</p>
+<p align="center" >
+云控平台开发中！
+<a href=https://github.com/AegirTech/IberiaEye>伊比利亚之眼</a>
+<a href=https://github.com/AegirTech/Inquisition>审判庭</a>
 </p>
 <!-- 本项目使用GPL协议，请遵循[修改开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLRequireSourcePostedPublic)与[商用开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLCommercially)要求。 -->
 

@@ -757,19 +757,23 @@ open = function(id)
   runApp(id)
 end
 
-stop = function(msg, try_next_account, nohome)
+stop = function(msg, try_next_account, nohome, complete)
   if try_next_account == nil then try_next_account = true end
   msg = msg or ''
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
   local info = table.join(qqmessage, ' ') .. ' ' .. msg
-  captureqqimagedeliver(info, QQ)
-  captureqqimagedeliver(info, QQ2)
+  captureqqimagedeliver(info, true)
   toast(msg)
+  if complete then
+    cloud.completeTask('')
+  else
+    cloud.failTask('')
+  end
+  cloud.fetchSolveTask()
   if not nohome then home() end
   ssleep(2)
   if try_next_account then restart_next_account() end
-  cloud.fetchSolveTask()
   exit()
 end
 
@@ -1275,10 +1279,8 @@ run = function(...)
     table.insert(qqmessage, shrink_fight_config(fight_history))
   end
 
-  if #QQ > 0 then
-    path.跳转("首页")
-    captureqqimagedeliver(table.join(qqmessage, ' '), QQ)
-  end
+  path.跳转("首页")
+  captureqqimagedeliver(table.join(qqmessage, ' '))
 
   if not qqnotify_nofight then table.remove(qqmessage, #qqmessage) end
   if not qqnotify_noruntime then table.remove(qqmessage, #qqmessage) end
@@ -1521,7 +1523,7 @@ trySolveCapture = function()
     local msg =
       "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
     toast(msg)
-    captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg, QQ)
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg)
     if not appear("realgame", 120) then
       back()
       if not appear("realgame", 5) then closeapp(appid) end
@@ -1823,8 +1825,7 @@ function Lock:add()
 end
 lock = Lock:new()
 
-captureqqimagedeliver = function(info, to)
-  if not to then return end
+captureqqimagedeliver = function(info, important)
   local f = io.open(getWorkPath() .. '/.nomedia', 'w')
   f:close()
   local img = getWorkPath() .. "/tmp.jpg"
@@ -1839,32 +1840,20 @@ captureqqimagedeliver = function(info, to)
     snapShot(img)
   end
 
-  if not qqnotify_notime then
-    info = os.date('%m.%d %H:%M:%S') .. ' ' .. info
-  end
+  if not qqnotify_notime then info = os.date('%m.%d %H:%M:%S') .. ' ' .. info end
 
-  local notify = notifyqq
-  if #pushplus_token > 0 then
-    notify = notifypp
-    to = pushplus_token
-
-    -- img = base64(img)
-
-    local f = io.open(img, 'r')
-    img = f:read()
-    f:close()
-    -- local simg = getWorkPath() .. "/stmp.jpg"
-    -- scaleImage(img, simg, 160, 90)
-    -- img = base64(simg)
-    --
-  else
-    img = base64(img)
-  end
-
+  img = base64(img)
   info = tostring(info):trim():gsub("%s+", ' ')
-  to = tostring(to)
-  notify(img, info, to)
 
+  -- pushplus
+  notifypp(img, info, pushplus_token)
+  -- qq
+  notifyqq(img, info, QQ)
+  if important then notifyqq(img, info, QQ2) end
+  -- cloud
+  cloud.addLog(img, info)
+
+  -- local
   if qqnotify_save then
     local img_dst = '/sdcard/' .. package .. '/' .. path_name_escape(info) ..
                       '.jpg'
@@ -1972,8 +1961,7 @@ make_account_ui = function(layout, prefix)
   prefix = prefix or ''
   newRow(layout)
   addTextView(layout, "作战关卡")
-  ui.addEditText(layout, prefix .. "fight_ui",
-                 [[jm hd ce ls pr ap]])
+  ui.addEditText(layout, prefix .. "fight_ui", [[jm hd ce ls pr ap]])
 
   newRow(layout)
   addTextView(layout, "作战吃药")
@@ -2361,10 +2349,12 @@ notifyqq = function(image, info, to, sync)
   image = image or ''
   info = info or ''
   to = to or ''
+
+  if #to < 5 then return end
+
   local param = "image=" .. encodeUrl(image) .. "&info=" .. encodeUrl(info) ..
                   "&to=" .. encodeUrl(to)
   log('notify qq', info, to)
-  if #to < 5 then return end
 
   local id = lock:add()
   asynHttpPost(function(res, code)
@@ -2379,6 +2369,8 @@ notifypp = function(image, info, to, sync)
   info = info or ''
   to = to or ''
 
+  if #to < 5 then return end
+
   -- log("#image", #image)
   -- local ret, code
   -- ret, code = httpGet('https://api.uomg.com/api/image.baidu', "imgurl=" ..
@@ -2387,19 +2379,19 @@ notifypp = function(image, info, to, sync)
   -- exit()
   -- end, 'http://www.pushplus.plus/send', param)
   --
-  log("#image", #image)
-  local content = encodeUrl(
-                    "![](data:image/jpeg;base64," .. image:sub(1, 17000) .. ")")
-  log("#content", #content)
-  if #content > 19900 then content = encodeUrl(to) end
+
+  -- TODO 没图床
+  -- log("#image", #image)
+  -- local content = encodeUrl(
+  --                   "![](data:image/jpeg;base64," .. image:sub(1, 17000) .. ")")
+  -- log("#content", #content)
+  -- if #content > 19900 then content = encodeUrl(to) end
 
   -- 不发图更好
   local param = "content=" .. encodeUrl(info) .. "&title=" .. encodeUrl(info) ..
                   "&token=" .. encodeUrl(to) .. "&template=markdown"
   log('notify pp', info, to)
   -- log("param", param)
-
-  if #to < 5 then return end
 
   local id = lock:add()
 
@@ -3608,7 +3600,9 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   ssleep(1)
-  log(is_network_unstable() == true)
+  -- cloud_task = {}
+  m.addLog()
+  -- log(is_network_unstable() == true)
   ssleep(1)
   exit()
   -- tap({1281,721})
@@ -4827,7 +4821,7 @@ android.permission.WRITE_EXTERNAL_STORAGE]]
 end
 
 str2int = function(number, fallback)
-  if type(number) == 'number' then return number end
+  if type(number) == 'number' then return math.floor(number) end
   return math.floor(tonumber(string.trim(number)) or fallback)
 end
 
@@ -4973,6 +4967,7 @@ restart_mode_hook = function()
   -- load(loadConfig("restart_mode_hook", ''))()
   -- saveConfig("restart_mode_hook", '')
   local f = loadConfig("restart_mode_hook", '')
+  -- log("f",f)
   saveConfig("restart_mode_hook", '')
   load(f)()
 end
@@ -4991,6 +4986,11 @@ check_login_frequency = function()
     login_time_history[#login_time_history - max_login_times_5min + 1] < 15 * 60 *
     1000 then stop("15分钟内登录次数达到" .. max_login_times_5min) end
   log("login_time_history", login_time_history)
+
+  if login_times > 2 then
+    captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. "登录次数" ..
+                            login_times)
+  end
 
 end
 
@@ -5109,6 +5109,7 @@ restartScript = function()
   closeapp(bppid)
   if not root_mode or not enable_restart_package then return _restartScript() end
   local cmd = [[nohup su root sh -c ' \
+sleep 1
 input keyevent KEYCODE_HOME
 sleep 1
 am force-stop ]] .. package .. [[;
@@ -5127,6 +5128,10 @@ while [ $(date +%s) -lt $endTime ]; do
   ok=$(sed -rn '\''s|.*text=.确定.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  foreground=$(sed -rn '\''s|.*package=([^ ]+)[^>]*focused=.true..*|\1|p'\'' /sdcard/window_dump.xml)
+  if [[ $foreground == *com.hypergryph* ]];then
+     break
+  fi
   if [[ -n $start ]]; then
     eval $start
   elif [[ -n $cancel ]]; then
