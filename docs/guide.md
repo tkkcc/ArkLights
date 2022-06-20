@@ -506,7 +506,7 @@ pr => pr-b-2*99 pr-a-2*99 pr-c-2*99 pr-d-2*99 pr-b-1*99 pr-a-1*99 pr-c-1*99 pr-d
 
 目前公开机器人由于风控严重已不再提供，请按下面的教程自建。风控主要和好友数群数以及消息内容消息数量相关，少部分人使用不会风控。
 
-也可以设置pushplus账号，但只有文字。其他推送方案如 QQ频道、telegram机器人、wecomchan、喵提醒、邮件，没有集成计划，如果需要可以pull request，参考notifyqq与notifypp函数。
+也可以设置pushplus账号。其他推送方案如 QQ频道、telegram机器人、wecomchan、喵提醒、邮件，没有集成计划，如果需要可以pull request，参考notifyqq与notifypp函数。
 
 高级设置中可设置更多情况的通知。
 

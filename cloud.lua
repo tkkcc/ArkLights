@@ -54,11 +54,12 @@ m.addLog = function(img, info)
     taskType = x.taskType or '',
     title = info or '',
     detail = info or '',
-    imageUrl = '',
+    imageUrl = img or '',
     from = x.from or '',
     name = x.name or '',
     account = x.account or '',
     password = x.password or '',
+    server = x.server or '',
     time = os.date("!%Y-%m-%dT%TZ"),
   }
   -- log("data",data)

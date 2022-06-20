@@ -1845,13 +1845,18 @@ captureqqimagedeliver = function(info, important)
   img = base64(img)
   info = tostring(info):trim():gsub("%s+", ' ')
 
-  -- pushplus
-  notifypp(img, info, pushplus_token)
   -- qq
   notifyqq(img, info, QQ)
   if important then notifyqq(img, info, QQ2) end
+
+  local img_url
+  if cloud.enabled() or #pushplus_token > 5 then img_url = uploadImg(img_src) end
+
+  -- pushplus
+  notifypp(img_url, info, pushplus_token)
+
   -- cloud
-  cloud.addLog(img, info)
+  cloud.addLog(img_url, info)
 
   -- local
   if qqnotify_save then
@@ -2364,8 +2369,8 @@ notifyqq = function(image, info, to, sync)
   if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
-notifypp = function(image, info, to, sync)
-  image = image or ''
+notifypp = function(img, info, to, sync)
+  img = img or ''
   info = info or ''
   to = to or ''
 
@@ -2388,8 +2393,9 @@ notifypp = function(image, info, to, sync)
   -- if #content > 19900 then content = encodeUrl(to) end
 
   -- 不发图更好
-  local param = "content=" .. encodeUrl(info) .. "&title=" .. encodeUrl(info) ..
-                  "&token=" .. encodeUrl(to) .. "&template=markdown"
+  local param = "content=" .. encodeUrl("![](" .. img .. ")") .. "&title=" ..
+                  encodeUrl(info) .. "&token=" .. encodeUrl(to) ..
+                  "&template=markdown"
   log('notify pp', info, to)
   -- log("param", param)
 
@@ -3601,9 +3607,11 @@ predebug_hook = function()
   swipu_flipx = 0
   ssleep(1)
   -- cloud_task = {}
-  m.addLog()
+  log(uploadImg(getWorkPath() .. '/tmp.jpg'))
+  -- m.addLog()
   -- log(is_network_unstable() == true)
   ssleep(1)
+
   exit()
   -- tap({1281,721})
   -- appid = bppid
@@ -5615,6 +5623,19 @@ get = function(Obj, Field, ...)
 end
 
 istable = function(x) return type(x) == 'table' end
+
+uploadImg = function(img)
+  local ret = uploadFile(
+                "https://tucang.cc/api/v1/upload?token=16557347027164af30c5ce7a14e7e9338f34cdfd953cf",
+                img, 30)
+  -- log('uploadImg', ret)
+  local status
+  status, ret = pcall(JsonDecode, ret)
+  log("ret", ret)
+  ret = get(ret, 'data', 'url')
+  ret = strOr(ret)
+  return ret
+end
 
 -- eager post_util_hook
 loadUIConfig({"debug"})
