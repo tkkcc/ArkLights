@@ -21,6 +21,10 @@ m.setServer = function(server)
   m.server = server
 end
 
+m.setStatus = function(status)
+  m.status = status
+end
+
 m.enabled =
   function() return #strOr(m.server) > 0 and #strOr(m.deviceToken) > 0 end
 
@@ -96,6 +100,7 @@ m.fetchSolveTask = function()
     if type(data) == 'table' and type(data.data) == 'table' then
       m.solveTask(data.data)
     end
+    m.setStatus(1)
     ssleep(5)
   end
 end

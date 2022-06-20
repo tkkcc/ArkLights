@@ -26,7 +26,8 @@ log_path = Path(log_path)
 log_path.mkdir(exist_ok=True, parents=True)
 serial_alias = {
     "21": "103.36.203.215:301",
-    "22": "103.36.203.125:301",
+    "23": "103.36.203.125:301",
+    "24": "103.36.203.81:301",
     "0": "127.0.0.1:5555",
     "1": "103.36.203.159:301",
     "2": "103.36.203.53:301",
@@ -581,9 +582,20 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         restart()
 
     def rg2(
-        operator=None, times=None, skill=None, level=None, waste=None, skip_hard=None
+        operator=None,
+        times=None,
+        skill=None,
+        level=None,
+        waste=None,
+        skip_hard=None,
+        fight=None,
     ):
         # 肉鸽选干员，做日常
+        if fight:
+            x = load("config_main.json")
+            x["fight_ui"] = fight
+            save("config_main.json", x)
+
         x = load("config_extra.json")
         if operator:
             c(x, "zl_no_waste", True if not waste else False)

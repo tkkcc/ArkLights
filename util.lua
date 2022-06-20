@@ -4987,7 +4987,7 @@ check_login_frequency = function()
     1000 then stop("15分钟内登录次数达到" .. max_login_times_5min) end
   log("login_time_history", login_time_history)
 
-  if login_times > 2 then
+  if login_times > 1 then
     captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. "登录次数" ..
                             login_times)
   end
@@ -5105,41 +5105,47 @@ echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
 end
 
 restartScript = function()
-  closeapp(appid)
-  closeapp(bppid)
   if not root_mode or not enable_restart_package then return _restartScript() end
   local cmd = [[nohup su root sh -c ' \
 sleep 1
-input keyevent KEYCODE_HOME
-sleep 1
+am force-stop ]] .. appid .. [[;
+am force-stop ]] .. bppid .. [[;
 am force-stop ]] .. package .. [[;
 sleep 1
-secs=60
+input keyevent KEYCODE_HOME
+sleep 1
+{
+set -x
+secs=300
 endTime=$(( $(date +%s) + secs ))
 while [ $(date +%s) -lt $endTime ]; do
   monkey -p ]] .. package .. [=[ -c android.intent.category.LAUNCHER 1
+  foreground=$(dumpsys activity recents|sed -rn '\''s/.*Recent #0.*(com[^ ]+).*/\1/p'\'')
+  if [[ $foreground == *com.bilabila* ]];then
+     break
+  fi
   sleep 5
-  [[ $(pidof ]=] .. package .. [=[) ]] && break
 done
-secs=60
+secs=300
 endTime=$(( $(date +%s) + secs ))
 while [ $(date +%s) -lt $endTime ]; do
   uiautomator dump /sdcard/window_dump.xml
   ok=$(sed -rn '\''s|.*text=.确定.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
-  foreground=$(sed -rn '\''s|.*package=([^ ]+)[^>]*focused=.true..*|\1|p'\'' /sdcard/window_dump.xml)
+  foreground=$(dumpsys activity recents|sed -rn '\''s/.*Recent #0.*(com[^ ]+).*/\1/p'\'')
   if [[ $foreground == *com.hypergryph* ]];then
      break
-  fi
-  if [[ -n $start ]]; then
+  elif [[ -n $start ]]; then
     eval $start
   elif [[ -n $cancel ]]; then
     eval $cancel
   elif [[ -n $ok ]]; then
     eval $ok
   fi
+  sleep 5
 done
+} >/sdcard/tmp.log 2>&1
 ' > /dev/null & ]=]
 
   exec(cmd)
@@ -5474,6 +5480,7 @@ update_state_from_debugui = function()
   max_fight_failed_times = str2int(max_fight_failed_times, 2)
   cloud.setDeviceToken(cloud_device_token)
   cloud.setServer(cloud_server)
+  cloud.setStatus(extra_mode == "战略前瞻投资" and 1002 or 1001)
 end
 
 -- 基建心情阈值与QQ号

@@ -206,7 +206,7 @@ path.base = {
         captureqqimagedeliver(info, true)
       end
       -- 一次代理失败直接认为无效：不行，因为可能是掉线造成的失败
-      -- fight_failed_times[cur_fight] = 3
+      fight_failed_times[cur_fight] = max(0, fight_failed_times[cur_fight] or 0)
       log(161)
       return path.跳转("首页")
     end
@@ -225,7 +225,7 @@ path.base = {
 
     -- current fight success
     pre_fight = cur_fight
-    fight_failed_times[cur_fight] = 0
+    fight_failed_times[cur_fight] = -3
 
     -- if same fight or same page fight
     local next_fight_tick = fight_tick % #fight + 1
@@ -2601,6 +2601,7 @@ path.轮次作战 = function()
 
     -- 导航/代理失败3次就删除
     fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
+
     if fight_failed_times[cur_fight] >= max_fight_failed_times then
       clean_fight(cur_fight)
     end
