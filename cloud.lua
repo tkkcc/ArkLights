@@ -21,9 +21,7 @@ m.setServer = function(server)
   m.server = server
 end
 
-m.setStatus = function(status)
-  m.status = status
-end
+m.setStatus = function(status) m.status = status end
 
 m.enabled =
   function() return #strOr(m.server) > 0 and #strOr(m.deviceToken) > 0 end
@@ -70,22 +68,26 @@ m.addLog = function(img, info)
   return res, code
 end
 
-m.failTask = function(imageUrl, type)
+m.failTask = function(imageUrl, lineBusy)
   if not m.getTaskEnabled() then return end
-  type = type or 'failTask'
   imageUrl = imageUrl or ''
-  -- local data = {deviceToken = m.deviceToken, imageUrl = imageUrl}
-  local res, code = httpPost(m.server .. "/" .. type .. "?deviceToken=" ..
+  local res, code = httpPost(m.server .. "/failTask?deviceToken=" ..
                                m.deviceToken .. "&imageUrl=" ..
-                               encodeUrl(imageUrl), '', 30,
+                               encodeUrl(imageUrl) .. "&type=" ..
+                               (lineBusy and 'lineBusy' or ''), '', 30,
                              'Content-Type: application/json')
-  -- log("res,code", res, code)
-  -- ssleep(5)
   return res, code
 end
 
-m.completeTask =
-  function(imageUrl) return m.failTask(imageUrl, 'completeTask') end
+m.completeTask = function(imageUrl)
+  if not m.getTaskEnabled() then return end
+  imageUrl = imageUrl or ''
+  local res, code = httpPost(m.server .. "/completeTask?deviceToken=" ..
+                               m.deviceToken .. "&imageUrl=" ..
+                               encodeUrl(imageUrl), '', 30,
+                             'Content-Type: application/json')
+  return res, code
+end
 
 m.solveTask = function(data) restartSimpleMode(data) end
 
@@ -279,7 +281,6 @@ server=]] .. server
   --   hook = hook .. [[;now_job_ui]]..i .. [[=false]]
   -- end
   -- ---
-
 
   hook = hook .. [[;saveConfig("restart_mode_hook",]] ..
            string.format("%q", hook) .. ')'

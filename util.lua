@@ -766,9 +766,9 @@ stop = function(msg, try_next_account, nohome, complete)
   captureqqimagedeliver(info, true)
   toast(msg)
   if complete then
-    cloud.completeTask('')
+    cloud.completeTask(last_upload_img)
   else
-    cloud.failTask('')
+    cloud.failTask(last_upload_img, msg:find("登录次数达到"))
   end
   cloud.fetchSolveTask()
   if not nohome then home() end
@@ -5122,8 +5122,6 @@ am force-stop ]] .. package .. [[;
 sleep 1
 input keyevent KEYCODE_HOME
 sleep 1
-{
-set -x
 secs=300
 endTime=$(( $(date +%s) + secs ))
 while [ $(date +%s) -lt $endTime ]; do
@@ -5153,12 +5151,16 @@ while [ $(date +%s) -lt $endTime ]; do
   fi
   sleep 5
 done
-} >/sdcard/tmp.log 2>&1
 ' > /dev/null & ]=]
 
   exec(cmd)
   ssleep(5)
   _restartScript()
+end
+
+monitor = function()
+  if not root_mode or not enable_restart_package then return end
+  exec(cmd)
 end
 
 trim_game_memory = function()
@@ -5624,6 +5626,7 @@ end
 
 istable = function(x) return type(x) == 'table' end
 
+last_upload_img = ''
 uploadImg = function(img)
   local ret = uploadFile(
                 "https://tucang.cc/api/v1/upload?token=16557347027164af30c5ce7a14e7e9338f34cdfd953cf",
@@ -5634,6 +5637,7 @@ uploadImg = function(img)
   log("ret", ret)
   ret = get(ret, 'data', 'url')
   ret = strOr(ret)
+  last_upload_img = ret
   return ret
 end
 
