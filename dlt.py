@@ -195,9 +195,9 @@ reboot
                 "-c",
                 """'
 ps|grep nc
-cat /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score_adj;
-cat /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score_adj
-cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
+cat /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score;
+cat /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score
+cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
 '""",
             )
         )
@@ -215,9 +215,10 @@ ps|grep nc
 echo -1000 > /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score_adj
 echo -1000 > /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 echo -1000 > /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score_adj
-cat /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score_adj
-cat /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score_adj
-cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
+sleep 1
+cat /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score
+cat /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score
+cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         '""",
             )
         )
@@ -695,7 +696,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
         # c(x, "disable_killacc", False)
         c(x, "enable_restart_package", True)
         c(x, "keepalive_interval", "900")
-
+        c(x, "tap_wait", "")
         save("config_debug.json", x)
 
         x = load("config_multi_account.json")
@@ -837,6 +838,18 @@ def check(key=""):
             continue
         print(f"0 m {next_device} user", end=" ")
         print(dlt.detail(serial, quiet=True))
+
+    print("==> over_set")
+    over_set = []
+    for m in dlt.my(raw=True):
+        leave_time = float(m["LeaveTime"][:-2])
+        if leave_time < 8:
+            serial = m["SerialNo"]
+            print(dlt.detail(serial, quiet=True))
+            print("0 check " + serial)
+            print("0 last --over " + serial)
+        elif leave_time < 16:
+            print(dlt.detail(serial, quiet=True))
 
 
 # every day upload

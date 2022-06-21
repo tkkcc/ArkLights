@@ -165,6 +165,12 @@ path.base = {
         return true
       end
 
+      if findOne("剿灭接管作战") then
+        captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
+                                "剿灭接管作战", true)
+        tap("剿灭接管作战")
+      end
+
       -- 战斗记录未同步
       if findOne("返回确认界面") then
         tap("左取消")

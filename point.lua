@@ -20,6 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  剿灭接管作战 = "891|598|FFFFFF,846|589|313131,918|553|313131,918|607|313131",
   战略等级125 = "1627|76|FFB525",
   阿米娅 = "186|235|FAEAD1,127|303|3DD1E2",
   阿米娅2 = "777|300|FAEAD1,714|369|3DD1E2",
@@ -1243,6 +1244,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  剿灭接管作战 = "center_center",
   战略等级125 = "right_top",
   阿米娅右列表 = "right_center",
   战略难度列表 = "right_center",

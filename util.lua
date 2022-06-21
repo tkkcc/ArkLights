@@ -1536,6 +1536,7 @@ wait_game_up = function(retry)
   if disable_game_up_check then return end
   local prev = disable_game_up_check
   disable_game_up_check = true
+  -- oom_score_adj()
   if findOne("game") then
     disable_game_up_check = prev
     return
@@ -5139,9 +5140,12 @@ while [ $(date +%s) -lt $endTime ]; do
   ok=$(sed -rn '\''s|.*text=.确定.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  snap=$(sed -rn '\''s|.*com.bilabila.arknightsspeedrun2:id/switch_snap.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   foreground=$(dumpsys activity recents|sed -rn '\''s/.*Recent #0.*(com[^ ]+).*/\1/p'\'')
   if [[ $foreground == *com.hypergryph* ]];then
      break
+  elif [[ -n $snap ]]; then
+    eval $snap
   elif [[ -n $start ]]; then
     eval $start
   elif [[ -n $cancel ]]; then
@@ -5154,7 +5158,7 @@ done
 ' > /dev/null & ]=]
 
   exec(cmd)
-  ssleep(5)
+  ssleep(60)
   _restartScript()
 end
 
@@ -5491,6 +5495,7 @@ update_state_from_debugui = function()
   cloud.setDeviceToken(cloud_device_token)
   cloud.setServer(cloud_server)
   cloud.setStatus(extra_mode == "战略前瞻投资" and 1002 or 1001)
+  if apk502 then enable_restart_package = true end
 end
 
 -- 基建心情阈值与QQ号
