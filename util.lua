@@ -1560,11 +1560,7 @@ wait_game_up = function(retry)
     "同意并继续",
   }, 5)
   log(1552, p)
-  if p == "同意并继续" then
-    path.bilibili_login[p]()
-    -- ssleep(2)
-    -- clickNodeFalse(findNode(p))
-  end
+  if p == "同意并继续" then path.bilibili_login[p]() end
   log(1211)
   trySolveCapture()
   log(1212)
@@ -1854,7 +1850,7 @@ captureqqimagedeliver = function(info, important)
   if cloud.enabled() or #pushplus_token > 5 then img_url = uploadImg(img_src) end
 
   -- pushplus
-  notifypp(img_url, info, pushplus_token)
+  notifypp(img_url, info, pushplus_token, pushplus_channel)
 
   -- cloud
   cloud.addLog(img_url, info)
@@ -2035,9 +2031,7 @@ show_multi_account_ui = function()
 
   ui.newLayout(layout, ui_page_width, -2)
 
-  local screen = getScreen()
-  local resolution = screen.width .. 'x' .. screen.height
-  ui.setTitleText(layout, "多账号 " .. release_date .. '  ' .. resolution)
+  make_ui_title(layout, "多账号")
 
   newRow(layout)
   -- ui.addButton(layout, layout .. "_start", "返回", ui_submit_width)
@@ -2370,7 +2364,7 @@ notifyqq = function(image, info, to, sync)
   if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
-notifypp = function(img, info, to, sync)
+notifypp = function(img, info, to, channel, sync)
   img = img or ''
   info = info or ''
   to = to or ''
@@ -2397,6 +2391,7 @@ notifypp = function(img, info, to, sync)
   local param = "content=" .. encodeUrl("![](" .. img .. ")") .. "&title=" ..
                   encodeUrl(info) .. "&token=" .. encodeUrl(to) ..
                   "&template=markdown"
+  if channel then param = param .. "&channel=" .. channel end
   log('notify pp', info, to)
   -- log("param", param)
 
@@ -2609,18 +2604,23 @@ make_jump_ui = function(layout)
             ui_small_submit_width, ui_small_submit_height, ui_submit_color)
 end
 
+make_ui_title = function(layout, name)
+  local screen = getScreen()
+  local resolution = screen.width .. 'x' .. screen.height
+  name = name or ''
+  ui.setTitleText(layout,
+                  name .. " " .. getApkVerInt() .. "-" ..
+                    release_date:gsub(' ', '-') .. ' ' .. resolution)
+
+end
+
 show_main_ui = function()
   local layout = "main"
 
   saveConfig('last_layout', layout)
   ui.newLayout(layout, ui_page_width, -2)
 
-  local screen = getScreen()
-  local resolution = screen.width .. 'x' .. screen.height
-
-  -- ui.setTitleText(layout, "明日方舟速通 " .. loadConfig("releaseDate", ''))
-  ui.setTitleText(layout,
-                  "明日方舟速通  " .. release_date .. '  ' .. resolution)
+  make_ui_title(layout, "明日方舟速通")
 
   -- make_continue_account_ui(layout)
   -- make_continue_extra_ui(layout)
@@ -2750,9 +2750,9 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "cloud_get_task", "审判庭接受任务", false)
 
-  -- newRow(layout)
-  -- addTextView(layout, "单号最大登录次数")
-  -- ui.addEditText(layout, "max_login_times", "")
+  newRow(layout)
+  addTextView(layout, "单号最大登录次数")
+  ui.addEditText(layout, "max_login_times", "")
 
   newRow(layout)
   addTextView(layout, "单号15分钟内最大登录次数")
@@ -2818,6 +2818,10 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "pushplus通知账号(token)")
   ui.addEditText(layout, "pushplus_token", "")
+
+  newRow(layout)
+  addTextView(layout, "pushplus通知渠道(channel)")
+  ui.addEditText(layout, "pushplus_channel", "")
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_save",
@@ -2941,8 +2945,7 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "enable_disable_lmk",
   --                "禁用LMK(测试中,专用挂机设备建议勾)", false)
   newRow(layout)
-  ui.addCheckBox(layout, "enable_restart_package",
-                 "启用完全重启(测试中，有问题反馈)", false)
+  ui.addCheckBox(layout, "enable_restart_package", "启用完全重启", false)
 
   newRow(layout)
   ui.addCheckBox(layout, "disable_killacc1", "禁用重启acc进程", false)
@@ -3014,9 +3017,7 @@ show_extra_ui = function()
 
   ui.newLayout(layout, ui_page_width, -2)
 
-  local screen = getScreen()
-  local resolution = screen.width .. 'x' .. screen.height
-  ui.setTitleText(layout, "其他功能 " .. release_date .. '  ' .. resolution)
+  make_ui_title(layout, "其他功能")
 
   newRow(layout)
 
@@ -3037,10 +3038,8 @@ show_extra_ui = function()
   addTextView(layout, [[以下功能将沿用脚本主页设置]])
 
   newRow(layout)
-  ui.addButton(layout, layout .. "_invest" .. release_date, "战略前瞻投资")
-  ui.setOnClick(layout .. "_invest" .. release_date,
-                make_jump_ui_command(layout, nil,
-                                     "extra_mode='战略前瞻投资';lock:remove(main_ui_lock)"))
+  addButton(layout, nil, "战略前瞻投资", make_jump_ui_command(layout, nil,
+                                                                    "extra_mode='战略前瞻投资';lock:remove(main_ui_lock)"))
 
   newRow(layout)
   addTextView(layout, [[选第]])
@@ -3607,8 +3606,9 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   ssleep(1)
+  log(findOne("game"))
   -- cloud_task = {}
-  log(uploadImg(getWorkPath() .. '/tmp.jpg'))
+  -- log(uploadImg(getWorkPath() .. '/tmp.jpg'))
   -- m.addLog()
   -- log(is_network_unstable() == true)
   ssleep(1)
@@ -4681,7 +4681,7 @@ consoleInit = function()
                  round(screen.height * 0.9), round(screen.height * 0.9))
   local screen = getScreen()
   local resolution = screen.width .. 'x' .. screen.height
-  console.setTitle(release_date .. '  ' .. resolution)
+  console.setTitle(getApkVerInt() .. ' ' .. release_date .. '  ' .. resolution)
 
   console.show()
   console.dismiss()
@@ -4982,7 +4982,6 @@ restart_mode_hook = function()
 end
 
 check_login_frequency = function()
-  if is_network_unstable() then return end
 
   login_times = (login_times or 0) + 1
   if login_times >= max_login_times then
@@ -4997,8 +4996,12 @@ check_login_frequency = function()
   log("login_time_history", login_time_history)
 
   if login_times > 1 then
-    captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. "登录次数" ..
-                            login_times)
+    -- captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. "登录次数" ..
+    --                         login_times ..
+    --                         (is_network_unstable() and
+    --                           ",闪断时间段等15分钟" or ''))
+    toast("闪断时间段等15分钟")
+    if is_network_unstable() then wait(function() ssleep(1) end, 900) end
   end
 
 end
@@ -5116,17 +5119,18 @@ end
 restartScript = function()
   if not root_mode or not enable_restart_package then return _restartScript() end
   local cmd = [[nohup su root sh -c ' \
+while :; do
 sleep 1
-am force-stop ]] .. appid .. [[;
+am force-stop ]] .. oppid .. [[;
 am force-stop ]] .. bppid .. [[;
-am force-stop ]] .. package .. [[;
+am force-stop ]] .. package .. [=[;
 sleep 1
 input keyevent KEYCODE_HOME
 sleep 1
 secs=300
 endTime=$(( $(date +%s) + secs ))
-while [ $(date +%s) -lt $endTime ]; do
-  monkey -p ]] .. package .. [=[ -c android.intent.category.LAUNCHER 1
+while [[ $(date +%s) -lt $endTime ]]; do
+  monkey -p ]=] .. package .. [=[ -c android.intent.category.LAUNCHER 1
   foreground=$(dumpsys activity recents|sed -rn '\''s/.*Recent #0.*(com[^ ]+).*/\1/p'\'')
   if [[ $foreground == *com.bilabila* ]];then
      break
@@ -5135,7 +5139,7 @@ while [ $(date +%s) -lt $endTime ]; do
 done
 secs=300
 endTime=$(( $(date +%s) + secs ))
-while [ $(date +%s) -lt $endTime ]; do
+while [[ $(date +%s) -lt $endTime ]]; do
   uiautomator dump /sdcard/window_dump.xml
   ok=$(sed -rn '\''s|.*text=.确定.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
@@ -5143,7 +5147,7 @@ while [ $(date +%s) -lt $endTime ]; do
   snap=$(sed -rn '\''s|.*com.bilabila.arknightsspeedrun2:id/switch_snap.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   foreground=$(dumpsys activity recents|sed -rn '\''s/.*Recent #0.*(com[^ ]+).*/\1/p'\'')
   if [[ $foreground == *com.hypergryph* ]];then
-     break
+     exit
   elif [[ -n $snap ]]; then
     eval $snap
   elif [[ -n $start ]]; then
@@ -5154,6 +5158,7 @@ while [ $(date +%s) -lt $endTime ]; do
     eval $ok
   fi
   sleep 5
+done
 done
 ' > /dev/null & ]=]
 

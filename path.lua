@@ -95,10 +95,13 @@ path.base = {
     log(48)
 
     -- local login_error_times = 0
-    wait(function()
+    wait(function(reset_wait_start_time)
       tap("登录")
-      local p = appear({"captcha", "密码不能为空", "单选确认框"}, 2)
+      local p = appear({
+        "captcha", "密码不能为空", "单选确认框", "注册协议",
+      }, 2)
       log(p)
+      if p == "注册协议" then return true end
       if p == 'captcha' then
         trySolveCapture()
         appear("单选确认框")
@@ -165,7 +168,8 @@ path.base = {
         return true
       end
 
-      if findOne("剿灭接管作战") then
+      if findOne("剿灭接管作战") and
+        not disappear("剿灭接管作战", 5) then
         captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
                                 "剿灭接管作战", true)
         tap("剿灭接管作战")
@@ -391,6 +395,12 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+
+  注册协议 = function()
+    tap("注册协议1")
+    ssleep(1)
+    tap("注册协议2")
+  end,
   阿米娅 = function()
     for k, v in pairs(point.阿米娅右列表) do tap(v) end
     for k, v in pairs(point.阿米娅左列表) do tap(v) end

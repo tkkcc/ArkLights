@@ -16,6 +16,7 @@ import threading
 from pathlib import Path
 from collections import defaultdict
 from collections import Counter
+from collections import deque
 from datetime import datetime, timedelta
 
 import fire
@@ -37,7 +38,7 @@ serial_alias = {
     "7": "103.36.203.104:303",
     "8": "103.36.203.208:302",
     "9": "103.36.203.132:302",
-    "10": "103.36.203.205:301",
+    "10": "103.36.203.125:301",
     "5": "103.36.203.105:301",
 }
 daily_device = ["1", "4", "5", "9", "3"]
@@ -843,13 +844,11 @@ def check(key=""):
     over_set = []
     for m in dlt.my(raw=True):
         leave_time = float(m["LeaveTime"][:-2])
-        if leave_time < 8:
+        if leave_time < 16:
             serial = m["SerialNo"]
             print(dlt.detail(serial, quiet=True))
             print("0 check " + serial)
             print("0 last --over " + serial)
-        elif leave_time < 16:
-            print(dlt.detail(serial, quiet=True))
 
 
 # every day upload
@@ -861,6 +860,56 @@ def edu():
 
 def users():
     daily("user")
+
+
+def newsession():
+    resp = requests.get(
+        "http://api.vc.bilibili.com/session_svr/v1/session_svr/new_sessions",
+        cookies={"SESSDATA": bilibili_sessdata},
+    )
+    r = json.loads(resp.text)
+    # r = r['data']['session_list']
+    r = r["data"]["session_list"]
+    ans = []
+    for s in r:
+        x = {
+            "talker_id": s["talker_id"],
+            "session_type": s["session_type"],
+        }
+        content = s["last_msg"]["content"]
+        content = json.loads(content)
+        content = content["content"]
+        server = 0
+        p = "(B|b)[^ ]*服"
+        if re.search(p, content):
+            content = re.sub(p, "", content)
+            server = 1
+        content = re.sub("账号[:：]*", "", content)
+        content = re.sub("密码[:：]*", "", content)
+        user = re.search("([^ ]+)\s+([^ ]+)", content)
+        if not user:
+            continue
+        username = user.group(1)
+        password = user.group(2)
+        x["username"] = username
+        x["password"] = password
+        x["server"] = server
+        ans.append(x)
+
+    return ans
+
+
+def session():
+    cur = deque()
+    new = newsession()
+    for n in reversed(new):
+        for c in cur:
+            if c["username"] == n["username"]:
+                c["password"] = n["password"]
+                c["server"] = n["server"]
+                break
+        else:
+            cur.push(n)
 
 
 if __name__ == "__main__":
