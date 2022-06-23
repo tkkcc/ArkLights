@@ -29,6 +29,7 @@ m.enabled =
 m.getTaskEnabled = function() return cloud_get_task and m.enabled() end
 
 m.heartBeat = function()
+  -- log("32",32)
   local data = {status = m.status, deviceToken = m.deviceToken}
   local res, code = httpPost(m.server .. "/heartBeat", JsonEncode(data), 30,
                              "Content-Type: application/json")
@@ -37,6 +38,7 @@ m.heartBeat = function()
 end
 
 m.getTask = function()
+  -- log("40",40)
   local res, code = httpGet(m.server .. "/getTask?" .. "deviceToken=" ..
                               m.deviceToken, 30,
                             'Content-Type: application/json')
@@ -44,6 +46,7 @@ m.getTask = function()
 end
 
 m.addLog = function(img, info)
+  -- log("48",48)
   if not m.enabled() then return end
   local x = cloud_task or {}
   local data = {
@@ -69,6 +72,7 @@ m.addLog = function(img, info)
 end
 
 m.failTask = function(imageUrl, lineBusy)
+  -- log("73",73)
   if not m.getTaskEnabled() then return end
   imageUrl = imageUrl or ''
   local res, code = httpPost(m.server .. "/failTask?deviceToken=" ..
@@ -80,6 +84,7 @@ m.failTask = function(imageUrl, lineBusy)
 end
 
 m.completeTask = function(imageUrl)
+  -- log("84",84)
   if not m.getTaskEnabled() then return end
   imageUrl = imageUrl or ''
   local res, code = httpPost(m.server .. "/completeTask?deviceToken=" ..
@@ -99,7 +104,7 @@ m.fetchSolveTask = function()
     -- log("res", res)
     local status, data
     status, data = pcall(JsonDecode, res)
-    -- log("data",data)
+    log("data",data)
     if type(data) == 'table' and type(data.data) == 'table' then
       m.solveTask(data.data)
     end
@@ -129,6 +134,7 @@ restartSimpleMode = function(data)
   local password = data.password
   local server = data.server
   local config = data.config
+  local taskType = data.taskType
   -- local x
   -- set recommend config over default
   -- x = loadOneUIConfig("main")
@@ -216,10 +222,10 @@ server=]] .. server
   -- log("65",64)
 
   x = get(config, 'daily', 'sanity', 'drug')
-  if x then hook = hook .. [[;max_drug_times=]] .. str(x) end
+  if x then hook = hook .. [[;max_drug_times=]] .. str2int(x) end
 
   x = get(config, 'daily', 'sanity', 'stone')
-  if x then hook = hook .. [[;max_stone_times=]] .. str(x) end
+  if x then hook = hook .. [[;max_stone_times=]] .. str2int(x) end
 
   hook = hook .. [[;now_job_ui1=]] .. str(get(config, 'daily', 'mail'))
   hook = hook .. [[;now_job_ui3=]] .. str(get(config, 'daily', 'friend'))
@@ -255,13 +261,13 @@ server=]] .. server
 
   -- 肉鸽
   hook = hook .. [[;zl_best_operator=]] ..
-           str(get(config, 'rogue', 'operator', 'index'))
+           str2int(get(config, 'rogue', 'operator', 'index'))
   hook = hook .. [[;zl_skill_times=]] ..
-           str(get(config, 'rogue', 'operator', 'num'))
+           str2int(get(config, 'rogue', 'operator', 'num'))
   hook = hook .. [[;zl_skill_idx=]] ..
-           str(get(config, 'rogue', 'operator', 'skill'))
-  hook = hook .. [[;zl_max_coin=]] .. str(get(config, 'rogue', 'coin'))
-  hook = hook .. [[;zl_max_level=]] .. str(get(config, 'rogue', 'level'))
+           str2int(get(config, 'rogue', 'operator', 'skill'))
+  hook = hook .. [[;zl_max_coin=]] .. str2int(get(config, 'rogue', 'coin'))
+  hook = hook .. [[;zl_max_level=]] .. str2int(get(config, 'rogue', 'level'))
   hook = hook .. [[;zl_more_repertoire=false]]
   hook = hook .. [[;zl_more_experience=true]]
   hook = hook .. [[;zl_skip_coin=]] .. str(get(config, 'rogue', 'skip', 'coin'))
@@ -284,7 +290,7 @@ server=]] .. server
 
   hook = hook .. [[;saveConfig("restart_mode_hook",]] ..
            string.format("%q", hook) .. ')'
-  -- log("hook", hook)
+  log("hook", hook)
   -- ssleep(1000)
   saveConfig("hideUIOnce", "true")
   saveConfig("restart_mode_hook", hook)

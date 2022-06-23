@@ -7,17 +7,19 @@
 
 问题反馈：[github.com/tkkcc/ArkLights/issues](https://github.com/tkkcc/ArkLights/issues)
 
-源码与其他明日方舟脚本：[github.com/tkkcc/ArkLights](https://github.com/tkkcc/ArkLights)
+源码与其他明日方舟脚本：[github.com/tkkcc/ArkLights](https://github.com/tkkcc/ArkLights)  
+云控前端：[github.com/AegirTech/IberiaEye](https://github.com/AegirTech/IberiaEye)  
+云控后端：[github.com/AegirTech/Inquisition](https://github.com/AegirTech/Inquisition)  
 觉得好用请在github上给个star，这是对开发者最大的帮助。
 
 ## 最近更新
 
+- 建议用611版本。
+- 默认定期重启脚本，保证内存稳定，可在高级设置调整，有问题请反馈。
 - 华云必须执行[外置root指令](#云手机)才能正常使用。
-- 建议勾选“启用完全重启”，彻底保证脚本内存稳定，遇到定时启动失败的请反馈。
 - 可使用pushplus通知，支持微信公众号、邮件等多种渠道，有图，无需自建服务。
 - 标题时间异常、弹“停止运行”，重装最新安装包后清除缓存，设置不丢。
 - 活动关内存泄漏严重，2G内存设备将内存清理间隔设为900才能稳定挂机。
-- 已root设备上会`重启acc进程`来保证脚本内存稳定。如果出现脚本启动失败且只是短时间使用，可禁用。
 - magisk hide设备需**手动关闭root授权提示**。
 <!-- - 默认不自动重启acc进程，但这样刷肉鸽每小时内存泄漏44M，一天1G。启用后会定期释放脚本内存，但在部分设备上会造成启动失败与闪退。 -->
 <!-- - 单号最大剿灭次数默认为1。 -->
@@ -69,8 +71,6 @@ adb -s 123.456.789.101:234 shell "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2
 支持 常见手机品牌
 
 注意 游戏内异形屏适配设为0，系统关游戏模式，关游戏工具箱，关全局侧边栏，关深色夜间护眼模式，关隐藏刘海，虚拟键要位于右侧，边缘全面屏手势可能影响脚本点击。
-
-部分已root真机可能需要勾选`禁用重启acc进程`。
 
 如需小窗模式/后台运行/熄屏运行，请用手机虚拟机或云手机。
 

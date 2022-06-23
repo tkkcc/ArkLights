@@ -4,6 +4,7 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 -- apk502 = getApkVerInt() >= 502 or getApkVerInt() == 1
 apk502 = getApkVerInt() >= 502
+is_apk_old = function() return getApkVerInt() < 611 end
 
 disable_game_up_check_wrapper = function(func)
   return function(...)
@@ -773,7 +774,7 @@ stop = function(msg, try_next_account, nohome, complete)
   cloud.fetchSolveTask()
   if not nohome then home() end
   ssleep(2)
-  if try_next_account then restart_next_account() end
+  if try_next_account then restart_account(true) end
   exit()
 end
 
@@ -798,22 +799,18 @@ findOne_game_up_check_last_time = 0
 findOne_keepalive_check_last_time = time()
 findOne_last_time = time()
 findOne_locked = false
-findOne = function(x, confidence, disable_game_up_check)
+findOne = function(x, confidence)
   if type(x) == "function" then return x() end
 
+  -- 每5秒确认游戏在前台
   if (time() - findOne_game_up_check_last_time > 5000) then
     findOne_game_up_check_last_time = time()
     wait_game_up()
   end
 
-  -- if (time() - findOne_keepalive_check_last_time > keepalive_interval * 1000) then
-  --   findOne_keepalive_check_last_time = time()
-  --   keepalive()
-  -- end
-
   local x0 = x
   confidence = confidence or default_findcolor_confidence
-  -- print(confidence)
+
   if type(x) == 'string' and not x:find(coord_delimeter) then x = point[x] end
   if type(x) == "function" then return x() end
   if type(x) == "table" and #x == 0 then return findNode(x) end
@@ -1225,14 +1222,7 @@ parse_time = function(x)
   })
 end
 
--- run function / job / table of function and job
-run = function(...)
-  local arg = {...}
-
-  if #arg == 1 then
-    if type(arg[1]) == "function" then return arg[1]() end
-    if type(arg[1]) == "table" then arg = arg[1] end
-  end
+qqnotify_before_run = function()
   qqmessage = {}
   if qqnotify_quiet then
     table.extend(qqmessage, {devicenote, usernote})
@@ -1247,43 +1237,50 @@ run = function(...)
       server == 0 and "官服" or "B服",
     })
   end
+end
 
-  local run_start_time = time()
-
-  -- 目前每个账号不同任务的状态共享，因此只在外层执行一次
-  update_state()
-  request_memory_clean()
-  wait_game_up()
-  setTimer(setControlBar, 500)
-  setTimer(setControlBar, 1000)
-  setTimer(setControlBar, 5000)
-
-  for _, v in ipairs(arg) do
-    setControlBar()
-    running = v
-    if type(v) == 'function' then
-      log(773)
-      v()
-      log(774)
-    else
-      auto(path[v], path.fallback)
-    end
-    request_memory_clean()
-  end
-
-  if not qqnotify_noruntime then
+qqnotify_after_run = function(run_start_time)
+  if not qqnotify_noruntime and run_start_time then
     table.insert(qqmessage,
                  math.floor((time() - run_start_time) / 1000 / 60) .. "分钟")
   end
   if not qqnotify_nofight then
     table.insert(qqmessage, shrink_fight_config(fight_history))
   end
-
   path.跳转("首页")
   captureqqimagedeliver(table.join(qqmessage, ' '))
-
   if not qqnotify_nofight then table.remove(qqmessage, #qqmessage) end
   if not qqnotify_noruntime then table.remove(qqmessage, #qqmessage) end
+end
+
+qqnotify_before_restart_package = function()
+  table.insert(qqmessage, "即将重启脚本")
+  if not qqnotify_nofight then
+    table.insert(qqmessage, shrink_fight_config(fight_history))
+  end
+  captureqqimagedeliver(table.join(qqmessage, ' '))
+end
+
+-- run function / job / table of function and job
+run = function(...)
+  local arg = {...}
+  if #arg == 1 then
+    if type(arg[1]) == "function" then return arg[1]() end
+    if type(arg[1]) == "table" then arg = arg[1] end
+  end
+  local run_start_time = time()
+  qqnotify_before_run()
+  update_state()
+  wait_game_up()
+  for _, v in ipairs(arg) do
+    running = v
+    if type(v) == 'function' then
+      v()
+    else
+      auto(path[v], path.fallback)
+    end
+  end
+  qqnotify_after_run(run_start_time)
 end
 
 half_hour_cron = function(x, h)
@@ -1533,24 +1530,25 @@ trySolveCapture = function()
 end
 
 wait_game_up = function(retry)
+  retry = retry or 0
   if disable_game_up_check then return end
   local prev = disable_game_up_check
   disable_game_up_check = true
-  -- oom_score_adj()
+
   if findOne("game") then
     disable_game_up_check = prev
+    -- 前台切到游戏后，需要延时再设悬浮按钮与oom_score_adj
+    if retry > 0 then
+      setTimer(setControlBar, 2000)
+      setTimer(setControlBar, 5000)
+      setTimer(oom_score_adj, 2000)
+      setTimer(oom_score_adj, 5000)
+    end
     return
   end
 
-  -- test
-  -- keepalive()
-  -- 确保无障碍在运行
-  -- enable_accessibility_service()
-
-  retry = retry or 0
-  if retry == 2 then home() end
-  if retry == 4 then closeapp(appid) end
-  if retry >= 6 then stop("无法启动游戏", false) end
+  if retry == 2 then closeapp() end
+  if retry >= 4 then stop("无法启动游戏", false) end
 
   open(appid)
   screenon()
@@ -1559,15 +1557,10 @@ wait_game_up = function(retry)
     "game", "keyguard_indication", "keyguard_input", "captcha",
     "同意并继续",
   }, 5)
-  log(1552, p)
   if p == "同意并继续" then path.bilibili_login[p]() end
-  log(1211)
   trySolveCapture()
-  log(1212)
   checkScreenLock()
-  log(1213)
   log("wait_game_up next", retry)
-
   disable_game_up_check = prev
   return wait_game_up(retry + 1)
 end
@@ -2609,8 +2602,8 @@ make_ui_title = function(layout, name)
   local resolution = screen.width .. 'x' .. screen.height
   name = name or ''
   ui.setTitleText(layout,
-                  name .. " " .. getApkVerInt() .. "-" ..
-                    release_date:gsub(' ', '-') .. ' ' .. resolution)
+                  name .. " " .. (is_apk_old() and '*' or '') .. getApkVerInt() ..
+                    "-" .. release_date:gsub(' ', '-') .. ' ' .. resolution)
 
 end
 
@@ -2938,17 +2931,21 @@ show_debug_ui = function()
   -- ui.addEditText(layout, "zl_restart_interval1", "3600")
 
   newRow(layout)
-  addTextView(layout, "内存清理间隔(s)")
-  ui.addEditText(layout, "keepalive_interval", "900")
+  addTextView(layout, "游戏重启间隔(s)")
+  ui.addEditText(layout, "restart_game_interval", "900")
+
+  newRow(layout)
+  addTextView(layout, "脚本重启间隔(s)")
+  ui.addEditText(layout, "restart_package_interval", "7200")
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_disable_lmk",
   --                "禁用LMK(测试中,专用挂机设备建议勾)", false)
-  newRow(layout)
-  ui.addCheckBox(layout, "enable_restart_package", "启用完全重启", false)
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "enable_restart_package", "启用完全重启", true)
 
-  newRow(layout)
-  ui.addCheckBox(layout, "disable_killacc1", "禁用重启acc进程", false)
+  -- newRow(layout)
+  -- ui.addCheckBox(layout, "disable_killacc1", "禁用重启acc进程", false)
 
   -- addTextView(layout, "禁用重启acc")
   -- ui.addEditText(layout, "disable_killacc", "")
@@ -3269,8 +3266,6 @@ show_gesture_capture_ui = function()
 end
 
 gesture_capture = function()
-
-  keepalive_interval = 3600
   tap_interval = -1
   findOne_interval = -1
   -- update_state_from_debugui()
@@ -3523,8 +3518,8 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    -- "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", 
-    -- "HD-6", 
+    -- "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5",
+    -- "HD-6",
     -- "HD-7",
     "HD-8",
     -- "HD-9",
@@ -3595,7 +3590,6 @@ predebug_hook = function()
   if not predebug then return end
   tap_interval = -1
   findOne_interval = -1
-  keepalive_interval = 3500
   zl_skill_times = 100
   -- log(shift_prefer_speed)
   -- exit()
@@ -3606,7 +3600,8 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   ssleep(1)
-  log(findOne("game"))
+  save_extra_mode("战略前瞻投资")
+  -- log(findOne("game"))
   -- cloud_task = {}
   -- log(uploadImg(getWorkPath() .. '/tmp.jpg'))
   -- m.addLog()
@@ -3680,7 +3675,7 @@ predebug_hook = function()
   -- disable_log = 1
   -- home()
   while true do
-    keepalive()
+    -- keepalive()
     -- open(appid)
     -- screenon()
     -- request_game_permission()
@@ -4157,7 +4152,7 @@ predebug_hook = function()
   exit()
 
   -- log(time())
-  keepalive()
+  -- keepalive()
   -- log(time())
   -- log(findOne("凋零残响"))
   exit()
@@ -4646,33 +4641,24 @@ check_crontab = function()
 end
 
 setEventCallback = function()
+
   setStopCallBack(function()
     disable_log = false
     log("结束")
     saveConfig("hideUIOnce", "false")
     saveConfig("restart_mode_hook", '')
     disableRootToast(true)
-    collectgarbage("collect")
-    -- stopThread(keepalive_thread[1])
-    -- stopThread(keepalive_thread[2])
-    -- stopThread(keepalive_thread[3])
-    -- log(exec("free -h"))
-    -- log(exec("top -n 1"))
-    -- if need_show_console then
     console.show()
-    -- else
-    --   console.dismiss()
-    -- end
-
-    -- log("\nps|grep bila\n", exec("su root sh -c 'ps|grep bila' "))
-    -- log("\nps -a |grep bila\n", exec("su root sh -c 'ps -a|grep bila' "))
-    -- log("\nps -e |grep bila\n", exec("su root sh -c 'ps -e|grep bila' "))
   end)
 
   setUserEventCallBack(function(type)
-    collectgarbage("collect")
+    log("重启", type)
+    saveConfig("hideUIOnce", "false")
+    saveConfig("restart_mode_hook", '')
+    disableRootToast(true)
     _restartScript()
   end)
+
 end
 
 consoleInit = function()
@@ -4914,9 +4900,26 @@ forever = function(f, ...) while true do f(...) end end
 
 save_extra_mode = function(mode, multi)
   if not mode then return end
+  local hook = loadConfig('restart_mode_hook', '') .. [[;
+extra_mode=]] .. string.format('%q', mode) .. [[;
+extra_mode_multi=]] .. str(multi and true or false) .. [[;
+zl_no_waste_last_time=]] .. str(zl_no_waste_last_time)
+  saveConfig("restart_mode_hook", hook)
+end
+
+save_multi_account_choice = function(skip_current)
+  -- 跳过当前账号
+  if skip_current then
+    while multi_account_choice[multi_account_choice_idx] == account_idx do
+      multi_account_choice_idx = multi_account_choice_idx + 1
+    end
+  end
+  -- 截取后续账号
+  multi_account_choice = table.slice(multi_account_choice,
+                                     multi_account_choice_idx)
   saveConfig("restart_mode_hook",
-             loadConfig('restart_mode_hook', '') .. ";extra_mode=[[" .. mode ..
-               "]];extra_mode_multi=" .. (multi and 'true' or 'false'))
+             loadConfig("restart_mode_hook", '') .. ";multi_account_choice=[[" ..
+               table.join(multi_account_choice, ' ') .. "]]")
 end
 
 -- restart_mode = function(mode, multi)
@@ -4933,42 +4936,21 @@ end
 --   restartScript()
 -- end
 
-restart_next_account = function()
-  -- 肉鸽中直接重启脚本
-  -- if extra_mode then restart_mode(extra_mode, extra_mode_multi) end
-
+restart_account = function(skip_current)
   -- 只在多账号模式启用跳过账号
   if not account_idx then
-    -- if not extra_mode then
-    toast("等待1小时")
-    wait(function() ssleep(1) end, 3600)
-    -- end
+    if skip_current then
+      toast("等待1小时")
+      wait(function() ssleep(1) end, 3600)
+    end
     saveConfig("hideUIOnce", "true")
     save_extra_mode(extra_mode, extra_mode_multi)
     restartScript()
   end
 
-  -- closeapp(appid)
-  -- 插入当前号
-  -- table.insert(multi_account_choice, account_idx)
-  log(3322, multi_account_choice, multi_account_choice_idx, account_idx)
-  -- 跳过一样的号
-  while multi_account_choice[multi_account_choice_idx] == account_idx do
-    multi_account_choice_idx = multi_account_choice_idx + 1
-  end
-  -- 截取之后的号，可能为空
-  multi_account_choice = table.slice(multi_account_choice,
-                                     multi_account_choice_idx)
-
-  log(3323, multi_account_choice, multi_account_choice_idx, account_idx)
-
-  saveConfig("restart_mode_hook",
-             loadConfig("restart_mode_hook", '') .. ";multi_account_choice=[[" ..
-               table.join(multi_account_choice, ' ') .. "]]")
-  log(3324, loadConfig("restart_mode_hook", ''))
   saveConfig("hideUIOnce", "true")
   save_extra_mode(extra_mode, extra_mode_multi)
-  log(3325, loadConfig("restart_mode_hook", ''))
+  save_multi_account_choice(skip_current)
   restartScript()
 end
 
@@ -5009,14 +4991,14 @@ end
 keepalive = function()
   -- enable_log_wrapper(function() log("keepalive") end)()
   -- trim_game_memory()
-  killacc()
+  -- killacc()
   oom_score_adj()
-  collectgarbage('collect')
+  -- collectgarbage('collect')
   -- disable_lmk()
 end
 
 killacc = function()
-  collectgarbage("collect")
+  -- collectgarbage("collect")
   if not root_mode then return end
   if disable_killacc1 then return end
   if apk502 then return end
@@ -5120,7 +5102,6 @@ restartScript = function()
   if not root_mode or not enable_restart_package then return _restartScript() end
   local cmd = [[nohup su root sh -c ' \
 while :; do
-sleep 1
 am force-stop ]] .. oppid .. [[;
 am force-stop ]] .. bppid .. [[;
 am force-stop ]] .. package .. [=[;
@@ -5140,24 +5121,38 @@ done
 secs=300
 endTime=$(( $(date +%s) + secs ))
 while [[ $(date +%s) -lt $endTime ]]; do
+  sleep 5
   uiautomator dump /sdcard/window_dump.xml
-  ok=$(sed -rn '\''s|.*text=.确定.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
-  cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
-  start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
-  snap=$(sed -rn '\''s|.*com.bilabila.arknightsspeedrun2:id/switch_snap.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   foreground=$(dumpsys activity recents|sed -rn '\''s/.*Recent #0.*(com[^ ]+).*/\1/p'\'')
   if [[ $foreground == *com.hypergryph* ]];then
      exit
-  elif [[ -n $snap ]]; then
-    eval $snap
-  elif [[ -n $start ]]; then
-    eval $start
-  elif [[ -n $cancel ]]; then
+  elif [[ $foreground == *com.bilabila* ]];then
+     :
+  else
+    continue
+  fi
+
+  cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  ok=$(sed -rn '\''s|.*text=.确定.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  if [[ -n $cancel ]]; then
     eval $cancel
+    continue
   elif [[ -n $ok ]]; then
     eval $ok
+    continue
   fi
-  sleep 5
+
+  start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  if [[ -n $start ]]; then
+    eval $start
+    continue
+  fi
+
+  snap=$(sed -rn '\''s|.*com.bilabila.arknightsspeedrun2:id/switch_snap.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  if [[ -n $snap ]]; then
+    eval $snap
+    continue
+  fi
 done
 done
 ' > /dev/null & ]=]
@@ -5414,7 +5409,7 @@ disableRootToast = function(reenable)
 root_manager=$(pm list packages|grep -e .superuser -e .supersu -e .magisk | head -n1|cut -d: -f2)
 root_manager=${root_manager:-com.android.settings}
 appops set $root_manager TOAST_WINDOW ]] .. (reenable and "allow" or "deny") ..
-                [[; 
+                [[;
 settings put global heads_up_notifications_enabled ]] .. (reenable and 1 or 0) ..
                 [[;
 ' > /dev/null & ]]
@@ -5466,7 +5461,6 @@ update_state_from_debugui = function()
   max_fight_times = str2int(max_fight_times, math.huge)
   tap_interval = str2int(tap_interval, -1)
   zl_restart_interval = str2int(zl_restart_interval1, 3600)
-  keepalive_interval = str2int(keepalive_interval, 900)
   zl_skill_times = str2int(zl_skill_times, 0)
   zl_skill_idx = str2int(zl_skill_idx, 1)
   tapall_duration = str2int(tapall_duration, -1)
@@ -5501,6 +5495,10 @@ update_state_from_debugui = function()
   cloud.setServer(cloud_server)
   cloud.setStatus(extra_mode == "战略前瞻投资" and 1002 or 1001)
   if apk502 then enable_restart_package = true end
+  enable_restart_package = true
+
+  restart_game_interval = str2int(restart_game_interval, 900)
+  restart_package_interval = str2int(restart_package_interval, 7200)
 end
 
 -- 基建心情阈值与QQ号
@@ -5572,31 +5570,20 @@ is_network_unstable = function()
   s = os.time(update(os.date("*t"), {hour = 16, min = 0}))
   e = os.time(update(os.date("*t"), {hour = 16, min = 15}))
   if s < cur_time and cur_time < e then return true end
-
-  -- local cur_time = tonumber(os.date("%w", os.time()))
-  -- if cur_time == 0 then cur_time = 7 end
-  -- if cur_time < 6 then return true end
 end
 
-memory_clean_last_time = time()
--- memory_clean_last_time = 0
+restart_package_last_time = time()
 request_memory_clean = function()
-  oom_score_adj()
+  if (time() - restart_package_last_time > restart_package_interval * 1000) then
+    qqnotify_before_restart_package()
+    restart_account(false)
+    return true
+  end
 
-  local did = false
-  if not did and (time() - memory_clean_last_time > keepalive_interval * 1000) then
-    memory_clean_last_time = time()
-    keepalive()
-    did = true
-  end
-  if not did and
-    (time() - kill_game_last_time[appid] > keepalive_interval * 1000) then
+  if (time() - kill_game_last_time[appid] > restart_game_interval * 1000) then
     restartapp(appid)
-    did = true
+    return true
   end
-  -- log("kill_game_last_time",kill_game_last_time)
-  -- exit()
-  return did
 end
 
 remove_old_log = function()

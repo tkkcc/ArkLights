@@ -739,7 +739,7 @@ path.基建收获 = function()
   log(findAny({"小蓝圈", "进驻总览"}))
   log(134)
 
-  if findOne("小蓝圈") and findOne("训练室") then
+  if false and findOne("小蓝圈") and findOne("训练室") then
     tap("点击全部收取2")
     zoom()
     if not wait(function()
@@ -2672,9 +2672,9 @@ path.开始游戏 = function(x, disable_ptrs_check)
   -- log(findOne("开始行动"))
   -- safeexit()
 
-  if not appear("代理指挥开", 1) then
+  if not appear("代理指挥开", .5) then
     tap("代理指挥开1")
-    if not appear("代理指挥开", 1) then
+    if not appear("代理指挥开", .5) then
       -- clean_fight(x)
       -- fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
       if not appear("主页") then back() end
