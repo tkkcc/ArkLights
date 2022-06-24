@@ -395,10 +395,13 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
-
+  主题曲已开放 = function()
+    tap("主题曲已开放")
+    ssleep(.5)
+  end,
   注册协议 = function()
     tap("注册协议1")
-    ssleep(1)
+    ssleep(.5)
     tap("注册协议2")
   end,
   阿米娅 = function()
@@ -460,7 +463,8 @@ path.fallback = {
       local timeout = min(2, (time() - start_time + 1000) / 1000 * 2 / 10)
       log(237, timeout)
       -- timeout = 0
-      x = appear({"返回确认", "返回确认3"}, timeout)
+      x = appear({"返回确认", "返回确认3", "主题曲已开放"},
+                 timeout)
       -- disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
       if x then return true end
       back()
@@ -468,7 +472,7 @@ path.fallback = {
       -- 每两秒按下返回，处理限时活动中领到干员/皮肤
       if time() - last_time_tap_return > 5000 then
         -- TODO:按返回在获得物资界面没用
-        tap("返回", true)
+        tap("返回")
         last_time_tap_return = time()
       end
       -- 干员/皮肤界面用返回键没用，这时按基建右上角

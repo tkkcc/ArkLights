@@ -3510,6 +3510,7 @@ enable_snapshot_service = function()
   openPermissionSetting()
   toast("请开启录屏权限")
   if not wait(function() return isSnapshotServiceRun() end, 300) then
+    -- restart_account()
     stop("开启录屏权限超时", false)
   end
 end
@@ -3600,12 +3601,15 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   ssleep(1)
-  save_extra_mode("战略前瞻投资")
+  log(findOne("主题曲已开放"))
+  -- save_extra_mode("战略前瞻投资")
   -- log(findOne("game"))
   -- cloud_task = {}
   -- log(uploadImg(getWorkPath() .. '/tmp.jpg'))
   -- m.addLog()
   -- log(is_network_unstable() == true)
+  -- restartScript()
+  -- log(findOne("返回"))
   ssleep(1)
 
   exit()
@@ -4652,6 +4656,7 @@ setEventCallback = function()
   end)
 
   setUserEventCallBack(function(type)
+    disable_log = false
     log("重启", type)
     saveConfig("hideUIOnce", "false")
     saveConfig("restart_mode_hook", '')

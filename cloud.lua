@@ -4,7 +4,7 @@ cloud = {}
 m = cloud
 
 m.deviceToken = ''
-m.server = 'https://dazecake.xyz:2000'
+m.server = ''
 m.heartBeatTid = -1
 m.status = 1
 
