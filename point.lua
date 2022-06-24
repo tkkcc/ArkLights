@@ -20,6 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  snap= { id = 'com.bilabila.arknightsspeedrun2:id/switch_snap'},
   主题曲已开放 = "1804|534|F1F1F1,1210|580|F0F0F0,1117|249|4C4C54,1498|450|655C5C",
   剿灭接管作战 = "891|598|FFFFFF,846|589|313131,918|553|313131,918|607|313131",
   战略等级125 = "1627|76|FFB525",

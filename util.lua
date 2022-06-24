@@ -1240,6 +1240,7 @@ qqnotify_before_run = function()
 end
 
 qqnotify_after_run = function(run_start_time)
+  local qqmessage_bak = shallowCopy(qqmessage)
   if not qqnotify_noruntime and run_start_time then
     table.insert(qqmessage,
                  math.floor((time() - run_start_time) / 1000 / 60) .. "分钟")
@@ -1249,8 +1250,7 @@ qqnotify_after_run = function(run_start_time)
   end
   path.跳转("首页")
   captureqqimagedeliver(table.join(qqmessage, ' '))
-  if not qqnotify_nofight then table.remove(qqmessage, #qqmessage) end
-  if not qqnotify_noruntime then table.remove(qqmessage, #qqmessage) end
+  qqmessage = qqmessage_bak
 end
 
 qqnotify_before_restart_package = function()
@@ -1547,7 +1547,7 @@ wait_game_up = function(retry)
     return
   end
 
-  if retry == 2 then closeapp() end
+  if retry == 2 then closeapp(appid) end
   if retry >= 4 then stop("无法启动游戏", false) end
 
   open(appid)
@@ -3470,7 +3470,7 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
   toast("已开启无障碍权限")
 end
 
-enable_snapshot_service = function()
+enable_snapshot_service =  disable_game_up_check_wrapper(function()
   if isSnapshotServiceRun() then return end
   if skip_snapshot_service_check then return end
 
@@ -3508,12 +3508,19 @@ enable_snapshot_service = function()
   if wait(function() return isSnapshotServiceRun() end) then return end
 
   openPermissionSetting()
-  toast("请开启录屏权限")
-  if not wait(function() return isSnapshotServiceRun() end, 300) then
+  -- _toast("请开启录屏权限")
+  if not wait(function()
+    if isSnapshotServiceRun() then return true end
+    local p = findOne("snap")
+    if p then
+      clickNodeFalse(p)
+    end
+    ssleep(1)
+  end, 60) then
     -- restart_account()
     stop("开启录屏权限超时", false)
   end
-end
+end)
 
 test_fight_hook = function()
   if not test_fight then return end
@@ -3601,8 +3608,21 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   ssleep(1)
-  log(findOne("主题曲已开放"))
-  -- save_extra_mode("战略前瞻投资")
+  log(appearTap("snap"))
+  -- log(time())
+  -- log(type(time()))
+  -- log(type(time()-time()))
+  -- log(os.time())
+  -- log(string.format('%q',true))
+  -- log(string.format('%q',nil))
+  -- while true do
+  --   log(ocr("第一层作战"))
+    -- ssleep(1)
+  -- end
+  -- log(string.format('%q',time()))
+  -- log(string.format('%q',os.time()))
+  -- log(findOne("主题曲已开放"))
+  -- save_extra_mode(extra_mode,extra_mode_multi)
   -- log(findOne("game"))
   -- cloud_task = {}
   -- log(uploadImg(getWorkPath() .. '/tmp.jpg'))
@@ -4906,7 +4926,7 @@ forever = function(f, ...) while true do f(...) end end
 save_extra_mode = function(mode, multi)
   if not mode then return end
   local hook = loadConfig('restart_mode_hook', '') .. [[;
-extra_mode=]] .. string.format('%q', mode) .. [[;
+extra_mode=]] .. string.format('%q', str(mode)) .. [[;
 extra_mode_multi=]] .. str(multi and true or false) .. [[;
 zl_no_waste_last_time=]] .. str(zl_no_waste_last_time)
   saveConfig("restart_mode_hook", hook)
@@ -4963,7 +4983,7 @@ restart_mode_hook = function()
   -- load(loadConfig("restart_mode_hook", ''))()
   -- saveConfig("restart_mode_hook", '')
   local f = loadConfig("restart_mode_hook", '')
-  -- log("f",f)
+  -- log("restart_mode_hook",f)
   saveConfig("restart_mode_hook", '')
   load(f)()
 end
@@ -4997,7 +5017,7 @@ keepalive = function()
   -- enable_log_wrapper(function() log("keepalive") end)()
   -- trim_game_memory()
   -- killacc()
-  oom_score_adj()
+  -- oom_score_adj()
   -- collectgarbage('collect')
   -- disable_lmk()
 end

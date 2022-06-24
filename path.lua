@@ -148,7 +148,7 @@ path.base = {
     local home
     local normal
 
-    if not wait(function()
+    if not wait(disable_log_wrapper(function()
       if findOne("行动结束") then see_end = true end
       if findOne("行动结束") and findOne("零星代理") then
         first_time_see_zero_star = first_time_see_zero_star or time()
@@ -193,7 +193,7 @@ path.base = {
       tap("开始行动1")
 
       appear({"开始行动", "接管作战"}, 1)
-    end, 60) then return end
+    end), 60) then return end
 
     if unfinished then return path.base.接管作战() end
 
@@ -397,7 +397,12 @@ path.bilibili_login_change = update(path.bilibili_login, {
 path.fallback = {
   主题曲已开放 = function()
     tap("主题曲已开放")
-    ssleep(.5)
+    ssleep(1)
+    tap("主题曲已开放")
+    ssleep(1)
+    tap("主题曲已开放")
+    ssleep(1)
+    back()
   end,
   注册协议 = function()
     tap("注册协议1")
