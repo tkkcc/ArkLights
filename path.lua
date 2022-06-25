@@ -33,7 +33,7 @@ path.base = {
     if appid ~= oppid then return end
     if not username or #username == 0 or not password or #password == 0 then
       -- 单账号直接停，多账号跳过
-      stop("账号或密码为空", account_idx and true or false)
+      stop("账号或密码为空", account_idx and 'next' or '')
     end
     if #username > 0 then
       log(44)
@@ -115,11 +115,13 @@ path.base = {
       login_error_times = (login_error_times or 0) + 1
     end
     -- 两次，第一次可能是数据更新
-    if login_error_times > 1 then stop("单选确认框，密码错误？") end
+    if login_error_times > 1 then
+      stop("单选确认框，密码错误？", account_idx and 'next' or '')
+    end
   end),
   正在释放神经递质 = function()
-    if not disappear("正在释放神经递质", 60 * 60, 1) then
-      stop("正在释放神经递质超1小时")
+    if not disappear("正在释放神经递质", 1800, 1) then
+      stop("正在释放神经递质超半小时", 'cur')
     end
   end,
   接管作战 = function()
@@ -336,13 +338,13 @@ path.bilibili_login = {
       -- input("bilibili_username_inputbox", username)
       -- input("bilibili_password_inputbox", password)
     else
-      stop("账号或密码为空", account_idx and true or false)
+      stop("账号或密码为空", account_idx and 'next' or '')
     end
     tap("bilibili_login")
     disappear("bilibili_login", 15)
     tap("bilibili_login")
     if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 15) then
-      stop("B服登录失败", true)
+      stop("B服登录失败", account_idx and 'next' or '')
     end
     -- 小米
     appearTap({text = "存储"}, 1)
@@ -468,8 +470,9 @@ path.fallback = {
       local timeout = min(2, (time() - start_time + 1000) / 1000 * 2 / 10)
       log(237, timeout)
       -- timeout = 0
-      x = appear({"返回确认", "返回确认3", "主题曲已开放"},
-                 timeout)
+      x = appear({
+        "返回确认", "返回确认3", "主题曲已开放", "回归返回",
+      }, timeout)
       -- disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
       if x then return true end
       back()
@@ -481,8 +484,13 @@ path.fallback = {
         last_time_tap_return = time()
       end
       -- 干员/皮肤界面用返回键没用，这时按基建右上角
-    end, 30) then stop("返回键30秒超时") end
+    end, 30) then stop("返回键30秒超时", 'cur') end
     if x then return tap(path.fallback[x]) end
+  end,
+  回归返回 = function()
+    tap("回归返回")
+    ssleep(1)
+    return path.fallback.签到返回()
   end,
   活动公告返回 = function()
     if not wait(function()
@@ -546,6 +554,7 @@ path.fallback = {
   单选确认框 = "右确认",
   剿灭说明 = function()
     tap("基建右上角")
+    ssleep(1)
     -- if not wait(function()
     --   if findOne("主页") then return true end
     --   tap("基建右上角")
@@ -3743,8 +3752,8 @@ path.公开招募 = function()
                     function(x)
             return extra_recruit_importance_tag:find(x)
           end) then
-          stop("已找到保留标签：" .. extra_recruit_importance_tag,
-               false, true, true)
+          stop("已找到保留标签：" .. extra_recruit_importance_tag, '',
+               true, true)
         end
 
         if debug_tag then
@@ -3794,7 +3803,7 @@ path.公开招募 = function()
               end
             end, 5) then return end
             if recruit_accelerate_mode then
-              stop("已遇到需保留情况", false, true, true)
+              stop("已遇到需保留情况", '', true, true)
             end
           end
         else
@@ -3818,7 +3827,7 @@ path.公开招募 = function()
             -- table.insert(qqmessage, "可招募：" .. table.join(list))
             table.insert(qqmessage, table.join(list))
             if recruit_accelerate_mode then
-              stop(table.join(list), false, true)
+              stop(table.join(list), '', true, true)
             end
           end
 
@@ -4264,7 +4273,7 @@ path.前瞻投资 = function(lighter)
       update_state_from_ui()
       run(no_extra_job)
     end
-    stop("肉鸽结束", false, false, true)
+    stop("肉鸽结束", '', false, true)
   end
 
   if zl_coin_enough then
@@ -4275,7 +4284,7 @@ path.前瞻投资 = function(lighter)
       update_state_from_ui()
       run(no_extra_job)
     end
-    stop("肉鸽结束", false, false, true)
+    stop("肉鸽结束", '', false, true)
   end
 
   -- 检测等级
@@ -4643,7 +4652,7 @@ path.前瞻投资 = function(lighter)
     log(28, zl_best_operator)
     local idx = str2int(zl_best_operator, -1)
     if idx < 1 or idx > 12 then
-      stop("请设置近卫干员序号(1~12)", false, true)
+      stop("请设置近卫干员序号(1~12)", '', true, false)
     end
     tap("近卫招募列表" .. (zl_best_operator or 1))
     findTap("确认招募")
@@ -5219,7 +5228,7 @@ path.前瞻投资 = function(lighter)
                                   ocr("战略第二行商品范围")))
     local goods = table.join({goods1, goods2})
     if goods:includes(need_goods) then
-      stop("已遇到所需商品" .. goods, false, true, true)
+      stop("已遇到所需商品" .. goods, '', true, true)
     end
     log("未找到商品", goods, need_goods)
   end

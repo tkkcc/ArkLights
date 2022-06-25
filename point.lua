@@ -20,6 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  回归返回 = "1863|72|C0C0C0,1831|73|595959,1861|43|595959,1885|73|595959,1861|94|595959",
   snap= { id = 'com.bilabila.arknightsspeedrun2:id/switch_snap'},
   主题曲已开放 = "1804|534|F1F1F1,1210|580|F0F0F0,1117|249|4C4C54,1498|450|655C5C",
   剿灭接管作战 = "891|598|FFFFFF,846|589|313131,918|553|313131,918|607|313131",
@@ -1251,6 +1252,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+
   主题曲已开放 = "center_center",
   注册协议 = "center_center",
   注册协议1 = "center_center",
@@ -1469,6 +1471,7 @@ center = {
 
   确定抽取 = "center_center",
   干员解锁进度 = "center_bottom",
+  回归返回 = "center_center",
   断罪返回 = "center_center",
   活动签到返回 = "center_center",
   抽签返回 = "center_center",

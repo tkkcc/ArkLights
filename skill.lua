@@ -804,7 +804,7 @@ initPngdata = function()
   f:close()
   local status
   status, skillpng2operator = pcall(JsonDecode, skillpng2operator)
-  if not status then stop("基建图标数据异常", false) end
+  if not status then stop("基建图标数据异常", 'cur') end
 
   -- 扩充精英化等级
   for k, v in pairs(skillpng2operator) do
@@ -876,7 +876,7 @@ initPngdata = function()
     end
   end
   if not manufacturingPngdata['bskill_man_exp2'] then
-    stop("基建图标数据异常")
+    stop("基建图标数据异常", 'cur')
   end
 
 end

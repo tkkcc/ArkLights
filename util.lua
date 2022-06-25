@@ -148,7 +148,7 @@ end
 deviceClickEventMaxX = nil
 deviceClickEventMaxY = nil
 catchClick = function()
-  if not root_mode then stop("未实现免root获取用户点击", false) end
+  if not root_mode then stop("未实现免root获取用户点击") end
   local result = exec("su root sh -c 'getevent -l -c 4 -q'")
   local x, y
   x = result:match('POSITION_X%s+([^%s]+)')
@@ -758,8 +758,7 @@ open = function(id)
   runApp(id)
 end
 
-stop = function(msg, try_next_account, nohome, complete)
-  if try_next_account == nil then try_next_account = true end
+stop = function(msg, mode, nohome, complete)
   msg = msg or ''
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
@@ -774,7 +773,8 @@ stop = function(msg, try_next_account, nohome, complete)
   cloud.fetchSolveTask()
   if not nohome then home() end
   ssleep(2)
-  if try_next_account then restart_account(true) end
+  if mode == 'next' then restart_account(true) end
+  if mode == 'cur' then restart_account(false) end
   exit()
 end
 
@@ -947,7 +947,7 @@ swipu = function(dis)
       swipe(sign > 0 and "right" or "left")
     else
       -- 只实现了右移
-      if sign > 0 then stop("swipu左移未实现", false) end
+      if sign > 0 then stop("swipu左移未实现") end
 
       local finger = {
         {
@@ -1524,7 +1524,7 @@ trySolveCapture = function()
     if not appear("realgame", 120) then
       back()
       if not appear("realgame", 5) then closeapp(appid) end
-      stop("验证码", true)
+      stop("验证码", 'next')
     end
   end
 end
@@ -1548,7 +1548,7 @@ wait_game_up = function(retry)
   end
 
   if retry == 2 then closeapp(appid) end
-  if retry >= 4 then stop("无法启动游戏", false) end
+  if retry >= 4 then stop("无法启动游戏", 'cur') end
 
   open(appid)
   screenon()
@@ -1573,7 +1573,7 @@ screenLockSwipUp = function()
     local width = getScreen().width
     gesture({point = {{width // 2, center}, {width // 2, 1}}, duration = 1000})
     sleep(1000 + 50)
-  end, 5) then stop("解锁失败1004", false) end
+  end, 5) then stop("解锁失败1004") end
 end
 screenLockGesture = function()
   local point = JsonDecode(unlock_gesture or "[]") or {}
@@ -1588,7 +1588,7 @@ screenLockGesture = function()
         ssleep(.5)
       end
     end
-    if not disappear("keyguard_input") then stop("解锁失败1005", false) end
+    if not disappear("keyguard_input") then stop("解锁失败1005") end
   end
 end
 
@@ -2291,17 +2291,15 @@ end
 
 multi_account_config_import = function()
   local data = getClipboard():trim()
-  if not data or #data == 0 then stop('剪贴板无数据', false) end
+  if not data or #data == 0 then stop('剪贴板无数据') end
   log("剪贴板数据：" .. data)
   local status, result
   status, result = pcall(JsonDecode, data)
   if not status and data:sub(1, 1) == '{' then
-    stop("json格式错误(剪贴板数据不完整)", false)
+    stop("json格式错误(剪贴板数据不完整)")
   end
   if not status then data = parse_simple_config(data) end
-  if not data or #data == 0 then
-    stop("从剪贴板导入失败：" .. result, false)
-  end
+  if not data or #data == 0 then stop("从剪贴板导入失败：" .. result) end
   local layout = "multi_account"
   saveOneUIConfig(layout, data)
 end
@@ -2936,7 +2934,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "脚本重启间隔(s)")
-  ui.addEditText(layout, "restart_package_interval", "7200")
+  ui.addEditText(layout, "restart_package_interval1", "3600")
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_disable_lmk",
@@ -3288,7 +3286,7 @@ gesture_capture = function()
       "gesture_capture_ui", "keyguard_indication", "keyguard_input",
     }, 5)
     if not state then
-      stop("未找到解锁界面", false)
+      stop("未找到解锁界面")
     elseif state == "gesture_capture_ui" then
       ui.setText("unlock_gesture", JsonEncode({}))
       return true
@@ -3297,7 +3295,7 @@ gesture_capture = function()
     elseif state == "keyguard_input" then
       return true
     end
-  end, 30) then stop("手势录制2010", false) end
+  end, 30) then stop("手势录制2010") end
 
   if state == title then return end
   log(200)
@@ -3309,7 +3307,7 @@ gesture_capture = function()
       table.insert(finger, {p.x, p.y})
       ui.setText("unlock_gesture", JsonEncode(finger))
     end
-  end, 30) then stop("手势录制超时", false) end
+  end, 30) then stop("手势录制超时") end
 end
 gesture_capture = disable_game_up_check_wrapper(gesture_capture)
 
@@ -3457,20 +3455,20 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
     log(3387, out)
     if not wait(function() return isAccessibilityServiceRun() end, 2) then
       stop("无障碍服务启动失败" ..
-             (after_killacc and "，可勾选禁用重启acc" or ''), false)
+             (after_killacc and "，可勾选禁用重启acc" or ''), 'cur')
     else
       return
     end
   end
   openPermissionSetting()
   toast("请开启无障碍权限")
-  if not wait(function() return isAccessibilityServiceRun() end, 300) then
-    stop("开启无障碍权限超时", false)
+  if not wait(function() return isAccessibilityServiceRun() end, 60) then
+    stop("开启无障碍权限超时", 'cur')
   end
   toast("已开启无障碍权限")
 end
 
-enable_snapshot_service =  disable_game_up_check_wrapper(function()
+enable_snapshot_service = disable_game_up_check_wrapper(function()
   if isSnapshotServiceRun() then return end
   if skip_snapshot_service_check then return end
 
@@ -3512,14 +3510,9 @@ enable_snapshot_service =  disable_game_up_check_wrapper(function()
   if not wait(function()
     if isSnapshotServiceRun() then return true end
     local p = findOne("snap")
-    if p then
-      clickNodeFalse(p)
-    end
+    if p then clickNodeFalse(p) end
     ssleep(1)
-  end, 60) then
-    -- restart_account()
-    stop("开启录屏权限超时", false)
-  end
+  end, 60) then stop("开启录屏权限超时", 'cur') end
 end)
 
 test_fight_hook = function()
@@ -3617,7 +3610,7 @@ predebug_hook = function()
   -- log(string.format('%q',nil))
   -- while true do
   --   log(ocr("第一层作战"))
-    -- ssleep(1)
+  -- ssleep(1)
   -- end
   -- log(string.format('%q',time()))
   -- log(string.format('%q',os.time()))
@@ -4411,7 +4404,7 @@ predebug_hook = function()
                                   ocr("战略第二行商品范围")))
     local goods = table.join({goods1, goods2})
     if goods:includes(need_goods) then
-      stop("肉鸽已遇到所需商品", false)
+      stop("肉鸽已遇到所需商品", '', true, true)
     end
     log("未找到商品", goods, need_goods)
   end
@@ -4992,14 +4985,16 @@ check_login_frequency = function()
 
   login_times = (login_times or 0) + 1
   if login_times >= max_login_times then
-    stop("登录次数达到" .. login_times)
+    stop("登录次数达到" .. login_times, 'next')
   end
 
   table.insert(login_time_history, time())
   if max_login_times_5min > 0 and #login_time_history >= max_login_times_5min and
     login_time_history[#login_time_history] -
     login_time_history[#login_time_history - max_login_times_5min + 1] < 15 * 60 *
-    1000 then stop("15分钟内登录次数达到" .. max_login_times_5min) end
+    1000 then
+    stop("15分钟内登录次数达到" .. max_login_times_5min, 'next')
+  end
   log("login_time_history", login_time_history)
 
   if login_times > 1 then
@@ -5523,7 +5518,7 @@ update_state_from_debugui = function()
   enable_restart_package = true
 
   restart_game_interval = str2int(restart_game_interval, 900)
-  restart_package_interval = str2int(restart_package_interval, 7200)
+  restart_package_interval = str2int(restart_package_interval1, 3600)
 end
 
 -- 基建心情阈值与QQ号
