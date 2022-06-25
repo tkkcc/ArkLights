@@ -2962,6 +2962,9 @@ show_debug_ui = function()
   -- ui.addCheckBox(layout, "debug_disable_log", "禁用全部日志", false)
 
   newRow(layout)
+  ui.addCheckBox(layout, "disable_oom_score_adj", "禁用oom_score_adj", false)
+
+  newRow(layout)
   ui.addCheckBox(layout, "disable_hotupdate", "禁用自动更新", false)
 
   newRow(layout)
@@ -3472,13 +3475,13 @@ enable_snapshot_service = disable_game_up_check_wrapper(function()
   if isSnapshotServiceRun() then return end
   if skip_snapshot_service_check then return end
 
-  if root_mode then
+  -- if root_mode then
     -- log("enable snapshot service by root")
     -- TODO need this?
-    exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
+    -- exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
     -- exec("su root sh -c 'appops set " .. package ..
     --        " SYSTEM_ALERT_WINDOW allow'")
-  end
+  -- end
 
   -- log("3444", 3444)
   -- if apk502 then
@@ -3503,10 +3506,10 @@ enable_snapshot_service = disable_game_up_check_wrapper(function()
   --   return
   -- end
 
-  if wait(function() return isSnapshotServiceRun() end) then return end
+  -- if wait(function() return isSnapshotServiceRun() end) then return end
 
-  openPermissionSetting()
   -- _toast("请开启录屏权限")
+  openPermissionSetting()
   if not wait(function()
     if isSnapshotServiceRun() then return true end
     local p = findOne("snap")
@@ -5018,6 +5021,7 @@ keepalive = function()
 end
 
 killacc = function()
+  exit()
   -- collectgarbage("collect")
   if not root_mode then return end
   if disable_killacc1 then return end
@@ -5168,11 +5172,11 @@ while [[ $(date +%s) -lt $endTime ]]; do
     continue
   fi
 
-  snap=$(sed -rn '\''s|.*com.bilabila.arknightsspeedrun2:id/switch_snap.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
-  if [[ -n $snap ]]; then
-    eval $snap
-    continue
-  fi
+  # snap=$(sed -rn '\''s|.*com.bilabila.arknightsspeedrun2:id/switch_snap.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  # if [[ -n $snap ]]; then
+  #   eval $snap
+  #   continue
+  # fi
 done
 done
 ' > /dev/null & ]=]
@@ -5199,6 +5203,7 @@ end
 
 oom_score_adj = function()
   if not root_mode then return end
+  if disable_oom_score_adj then return end
   -- if disable_oom_score_adj then return end
   -- if not enable_oom_score_adj then return end
   -- log("4032")

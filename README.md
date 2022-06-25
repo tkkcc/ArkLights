@@ -48,7 +48,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 ## 开发
 
-1. 参考[懒人精灵3.6.0无障碍模式IDE](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)内文档
+1. 参考[懒人精灵无障碍模式IDE](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)内文档
 
 1. 数据提取
     ```sh

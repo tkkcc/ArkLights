@@ -472,6 +472,7 @@ path.fallback = {
       -- timeout = 0
       x = appear({
         "返回确认", "返回确认3", "主题曲已开放", "回归返回",
+        'start黄框', 'start黄框暗',
       }, timeout)
       -- disappear("开始行动", min(2, (time() - start_time) / 1000 * 2 / 2))
       if x then return true end
@@ -1918,6 +1919,7 @@ path.总览换班 = function()
       -- TODO wait bottom for stable
       if not appear(bottom, .2) then reach_bottom = true end
     end
+    if i == 60 then stop('总览换班滑动', 'cur') end
     visitedy = {}
     while f() do log(475) end
     if reach_bottom then break end
@@ -2196,7 +2198,11 @@ path.线索交流 = function()
       appear("线索传递")
       clue_unlocked = false
       path.线索布置()
-      if not clue_unlocked then path.线索传递() end
+      if not clue_unlocked then
+        path.线索传递()
+        path.线索传递()
+        path.线索传递()
+      end
       return f(retry + 1)
     end
 
@@ -4195,6 +4201,7 @@ path.前瞻投资 = function(lighter)
 
     -- 并非首次
     if zl_no_waste_last_time then
+      zl_no_waste_last_time = nil
       saveConfig("hideUIOnce", "true")
       save_extra_mode(extra_mode, extra_mode_multi)
       restartScript()
@@ -4203,7 +4210,6 @@ path.前瞻投资 = function(lighter)
     -- 首次
     zl_no_waste_last_time = time()
     if zl_no_waste then
-      -- todo
       transfer_global_variable("multi_account_user0")
       update_state_from_ui()
       run(no_extra_job)

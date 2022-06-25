@@ -408,6 +408,9 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, f"multi_account_user{first_empty_i}auto_recruit1", True)
         c(x, f"multi_account_user{first_empty_i}auto_recruit4", True)
         c(x, f"multi_account_user{first_empty_i}auto_recruit5", True)
+        for i in range(1, 13):
+            c(x, f"multi_account_user{i}now_job_ui" + str(i), True)
+        c(x, f"multi_account_user{i}now_job_ui8", False)
         if fight or drug:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
         else:
@@ -415,7 +418,6 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, f"multi_account_user{first_empty_i}fight_ui", fight or "jm hd ce ls ap pr")
         c(x, f"multi_account_user{first_empty_i}max_drug_times", str(2 if drug else 0))
         save("config_multi_account.json", x)
-        # print("username", username)
 
         x = load("config_debug.json")
         l = x["multi_account_choice_weekday_only"].split()
@@ -570,15 +572,15 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, "zl_max_coin", "")
         save("config_extra.json", x)
 
-        x = load("config_debug.json")
-        c(x, "max_drug_times_" + str(1) + "day", "99")
-        c(x, "max_drug_times_" + str(2) + "day", "0")
-        c(x, "max_drug_times_" + str(3) + "day", "0")
-        c(x, "max_drug_times_" + str(4) + "day", "0")
-        c(x, "max_drug_times_" + str(5) + "day", "0")
-        c(x, "max_drug_times_" + str(6) + "day", "0")
-        c(x, "max_drug_times_" + str(7) + "day", "0")
-        save("config_debug.json", x)
+        # x = load("config_debug.json")
+        # c(x, "max_drug_times_" + str(1) + "day", "99")
+        # c(x, "max_drug_times_" + str(2) + "day", "99")
+        # c(x, "max_drug_times_" + str(3) + "day", "1")
+        # c(x, "max_drug_times_" + str(4) + "day", "1")
+        # c(x, "max_drug_times_" + str(5) + "day", "1")
+        # c(x, "max_drug_times_" + str(6) + "day", "1")
+        # c(x, "max_drug_times_" + str(7) + "day", "1")
+        # save("config_debug.json", x)
 
         # 重启
         restart()
