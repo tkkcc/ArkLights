@@ -2937,7 +2937,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "脚本重启间隔(s)")
-  ui.addEditText(layout, "restart_package_interval1", "3600")
+  ui.addEditText(layout, "restart_package_interval", "14400")
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_disable_lmk",
@@ -3607,7 +3607,8 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   ssleep(1)
-  log(appearTap("snap"))
+  -- log(appearTap("snap"))
+  log(findOne("剿灭记录确认"))
   -- log(time())
   -- log(type(time()))
   -- log(type(time()-time()))
@@ -5526,7 +5527,7 @@ update_state_from_debugui = function()
   enable_restart_package = true
 
   restart_game_interval = str2int(restart_game_interval, 900)
-  restart_package_interval = str2int(restart_package_interval1, 3600)
+  restart_package_interval = str2int(restart_package_interval, 14400)
 end
 
 -- 基建心情阈值与QQ号

@@ -177,6 +177,13 @@ path.base = {
         tap("剿灭接管作战")
       end
 
+      if findOne("剿灭记录确认") and
+        not disappear("剿灭记录确认", 5) then
+        captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
+                                "剿灭记录确认", true)
+        tap("剿灭记录确认")
+      end
+
       -- 战斗记录未同步
       if findOne("返回确认界面") then
         tap("左取消")

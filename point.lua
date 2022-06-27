@@ -20,8 +20,9 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  剿灭记录确认 = "1491|970|085D82,957|981|FFFFFF,1495|1017|075B7F,1761|999|080A0E",
   回归返回 = "1863|72|C0C0C0,1831|73|595959,1861|43|595959,1885|73|595959,1861|94|595959",
-  snap= { id = 'com.bilabila.arknightsspeedrun2:id/switch_snap'},
+  snap = {id = 'com.bilabila.arknightsspeedrun2:id/switch_snap'},
   主题曲已开放 = "1804|534|F1F1F1,1210|580|F0F0F0,1117|249|4C4C54,1498|450|655C5C",
   剿灭接管作战 = "891|598|FFFFFF,846|589|313131,918|553|313131,918|607|313131",
   战略等级125 = "1627|76|FFB525",
@@ -1252,7 +1253,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
-
+  剿灭记录确认 = "center_bottom",
   主题曲已开放 = "center_center",
   注册协议 = "center_center",
   注册协议1 = "center_center",
