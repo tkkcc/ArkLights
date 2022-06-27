@@ -116,7 +116,7 @@
   }
 
   save() {
-    sed -i -r 's/^(release_date =).+$/\1 "'"$(date +'%Y.%m.%d %k:%M')"'"/' main.lua
+    sed -i -r 's/^(release_date =).+$/\1 "'"$(date +'%m.%d %k:%M')"'"/' main.lua
     local dst_dir=/F:/software/懒人精灵3.6.0/script/main
     dst="$dst_dir"/脚本
     mkdir -p $dst

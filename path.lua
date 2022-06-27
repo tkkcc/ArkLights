@@ -1007,6 +1007,7 @@ update_state = function()
   jmfight_enough = false
   zero_san = false
   zero_san_hit = 0
+  username_typed = false
 
   first_time_swipe = true
   jmfight_times = 0

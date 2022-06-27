@@ -1178,9 +1178,12 @@ auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
       if total_timeout_restart then
         -- should be a hook, by defualt restartapp
         -- 应对进关卡黑屏、启动游戏黑屏、卡死
-        toast("auto达到超时(s)" .. total_timeout)
-        restartapp(appid)
-        return auto(p, fallback, timeout, total_timeout, total_timeout_restart)
+
+        -- toast("auto达到超时(s)" .. total_timeout)
+        -- restartapp(appid)
+        -- return auto(p, fallback, timeout, total_timeout, total_timeout_restart)
+
+        stop("auto超时(s)" .. total_timeout, 'cur')
       else
         return true
       end
@@ -2382,7 +2385,7 @@ notifypp = function(img, info, to, channel, sync)
   local param = "content=" .. encodeUrl("![](" .. img .. ")") .. "&title=" ..
                   encodeUrl(info) .. "&token=" .. encodeUrl(to) ..
                   "&template=markdown"
-  if channel then param = param .. "&channel=" .. channel end
+  if #strOr(channel) > 0 then param = param .. "&channel=" .. channel end
   log('notify pp', info, to)
   -- log("param", param)
 
@@ -2600,9 +2603,9 @@ make_ui_title = function(layout, name)
   local resolution = screen.width .. 'x' .. screen.height
   name = name or ''
   ui.setTitleText(layout,
-                  name .. " " .. (is_apk_old() and '*' or '') .. getApkVerInt() ..
-                    "-" .. release_date:gsub(' ', '-') .. ' ' .. resolution)
-
+                  name .. " " ..
+                    (is_apk_old() and '需更新' or getApkVerInt()) .. "-" ..
+                    release_date:gsub(' ', '-') .. ' ' .. resolution)
 end
 
 show_main_ui = function()
@@ -3476,11 +3479,11 @@ enable_snapshot_service = disable_game_up_check_wrapper(function()
   if skip_snapshot_service_check then return end
 
   -- if root_mode then
-    -- log("enable snapshot service by root")
-    -- TODO need this?
-    -- exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
-    -- exec("su root sh -c 'appops set " .. package ..
-    --        " SYSTEM_ALERT_WINDOW allow'")
+  -- log("enable snapshot service by root")
+  -- TODO need this?
+  -- exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
+  -- exec("su root sh -c 'appops set " .. package ..
+  --        " SYSTEM_ALERT_WINDOW allow'")
   -- end
 
   -- log("3444", 3444)
