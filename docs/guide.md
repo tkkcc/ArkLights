@@ -3,8 +3,6 @@
 下载： [蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) /
 [github release](https://github.com/tkkcc/ArkLights/releases)
 
-闲聊群：[1009619697](https://qm.qq.com/cgi-bin/qm/qr?k=ZtJVQZ1LI_9nMh3tj7fKgYu5PrwqBCje&jump_from=webapi)
-
 问题反馈：[github.com/tkkcc/ArkLights/issues](https://github.com/tkkcc/ArkLights/issues)
 
 源码与其他明日方舟脚本：[github.com/tkkcc/ArkLights](https://github.com/tkkcc/ArkLights)  

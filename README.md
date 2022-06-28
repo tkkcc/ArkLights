@@ -95,7 +95,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高，懒人精灵实现，速度远超其他脚本，自适应换班，群号1009619697</td>
+      <td>完成度高，懒人精灵实现，速度远超其他脚本，自适应换班</td>
    </tr>
    <tr>
    <td><a href="https://github.com/Lancarus/Liver-Arknights-Tomorrow">明日再肝(还鸽)</a></td>
@@ -227,7 +227,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>C++实现，完成度高，战利品统计，自适应换班，自动推图/抄作业，自动打肉鸽，群号684479866、672372860</td>
+      <td>C++实现，完成度高，战利品统计，自适应换班，自动推图/抄作业，自动打肉鸽，群号912322156</td>
    </tr>
    <tr>
    <td><a href="https://github.com/Konano/arknights-mower">arknights-mower</a></td>
