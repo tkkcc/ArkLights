@@ -1471,7 +1471,12 @@ wait = function(func, timeout, interval)
   interval = interval or 0
   -- log(timeout,interval)
   local start_time = time()
-  local reset_wait_start_time = function() start_time = time() end
+  local reset_wait_start_time = function()
+    if not disappear("正在提交反馈至神经", network_timeout) then
+      stop("网络连接超时" .. network_timeout .. "秒", 'cur')
+    end
+    start_time = time()
+  end
   while true do
     local ans = func(reset_wait_start_time)
     -- log(584,ans)
@@ -4634,7 +4639,7 @@ check_crontab = function()
   if not crontab_enable then return end
   local restart = function()
     saveConfig("hideUIOnce", "true")
-    restartScript()
+    _restartScript()
   end
 
   local config = string.filterSplit(crontab_text)

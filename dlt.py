@@ -522,12 +522,12 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
                     x, y = ok
                     adb("shell", "input", "tap", str(x), str(y))
                     see_package = True
-            snap = findNode(
-                id="com.bilabila.arknightsspeedrun2:id/switch_snap", cache=True
-            )
-            if snap:
-                x, y = snap
-                adb("shell", "input", "tap", str(x), str(y))
+            # snap = findNode(
+            #     id="com.bilabila.arknightsspeedrun2:id/switch_snap", cache=True
+            # )
+            # if snap:
+            #     x, y = snap
+            #     adb("shell", "input", "tap", str(x), str(y))
             if foreground() == oppid or foreground() == bppid and see_package:
                 break
             # elif see_package:
@@ -697,9 +697,9 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, "enable_log", False)
         # c(x, "enable_disable_lmk", False)
         # c(x, "disable_killacc", False)
-        c(x, "enable_restart_package", True)
-        c(x, "keepalive_interval", "900")
-        c(x, "tap_wait", "")
+        # c(x, "enable_restart_package", True)
+        # c(x, "keepalive_interval", "900")
+        # c(x, "tap_wait", "")
         save("config_debug.json", x)
 
         x = load("config_multi_account.json")

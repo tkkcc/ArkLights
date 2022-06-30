@@ -3,6 +3,8 @@
 下载： [蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) /
 [github release](https://github.com/tkkcc/ArkLights/releases)
 
+QQ频道号：[h800n9f23g](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=1W5HRqT&appChannel=share&businessType=9&from=246610&biz=ka)
+
 问题反馈：[github.com/tkkcc/ArkLights/issues](https://github.com/tkkcc/ArkLights/issues)
 
 源码与其他明日方舟脚本：[github.com/tkkcc/ArkLights](https://github.com/tkkcc/ArkLights)  
@@ -12,6 +14,7 @@
 
 ## 最近更新
 
+- 禁止开启速通输入法，否则脚本重启卡住。
 - 只建议用611版本。
 - 默认定期重启脚本，保证内存稳定，可在高级设置调整，有问题请反馈。
 - 华云必须执行[外置root指令](#云手机)才能正常使用。
@@ -88,7 +91,11 @@ adb -s 123.456.789.101:234 shell "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2
 
 #### 作战设置/账号密码/脚本设置不能修改无法输入/需要选择输入法
 
-关闭懒人输入法。如已开启，卸载脚本后重装。
+关闭速通输入法。如已开启，卸载脚本后重装。
+
+#### 脚本卡在输入法设置界面
+
+关闭速通输入法。如已开启，卸载脚本后重装。
 
 #### 输入框输入时或按快捷键时脚本闪退
 
@@ -707,4 +714,4 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 若勾选`审判庭接受任务`，则速通只处理云端分发的任务。
 
 如果后端服务器掉线的话，每次上传截图时会等待30秒。
-c
+
