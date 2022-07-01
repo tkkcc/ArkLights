@@ -2208,8 +2208,6 @@ path.线索交流 = function()
       path.线索布置()
       if not clue_unlocked then
         path.线索传递()
-        path.线索传递()
-        path.线索传递()
       end
       return f(retry + 1)
     end
@@ -4212,7 +4210,7 @@ path.前瞻投资 = function(lighter)
       zl_no_waste_last_time = nil
       saveConfig("hideUIOnce", "true")
       save_extra_mode(extra_mode, extra_mode_multi)
-      restartScript()
+      restartPackage()
     end
 
     -- 首次
@@ -5322,7 +5320,7 @@ path.前瞻投资 = function(lighter)
     wait(function(reset_wait_start_time)
       -- 不能投情况
       if not findOne("诡意行商投资入口") then return true end
-      if findOne("正在释放神经递质") then reset_wait_start_time() end
+      if findOne("正在提交反馈至神经") then reset_wait_start_time() end
       if not findOne(coin_no_notification) then reset_wait_start_time() end
 
       -- 6秒后，如果底部投币提示没有，那就说明投币结束

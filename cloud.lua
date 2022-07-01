@@ -294,5 +294,5 @@ server=]] .. server
   -- ssleep(1000)
   saveConfig("hideUIOnce", "true")
   saveConfig("restart_mode_hook", hook)
-  restartScript()
+  restartPackage()
 end

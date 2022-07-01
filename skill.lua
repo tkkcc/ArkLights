@@ -95,7 +95,7 @@ fetchSkillIcon = function()
   end
   unZip(path, extract_path)
   saveConfig("skill_md5", expectmd5)
-  return _restartScript()
+  return restartScript()
 end
 
 discover = still_wrapper(function(operators, pngdata, pageid, mood_only)

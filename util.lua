@@ -5,6 +5,7 @@ bppid = "com.hypergryph.arknights.bilibili"
 -- apk502 = getApkVerInt() >= 502 or getApkVerInt() == 1
 apk502 = getApkVerInt() >= 502
 is_apk_old = function() return getApkVerInt() < 611 end
+apk_old_warning = "怎么还有人用" .. getApkVerInt()
 
 disable_game_up_check_wrapper = function(func)
   return function(...)
@@ -39,7 +40,7 @@ disable_log_wrapper = function(func, enable)
 end
 enable_log_wrapper = function(func) return disable_log_wrapper(func, true) end
 
-_restartScript = restartScript
+-- _restartScript = restartScript
 
 -- 无障碍函数替换
 if not openPermissionSetting then
@@ -2458,7 +2459,7 @@ hotUpdate = function()
   sleep(1000)
   -- log(5, expectmd5, loadConfig("lr_md5", "2"))
   log("已更新至最新")
-  return _restartScript()
+  return restartScript()
 end
 
 styleButton = function(layout)
@@ -2607,10 +2608,9 @@ make_ui_title = function(layout, name)
   local screen = getScreen()
   local resolution = screen.width .. 'x' .. screen.height
   name = name or ''
-  ui.setTitleText(layout,
-                  name .. " " ..
-                    (is_apk_old() and '需更新' or getApkVerInt()) .. "-" ..
-                    release_date:gsub(' ', '-') .. ' ' .. resolution)
+  local title = name .. " " .. getApkVerInt() .. "-" ..
+                  release_date:gsub(' ', '-') .. ' ' .. resolution
+  ui.setTitleText(layout, is_apk_old() and apk_old_warning or title)
 end
 
 show_main_ui = function()
@@ -3613,6 +3613,7 @@ predebug_hook = function()
   swipu_flipx = 0
   ssleep(1)
   -- log(appearTap("snap"))
+  log(point["剿灭记录确认"])
   log(findOne("剿灭记录确认"))
   -- log(time())
   -- log(type(time()))
@@ -4639,7 +4640,7 @@ check_crontab = function()
   if not crontab_enable then return end
   local restart = function()
     saveConfig("hideUIOnce", "true")
-    _restartScript()
+    restartScript()
   end
 
   local config = string.filterSplit(crontab_text)
@@ -4686,7 +4687,7 @@ setEventCallback = function()
     saveConfig("hideUIOnce", "false")
     saveConfig("restart_mode_hook", '')
     disableRootToast(true)
-    _restartScript()
+    restartScript()
   end)
 
 end
@@ -4697,8 +4698,8 @@ consoleInit = function()
                  round(screen.height * 0.9), round(screen.height * 0.9))
   local screen = getScreen()
   local resolution = screen.width .. 'x' .. screen.height
-  console.setTitle(getApkVerInt() .. ' ' .. release_date .. '  ' .. resolution)
-
+  local title = getApkVerInt() .. ' ' .. release_date .. '  ' .. resolution
+  console.setTitle(is_apk_old() and apk_old_warning or title)
   console.show()
   console.dismiss()
 end
@@ -4938,6 +4939,7 @@ zl_no_waste_last_time=]] .. str(zl_no_waste_last_time)
 end
 
 save_multi_account_choice = function(skip_current)
+  if not multi_account_choice_idx then return end
   -- 跳过当前账号
   if skip_current then
     while multi_account_choice[multi_account_choice_idx] == account_idx do
@@ -4975,13 +4977,13 @@ restart_account = function(skip_current)
     end
     saveConfig("hideUIOnce", "true")
     save_extra_mode(extra_mode, extra_mode_multi)
-    restartScript()
+    restartPackage()
   end
 
   saveConfig("hideUIOnce", "true")
   save_extra_mode(extra_mode, extra_mode_multi)
   save_multi_account_choice(skip_current)
-  restartScript()
+  restartPackage()
 end
 
 restart_mode_hook = function()
@@ -5001,13 +5003,13 @@ check_login_frequency = function()
   end
 
   table.insert(login_time_history, time())
+  log("login_time_history", login_time_history)
   if max_login_times_5min > 0 and #login_time_history >= max_login_times_5min and
     login_time_history[#login_time_history] -
     login_time_history[#login_time_history - max_login_times_5min + 1] < 15 * 60 *
     1000 then
     stop("15分钟内登录次数达到" .. max_login_times_5min, 'next')
   end
-  log("login_time_history", login_time_history)
 
   if login_times > 1 then
     -- captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. "登录次数" ..
@@ -5131,8 +5133,8 @@ echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
   --   exec(cmd)
 end
 
-restartScript = function()
-  if not root_mode or not enable_restart_package then return _restartScript() end
+restartPackage = function()
+  if not root_mode or not enable_restart_package then return restartScript() end
   local cmd = [[nohup su root sh -c ' \
 while :; do
 am force-stop ]] .. oppid .. [[;
@@ -5192,7 +5194,7 @@ done
 
   exec(cmd)
   ssleep(60)
-  _restartScript()
+  restartScript()
 end
 
 monitor = function()
