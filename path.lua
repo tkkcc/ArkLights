@@ -2249,7 +2249,7 @@ path.线索布置 = function()
 
   if disable_clue_unlock then
     path.线索传递()
-    path.线索传递()
+    ssleep(5)
     path.线索传递()
     return
   end
