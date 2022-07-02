@@ -3,6 +3,8 @@
 下载： [蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) /
 [github release](https://github.com/tkkcc/ArkLights/releases)
 
+QQ闲聊群：[1009619697](https://qm.qq.com/cgi-bin/qm/qr?k=ZtJVQZ1LI_9nMh3tj7fKgYu5PrwqBCje&jump_from=webapi)
+
 QQ频道号：[h800n9f23g](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=1W5HRqT&appChannel=share&businessType=9&from=246610&biz=ka)
 
 问题反馈：[github.com/tkkcc/ArkLights/issues](https://github.com/tkkcc/ArkLights/issues)
@@ -15,7 +17,7 @@ QQ频道号：[h800n9f23g](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&
 ## 最近更新
 
 - 禁止开启速通输入法，否则脚本重启卡住。
-- 华云和蓝叠必须执行[外置root指令](#云手机)，否则脚本重启卡住。
+- 华云必须执行[外置root指令](#云手机)，否则脚本重启卡住。
 - 可使用pushplus通知，支持微信公众号、邮件等多种渠道。
 - magisk hide设备需**手动关闭root授权提示**，否则root提示影响脚本识别。
 <!-- - 默认不自动重启acc进程，但这样刷肉鸽每小时内存泄漏44M，一天1G。启用后会定期释放脚本内存，但在部分设备上会造成启动失败与闪退。 -->
@@ -38,11 +40,9 @@ QQ频道号：[h800n9f23g](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&
 
 #### 模拟器
 
-支持 雷电4、逍遥（选OpenGL渲染）、夜神（版本>=7.0.2.2）、蓝叠（选高级/高阶/兼容图形引擎，需执行外置root指令）、mumu9（但启动闪屏）、genymotion（安卓10）、redroid（安卓10）、Android Emulator
+支持 雷电4、逍遥（选OpenGL渲染）、夜神（版本>=7.0.2.2）、蓝叠（选高级/高阶/兼容图形引擎）、mumu9（但启动闪屏）、genymotion（安卓10）、redroid（安卓10）、Android Emulator
 
 不支持 雷电3、mumu6
-
-显卡驱动太新易卡死
 
 #### 云手机
 
@@ -294,12 +294,6 @@ pr => pr-b-2*99 pr-a-2*99 pr-c-2*99 pr-d-2*99 pr-b-1*99 pr-a-1*99 pr-c-1*99 pr-d
 
 没有，脚本每次运行完全独立。每次启动从第一关开始执行。
 
-#### 作战理智不足后能不能刷1-7清空理智
-
-高级设置中开。
-
-开了之后可以尽快做完日常任务。
-
 ### 基建换班
 
 #### 基建反复进入退出/一直在主界面与基建间切换
@@ -430,7 +424,7 @@ pr => pr-b-2*99 pr-a-2*99 pr-c-2*99 pr-d-2*99 pr-b-1*99 pr-a-1*99 pr-c-1*99 pr-d
 
 `启用账号`填`1-30`表示跑前30个号，填`7 10-8 7 1-3`等价于`7 10 9 8 7 1 2 3`。
 
-仅生效一次的账号写在#号后，填`1-30 # 13 14`表示本次启动跑第13、14两个，后续启动跑前30个。
+仅生效一次的账号写在#号后，填`1-30 # 13 14`表示本轮只跑第13、14两个，下一轮跑前30个。
 
 账密任一为空则跳过，可在高级设置中调整。
 
@@ -440,7 +434,7 @@ pr => pr-b-2*99 pr-a-2*99 pr-c-2*99 pr-d-2*99 pr-b-1*99 pr-a-1*99 pr-c-1*99 pr-d
 
 #### 怎么设置每个账号的登录时间
 
-目前仅支持控制周末是否登录
+目前仅支持控制周末是否登录，高级设置中调整。
 
 ### 集成战略
 
@@ -513,7 +507,7 @@ pr => pr-b-2*99 pr-a-2*99 pr-c-2*99 pr-d-2*99 pr-b-1*99 pr-a-1*99 pr-c-1*99 pr-d
 
 目前公开机器人由于风控严重已不再提供，请按下面的教程自建。风控主要和好友数群数以及消息内容消息数量相关，少部分人使用不会风控。
 
-也可以使用pushplus推送，支持多种[通知渠道](http://www.pushplus.plus/doc/guide/api.html#%E4%B8%80%E3%80%81%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%E6%8E%A5%E5%8F%A3)，但有[额度限制](http://www.pushplus.plus/doc/guide/use.html)。在脚本高级设置中填写token即可使用，无需自建服务。
+也可以使用pushplus推送，支持多种[通知渠道](http://www.pushplus.plus/doc/guide/api.html#%E4%B8%80%E3%80%81%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%E6%8E%A5%E5%8F%A3)，但有[额度限制](http://www.pushplus.plus/doc/guide/use.html)。在脚本高级设置中填写token即可使用，无需自建服务。自定义webhook编码拼在channel后，即`webhook&webhook=自定义编码`。
 
 高级设置中可设置更多情况的通知。
 
@@ -553,7 +547,7 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 账号后加`#备注`，如`13888888888#点点1`，可换行。
 
 ::: tip
-账号与密码中的空格、回车都会被过滤，一行填不下请换行
+账号与密码中的空格、回车都会被过滤，一行填不下换行
 :::
 
 #### QQ通知怎么过滤重要提醒
@@ -662,7 +656,7 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 0 m 9 user 12345 '' --idx=10
 # 开打
 0 m 9 restart
-# 开打，本次从10开始
+# 开打，本轮从10开始
 0 m 9 restart 10-30
 
 ### 肉鸽模式

@@ -3613,8 +3613,10 @@ predebug_hook = function()
   swipu_flipx = 0
   ssleep(1)
   -- log(appearTap("snap"))
-  log(point["剿灭记录确认"])
-  log(findOne("剿灭记录确认"))
+  -- log(point["剿灭记录确认"])
+  -- log(findOne("剿灭记录确认"))
+  log(point.当前委托侧边栏)
+  log(findOne("当前委托侧边栏"))
   -- log(time())
   -- log(type(time()))
   -- log(type(time()-time()))
@@ -3687,7 +3689,7 @@ predebug_hook = function()
       x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
       -- if x >= 0 and x <= 140 and x == prex then return x end
-      if x >= 0 and x <= 140 then return x end
+      if x >= 0 and x <= 200 then return x end
       -- if x >= 0 then return x end
       prex = x
     end, 5)
@@ -4638,9 +4640,11 @@ end
 -- 定时执行逻辑：如果到点但脚本还在run则跳过，因为run中重启可能出现异常
 check_crontab = function()
   if not crontab_enable then return end
+  saveConfig("hideUIOnce", "true")
+  saveConfig("restart_mode_hook", '')
   local restart = function()
-    saveConfig("hideUIOnce", "true")
-    restartScript()
+    wait_game_up()
+    restartPackage()
   end
 
   local config = string.filterSplit(crontab_text)

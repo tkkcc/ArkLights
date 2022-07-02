@@ -2206,9 +2206,7 @@ path.线索交流 = function()
       appear("线索传递")
       clue_unlocked = false
       path.线索布置()
-      if not clue_unlocked then
-        path.线索传递()
-      end
+      if not clue_unlocked then path.线索传递() end
       return f(retry + 1)
     end
 
@@ -3256,6 +3254,7 @@ path.剿灭 = function(x)
   wait(function()
     if findOne("切换") then return true end
     tap("主页右侧")
+    appear("切换", 1)
   end, 5)
 
   if is_jmfight_enough(x) then return end
@@ -5320,7 +5319,9 @@ path.前瞻投资 = function(lighter)
     wait(function(reset_wait_start_time)
       -- 不能投情况
       if not findOne("诡意行商投资入口") then return true end
-      if findOne("正在提交反馈至神经") then reset_wait_start_time() end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
       if not findOne(coin_no_notification) then reset_wait_start_time() end
 
       -- 6秒后，如果底部投币提示没有，那就说明投币结束
