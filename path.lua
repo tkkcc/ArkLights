@@ -26,8 +26,10 @@ path.base = {
   账号登录 = function() tap("账号登录") end,
   开始唤醒 = function()
     check_login_frequency()
-    tap("开始唤醒")
-    disappear("开始唤醒")
+    wait(function()
+      tap("开始唤醒")
+      disappear("开始唤醒")
+    end, 5)
   end,
   手机验证码登录 = disable_game_up_check_wrapper(function()
     if appid ~= oppid then return end
@@ -175,6 +177,12 @@ path.base = {
         captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
                                 "剿灭接管作战", true)
         tap("剿灭接管作战")
+        ssleep(2)
+        tap("面板设置", true)
+        ssleep(2)
+        tap("放弃行动")
+        ssleep(2)
+        tap("右确认")
       end
 
       if findOne("剿灭记录确认") and
@@ -2626,14 +2634,16 @@ same_page_fight = function(pre, cur)
 end
 
 path.轮次作战 = function()
-  -- path.跳转("首页")
   while not zero_san do
+
     if #fight == 0 then return true end
     fight_tick = fight_tick % #fight + 1
     if fight_tick == #fight then
       no_success_one_loop = no_success_one_loop + 1
       if no_success_one_loop > 5 then break end
     end
+    if request_memory_clean() then path.跳转("首页") end
+
     cur_fight = fight[fight_tick]
     log(971, cur_fight)
     if cur_fight == 'BREAK' then break end
@@ -2658,7 +2668,6 @@ path.轮次作战 = function()
       fight_tick = 0
       fight = {"1-7"}
     end
-    if request_memory_clean() then path.跳转("首页") end
   end
 
 end
@@ -4213,12 +4222,13 @@ path.前瞻投资 = function(lighter)
     end
 
     -- 首次
-    zl_no_waste_last_time = time()
     if zl_no_waste then
       transfer_global_variable("multi_account_user0")
       update_state_from_ui()
       run(no_extra_job)
     end
+
+    zl_no_waste_last_time = time()
   end
 
   local in_fight_return = ''
@@ -4712,7 +4722,7 @@ path.前瞻投资 = function(lighter)
       return true
     end
   end, 5) then
-    log("不知道第一个作战是什么")
+    stop("不知道第一个作战是什么", 'cur')
     return
   end
   log(fight1ocr)
@@ -4966,7 +4976,7 @@ path.前瞻投资 = function(lighter)
   if #in_fight_return > 0 then
     toast(in_fight_return .. "，10秒后重开")
     ssleep(10)
-    tap(point["面板设置"])
+    tap("面板设置", true)
     ssleep(2)
     tap("放弃行动")
     ssleep(2)

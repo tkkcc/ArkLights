@@ -38,7 +38,7 @@ serial_alias = {
     "7": "103.36.203.104:303",
     "8": "103.36.203.208:302",
     "9": "103.36.203.132:302",
-    "10": "103.36.203.125:301",
+    "10": "103.36.202.144:301",
     "5": "103.36.203.105:301",
 }
 daily_device = ["1", "4", "5", "9", "3"]
@@ -568,7 +568,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, "zl_skip_hard", False)
         c(x, "zl_no_waste", False)
         c(x, "zl_need_goods", "")
-        c(x, "zl_max_level", "125")
+        c(x, "zl_max_level", "140")
         c(x, "zl_max_coin", "")
         save("config_extra.json", x)
 
@@ -698,7 +698,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         # c(x, "enable_disable_lmk", False)
         # c(x, "disable_killacc", False)
         # c(x, "enable_restart_package", True)
-        # c(x, "keepalive_interval", "900")
+        c(x, "restart_package_interval", "7200")
         # c(x, "tap_wait", "")
         save("config_debug.json", x)
 
@@ -855,9 +855,16 @@ def check(key=""):
 
 # every day upload
 def edu():
-    for username in everyday_upload:
+    dlt = DLT()
+    for m in dlt.my(raw=True):
+        if not DLT.need_everyday_upload(m["Title"]):
+            continue
+        print(m["Title"])
+        check(m["SerialNo"])
+        dlt.submit()
+    for username in extra_everyday_upload:
         check(username)
-        DLT().submit()
+        dlt.submit()
 
 
 def users():

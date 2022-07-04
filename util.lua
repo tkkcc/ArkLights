@@ -2942,7 +2942,7 @@ show_debug_ui = function()
 
   newRow(layout)
   addTextView(layout, "脚本重启间隔(s)")
-  ui.addEditText(layout, "restart_package_interval", "14400")
+  ui.addEditText(layout, "restart_package_interval", "7200")
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_disable_lmk",
@@ -3483,13 +3483,13 @@ enable_snapshot_service = disable_game_up_check_wrapper(function()
   if isSnapshotServiceRun() then return end
   if skip_snapshot_service_check then return end
 
-  -- if root_mode then
-  -- log("enable snapshot service by root")
-  -- TODO need this?
-  -- exec("su root sh -c 'appops set " .. package .. " PROJECT_MEDIA allow'")
-  -- exec("su root sh -c 'appops set " .. package ..
-  --        " SYSTEM_ALERT_WINDOW allow'")
-  -- end
+  if root_mode then
+    log("enable snapshot permission by root")
+    exec([[su root sh -c '
+appops set ]] .. package .. [[ PROJECT_MEDIA allow
+appops set ]] .. package .. [[ SYSTEM_ALERT_WINDOW allow
+']])
+  end
 
   -- log("3444", 3444)
   -- if apk502 then
@@ -3520,7 +3520,10 @@ enable_snapshot_service = disable_game_up_check_wrapper(function()
   openPermissionSetting()
   if not wait(function()
     if isSnapshotServiceRun() then return true end
-    local p = findOne("snap")
+    local p
+    p = findOne("snap")
+    if p then clickNodeFalse(p) end
+    p = findOne({text = '立即开始'})
     if p then clickNodeFalse(p) end
     ssleep(1)
   end, 60) then stop("开启录屏权限超时", 'cur') end
@@ -3611,12 +3614,12 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  ssleep(1)
+  ssleep(2)
   -- log(appearTap("snap"))
-  -- log(point["剿灭记录确认"])
-  -- log(findOne("剿灭记录确认"))
-  log(point.当前委托侧边栏)
-  log(findOne("当前委托侧边栏"))
+  log(point["剿灭记录确认"])
+  log(findOne("剿灭记录确认"))
+  -- log(point.当前委托侧边栏)
+  -- log(findOne("当前委托侧边栏"))
   -- log(time())
   -- log(type(time()))
   -- log(type(time()-time()))
@@ -5002,6 +5005,20 @@ end
 check_login_frequency = function()
 
   login_times = (login_times or 0) + 1
+
+  if login_times > 1 then
+    -- captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. "登录次数" ..
+    --                         login_times ..
+    --                         (is_network_unstable() and
+    --                           ",闪断时间段等15分钟" or ''))
+    if is_network_unstable() then
+      toast("闪断时间段等15分钟")
+      wait(function() ssleep(1) end, 900)
+      login_times = login_times - 1
+      return
+    end
+  end
+
   if login_times >= max_login_times then
     stop("登录次数达到" .. login_times, 'next')
   end
@@ -5013,15 +5030,6 @@ check_login_frequency = function()
     login_time_history[#login_time_history - max_login_times_5min + 1] < 15 * 60 *
     1000 then
     stop("15分钟内登录次数达到" .. max_login_times_5min, 'next')
-  end
-
-  if login_times > 1 then
-    -- captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. "登录次数" ..
-    --                         login_times ..
-    --                         (is_network_unstable() and
-    --                           ",闪断时间段等15分钟" or ''))
-    toast("闪断时间段等15分钟")
-    if is_network_unstable() then wait(function() ssleep(1) end, 900) end
   end
 
 end
@@ -5159,17 +5167,20 @@ while [[ $(date +%s) -lt $endTime ]]; do
 done
 secs=300
 endTime=$(( $(date +%s) + secs ))
+ok_found=0
 while [[ $(date +%s) -lt $endTime ]]; do
   sleep 5
-  uiautomator dump /sdcard/window_dump.xml
   foreground=$(dumpsys activity recents|sed -rn '\''s/.*Recent #0.*(com[^ ]+).*/\1/p'\'')
-  if [[ $foreground == *com.hypergryph* ]];then
+
+  if [[ ! $foreground == *com.bilabila* ]] && [[ $ok_found == 1 ]] ;then
      exit
-  elif [[ $foreground == *com.bilabila* ]];then
-     :
-  else
-    continue
   fi
+
+  if [[ ! $foreground == *com.bilabila* ]];then
+     continue
+  fi
+
+  uiautomator dump /sdcard/window_dump.xml
 
   cancel=$(sed -rn '\''s|.*text=.取消.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   ok=$(sed -rn '\''s|.*text=.确定.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
@@ -5177,15 +5188,17 @@ while [[ $(date +%s) -lt $endTime ]]; do
     eval $cancel
     continue
   elif [[ -n $ok ]]; then
+    sleep 1
     eval $ok
+    ok_found=1
     continue
   fi
 
-  start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
-  if [[ -n $start ]]; then
-    eval $start
-    continue
-  fi
+  #start=$(sed -rn '\''s|.*text=.立即开始.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
+  #if [[ -n $start ]]; then
+  #  eval $start
+  #  continue
+  #fi
 
   # snap=$(sed -rn '\''s|.*com.bilabila.arknightsspeedrun2:id/switch_snap.[^>]*bilabila[^>]*bounds=.\[([0-9]*),([0-9]*)\]\[([0-9]*),([0-9]*)\]..*|input tap $(((\1+\3)/2)) $(((\2+\4)/2))|p'\'' /sdcard/window_dump.xml)
   # if [[ -n $snap ]]; then
@@ -5538,7 +5551,7 @@ update_state_from_debugui = function()
   enable_restart_package = true
 
   restart_game_interval = str2int(restart_game_interval, 900)
-  restart_package_interval = str2int(restart_package_interval, 14400)
+  restart_package_interval = str2int(restart_package_interval, 7200)
 end
 
 -- 基建心情阈值与QQ号
