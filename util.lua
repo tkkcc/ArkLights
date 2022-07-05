@@ -908,6 +908,10 @@ tap = function(x, noretry, allow_outside_game)
   if type(x0) == 'string' and x0:startsWith('面板') then
     wait(function()
       if not findOne("面板") then return true end
+      if findOne("阿米娅") then
+        path.fallback.阿米娅()
+        return true
+      end
       log("retap", x0)
       tap(x0, true, allow_outside_game)
     end, 10)
@@ -3533,11 +3537,11 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    -- "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5",
-    -- "HD-6",
-    -- "HD-7",
+    "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5",
+    "HD-6",
+    "HD-7",
     "HD-8",
-    -- "HD-9",
+    "HD-9",
 
     -- "10-2",
     -- "10-3",
@@ -3614,10 +3618,15 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+  while true do
+    log(findOne("活动导航1"))
+  end
+  swip("HD-7")
+  exit()
   ssleep(2)
   -- log(appearTap("snap"))
-  log(point["剿灭记录确认"])
-  log(findOne("剿灭记录确认"))
+  -- log(point["剿灭记录确认"])
+  -- log(findOne("剿灭记录确认"))
   -- log(point.当前委托侧边栏)
   -- log(findOne("当前委托侧边栏"))
   -- log(time())
@@ -3652,7 +3661,6 @@ predebug_hook = function()
   -- p = findOne("同意并继续")
   -- clickNode(p)
   -- log(ocr("第一层作战"))
-  -- swip("HD-7")
   -- deploy3(1, "死斗", 1)
   ssleep(1)
 
@@ -4516,7 +4524,7 @@ parse_fight_config = function(fight_ui)
     elseif table.includes(table.keys(extrajianpin2name), v) then
       v = extrajianpin2name[v]
     end
-    if table.find({'活动', "GA", "WR", "IW", "WD", "SN", "SV", "LE"},
+    if table.find({'活动', "GA", "DV", "WR", "IW", "WD", "SN", "SV", "LE"},
                   startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
@@ -4543,7 +4551,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _, i in pairs({6, 7, 5}) do
+      for _, i in pairs({8, 7, 6}) do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
@@ -4582,7 +4590,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202206230400")
+  hd_open_time_end = parse_time("202207190400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202205191600")
@@ -5146,6 +5154,7 @@ echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
 end
 
 restartPackage = function()
+  log("5153",5153)
   if not root_mode or not enable_restart_package then return restartScript() end
   local cmd = [[nohup su root sh -c ' \
 while :; do

@@ -3324,10 +3324,9 @@ path.活动 = function(x)
 
   if not wait(function()
     tap("活动导航2")
-    if not findOne("活动导航1") then return true end
+    if not appear("活动导航1") then return true end
   end, 5) then return end
 
-  ssleep(1)
   swip(x)
   ssleep(.5)
   tap("作战列表" .. x)
