@@ -2933,7 +2933,6 @@ show_debug_ui = function()
 
 
 
-
 ]])
 
   -- newRow(layout)
@@ -2945,14 +2944,15 @@ show_debug_ui = function()
   ui.addEditText(layout, "restart_game_interval", "900")
 
   newRow(layout)
-  addTextView(layout, "脚本重启间隔(s)")
+  addTextView(layout, "完全重启间隔(s)")
   ui.addEditText(layout, "restart_package_interval", "7200")
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_disable_lmk",
   --                "禁用LMK(测试中,专用挂机设备建议勾)", false)
-  -- newRow(layout)
-  -- ui.addCheckBox(layout, "enable_restart_package", "启用完全重启", true)
+
+  newRow(layout)
+  ui.addCheckBox(layout, "disable_restart_package", "禁用完全重启", false)
 
   -- newRow(layout)
   -- ui.addCheckBox(layout, "disable_killacc1", "禁用重启acc进程", false)
@@ -3537,10 +3537,7 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5",
-    "HD-6",
-    "HD-7",
-    "HD-8",
+    "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
     "HD-9",
 
     -- "10-2",
@@ -3618,9 +3615,9 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  while true do
-    log(findOne("活动导航1"))
-  end
+  -- while true do
+  --   log(findOne("活动导航1"))
+  -- end
   swip("HD-7")
   exit()
   ssleep(2)
@@ -4953,6 +4950,27 @@ zl_no_waste_last_time=]] .. str(zl_no_waste_last_time)
   saveConfig("restart_mode_hook", hook)
 end
 
+save_drug_stone_times = function()
+  if not max_stone_times or not stone_times then return end
+  local stone_remain_times = max_stone_times - stone_times
+  local drug_remain_times = max_drug_times - drug_times
+  local idx = account_idx
+  local hook = loadConfig('restart_mode_hook', '')
+  if not idx then
+    hook = hook .. [[;
+max_stone_times=]] .. stone_remain_times .. [[;
+max_drug_times=]] .. drug_remain_times .. [[;
+]]
+  else
+    hook = hook .. [[;
+multi_account_user]] .. idx .. [[max_stone_times=]] .. stone_remain_times .. [[;
+multi_account_user]] .. idx .. [[max_drug_times=]] .. drug_remain_times .. [[;
+]]
+  end
+  saveConfig("restart_mode_hook", hook)
+
+end
+
 save_multi_account_choice = function(skip_current)
   if not multi_account_choice_idx then return end
   -- 跳过当前账号
@@ -4992,11 +5010,13 @@ restart_account = function(skip_current)
     end
     saveConfig("hideUIOnce", "true")
     save_extra_mode(extra_mode, extra_mode_multi)
+    save_drug_stone_times()
     restartPackage()
   end
 
   saveConfig("hideUIOnce", "true")
   save_extra_mode(extra_mode, extra_mode_multi)
+  save_drug_stone_times()
   save_multi_account_choice(skip_current)
   restartPackage()
 end
@@ -5154,8 +5174,9 @@ echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
 end
 
 restartPackage = function()
-  log("5153",5153)
-  if not root_mode or not enable_restart_package then return restartScript() end
+  -- log("restart_mode_hook", loadConfig("restart_mode_hook", ''))
+  -- log("hideUIOnce", loadConfig("hideUIOnce", ''))
+  if not root_mode or disable_restart_package then return restartScript() end
   local cmd = [[nohup su root sh -c ' \
 while :; do
 am force-stop ]] .. oppid .. [[;
@@ -5221,11 +5242,6 @@ done
   exec(cmd)
   ssleep(60)
   restartScript()
-end
-
-monitor = function()
-  if not root_mode or not enable_restart_package then return end
-  exec(cmd)
 end
 
 trim_game_memory = function()
@@ -5518,11 +5534,10 @@ update_state_from_debugui = function()
   multi_account_disable_clue_unlock = expand_number_config(
                                         multi_account_disable_clue_unlock or '')
 
-  max_jmfight_times = str2int(max_jmfight_times, math.huge)
+  max_jmfight_times = str2int(max_jmfight_times, 1)
   findOne_interval = str2int(findOne_interval, -1)
   max_fight_times = str2int(max_fight_times, math.huge)
   tap_interval = str2int(tap_interval, -1)
-  zl_restart_interval = str2int(zl_restart_interval1, 3600)
   zl_skill_times = str2int(zl_skill_times, 0)
   zl_skill_idx = str2int(zl_skill_idx, 1)
   tapall_duration = str2int(tapall_duration, -1)
@@ -5556,8 +5571,8 @@ update_state_from_debugui = function()
   cloud.setDeviceToken(cloud_device_token)
   cloud.setServer(cloud_server)
   cloud.setStatus(extra_mode == "战略前瞻投资" and 1002 or 1001)
-  if apk502 then enable_restart_package = true end
-  enable_restart_package = true
+  -- if apk502 then enable_restart_package = true end
+  -- enable_restart_package = not disable_restart_package
 
   restart_game_interval = str2int(restart_game_interval, 900)
   restart_package_interval = str2int(restart_package_interval, 7200)
