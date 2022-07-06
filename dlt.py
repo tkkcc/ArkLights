@@ -698,7 +698,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         # c(x, "enable_disable_lmk", False)
         # c(x, "disable_killacc", False)
         # c(x, "enable_restart_package", True)
-        c(x, "restart_package_interval", "7200")
+        c(x, "restart_package_interval", "3600")
         # c(x, "tap_wait", "")
         save("config_debug.json", x)
 

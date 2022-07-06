@@ -226,10 +226,10 @@ path.base = {
 
       if not qqnotify_nofailedfight then
         local info = table.join(qqmessage, ' ') .. " " .. cur_fight ..
-                       "代理失败" .. (home and "(掉线或抢登)" or '') ..
-                       (zero_star and 'zero_star' or '') ..
-                       (see_end and 'see_end' or '') ..
-                       (normal and 'normal' or '')
+                       "代理失败" .. (home and "(掉线或抢登)" or '')
+        -- (zero_star and 'zero_star' or '') ..
+        -- (see_end and 'see_end' or '') ..
+        -- (normal and 'normal' or '')
         captureqqimagedeliver(info, true)
       end
       -- 一次代理失败直接认为无效：不行，因为可能是掉线造成的失败
@@ -2712,7 +2712,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
   if not appear("代理指挥开", .5) then
     tap("代理指挥开1")
     if not appear("代理指挥开", .5) then
-      -- clean_fight(x)
+      clean_fight(x)
       -- fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
       if not appear("主页") then back() end
       return path.跳转("首页")
@@ -3340,6 +3340,7 @@ path.活动 = function(x)
   end
   path.开始游戏(x)
 end
+
 -- path.活动 = hd_wrapper(path.活动)
 
 path.活动2任务与商店 = function()
@@ -4174,7 +4175,6 @@ path.退出账号 = function()
 end
 
 path.前瞻投资 = function(lighter)
-
   -- 防止日志占用资源过多把脚本挤掉
   -- if zl_disable_log then disable_log = true end
   -- 防止无障碍节点获取失效，而反复重启游戏（在7时42分记录中浪费了2分多钟）

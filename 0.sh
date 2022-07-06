@@ -43,7 +43,7 @@
   extract() {
     rm -rf arknights
     rm -rf arknights_extract
-    unzip ${1:-arknights-hg-1821.apk} -d arknights
+    unzip ${1:-arknights.apk} -d arknights
     ./extract.py unpack
   }
   release() {
@@ -205,6 +205,8 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     noalpha $png png_noalpha
     find png_noalpha -type f -not -name 'bskill_*' -delete
     touch png_noalpha/.nomedia
+    echo -n "==> total "
+    ls png_noalpha|wc -l
 
     git submodule update --init --recursive --remote
     ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
@@ -292,4 +294,5 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   }
   "$@"
   wait
+  exit 0
 }
