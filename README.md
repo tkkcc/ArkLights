@@ -14,12 +14,13 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 <!-- <a href=https://www.bilibili.com/video/BV1LM4y1F7kA>老版日常演示</a> -->
 <a href=https://www.bilibili.com/video/BV11T4y1S7cj>999源石锭速刷记录7时21分</a>
 <a href=https://www.bilibili.com/video/BV1eQ4y1C7Ch>每日任务速通记录35.25s</a>
+<a href=https://arklights.vercel.app/guide.html#%E4%BA%91%E7%AB%AF%E6%8E%A7%E5%88%B6>云控平台</a>
 </p>
-<p align="center" >
-云控平台开发中！
-<a href=https://github.com/AegirTech/IberiaEye>伊比利亚之眼</a>
-<a href=https://github.com/AegirTech/Inquisition>审判庭</a>
-</p>
+<!-- <p align="center" > -->
+<!-- 云控平台开发中！ -->
+<!-- <a href=https://github.com/AegirTech/IberiaEye>伊比利亚之眼</a> -->
+<!-- <a href=https://github.com/AegirTech/Inquisition>审判庭</a> -->
+<!-- </p> -->
 <!-- 本项目使用GPL协议，请遵循[修改开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLRequireSourcePostedPublic)与[商用开源](https://www.gnu.org/licenses/gpl-faq.zh-cn.html#GPLCommercially)要求。 -->
 
 ![](cover.jpg)

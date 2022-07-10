@@ -697,17 +697,18 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 
 ## 云端控制
 
-开发测试中
+[AegirTech](https://github.com/AegirTech)
 
-明日方舟速通云控前端: [AegirTech/IberiaEye](https://github.com/AegirTech/IberiaEye)
+面向速通机群的管理平台：
+1. 日常/肉鸽账号管理，自动分派任务到机群。
+1. 节点离线、任务超时时重派任务。
+1. 按账号、关键词检索速通通知。
+1. 节点离线通知、任务完成通知。
 
-明日方舟速通云控后端: [AegirTech/Inquisition](https://github.com/AegirTech/Inquisition)
-
-打开[https://dashboard-skadid.vercel.app](https://dashboard-skadid.vercel.app)，注册登录，新增设备，将设备token填写到速通高级设置`审判庭设备标识`，启动。
+需自建前端与后端。新增设备后，将设备token与后端地址填写到速通高级设置，启动。
 
 若不勾选`审判庭接受任务`，则速通仍处理本地任务，但可使用心跳与日志服务。
 
 若勾选`审判庭接受任务`，则速通只处理云端分发的任务。
 
-如果后端服务器掉线的话，每次上传截图时会等待30秒。
-
+若后端掉线，每次上传截图时会等待30秒。
