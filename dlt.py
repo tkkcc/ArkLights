@@ -587,8 +587,8 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
 
     def rg2(
         operator=None,
-        times=None,
-        skill=None,
+        times=0,
+        skill=0,
         level=None,
         waste=None,
         skip_hard=None,

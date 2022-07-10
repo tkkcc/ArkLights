@@ -3053,7 +3053,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout, [[选第]])
-  ui.addEditText(layout, "zl_best_operator", [[0]])
+  ui.addEditText(layout, "zl_best_operator", [[1]])
   addTextView(layout, [[个近卫 开]])
   ui.addEditText(layout, "zl_skill_times", [[0]])
   addTextView(layout, [[次]])

@@ -4656,6 +4656,48 @@ path.前瞻投资 = function(lighter)
     end
   end, 10) then return end
 
+  local help_fight = function()
+    -- if not findOne("确认招募") then return end
+    if not wait(function()
+      if findOne("战略助战界面") then return true end
+      tap("战略助战")
+    end, 5) then return end
+
+    local operator
+    if not wait(function()
+      operator = ocr("战略助战干员范围")
+      if #operator > 3 then return true end
+    end, 5) then stop("找不到助战干员", 'cur') end
+
+    local name2point = table.reduce(operator, function(a, c)
+      a[c.text] = c
+      return a
+    end, {})
+
+    -- 山2、羽毛笔1、耀光1、史尔特尔2、煌2、帕拉斯1、赫拉格2、艾丽妮1、银灰1、幽灵鲨1、拉狗2
+    local order = {
+      {"山", 1, 2}, {"羽毛笔", 0, 1}, {"耀骑士临光", 0, 1},
+      {"史尔特尔", 99, 2}, {"帕拉斯", 0, 1}, {"赫拉格", 99, 2},
+      {"艾丽妮", 0, 1}, {"斯卡蒂", 99, 1}, {"银灰", 0, 1},
+      {"幽灵鲨", 99, 1}, {"拉普兰德", 0, 1},
+    }
+    local best = table.findv(order, function(x) return name2point[x[1]] end)
+    if not best then return end
+    zl_skill_times = best[2]
+    zl_skill_idx = best[3]
+    -- log("best", best)
+    -- if not best then return point.战略助战干员列表1, 0, 1 end
+    local p = name2point[best[1]]
+    p = {p.l, p.t}
+    tap(p)
+    disappear("战略助战界面", 5)
+    wait(function()
+      if findOne("初始招募") then return true end
+      tap("开包skip")
+      tap("战略助战确认")
+    end, 5)
+  end
+
   if not wait(function()
     if findAny({"初始招募", "战略返回"}) then
       log(26)
@@ -4671,12 +4713,19 @@ path.前瞻投资 = function(lighter)
     end
     log(28, zl_best_operator)
     local idx = str2int(zl_best_operator, -1)
-    if idx < 1 or idx > 12 then
+
+    if idx >= 1 and idx <= 12 then
+      -- 指定
+      tap("近卫招募列表" .. (zl_best_operator or 1))
+      findTap("确认招募")
+      tap("开包skip")
+
+    elseif idx == -1 then
+      -- 助战自动
+      help_fight()
+    else
       stop("请设置近卫干员序号(1~12)", '', true, false)
     end
-    tap("近卫招募列表" .. (zl_best_operator or 1))
-    findTap("确认招募")
-    tap("开包skip")
   end, 10) then return end
 
   if not appear("初始招募") then return end
