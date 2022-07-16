@@ -211,9 +211,10 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     if math.abs(colorDiff(yg1, yg2)) < 36 and table.any(ygStaitonColor,
                                                         function(color)
       return math.abs(colorDiff(yg1, color)) < 36
-    end) and (math.abs(colorDiff(yg3, "ff303030")) < 45) then
+    end) and (math.abs(colorDiff(yg3, "ff003030")) < 45) then
       log("异格干员")
       mood = -mood
+      if mood == 0 then mood = -1 end
     end
     -- exit()
 

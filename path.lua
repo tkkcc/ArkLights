@@ -1902,6 +1902,7 @@ path.总览换班 = function()
     -- 排除异格干员
     local operator = {}
     discover(operator, {}, 1, true)
+    -- log("1905", operator)
     operator = table.filter(operator, function(x) return x[3] >= 0 end)
     operator = map(function(x) return x[4] end, operator)
     operator = table.slice(operator, 1, limit)

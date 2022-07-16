@@ -4,7 +4,7 @@ if use_zhuzhu_game then oppid = "com.hypergryph.arknightss" end
 bppid = "com.hypergryph.arknights.bilibili"
 -- apk502 = getApkVerInt() >= 502 or getApkVerInt() == 1
 apk502 = getApkVerInt() >= 502
-is_apk_old = function() return getApkVerInt() < 611 end
+is_apk_old = function() return getApkVerInt() < 0 end
 apk_old_warning = "怎么还有人用" .. getApkVerInt()
 
 disable_game_up_check_wrapper = function(func)
@@ -1559,6 +1559,7 @@ wait_game_up = function(retry)
     end
     return
   end
+
 
   if retry == 2 then closeapp(appid) end
   if retry >= 4 then stop("无法启动游戏", 'cur') end

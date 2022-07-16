@@ -26,7 +26,8 @@ log_path = "log"
 log_path = Path(log_path)
 log_path.mkdir(exist_ok=True, parents=True)
 serial_alias = {
-    "21": "103.36.203.215:301",
+    "21": "127.0.0.1:5556",
+    "21": "127.0.0.1:5556",
     "23": "103.36.203.125:301",
     "24": "103.36.203.81:301",
     "0": "127.0.0.1:5555",
@@ -41,7 +42,7 @@ serial_alias = {
     "10": "103.36.202.144:301",
     "5": "103.36.203.105:301",
 }
-daily_device = ["1", "4", "5", "9", "3"]
+daily_device = ["4", "5", "9"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -62,6 +63,9 @@ def mode(serial, f="help", *args, **kwargs):
 
     def help():
         return
+
+    def install(path=""):
+        adb("install", path)
 
     def hyi():
         # 华云 系统精简
@@ -205,7 +209,10 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         if dry:
             return
 
-        adb("shell", "nohup sh -c 'nc -klp49876 -e sh' > /dev/null 2>&1 &")
+        adb(
+            "shell",
+            "nohup su root sh -c 'nc -klp49876 -e sh;nc -Lp49876 sh' > /dev/null 2>&1 &",
+        )
         print(
             adb(
                 "shell",
@@ -586,9 +593,9 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         restart()
 
     def rg2(
-        operator=None,
+        operator=-1,
         times=0,
-        skill=0,
+        skill=1,
         level=None,
         waste=None,
         skip_hard=None,
@@ -615,6 +622,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
 
         # 重启
         restart(rg=True)
+        
 
     def restart(account="", hide=True, rg=False, crontab=False, game=False):
         if account:
@@ -787,7 +795,7 @@ def check(key=""):
         # print("serial", serial)
         # print("user", user)
         # exit()
-        mode(device, "pic", user + "*分钟")
+        mode(device, "pic", user + "*分钟\ ")
 
         return
 
