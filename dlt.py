@@ -795,7 +795,7 @@ def check(key=""):
         # print("serial", serial)
         # print("user", user)
         # exit()
-        mode(device, "pic", user + "*分钟\ ")
+        mode(device, "pic", user + "*分钟")
 
         return
 

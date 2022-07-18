@@ -215,6 +215,12 @@ math.round = function(x) return math.floor(x + 0.5) end
 round = math.round
 clip = function(x, minimum, maximum) return min(max(x, minimum), maximum) end
 
+-- https://stackoverflow.com/questions/9790688/escaping-strings-for-gsub
+string.quote = function(str)
+  local quotepattern = '([' .. ("%^$().[]*+-?"):gsub("(.)", "%%%1") .. '])'
+  return str:gsub(quotepattern, "%%%1")
+end
+
 -- https://stackoverflow.com/questions/10460126/how-to-remove-spaces-from-a-string-in-lua
 string.trim = function(s)
 
@@ -1279,6 +1285,7 @@ run = function(...)
   local run_start_time = time()
   qqnotify_before_run()
   update_state()
+  save_run_state()
   wait_game_up()
   for _, v in ipairs(arg) do
     running = v
@@ -1559,7 +1566,6 @@ wait_game_up = function(retry)
     end
     return
   end
-
 
   if retry == 2 then closeapp(appid) end
   if retry >= 4 then stop("无法启动游戏", 'cur') end
@@ -4646,7 +4652,7 @@ apply_multi_account_setting = function(i, visited)
   end
 end
 
--- 定时执行逻辑：如果到点但脚本还在run则跳过，因为run中重启可能出现异常
+-- 定时执行逻辑：如果到点但脚本还在run则跳过
 check_crontab = function()
   if not crontab_enable then return end
   saveConfig("hideUIOnce", "true")
@@ -4942,38 +4948,37 @@ captcha_solver = function() end
 
 forever = function(f, ...) while true do f(...) end end
 
-save_extra_mode = function(mode, multi)
-  if not mode then return end
-  local hook = loadConfig('restart_mode_hook', '') .. [[;
+make_extra_mode_hook = function(mode, multi)
+  if not mode then return '' end
+  local hook = [[;
 extra_mode=]] .. string.format('%q', str(mode)) .. [[;
 extra_mode_multi=]] .. str(multi and true or false) .. [[;
 zl_no_waste_last_time=]] .. str(zl_no_waste_last_time)
-  saveConfig("restart_mode_hook", hook)
+  return hook
 end
 
-save_drug_stone_times = function()
-  if not max_stone_times or not stone_times then return end
+make_drug_stone_times_hook = function()
+  if not max_stone_times or not stone_times then return '' end
   local stone_remain_times = max_stone_times - stone_times
   local drug_remain_times = max_drug_times - drug_times
   local idx = account_idx
-  local hook = loadConfig('restart_mode_hook', '')
+  local hook = ''
   if not idx then
-    hook = hook .. [[;
+    hook = [[;
 max_stone_times=]] .. stone_remain_times .. [[;
 max_drug_times=]] .. drug_remain_times .. [[;
 ]]
   else
-    hook = hook .. [[;
+    hook = [[;
 multi_account_user]] .. idx .. [[max_stone_times=]] .. stone_remain_times .. [[;
 multi_account_user]] .. idx .. [[max_drug_times=]] .. drug_remain_times .. [[;
 ]]
   end
-  saveConfig("restart_mode_hook", hook)
-
+  return hook
 end
 
-save_multi_account_choice = function(skip_current)
-  if not multi_account_choice_idx then return end
+make_multi_account_choice_hook = function(skip_current)
+  if not multi_account_choice_idx or not account_idx then return '' end
   -- 跳过当前账号
   if skip_current then
     while multi_account_choice[multi_account_choice_idx] == account_idx do
@@ -4983,9 +4988,8 @@ save_multi_account_choice = function(skip_current)
   -- 截取后续账号
   multi_account_choice = table.slice(multi_account_choice,
                                      multi_account_choice_idx)
-  saveConfig("restart_mode_hook",
-             loadConfig("restart_mode_hook", '') .. ";multi_account_choice=[[" ..
-               table.join(multi_account_choice, ' ') .. "]]")
+  return ";multi_account_choice=" ..
+           string.format('%q', table.join(multi_account_choice, ' '))
 end
 
 -- restart_mode = function(mode, multi)
@@ -5002,23 +5006,32 @@ end
 --   restartScript()
 -- end
 
-restart_account = function(skip_current)
-  -- 只在多账号模式启用跳过账号
-  if not account_idx then
-    if skip_current then
-      toast("等待1小时")
-      wait(function() ssleep(1) end, 3600)
-    end
-    saveConfig("hideUIOnce", "true")
-    save_extra_mode(extra_mode, extra_mode_multi)
-    save_drug_stone_times()
-    restartPackage()
-  end
+save_run_state = function(skip_current)
+  local hook_prefix = ";-- save_run_state_begin;"
+  local hook_suffix = ";-- save_run_state_end;"
+  local hook = ''
 
+  hook = hook .. make_extra_mode_hook(extra_mode, extra_mode_multi)
+  hook = hook .. make_drug_stone_times_hook()
+  hook = hook .. make_multi_account_choice_hook(skip_current)
+
+  hook = hook_prefix .. hook .. hook_suffix
+
+  local pre_hook = loadConfig('restart_mode_hook', '')
+  pre_hook = pre_hook:gsub(hook_prefix:quote() .. ".*" .. hook_suffix:quote(),
+                           '')
+  hook = pre_hook .. hook
+  saveConfig("restart_mode_hook", hook)
   saveConfig("hideUIOnce", "true")
-  save_extra_mode(extra_mode, extra_mode_multi)
-  save_drug_stone_times()
-  save_multi_account_choice(skip_current)
+end
+
+restart_account = function(skip_current)
+  -- 单帐号等待
+  if not account_idx and skip_current then
+    toast("等待1小时")
+    wait(function() ssleep(1) end, 3600)
+  end
+  save_run_state(skip_current)
   restartPackage()
 end
 

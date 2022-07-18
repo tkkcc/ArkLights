@@ -4216,9 +4216,10 @@ path.前瞻投资 = function(lighter)
     -- 并非首次
     if zl_no_waste_last_time then
       zl_no_waste_last_time = nil
-      saveConfig("hideUIOnce", "true")
-      save_extra_mode(extra_mode, extra_mode_multi)
-      restartPackage()
+      restart_account()
+      -- saveConfig("hideUIOnce", "true")
+      -- save_extra_mode(extra_mode, extra_mode_multi)
+      -- restartPackage()
     end
 
     -- 首次
