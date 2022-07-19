@@ -622,7 +622,6 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
 
         # 重启
         restart(rg=True)
-        
 
     def restart(account="", hide=True, rg=False, crontab=False, game=False):
         if account:
@@ -635,11 +634,11 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
             save("config_multi_account.json", x)
 
         x = load("config_debug.json")
+        c(x, "after_require_hook", ("saveConfig('hideUIOnce','true');" if hide else ""))
         c(
             x,
-            "after_require_hook",
+            "before_account_hook",
             "clear_hook();"
-            + ("saveConfig('hideUIOnce','true');" if hide else "")
             + ("extra_mode=[[战略前瞻投资]];" if rg else "")
             + ("crontab_enable_only=1;" if crontab else ""),
         )

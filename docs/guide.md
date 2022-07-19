@@ -41,7 +41,7 @@ QQ频道号：[h800n9f23g](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&
 
 不支持 雷电3、mumu6
 
-蓝叠需执行以下命令
+蓝叠需在模拟器启动后执行以下命令，再启动脚本
 ```sh
 adb connect 127.0.0.1:5555
 adb -s 127.0.0.1:5555 shell "nohup su root sh -c 'nc -Lp49876 sh' > /dev/null 2>&1 &"
@@ -59,7 +59,7 @@ adb -s 127.0.0.1:5555 shell "nohup su root sh -c 'nc -Lp49876 sh' > /dev/null 2>
 <!-- 1. 从群友反馈看，红手指kvip、雷电云svip跑速通稳定性好。 -->
 <!-- 1. 华云的root保活仍存在问题，但api较全。 -->
 
-华云需执行以下命令
+华云需在手机启动后执行以下命令，再启动脚本
 ```sh
 adb connect 123.456.789.101:234
 adb -s 123.456.789.101:234 shell "nohup su root sh -c 'nc -klp49876 -e sh' > /dev/null 2>&1 &"

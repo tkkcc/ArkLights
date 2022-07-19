@@ -4979,17 +4979,16 @@ end
 
 make_multi_account_choice_hook = function(skip_current)
   if not multi_account_choice_idx or not account_idx then return '' end
+  local choice_idx = multi_account_choice_idx
+  local choice = multi_account_choice
   -- 跳过当前账号
   if skip_current then
-    while multi_account_choice[multi_account_choice_idx] == account_idx do
-      multi_account_choice_idx = multi_account_choice_idx + 1
-    end
+    while choice[choice_idx] == account_idx do choice_idx = choice_idx + 1 end
   end
   -- 截取后续账号
-  multi_account_choice = table.slice(multi_account_choice,
-                                     multi_account_choice_idx)
+  choice = table.slice(choice, choice_idx)
   return ";multi_account_choice=" ..
-           string.format('%q', table.join(multi_account_choice, ' '))
+           string.format('%q', table.join(choice, ' '))
 end
 
 -- restart_mode = function(mode, multi)
