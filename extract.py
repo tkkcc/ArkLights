@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import os
-import UnityPy
 import fire
 from pathlib import Path
 import json
@@ -8,9 +7,13 @@ import io
 from collections import defaultdict
 import re
 import itertools
+import tempfile
+import subprocess
 
 
 def unpack(source_folder="arknights", destination_folder="arknights_extract"):
+    import UnityPy
+
     for root, dirs, files in os.walk(source_folder):
         for file_name in files:
             file_path = os.path.join(root, file_name)
@@ -299,6 +302,52 @@ def py2lua(x):
         return str(x)
     elif type(x) is str:
         return '"' + x + '"'
+
+
+def screencap():
+    screencap = Path("screencap")
+    screencap.mkdir(exist_ok=True, parents=True)
+    serial = "127.0.0.1:5555"
+    subprocess.run(["adb", "connect", serial])
+    subprocess.Popen(
+        f"adb -s {serial} exec-out screencap -p > {tempfile.mkstemp(dir=screencap,suffix='.jpg')[1]}",
+        shell=True,
+    )
+
+
+def screencap_distance():
+    screencap = Path("screencap")
+    import easyocr
+    from PIL import Image
+
+    reader = easyocr.Reader(["en", "ch_sim"])
+    point = defaultdict(int)
+    distance = defaultdict(int)
+    for x in screencap.glob("*.jpg"):
+        x = reader.readtext(str(x))
+        print("x", x)
+        visible_point = defaultdict(int)
+        for (loc, text, confidence) in x:
+            text = text.replace("I", "1")
+            m = re.search("-(\d+)$", text)
+            if not m:
+                continue
+            # print("m",m)
+            m = int(m.group(1))
+            visible_point[m] = loc[0][0]
+            if point[m]:
+                continue
+            point[m] = loc[0]
+        for m in sorted(visible_point):
+            distance[m] = visible_point[m] - visible_point[m - 1] + distance[m - 1]
+        # print("visible_point", visible_point)
+    print("point", point)
+    print("distance", distance)
+
+    for x in sorted(point):
+        p = point[x]
+        p = [x*1080//720 for x in p]
+        print(f"[\"HD-{x}\"] = " + "{" + str(p[0]) + "," + str(p[1]) + "},")
 
 
 if __name__ == "__main__":

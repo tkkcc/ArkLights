@@ -3060,7 +3060,7 @@ show_extra_ui = function()
 
   newRow(layout)
   addTextView(layout, [[选第]])
-  ui.addEditText(layout, "zl_best_operator", [[1]])
+  ui.addEditText(layout, "zl_best_operator", [[-1]])
   addTextView(layout, [[个近卫 开]])
   ui.addEditText(layout, "zl_skill_times", [[0]])
   addTextView(layout, [[次]])
@@ -3625,7 +3625,10 @@ predebug_hook = function()
   -- while true do
   --   log(findOne("活动导航1"))
   -- end
-  swip("HD-7")
+  -- swip("HD-7")
+  -- ssleep(4)
+  log(findOne("资源下载确定"))
+  log(findOne("下载资源确认"))
   exit()
   ssleep(2)
   -- log(appearTap("snap"))
@@ -4528,8 +4531,9 @@ parse_fight_config = function(fight_ui)
     elseif table.includes(table.keys(extrajianpin2name), v) then
       v = extrajianpin2name[v]
     end
-    if table.find({'活动', "GA", "DV", "WR", "IW", "WD", "SN", "SV", "LE"},
-                  startsWithX(v)) then
+    if table.find({
+      '活动', "GA", "TC", "DV", "WR", "IW", "WD", "SN", "SV", "LE",
+    }, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
       -- log(2731, v, idx)
@@ -4555,7 +4559,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _, i in pairs({8, 7, 6}) do
+      for _, i in pairs({8, 7}) do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
@@ -4594,7 +4598,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202207190400")
+  hd_open_time_end = parse_time("202207260400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202205191600")

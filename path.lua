@@ -23,6 +23,7 @@ path.base = {
     end)
   end,
   start黄框暗 = function() return path.base["start黄框"]() end,
+
   账号登录 = function() tap("账号登录") end,
   开始唤醒 = function()
     check_login_frequency()
@@ -3313,7 +3314,7 @@ path.活动 = function(x)
     return
   end
   path.跳转("首页")
-  tap("面板活动2")
+  tap("面板活动")
   if not wait(function()
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then
