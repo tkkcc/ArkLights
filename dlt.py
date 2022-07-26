@@ -35,7 +35,7 @@ serial_alias = {
     "2": "103.36.203.53:301",
     "3": "103.36.203.80:301",
     "4": "103.36.203.199:303",
-    "6": "103.36.201.74:301",
+    # "6": "103.36.201.74:301",
     "7": "103.36.203.104:303",
     "8": "103.36.203.208:302",
     "9": "103.36.203.132:302",
@@ -423,7 +423,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         else:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "继承设置")
         c(x, f"multi_account_user{first_empty_i}fight_ui", fight or "jm hd ce ls ap pr")
-        c(x, f"multi_account_user{first_empty_i}max_drug_times", str(2 if drug else 0))
+        c(x, f"multi_account_user{first_empty_i}max_drug_times", str(99 if drug else 0))
         save("config_multi_account.json", x)
 
         x = load("config_debug.json")

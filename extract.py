@@ -304,13 +304,14 @@ def py2lua(x):
         return '"' + x + '"'
 
 
-def screencap():
+def screencap(stem):
+    stem = str(stem)
     screencap = Path("screencap")
     screencap.mkdir(exist_ok=True, parents=True)
     serial = "127.0.0.1:5555"
     subprocess.run(["adb", "connect", serial])
     subprocess.Popen(
-        f"adb -s {serial} exec-out screencap -p > {tempfile.mkstemp(dir=screencap,suffix='.jpg')[1]}",
+        f"adb -s {serial} exec-out screencap -p > {screencap/stem}.jpg",
         shell=True,
     )
 
@@ -323,13 +324,14 @@ def screencap_distance():
     reader = easyocr.Reader(["en", "ch_sim"])
     point = defaultdict(int)
     distance = defaultdict(int)
-    for x in screencap.glob("*.jpg"):
+    distance[1] = 0
+    for x in sorted(screencap.glob("*.jpg")):
         x = reader.readtext(str(x))
-        print("x", x)
+        print("x",x)
         visible_point = defaultdict(int)
         for (loc, text, confidence) in x:
             text = text.replace("I", "1")
-            m = re.search("-(\d+)$", text)
+            m = re.search("^DH-(\d+)$", text)
             if not m:
                 continue
             # print("m",m)
@@ -339,15 +341,24 @@ def screencap_distance():
                 continue
             point[m] = loc[0]
         for m in sorted(visible_point):
+            if m in distance:
+                continue
             distance[m] = visible_point[m] - visible_point[m - 1] + distance[m - 1]
+            print("m-1,distance[m-1]",m-1,distance,visible_point)
         # print("visible_point", visible_point)
-    print("point", point)
-    print("distance", distance)
+    # print("point", point)
+    # print("distance", distance)
 
     for x in sorted(point):
         p = point[x]
-        p = [x*1080//720 for x in p]
-        print(f"[\"HD-{x}\"] = " + "{" + str(p[0]) + "," + str(p[1]) + "},")
+        p = [x * 1080 // 720 for x in p]
+        p[0] = 960
+        print(f'["HD-{x}"] = ' + "{" + str(p[0]) + "," + str(p[1]) + "},")
+
+    for x in sorted(distance):
+        p = distance[x]
+        p = int(p * 1.14)
+        print(f'["HD-{x}"] = ' + "{ swip_right_max, -" + str(p) + "},")
 
 
 if __name__ == "__main__":

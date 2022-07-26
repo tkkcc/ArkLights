@@ -149,6 +149,7 @@ path.base = {
     local first_time_see_zero_star
     local zero_star
     local see_end
+    local see_jm_record_change
     local unexpect_return
     local home
     local normal
@@ -181,9 +182,10 @@ path.base = {
         ssleep(2)
         tap("面板设置", true)
         ssleep(2)
-        tap("放弃行动")
-        ssleep(2)
-        tap("右确认")
+        tap("剿灭放弃行动")
+        -- ssleep(2)
+        -- tap("右确认")
+        appear("剿灭记录确认", 60)
       end
 
       if findOne("剿灭记录确认") and
@@ -191,6 +193,7 @@ path.base = {
         captureqqimagedeliver(table.join(qqmessage, ' ') .. " " .. cur_fight ..
                                 "剿灭记录确认", true)
         tap("剿灭记录确认")
+        see_jm_record_change = true
       end
 
       -- 战斗记录未同步
@@ -236,6 +239,11 @@ path.base = {
       -- 一次代理失败直接认为无效：不行，因为可能是掉线造成的失败
       fight_failed_times[cur_fight] = max(0, fight_failed_times[cur_fight] or 0)
       log(161)
+      return path.跳转("首页")
+    end
+
+    if see_jm_record_change then
+      fight_failed_times[cur_fight] = 99
       return path.跳转("首页")
     end
 
@@ -3326,7 +3334,7 @@ path.活动 = function(x)
 
   if not wait(function()
     tap("活动导航2")
-    if not appear("活动导航1") then return true end
+    if not appear("活动导航1", 1) then return true end
   end, 5) then return end
 
   swip(x)

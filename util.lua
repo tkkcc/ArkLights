@@ -3622,11 +3622,13 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+
   -- while true do
   --   log(findOne("活动导航1"))
   -- end
-  -- swip("HD-7")
-  -- ssleep(4)
+  swip("HD-2")
+  ssleep(1)
+  exit()
   log(findOne("资源下载确定"))
   log(findOne("下载资源确认"))
   exit()
@@ -4532,7 +4534,7 @@ parse_fight_config = function(fight_ui)
       v = extrajianpin2name[v]
     end
     if table.find({
-      '活动', "GA", "TC", "DV", "WR", "IW", "WD", "SN", "SV", "LE",
+      '活动', "DH", "GA", "TC", "DV", "WR", "IW", "WD", "SN", "SV", "LE",
     }, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
@@ -4559,8 +4561,10 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _, i in pairs({8, 7}) do
-        for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
+      for _ = 1, 99 do
+        for _, i in pairs({9, 8, 7}) do
+          table.insert(expand_fight, v .. '-' .. i)
+        end
       end
     elseif table.includes({'HD1'}, v) then
       for i = 10, 1, -1 do table.insert(expand_fight, 'HD' .. '-' .. i) end
@@ -4598,7 +4602,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202207260400")
+  hd_open_time_end = parse_time("202208050400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202205191600")
