@@ -435,6 +435,15 @@ path.fallback = {
     ssleep(.5)
     tap("注册协议2")
   end,
+  可露希尔 = function()
+    for k, v in pairs(point.可露希尔右列表) do tap(v) end
+    for k, v in pairs(point.可露希尔左列表) do tap(v) end
+    tap("返回")
+    if appear("可露希尔", 5) then
+      ssleep(1)
+      return path.fallback.可露希尔()
+    end
+  end,
   阿米娅 = function()
     for k, v in pairs(point.阿米娅右列表) do tap(v) end
     for k, v in pairs(point.阿米娅左列表) do tap(v) end
@@ -623,7 +632,7 @@ path.fallback = {
       "返回确认", "返回确认2", "返回确认3", "活动公告返回",
       "签到返回", "签到返回黄", "活动签到返回", "抽签返回",
       "战略返回", '感谢庆典返回', '限时开放许可',
-      "限时幸运签", "线索传递界面", "阿米娅",
+      "限时幸运签", "线索传递界面", "阿米娅", "可露希尔",
     }, .1)
     log(251, x)
     if x then return tap(path.fallback[x]) end

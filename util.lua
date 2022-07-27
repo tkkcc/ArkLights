@@ -2087,8 +2087,7 @@ show_multi_account_ui = function()
   ui.addEditText(layout, layout .. "_choice", "1-" .. multi_account_num, -1)
 
   continue_account = loadConfig("continue_account", '')
-  continue_all_account = loadConfig("continue_all_account", '')
-  if #continue_account > 0 and #continue_all_account > 0 then
+  if #continue_account > 0 then
     continue_account = shrink_number_config(continue_account)
     continue_account_btn = randomString(32)
     addButton(layout, continue_account_btn, "继续账号" .. continue_account,
@@ -2815,7 +2814,7 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "zero_san_after_fight",
-                 "作战理智不足无法继续时跑1-7", true)
+                 "使用1-7清空剩余理智", true)
 
   newRow(layout)
   addTextView(layout, "QQ通知账号")
@@ -4927,6 +4926,7 @@ end
 shrink_fight_config = function(x)
   local ans = ''
   local i = 1
+
   while i <= #x do
     local j = i + 1
     while j <= #x and x[j] == x[j - 1] do j = j + 1 end
@@ -4937,6 +4937,7 @@ shrink_fight_config = function(x)
     end
     i = j
   end
+
   return ans
 end
 
