@@ -4350,7 +4350,7 @@ path.前瞻投资 = function(lighter)
       x = str2int(x:match("^(%d+).*"), -1)
       log("4127", x)
       if x == 125 and not findOne("战略等级" .. x) then return end
-      if x >= 0 and x <= 140 and x == prex then return x end
+      if x >= 0 and x <= 155 and x == prex then return x end
       -- if x >= 0 and x <= 140 then return x end
       -- if x >= 0 then return x end
       prex = x

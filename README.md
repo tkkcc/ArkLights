@@ -99,7 +99,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高，懒人精灵实现，速度远超其他脚本，自适应换班</td>
+      <td>完成度高，懒人精灵实现，速度远超其他脚本，自适应换班，群号1009619697</td>
    </tr>
    <tr>
    <td><a href="https://github.com/Lancarus/Liver-Arknights-Tomorrow">明日再肝(还鸽)</a></td>
@@ -111,7 +111,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
       <td>&#10004;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>完成度高，按键精灵实现，支持迷迭香等跨站换班体系，自动推图/抄作业，自动打肉鸽，群号684479866、909610797</td>
+      <td>完成度高，按键精灵实现，支持迷迭香等跨站换班体系，自动推图/抄作业，自动打肉鸽，群号172527833</td>
    </tr>
    <tr>
    <td><a href="https://www.aistool.com/">秋秋辅助</a></td>
@@ -267,7 +267,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
       <td>&#10006;</td>
       <td>&#10004;</td>
       <td>&#10004;</td>
-      <td>java实现，游戏大更新时自动下载安装</td>
+      <td>kotlin实现，游戏大更新时自动下载安装</td>
    </tr>
    <tr>
    <td><a href="https://github.com/zqh531500317/arknight-script">arknight-script</a></td>

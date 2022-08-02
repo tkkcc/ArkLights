@@ -901,7 +901,7 @@ point = {
     ["HD-6"] = {960, 435},
     ["HD-7"] = {960, 456},
     ["HD-8"] = {960, 279},
-    ["HD-9"] = {960, 279},
+    ["HD-9"] = {960+300, 279},
 
     ["0-1"] = {960, 500},
     ["0-3"] = {960, 500},
@@ -1739,7 +1739,8 @@ distance = {
   ["HD-6"] = {swip_right_max, -1234},
   ["HD-7"] = {swip_right_max, -1590},
   ["HD-8"] = {swip_right_max, -1797},
-  ["HD-9"] = {swip_right_max, -2452},
+  ["HD-9"] = {swip_right_max, -1797},
+  -- ["HD-9"] = {swip_right_max, -2452},
 
   ["chapter5"] = {1000},
   right = swip_right_max,
