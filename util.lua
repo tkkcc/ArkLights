@@ -1194,7 +1194,7 @@ auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
         -- restartapp(appid)
         -- return auto(p, fallback, timeout, total_timeout, total_timeout_restart)
 
-        stop("auto超时(s)" .. total_timeout, 'cur')
+        stop("auto超时" .. total_timeout .. 's', 'cur')
       else
         return true
       end
@@ -2813,8 +2813,8 @@ show_debug_ui = function()
   end
 
   newRow(layout)
-  ui.addCheckBox(layout, "zero_san_after_fight",
-                 "使用1-7清空剩余理智", true)
+  ui.addCheckBox(layout, "zero_san_after_fight", "使用1-7清空剩余理智",
+                 true)
 
   newRow(layout)
   addTextView(layout, "QQ通知账号")
@@ -3543,7 +3543,7 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-10", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
+    "HD-9", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
     "HD-9",
 
     -- "10-2",
@@ -4533,7 +4533,7 @@ parse_fight_config = function(fight_ui)
       v = extrajianpin2name[v]
     end
     if table.find({
-      '活动', "DH", "GA", "TC", "DV", "WR", "IW", "WD", "SN", "SV", "LE",
+      '活动', "DH", "GA", "TC", "IC", "DV", "WR", "IW", "WD", "SN", "SV", "LE",
     }, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
@@ -4560,10 +4560,8 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _ = 1, 99 do
-        for _, i in pairs({9, 8, 7}) do
-          table.insert(expand_fight, v .. '-' .. i)
-        end
+      for _, i in pairs({9, 8, 7}) do
+        for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
       for i = 10, 1, -1 do table.insert(expand_fight, 'HD' .. '-' .. i) end
@@ -4601,11 +4599,11 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202208050400")
+  hd_open_time_end = parse_time("202209010400")
 
   -- 资源关全天开放时间段
-  all_open_time_start = parse_time("202205191600")
-  all_open_time_end = parse_time("202206020400")
+  all_open_time_start = parse_time("202208251600")
+  all_open_time_end = parse_time("202209080400")
   update_open_time()
 
   -- 危机合约时间段，只为加速平时的信用交易所

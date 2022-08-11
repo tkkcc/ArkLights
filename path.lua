@@ -1021,6 +1021,7 @@ init_state = function() end
 
 -- 对于单个用户的不同任务
 update_state = function()
+  car_checked = false
 
   -- 禁用重复刷模式
   repeat_fight_mode = false
@@ -2754,6 +2755,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     if not findOne("代理指挥开") then return true end
     tap("开始行动蓝")
   end, 1)
+  if fake_fight then return end
 
   local state = nil
   local start_time = time()
@@ -3331,7 +3333,7 @@ path.活动 = function(x)
     return
   end
   path.跳转("首页")
-  tap("面板活动")
+  tap("面板活动2")
   if not wait(function()
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then
@@ -3340,6 +3342,40 @@ path.活动 = function(x)
       tap("跳过剧情确认")
     end
   end, 10) then return end
+
+  local car_check = function()
+    if car_checked then return end
+    car_checked = true
+    fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) - 1
+
+    if not wait(function()
+      if findOne("自走车友会有") then return true end
+      tap("后院工坊")
+    end, 2) then return end
+    if not wait(function()
+      if findOne("车友交流") then return true end
+      tap("自走车友会")
+    end, 2) then return end
+
+    if not wait(function(reset_wait_start_time)
+      if not findOne("车友交流") then return true end
+      if findOne('正在提交反馈至神经') then
+        reset_wait_start_time()
+      end
+      tap("车友交流")
+    end, 2) then return end
+
+    if not wait(function(reset_wait_start_time)
+      if findOne("车友交流") then return true end
+      if findOne('正在提交反馈至神经') then
+        reset_wait_start_time()
+      end
+      tap("车友交流" .. 1 + math.round(math.random()))
+    end, 5) then return end
+    return true
+  end
+  car_check()
+  if not findOne("活动导航1") then return end
 
   if not wait(function()
     tap("活动导航2")
@@ -3888,12 +3924,15 @@ path.公开招募 = function()
             else
               -- 点太快会无效
               ssleep(.25)
-              wait(function()
+              wait(function(reset_wait_start_time)
                 tap("公开招募确认蓝")
+                if findOne("正在提交反馈至神经") then
+                  reset_wait_start_time()
+                end
                 if appear({"公开招募箭头", "返回确认界面"}, 3) then
                   return true
                 end
-              end, 10)
+              end, 5)
             end
             if not appear({"公开招募箭头", "返回确认界面"}) then
               return

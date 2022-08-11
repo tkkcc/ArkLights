@@ -51,7 +51,7 @@
     local lr=release/${1:-script.lr}
     git add -u
     # cd release
-    cp /F:/software/懒人精灵3.6.0/out/main.lr $lr
+    cp /F:/software/懒人精灵3.8.3/out/main.lr $lr
     # cp ../README.md README.md
     numfmt --to=iec $(stat -c %s $lr)
 

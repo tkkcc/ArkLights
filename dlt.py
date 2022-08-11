@@ -31,7 +31,7 @@ serial_alias = {
     "23": "103.36.203.125:301",
     "24": "103.36.203.81:301",
     "0": "127.0.0.1:5555",
-    "1": "103.36.203.159:301",
+    "1": "192.168.62.107:5555",
     "2": "103.36.203.53:301",
     "3": "103.36.203.80:301",
     "4": "103.36.203.199:303",
@@ -39,7 +39,7 @@ serial_alias = {
     "7": "103.36.203.104:303",
     "8": "103.36.203.208:302",
     "9": "103.36.203.132:302",
-    "10": "103.36.202.144:301",
+    "10": "103.36.200.150:301",
     "5": "103.36.203.105:301",
 }
 daily_device = ["4", "5", "9"]
@@ -575,7 +575,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, "zl_skip_hard", False)
         c(x, "zl_no_waste", False)
         c(x, "zl_need_goods", "")
-        c(x, "zl_max_level", "140")
+        c(x, "zl_max_level", "155")
         c(x, "zl_max_coin", "")
         save("config_extra.json", x)
 
@@ -634,7 +634,15 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
             save("config_multi_account.json", x)
 
         x = load("config_debug.json")
-        c(x, "after_require_hook", ("saveConfig('hideUIOnce','true');" if hide else ""))
+        c(
+            x,
+            "after_require_hook",
+            (
+                "saveConfig('restart_mode_hook','');saveConfig('hideUIOnce','true');"
+                if hide
+                else ""
+            ),
+        )
         c(
             x,
             "before_account_hook",
@@ -758,7 +766,7 @@ def daily(*args, **kwargs):
         print(mode(device, *args, **kwargs))
 
 
-def check(key=""):
+def check(key="", show=True):
     user = []
     user2device = {}
     user2idx = {}
@@ -794,7 +802,7 @@ def check(key=""):
         # print("serial", serial)
         # print("user", user)
         # exit()
-        mode(device, "pic", user + "*分钟")
+        mode(device, "pic", user + "*分钟", show=show)
 
         return
 
@@ -861,17 +869,17 @@ def check(key=""):
 
 
 # every day upload
-def edu():
+def edu(show=False):
     dlt = DLT()
     for m in dlt.my(raw=True):
         if not DLT.need_everyday_upload(m["Title"]):
             continue
         print(m["Title"])
-        check(m["SerialNo"])
-        dlt.submit()
+        check(m["SerialNo"], show=show)
+        dlt.submit(m["SerialNo"], show=show)
     for username in extra_everyday_upload:
-        check(username)
-        dlt.submit()
+        check(username, show=show)
+        dlt.submit(m["SerialNo"], show=show)
 
 
 def users():
