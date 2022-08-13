@@ -3622,14 +3622,19 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
 
+  yg3= "ff303030"
+  log(colorDiff(yg3, "ff003030"))
+  -- path.跳过剧情()
+  exit()
   -- while true do
   --   log(findOne("活动导航1"))
   -- end
-  swip("HD-2")
-  ssleep(1)
-  exit()
-  log(findOne("资源下载确定"))
-  log(findOne("下载资源确认"))
+  -- swip("HD-2")
+  -- ssleep(1)
+  -- exit()
+  log(ocr("fullscreen"))
+  -- log(findOne("资源下载确定"))
+  -- log(findOne("下载资源确认"))
   exit()
   ssleep(2)
   -- log(appearTap("snap"))

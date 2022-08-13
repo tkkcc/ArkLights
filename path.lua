@@ -132,7 +132,7 @@ path.base = {
     if not wait(function()
       if not findOne("接管作战") then return true end
       -- log(126)
-      if findOne("暂停中") then
+      if findOne("暂停中") and not disappear("暂停中", 5) then
         tap("开包skip")
         disappear("暂停中")
       end
@@ -197,7 +197,8 @@ path.base = {
       end
 
       -- 战斗记录未同步
-      if findOne("返回确认界面") then
+      if findOne("返回确认界面") and
+        not disappear("返回确认界面", 5) then
         tap("左取消")
         unexpect_return = true
       end
@@ -214,7 +215,14 @@ path.base = {
       tap("开始行动1")
 
       appear({"开始行动", "接管作战"}, 1)
-    end), 60) then return end
+
+    end), 60) then
+      -- if findOne("跳过剧情2") and not disappear("跳过剧情2", 10) then
+      path.跳过剧情()
+      -- end
+
+      return
+    end
 
     if unfinished then return path.base.接管作战() end
 
@@ -1351,6 +1359,7 @@ path.基建信息获取 = function()
   goldStationNum = 0
   tradingStationNum = 0
   powerStationNum = 0
+  totalStationLevel = 0
 
   dormitoryStation = {}
   dormitoryLevel = {}
@@ -1457,6 +1466,17 @@ path.基建信息获取 = function()
 
   -- manufacturingStationLevel = map(function() return 3 end, manufacturingStation)
   manufacturingStationNum = #manufacturingStation
+
+  -- 控制中枢与右侧满设施 按其他站等级情况近似
+  totalStationLevel = table.sum(table.cat({
+    dormitoryLevel, powerStationLevel, manufacturingStationLevel,
+    tradingStationLevel,
+  }))
+  totalStationLevel = totalStationLevel +
+                        math.round((5 + 12) * totalStationLevel / (47))
+
+  log("totalStationLevel", totalStationLevel)
+  -- exit()
 
   releaseCapture()
 
@@ -1672,7 +1692,7 @@ path.制造换班 = function(trading)
     local stationType = trading and "贸易站" or "制造站"
     chooseOperator(stationType, type, stationLevel, tradingStationNum,
                    powerStationNum, dormitoryCapacity, dormitoryLevelSum,
-                   goldStationNum)
+                   goldStationNum, totalStationLevel)
 
     wait(function(reset_wait_start_time)
       tap("确认蓝")
@@ -1921,7 +1941,7 @@ path.总览换班 = function()
     -- 排除异格干员
     local operator = {}
     discover(operator, {}, 1, true)
-    -- log("1905", operator)
+    log("1905", operator)
     operator = table.filter(operator, function(x) return x[3] >= 0 end)
     operator = map(function(x) return x[4] end, operator)
     operator = table.slice(operator, 1, limit)
@@ -2031,7 +2051,7 @@ path.办公室换班 = function(stationType)
 
   chooseOperator(stationType, type, stationLevel, tradingStationNum,
                  powerStationNum, dormitoryCapacity, dormitoryLevelSum,
-                 goldStationNum)
+                 goldStationNum, totalStationLevel)
 
   if not wait(function(reset_wait_start_time)
     tap("确认蓝")
@@ -2084,7 +2104,7 @@ path.会客厅换班 = function(stationType)
 
   chooseOperator(stationType, type, stationLevel, tradingStationNum,
                  powerStationNum, dormitoryCapacity, dormitoryLevelSum,
-                 goldStationNum)
+                 goldStationNum, totalStationLevel)
 
   if not wait(function(reset_wait_start_time)
     tap("确认蓝")
@@ -2810,10 +2830,19 @@ path.开始游戏 = function(x, disable_ptrs_check)
       if not findOne(state) then return true end
       tap("开始行动红按钮")
     end, 10) then return end
-    if not appear({"接管作战", "单选确认框"}, 60) then
-      log(1430)
+    if not wait(function()
+      if findAny({"接管作战", "单选确认框"}) then return true end
+    end, 60) then
+
+      -- if findOne("跳过剧情2") and not disappear("跳过剧情2", 10) then
+      path.跳过剧情()
+      -- end
       return
     end
+    -- if not appear({"接管作战", "单选确认框"}, 60) then
+    --   log(1430)
+    --   return
+    -- end
     if findOne("单选确认框") then return end
     return path.base.接管作战()
   elseif stone_times < max_stone_times and state == "源石恢复理智取消" or
@@ -3336,11 +3365,7 @@ path.活动 = function(x)
   tap("面板活动2")
   if not wait(function()
     if findOne("活动导航1") then return true end
-    if findOne("跳过剧情") then
-      tap("跳过剧情")
-      ssleep(.5)
-      tap("跳过剧情确认")
-    end
+    if findOne("跳过剧情") then path.跳过剧情() end
   end, 10) then return end
 
   local car_check = function()
@@ -3363,7 +3388,8 @@ path.活动 = function(x)
         reset_wait_start_time()
       end
       tap("车友交流")
-    end, 2) then return end
+      disappear("车友交流")
+    end, 5) then return end
 
     if not wait(function(reset_wait_start_time)
       if findOne("车友交流") then return true end
@@ -3422,11 +3448,7 @@ path.活动任务与商店 = function()
   if not wait(function()
     tap("作战主页列表1")
     if findOne("活动导航1") then return true end
-    if findOne("跳过剧情") then
-      tap("跳过剧情")
-      ssleep(.5)
-      tap("跳过剧情确认")
-    end
+    if findOne("跳过剧情") then path.跳过剧情() end
   end, 10) then return end
 
   -- if not wait(function()
@@ -3583,11 +3605,7 @@ path["1-11"] = function()
   if not appear("跳过剧情", 20) then return end
   ssleep(.5)
 
-  if findOne("跳过剧情") then
-    tap("跳过剧情")
-    ssleep(.5)
-    tap("跳过剧情确认")
-  end
+  if findOne("跳过剧情") then path.跳过剧情() end
 
   -- start
   ssleep(23)
@@ -5486,4 +5504,18 @@ path.公开招募加急 = function()
   recruit_accelerate_mode = true
   point.公开招募列表 = table.slice(point.公开招募列表, 1, 1)
   forever(path.公开招募)
+end
+
+path.跳过剧情 = function()
+  tap("战略确认")
+  ssleep(2)
+  back()
+  ssleep(2)
+  local txt = nil
+  if not wait(function()
+    txt = ocr("fullscreen")
+    txt = table.findv(txt, function(x) return x.text:find('跳过剧情') end)
+    if txt then return true end
+  end, 5) then return back() end
+  tap({txt.r, txt.b})
 end

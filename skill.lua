@@ -211,7 +211,8 @@ discover = still_wrapper(function(operators, pngdata, pageid, mood_only)
     if math.abs(colorDiff(yg1, yg2)) < 36 and table.any(ygStaitonColor,
                                                         function(color)
       return math.abs(colorDiff(yg1, color)) < 36
-    end) and (math.abs(colorDiff(yg3, "ff003030")) < 45) then
+    end) and (math.abs(colorDiff(yg3, "ff003030")) < 75) then
+      -- ffffbb22
       log("异格干员")
       mood = -mood
       if mood == 0 then mood = -1 end
@@ -351,6 +352,10 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
     if all['bskill_tra_flow_gs1'] then
       base = base + 0.05 + (gold // 4) * 0.15 * all['bskill_tra_flow_gs1']
     end
+    -- 鸿雪
+    if all['bskill_tra_flow_gs'] then
+      base = base + 0.00 + (gold // 1) * 0.05 * all['bskill_tra_flow_gs']
+    end
 
     -- 孑 
     if all['bskill_tra_limit_count'] then
@@ -452,8 +457,8 @@ testManufacturingStationOperatorBest = function()
   local best, best_score
   best, best_score = manufacturingStationOperatorBest(operator,
                                                       tradingStationNum,
-                                                      powerStationNum, goodType,
-                                                      level)
+                                                      powerStationNum, 0,
+                                                      goodType, level)
 
   log(best, best_score)
 end
@@ -462,11 +467,13 @@ end
 -- operator: 列表，每个元素包含两个技能图标与心情
 -- tradingStationNum: 贸易站数量
 -- powerStationNum: 发电站数量
+-- totalStationLevel: 等级总量
 -- type: 制造物类别
 -- level: 制造站等级
 -- 返回效率最高的index
 manufacturingStationOperatorBest = function(operator, tradingStationNum,
-                                            powerStationNum, goodType, level)
+                                            powerStationNum, totalStationLevel,
+                                            goodType, level)
   -- 参考 https://prts.wiki/w/罗德岛基建/制造站
   local maxStorage, maxOperator
   maxOperator = level
@@ -488,10 +495,11 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
   -- 4. 忽略 意识协议 效果（标准化技能识别不支持）
   -- 5. 忽略 我寻思能行 效果（发电站技能加成）
   local base, disable_moon_effect, storage, storages, standard, all, station,
-        station_only, only_need
+        station_only, only_need, robot
 
   local score = function(icons)
     base = 0
+    robot = 0 -- 工程机器人
     storage = {} -- 容量效果
     standard = 0 -- 标准化技能数量
     station = 0 -- 根据设施加成
@@ -591,6 +599,8 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
         if goodType == '源石' then base = base + 0.35 end
       elseif icon == 'bskill_man_originium1' then
         if goodType == '源石' then base = base + 0.3 end
+      elseif icon == 'bskill_man_constrlv' then
+        robot = min(64, robot + totalStationLevel)
       elseif icon == 'empty' then
         log('empty')
       end
@@ -599,6 +609,10 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     if debug_mode then log(428, icon, icons, base, station, storage) end
 
     -- 应用全局性技能
+    -- 至简
+    if all["bskill_man_spd_bd3"] then base = base + (robot // 16) * 0.05 end
+    if all["bskill_man_spd_bd4"] then base = base + (robot // 8) * 0.05 end
+
     if all['bskill_man_spd_variable31'] then
       -- 泡泡
       for _, s in pairs(storage) do
@@ -885,7 +899,7 @@ end
 -- 是否是贸易站，商品类别
 chooseOperator = function(stationType, goodType, stationLevel,
                           tradingStationNum, powerStationNum, dormitoryCapacity,
-                          dormitoryLevelSum, goldStationNum)
+                          dormitoryLevelSum, goldStationNum, totalStationLevel)
   log("stationType", stationType)
   log("goodType", goodType)
   log("stationLevel", stationLevel)
@@ -894,6 +908,7 @@ chooseOperator = function(stationType, goodType, stationLevel,
   log("dormitoryCapacity", dormitoryCapacity)
   log("dormitoryLevelSum", dormitoryLevelSum)
   log("goldStationNum", goldStationNum)
+  log("totalStationLevel", totalStationLevel)
   -- exit()
 
   local start_time = time()
@@ -939,6 +954,7 @@ chooseOperator = function(stationType, goodType, stationLevel,
     best, best_score = manufacturingStationOperatorBest(operator,
                                                         tradingStationNum,
                                                         powerStationNum,
+                                                        totalStationLevel,
                                                         goodType, stationLevel)
   elseif stationType == "贸易站" then
     best, best_score = tradingStationOperatorBest(operator, dormitoryCapacity,
@@ -997,6 +1013,10 @@ meetingStationOperatorBest = function(operator)
   local remain = {}
   for _, o in pairs(operator) do
     if o[1] == "bskill_meet_spd&cost" or o[2] == "bskill_meet_spd&cost" then
+      table.insert(best, 1, o)
+    elseif o[1] == "bskill_meet_spdnotowned2" or o[2] ==
+      "bskill_meet_spdnotowned2" then
+      -- 晓歌有人评测过吗
       table.insert(best, 1, o)
     elseif o[1] == "bskill_meet_spd3" or o[2] == "bskill_meet_spd3" then
       table.insert(best, o)

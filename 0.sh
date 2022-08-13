@@ -43,7 +43,7 @@
   extract() {
     rm -rf arknights
     rm -rf arknights_extract
-    unzip ${1:-arknights.apk} -d arknights
+    unzip ${1:-arknights-hg-1861.apk} -d arknights
     ./extract.py unpack
   }
   release() {
