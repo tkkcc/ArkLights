@@ -104,7 +104,7 @@ m.fetchSolveTask = function()
     -- log("res", res)
     local status, data
     status, data = pcall(JsonDecode, res)
-    log("data",data)
+    log("data", data)
     if type(data) == 'table' and type(data.data) == 'table' then
       m.solveTask(data.data)
     end
@@ -118,7 +118,8 @@ m.startHeartBeat = function()
   if not m.enabled() then return end
   local f = function()
     while true do
-      m.heartBeat()
+      local res, code = m.heartBeat()
+      if code == 500 then stop('心跳500') end
       ssleep(5)
     end
   end

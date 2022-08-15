@@ -2831,7 +2831,9 @@ path.开始游戏 = function(x, disable_ptrs_check)
       tap("开始行动红按钮")
     end, 10) then return end
     if not wait(function()
-      if findAny({"接管作战", "单选确认框"}) then return true end
+      if findAny({"接管作战", "单选确认框", "剿灭接管作战"}) then
+        return true
+      end
     end, 60) then
 
       -- if findOne("跳过剧情2") and not disappear("跳过剧情2", 10) then

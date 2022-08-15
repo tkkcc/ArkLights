@@ -42,7 +42,7 @@ serial_alias = {
     "10": "103.36.200.150:301",
     "5": "103.36.203.105:301",
 }
-daily_device = ["4", "5", "9"]
+daily_device = ['4',"5", "9"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"

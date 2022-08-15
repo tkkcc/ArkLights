@@ -3622,7 +3622,7 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
 
-  yg3= "ff303030"
+  yg3 = "ff303030"
   log(colorDiff(yg3, "ff003030"))
   -- path.跳过剧情()
   exit()
@@ -4538,7 +4538,8 @@ parse_fight_config = function(fight_ui)
       v = extrajianpin2name[v]
     end
     if table.find({
-      '活动', "DH", "GA", "TC", "IC", "DV", "WR", "IW", "WD", "SN", "SV", "LE",
+      '活动', "DH", "GA", "TC", "IC", "DV", "WR", "IW", "WD", "SN", "SV",
+      "LE",
     }, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
@@ -4551,14 +4552,12 @@ parse_fight_config = function(fight_ui)
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'PR'}, v) then
-      for _ = 1, 99 do table.insert(expand_fight, "PR-B-2") end
-      for _ = 1, 99 do table.insert(expand_fight, "PR-A-2") end
-      for _ = 1, 99 do table.insert(expand_fight, "PR-C-2") end
-      for _ = 1, 99 do table.insert(expand_fight, "PR-D-2") end
-      for _ = 1, 99 do table.insert(expand_fight, "PR-B-1") end
-      for _ = 1, 99 do table.insert(expand_fight, "PR-A-1") end
-      for _ = 1, 99 do table.insert(expand_fight, "PR-C-1") end
-      for _ = 1, 99 do table.insert(expand_fight, "PR-D-1") end
+      for _ = 1, 99 do
+        table.extend(expand_fight, {"PR-B-2", "PR-A-2", "PR-C-2", "PR-D-2"})
+      end
+      for _ = 1, 99 do
+        table.extend(expand_fight, {"PR-B-1", "PR-A-1", "PR-C-1", "PR-D-1"})
+      end
     elseif table.includes({'WT', 'JM'}, v) then
       for _ = 1, 99 do table.insert(expand_fight, '当期委托') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托1') end

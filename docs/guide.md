@@ -228,7 +228,8 @@ hd => hd-10*99 hd-9*99 ... 蓝材料及以上关卡
 hd1 => hd-10 hd-9 ... hd-1 break 普通活动关各1次
 ce => ce-6*99 ce-5*99 ...
 ls/ap/sk/ca 同 ce
-pr => pr-b-2*99 pr-a-2*99 pr-c-2*99 pr-d-2*99 pr-b-1*99 pr-a-1*99 pr-c-1*99 pr-d-1*99
+pr => pr-b-2 pr-a-2 pr-c-2 pr-d-2 pr-b-2 ... pr-b-1 pr-a-1 pr-c-1 pr-d-1 pr-b-1 ...
+
 ```
 简写后不可再接次数。jm应与`最大剿灭次数`联用。
 :::
