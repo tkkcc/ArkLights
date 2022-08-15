@@ -3378,7 +3378,7 @@ path.活动 = function(x)
     if not wait(function()
       if findOne("自走车友会有") then return true end
       tap("后院工坊")
-    end, 2) then return end
+    end, 5) then return end
     if not wait(function()
       if findOne("车友交流") then return true end
       tap("自走车友会")
@@ -3394,7 +3394,7 @@ path.活动 = function(x)
     end, 5) then return end
 
     if not wait(function(reset_wait_start_time)
-      if findOne("车友交流") then return true end
+      if not disappear("车友交流") then return true end
       if findOne('正在提交反馈至神经') then
         reset_wait_start_time()
       end
