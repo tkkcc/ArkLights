@@ -20,6 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  寻访右 = "1843|580|3162A5",
   fullscreen = {0, 0, screen.width - 1, screen.height - 1},
   后院工坊 = {174, 814},
   自走车友会有 = "193|895|FF5341",
@@ -1265,6 +1266,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  寻访右 = "center_center",
 
   车友交流2 = "center_center",
   车友交流1 = "center_center",

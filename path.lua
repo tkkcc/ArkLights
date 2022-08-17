@@ -670,6 +670,8 @@ path.限时活动 = function(retry)
     })
   elseif findOne("面板赠送一次") and not disable_free_draw then
     tap("面板干员寻访")
+    if not appear("赠送一次") then tap("寻访右") end
+    if not appear("赠送一次") then tap("寻访右") end
     if not appear("赠送一次") then return end
     ssleep(.5)
     if not wait(function()

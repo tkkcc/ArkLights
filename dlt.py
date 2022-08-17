@@ -781,12 +781,12 @@ def check(key="", show=True):
                 or not str(y["password" + str(i)]).strip()
             ):
                 continue
-            username = y["username" + str(i)].split("#")[0].strip()
-            password = y["password" + str(i)].split("#")[0].strip()[:-1]
+            username = y["username" + str(i)].strip()
+            password = y["password" + str(i)].strip()
             if username in my_account:
                 user2device[username] = device
                 continue
-            serial = dlt.all2serial(" " + password, quiet=True)
+            serial = dlt.all2serial(" " + password + " ", quiet=True)
             if not serial:
                 print("all2serial not found", password)
                 continue

@@ -771,6 +771,7 @@ stop = function(msg, mode, nohome, complete)
   disable_log = false -- 强制开启日志
   local info = table.join(qqmessage, ' ') .. ' ' .. msg
   captureqqimagedeliver(info, true)
+  closeapp(appid)
   toast(msg)
   if complete then
     cloud.completeTask(last_upload_img)
@@ -1881,6 +1882,7 @@ poweroff =
 
 kill_game_last_time = {[oppid] = time(), [bppid] = time()}
 closeapp = function(package)
+  if not package then return end
   -- log("package",package)
   -- 记录app被杀时间
   kill_game_last_time[package] = time()
@@ -3621,6 +3623,7 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+  exit()
 
   yg3 = "ff303030"
   log(colorDiff(yg3, "ff003030"))
