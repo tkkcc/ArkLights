@@ -2738,6 +2738,10 @@ extrajianpin2name = {
 }
 
 path.开始游戏 = function(x, disable_ptrs_check)
+
+  -- 记录石头数量
+  save_run_state()
+
   log("开始游戏", fight_tick, x)
   if not findOne("开始行动") then return end
   if x == "1-11" then return path["1-11"] end

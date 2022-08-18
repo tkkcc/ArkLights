@@ -771,7 +771,6 @@ stop = function(msg, mode, nohome, complete)
   disable_log = false -- 强制开启日志
   local info = table.join(qqmessage, ' ') .. ' ' .. msg
   captureqqimagedeliver("INFO","任务结束",info, true)
-  closeapp(appid)
   toast(msg)
   if complete then
     cloud.completeTask(last_upload_img)
@@ -779,7 +778,10 @@ stop = function(msg, mode, nohome, complete)
     cloud.failTask(last_upload_img, msg:find("登录次数达到"))
   end
   cloud.fetchSolveTask()
-  if not nohome then home() end
+  if not nohome then
+    closeapp(appid)
+    home()
+  end
   ssleep(2)
   if mode == 'next' then restart_account(true) end
   if mode == 'cur' then restart_account(false) end
