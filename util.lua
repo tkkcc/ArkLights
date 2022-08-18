@@ -720,7 +720,7 @@ table.join = function(t, d)
   d = not d and ',' or d
   local a = ''
   for i = 1, #t do
-    a = a .. t[i]
+    a = a .. "[" .. t[i] .. "]"
     if i ~= #t then a = a .. d end
   end
   return a
@@ -770,7 +770,7 @@ stop = function(msg, mode, nohome, complete)
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
   local info = table.join(qqmessage, ' ') .. ' ' .. msg
-  captureqqimagedeliver(info, true)
+  captureqqimagedeliver("INFO","任务结束",info, true)
   closeapp(appid)
   toast(msg)
   if complete then
@@ -1264,7 +1264,7 @@ qqnotify_after_run = function(run_start_time)
     table.insert(qqmessage, shrink_fight_config(fight_history))
   end
   path.跳转("首页")
-  captureqqimagedeliver(table.join(qqmessage, ' '))
+  captureqqimagedeliver("INFO","通知",table.join(qqmessage, ' '))
   qqmessage = qqmessage_bak
 end
 
@@ -1273,7 +1273,7 @@ qqnotify_before_restart_package = function()
   if not qqnotify_nofight then
     table.insert(qqmessage, shrink_fight_config(fight_history))
   end
-  captureqqimagedeliver(table.join(qqmessage, ' '))
+  captureqqimagedeliver("INFO", "战术重启", table.join(qqmessage, ' '))
 end
 
 -- run function / job / table of function and job
@@ -1541,7 +1541,7 @@ trySolveCapture = function()
     local msg =
       "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
     toast(msg)
-    captureqqimagedeliver(table.join(qqmessage, ' ') .. ' ' .. msg)
+    captureqqimagedeliver("WARN","触发图灵测试",table.join(qqmessage, ' ') .. ' ' .. msg)
     if not appear("realgame", 120) then
       back()
       if not appear("realgame", 5) then closeapp(appid) end
@@ -1836,7 +1836,7 @@ function Lock:add()
 end
 lock = Lock:new()
 
-captureqqimagedeliver = function(info, important)
+captureqqimagedeliver = function(log_level, log_title, log_detail, important)
   local f = io.open(getWorkPath() .. '/.nomedia', 'w')
   f:close()
   local img = getWorkPath() .. "/tmp.jpg"
@@ -1850,6 +1850,10 @@ captureqqimagedeliver = function(info, important)
   else
     snapShot(img)
   end
+
+  info = log_title .. ' ' .. log_detail
+
+  log_title = os.date('[%m-%d][%H:%M]') .. ' ' .. log_title
 
   if not qqnotify_notime then info = os.date('%m.%d %H:%M:%S') .. ' ' .. info end
 
@@ -1867,7 +1871,7 @@ captureqqimagedeliver = function(info, important)
   notifypp(img_url, info, pushplus_token, pushplus_channel)
 
   -- cloud
-  cloud.addLog(img_url, info)
+  cloud.addLog(log_level, log_title, log_detail, img_url)
 
   -- local
   if qqnotify_save then
