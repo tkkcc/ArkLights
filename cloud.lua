@@ -45,21 +45,49 @@ m.getTask = function()
   return res, code
 end
 
-m.addLog = function(img, info)
+-- m.addLog = function(img, info)
+--   -- log("48",48)
+--   if not m.enabled() then return end
+--   local x = cloud_task or {}
+--   local data = {
+--     id = x.id or 0,
+--     level = 'INFO',
+--     taskType = x.taskType or '',
+--     title = info or '',
+--     detail = info or '',
+--     imageUrl = img or '',
+--     from = x.from or '',
+--     name = x.name or '',
+--     account = x.account or '',
+--     password = x.password or '',
+--     server = x.server or '',
+--     time = os.date("!%Y-%m-%dT%TZ"),
+--   }
+--   -- log("data",data)
+--   local res, code = httpPost(
+--                       m.server .. "/addLog?deviceToken=" .. m.deviceToken,
+--                       JsonEncode(data), 30, 'Content-Type: application/json')
+--   -- log("res,code", res, code)
+--   return res, code
+-- end
+
+-- Standardized log
+-- Author: DazeCake
+m.addLog = function(log_level, log_title, log_detail, img_url)
   -- log("48",48)
   if not m.enabled() then return end
   local x = cloud_task or {}
   local data = {
     id = x.id or 0,
-    level = 'INFO',
+    level = log_level or 'INFO',
     taskType = x.taskType or '',
-    title = info or '',
-    detail = info or '',
-    imageUrl = img or '',
+    title = log_title or '',
+    detail = log_detail or '',
+    imageUrl = img_url or '',
     from = x.from or '',
     name = x.name or '',
     account = x.account or '',
-    password = x.password or '',
+    password = '',
     server = x.server or '',
     time = os.date("!%Y-%m-%dT%TZ"),
   }
