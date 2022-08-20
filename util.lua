@@ -770,12 +770,18 @@ stop = function(msg, mode, nohome, complete)
   msg = "stop " .. msg
   disable_log = false -- 强制开启日志
   local info = table.join(qqmessage, ' ') .. ' ' .. msg
-  captureqqimagedeliver("INFO","任务结束",info, true)
+  captureqqimagedeliver("INFO", "任务结束", info, true)
   toast(msg)
   if complete then
     cloud.completeTask(last_upload_img)
   else
-    cloud.failTask(last_upload_img, msg:find("登录次数达到"))
+    local type = ''
+    if msg:find("登录次数达到") then
+      type = cloud.FAILTASK_LINEBUSY
+    elseif msg:find("密码") then
+      type = cloud.FAILTASK_ACCOUNTERROR
+    end
+    cloud.failTask(last_upload_img, type)
   end
   cloud.fetchSolveTask()
   if not nohome then
@@ -1543,7 +1549,8 @@ trySolveCapture = function()
     local msg =
       "请在2分钟内手动滑动验证码，超时将暂时跳过该账号"
     toast(msg)
-    captureqqimagedeliver("WARN", "触发图灵测试", table.join(qqmessage, ' ') .. ' ' .. msg)
+    captureqqimagedeliver("WARN", "触发图灵测试",
+                          table.join(qqmessage, ' ') .. ' ' .. msg)
     if not appear("realgame", 120) then
       back()
       if not appear("realgame", 5) then closeapp(appid) end

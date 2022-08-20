@@ -99,14 +99,17 @@ m.addLog = function(log_level, log_title, log_detail, img_url)
   return res, code
 end
 
-m.failTask = function(imageUrl, lineBusy)
+m.FAILTASK_LINEBUSY = 'lineBusy'
+m.FAILTASK_ACCOUNTERROR = 'accountError'
+
+m.failTask = function(imageUrl, type)
   -- log("73",73)
   if not m.getTaskEnabled() then return end
   imageUrl = imageUrl or ''
+  type = type or ''
   local res, code = httpPost(m.server .. "/failTask?deviceToken=" ..
                                m.deviceToken .. "&imageUrl=" ..
-                               encodeUrl(imageUrl) .. "&type=" ..
-                               (lineBusy and 'lineBusy' or ''), '', 30,
+                               encodeUrl(imageUrl) .. "&type=" .. type, '', 30,
                              'Content-Type: application/json')
   return res, code
 end

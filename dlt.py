@@ -871,15 +871,17 @@ def check(key="", show=True):
 # every day upload
 def edu(show=False):
     dlt = DLT()
-    for m in dlt.my(raw=True):
-        if not DLT.need_everyday_upload(m["Title"]):
-            continue
-        print(m["Title"])
-        check(m["SerialNo"], show=show)
-        dlt.submit(m["SerialNo"], show=show)
+    # for m in dlt.my(raw=True):
+    #     if not DLT.need_everyday_upload(m["Title"]):
+    #         continue
+    #     if m["SerialNo"] == "21216608634184569102":
+    #         continue
+    #     print(m["Title"])
+    #     check(m["SerialNo"], show=show)
+    #     dlt.submit(m["SerialNo"], show=show)
     for username in extra_everyday_upload:
         check(username, show=show)
-        dlt.submit(m["SerialNo"], show=show)
+        dlt.submit(username, show=show)
 
 
 def users():

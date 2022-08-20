@@ -176,7 +176,8 @@ path.base = {
 
       if findOne("剿灭接管作战") and
         not disappear("剿灭接管作战", 5) then
-        captureqqimagedeliver("INFO", "剿灭作战", table.join(qqmessage, ' ') .. " [" .. cur_fight ..
+        captureqqimagedeliver("INFO", "剿灭作战",
+                              table.join(qqmessage, ' ') .. " [" .. cur_fight ..
                                 "]剿灭接管作战", true)
         tap("剿灭接管作战")
         ssleep(2)
@@ -190,7 +191,8 @@ path.base = {
 
       if findOne("剿灭记录确认") and
         not disappear("剿灭记录确认", 5) then
-        captureqqimagedeliver("INFO", "剿灭作战", table.join(qqmessage, ' ') .. " [" .. cur_fight ..
+        captureqqimagedeliver("INFO", "剿灭作战",
+                              table.join(qqmessage, ' ') .. " [" .. cur_fight ..
                                 "]剿灭记录确认", true)
         tap("剿灭记录确认")
         see_jm_record_change = true
@@ -376,7 +378,8 @@ path.bilibili_login = {
     disappear("bilibili_login", 15)
     tap("bilibili_login")
     if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 15) then
-      stop("B服登录失败", account_idx and 'next' or '')
+      stop("B服登录密码错误或设备数量超限",
+           account_idx and 'next' or '')
     end
     -- 小米
     appearTap({text = "存储"}, 1)
@@ -719,7 +722,8 @@ path.邮件收取 = function()
 
     -- if disappear("面板", 1) then return path.邮件收取() end
     -- if findOne("正在提交反馈至神经") then return path.邮件收取() end
-    captureqqimagedeliver("INFO", "邮件收取前", table.join(qqmessage, ' ') .. " 邮件收取前")
+    captureqqimagedeliver("INFO", "邮件收取前",
+                          table.join(qqmessage, ' ') .. " 邮件收取前")
   end
 
   path.跳转("邮件")
@@ -854,7 +858,8 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   if prev_jump == "基建" and x ~= "基建" and qqnotify_beforeleaving and
     not_first_time_jump then
     path.跳转("基建")
-    captureqqimagedeliver("INFO", "基建离开前", table.join(qqmessage, ' ') .. " " .. "基建离开前")
+    captureqqimagedeliver("INFO", "基建离开前",
+                          table.join(qqmessage, ' ') .. " " .. "基建离开前")
   end
 
   not_first_time_jump = true
@@ -1015,7 +1020,8 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   -- 进入基建后截图
   if prev_jump ~= "基建" and x == "基建" and qqnotify_afterenter and
     not_first_time_jump then
-    captureqqimagedeliver("INFO", "基建进入后", table.join(qqmessage, ' ') .. " " .. "基建进入后")
+    captureqqimagedeliver("INFO", "基建进入后",
+                          table.join(qqmessage, ' ') .. " " .. "基建进入后")
   end
 
   prev_jump = x
@@ -2444,7 +2450,8 @@ path.任务收集 = function()
   path.跳转("任务")
   appear({"任务未选中列表2", "任务有列表2", "任务无列表2"})
   if qqnotify_beforemission then
-    captureqqimagedeliver("INFO", "任务收集前", table.join(qqmessage, ' ') .. " 任务收集前")
+    captureqqimagedeliver("INFO", "任务收集前",
+                          table.join(qqmessage, ' ') .. " 任务收集前")
   end
 
   if speedrun then
@@ -3498,7 +3505,8 @@ path.活动任务与商店 = function()
   end
 
   if not appear("主页", 1) then return path.活动任务与商店() end
-  captureqqimagedeliver("INFO", "活动任务领取", table.join(qqmessage, ' ') .. " " ..
+  captureqqimagedeliver("INFO", "活动任务领取",
+                        table.join(qqmessage, ' ') .. " " ..
                           "活动任务领取")
   tap("返回")
   if not appear("活动导航1") then return end
@@ -3576,7 +3584,8 @@ path.活动任务与商店 = function()
 
     -- 一个商品都没买到
     if success_once == false then
-      captureqqimagedeliver("INFO", "活动奖励领取", table.join(qqmessage, ' ') .. " " ..
+      captureqqimagedeliver("INFO", "活动奖励领取", table.join(qqmessage,
+                                                                     ' ') .. " " ..
                               "活动奖励领取")
       break
     end
@@ -4430,8 +4439,9 @@ path.前瞻投资 = function(lighter)
   local zl_level = zl_level_check() or -1
   if not zl_level_enough and zl_level == str2int(zl_max_level, 10000) then
     zl_level_enough = true
-    captureqqimagedeliver("INFO", "肉鸽任务完成",
-      table.join(qqmessage, ' ') .. " " .. (zl_level or '') .. "等级已满")
+    captureqqimagedeliver("INFO", "肉鸽任务完成", table.join(qqmessage,
+                                                                   ' ') .. " " ..
+                            (zl_level or '') .. "等级已满")
   end
 
   -- 检测源石锭
@@ -4470,8 +4480,9 @@ path.前瞻投资 = function(lighter)
   local zl_coin = zl_coin_check() or -1
   if not zl_coin_enough and zl_coin >= str2int(zl_max_coin, 10000) then
     zl_coin_enough = true
-    captureqqimagedeliver("INFO", "肉鸽任务完成",
-      table.join(qqmessage, ' ') .. " " .. (zl_coin or '') .. "源石锭已满")
+    captureqqimagedeliver("INFO", "肉鸽任务完成", table.join(qqmessage,
+                                                                   ' ') .. " " ..
+                            (zl_coin or '') .. "源石锭已满")
   end
 
   -- 等级/源石锭 阶段性通知
@@ -4484,7 +4495,8 @@ path.前瞻投资 = function(lighter)
     if str2int(zl_max_coin, 0) > 0 then
       info = info .. zl_coin .. '/' .. zl_max_coin
     end
-    captureqqimagedeliver("INFO", "肉鸽任务推送", table.join(qqmessage, ' ') .. " " .. info)
+    captureqqimagedeliver("INFO", "肉鸽任务推送",
+                          table.join(qqmessage, ' ') .. " " .. info)
   end
 
   -- if not findOne("常规行动") then return end
@@ -4553,7 +4565,8 @@ path.前瞻投资 = function(lighter)
     --   tap("战略确认")
     -- end,5)
 
-    captureqqimagedeliver("INFO", "肉鸽行动结束", table.join(qqmessage, ' ') .. " 放弃行动后")
+    captureqqimagedeliver("INFO", "肉鸽行动结束",
+                          table.join(qqmessage, ' ') .. " 放弃行动后")
 
     wait(function(reset_wait_start_time)
       if not disappear("常规行动") then return true end
