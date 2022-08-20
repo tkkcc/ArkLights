@@ -191,7 +191,7 @@ path.base = {
       if findOne("剿灭记录确认") and
         not disappear("剿灭记录确认", 5) then
         captureqqimagedeliver("INFO", "剿灭作战", table.join(qqmessage, ' ') .. " [" .. cur_fight ..
-                                "剿灭记录确认", true)
+                                "]剿灭记录确认", true)
         tap("剿灭记录确认")
         see_jm_record_change = true
       end

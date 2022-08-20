@@ -5209,6 +5209,10 @@ end
 restartPackage = function()
   -- log("restart_mode_hook", loadConfig("restart_mode_hook", ''))
   -- log("hideUIOnce", loadConfig("hideUIOnce", ''))
+  if getApkVerInt() == 1 then
+    disable_restart_package = true
+    log("debug")
+  end
   if not root_mode or disable_restart_package then return restartScript() end
   local cmd = [[nohup su root sh -c ' \
 while :; do

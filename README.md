@@ -49,7 +49,24 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 ## 开发
 
-1. 参考[懒人精灵无障碍模式IDE](http://bbs.lrappsoft.com:8002/forum.php?mod=forumdisplay&fid=2)内文档
+1. 内置函数参考[懒人精灵无障碍模式IDE](http://bbs.lrappsoft.com/forum.php?mod=forumdisplay&fid=2)内文档
+
+1. 调试
+
+    懒人精灵中新建项目main，利用saverun转码为项目文件后调试
+    ```sh
+    ./0.sh saverun # in linux
+    ./0.py saverun # in windows
+    ```
+    调试时在main.lua中启用日志
+    ```txt
+    always_enable_log
+    ```
+
+1. 发布
+    ```sh
+    ./0.sh release
+    ```
 
 1. 数据提取
     ```sh
@@ -63,14 +80,6 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
     ./extracy.py screencap
     ./extracy.py screencap_distance
     ```
-
-1. 发布
-    ```sh
-    ./0.sh saverun
-    ./0.sh release
-    ```
-
-1. [自建QQ通知服务](https://arklights.vercel.app/guide.html#qq%E9%80%9A%E7%9F%A5%E6%9C%8D%E5%8A%A1%E6%80%8E%E4%B9%88%E8%87%AA%E5%BB%BA)
 
 ## 对比
 
