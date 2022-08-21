@@ -125,6 +125,14 @@ m.completeTask = function(imageUrl)
   return res, code
 end
 
+m.haltComplete = function()
+  print("停机上报")
+  local data = {status = m.status, deviceToken = m.deviceToken}
+  local res, code = httpPost(m.server .. "/haltComplete", JsonEncode(data), 30,
+                             "Content-Type: application/json")
+  return res, code
+end
+
 m.solveTask = function(data) restartSimpleMode(data) end
 
 m.fetchSolveTask = function()
@@ -150,7 +158,13 @@ m.startHeartBeat = function()
   local f = function()
     while true do
       local res, code = m.heartBeat()
-      if code == 500 then stop('心跳500') end
+      local status, data = pcall(JsonDecode, res)
+      if data.code == 500 then
+        m.haltComplete()
+        log("云控", "停机上报")
+        -- 子线程不能直接stop 需要使用setTimer延时函数回调stop到主线程
+        setTimer(stop, 100, "强制停机")
+      end
       ssleep(5)
     end
   end

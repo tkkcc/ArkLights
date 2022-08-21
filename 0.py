@@ -2,9 +2,13 @@ import os
 import re
 import sys
 import datetime
-import win32gui, win32con, win32api
+from time import sleep
+import win32gui, win32con, win32api,win32com.client
 
 # win环境下的快速开发脚本
+
+# 配置全局路径 请确保路径存在
+path = "D:\ArkLights\main"
 
 class WindowMgr:
     """Encapsulates some calls to the winapi for window management"""
@@ -40,29 +44,35 @@ class WindowMgr:
 
 
 def run():
-    '''自动运行 但是好像有点BUG'''
+    '''自动运行调试 需提前打开任意lua文件'''
     myWindowMgr=WindowMgr()
     hwnd = myWindowMgr.find_window_wildcard(None,".*?懒人精灵.*?")
     if hwnd != None:
-        print("找到了懒人精灵")
-    # 若最小化，则将其显示，反之则最小化
-        if win32gui.IsIconic(hwnd):
-            win32gui.ShowWindow(hwnd, win32con.SW_SHOWMAXIMIZED)
-        win32gui.SetForegroundWindow(hwnd)  # 设置前置窗口
-        win32gui.SetFocus(hwnd)
-        win32api.keybd_event(116,0,0,0)     # F5
-        win32api.keybd_event(116,0,win32con.KEYEVENTF_KEYUP,0)  #释放按键
-
+        win32gui.BringWindowToTop(hwnd)
+        # 先发送一个alt事件，否则会报错导致后面的设置无效：pywintypes.error: (0, 'SetForegroundWindow', 'No error message is available')
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shell.SendKeys('%')
+        # 设置为当前活动窗口
+        win32gui.SetForegroundWindow(hwnd)
+        # 最大化窗口
+        win32gui.ShowWindow(hwnd, win32con.SW_MAXIMIZE)
+        # F6
+        win32api.keybd_event(117, win32api.MapVirtualKey(117, 0), 0, 0)
+        win32api.keybd_event(117, win32api.MapVirtualKey(117, 0), win32con.KEYEVENTF_KEYUP, 0)
+        sleep(0.1)
+        # F5
+        win32api.keybd_event(116, win32api.MapVirtualKey(116, 0), 0, 0)
+        win32api.keybd_event(116, win32api.MapVirtualKey(116, 0), win32con.KEYEVENTF_KEYUP, 0)
     
 
 
 def save():
+    '''保存到懒人精灵工程文件夹'''
     with open("main.lua","r", encoding='utf-8') as f:
         lines = f.readlines()
         ss = ""
         for line in lines:
             if (re.match('release_date = ".*"', line)):
-                print("line:     " + str(line))
                 line = 'release_date = "' + str(datetime.datetime.now().strftime("%m.%d %H:%M")) + '"\n'
             ss += line
     with open("main.lua", "w", encoding='utf-8') as f:
@@ -73,22 +83,21 @@ def save():
     for lua_file in lua_files:
         # 把lua_file以utf-8的格式打开，然后以GB18030的格式写入到"D:\ArkLights\main\脚本"目录下
         with open(lua_file, 'r', encoding='utf-8') as f:
-            with open(os.path.join('D:\ArkLights\main\脚本', lua_file), 'w', encoding='GB18030') as f1:
+            with open(os.path.join(path, '脚本', lua_file), 'w', encoding='GB18030') as f1:
                 f1.write(f.read())
 
     # 获取当前目录下所有的.ui文件
     ui_files = [f for f in os.listdir('.') if f.endswith('.ui')]
     for ui_file in ui_files:
-        # 把ui_file以utf-8的格式打开，然后以GB18030的格式写入到"D:\ArkLights\main\界面"目录下
+        # 把ui_file以utf-8的格式打开，然后以GB18030的格式写入到path+界面目录下
         with open(ui_file, 'r', encoding='utf-8') as f:
-            with open(os.path.join('D:\ArkLights\main\界面', ui_file), 'w', encoding='GB18030') as f1:
+            with open(os.path.join(path, '界面', ui_file), 'w', encoding='GB18030') as f1:
                 f1.write(f.read())
-
+                
     print("保存完成")
 
-    
-
 def saverun():
+    '''保存并运行'''
     save()
     run()
 
