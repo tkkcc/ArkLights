@@ -2084,7 +2084,7 @@ show_multi_account_ui = function()
   -- addButton(layout, nil, "退出",
   --           make_jump_ui_command(layout, nil, "peaceExit()"))
   -- addButton(layout, nil, "必读", make_jump_ui_command(layout, nil,
-  --                                                       "saveConfig('readme_already_read','1');jump_vercel()"))
+  --                                                       "saveConfig('readme_already_read','1');jump_readme()"))
   -- addButton(layout, nil, "高级设置", make_jump_ui_command(layout, "debug"))
   -- make_continue_account_ui(layout)
 
@@ -2596,7 +2596,7 @@ make_jump_ui = function(layout)
     -- {nil, "必读", make_jump_ui_command(layout, "help")},
     {nil, "退出", make_jump_ui_command(layout, nil, "peaceExit()")}, {
       readme_btn, "必读", make_jump_ui_command(layout, nil,
-                                                 "saveConfig('readme_already_read','1');jump_vercel()"),
+                                                 "saveConfig('readme_already_read','1');jump_readme()"),
     }, {nil, "高级设置", make_jump_ui_command(layout, "debug")},
     -- {
     --   layout .. "demo", "视频演示",
@@ -2743,7 +2743,7 @@ show_help_ui = function()
   ui.setBackground(layout .. "_stop", ui_cancel_color)
   ui.setOnClick(layout .. "_stop", make_jump_ui_command(layout, "main"))
   newRow(layout)
-  ui.addWebView(layout, randomString(32), 'https://arklights.vercel.app/guide',
+  ui.addWebView(layout, randomString(32), 'https://arklights.pages.dev/guide',
                 -2, 1000)
   ui.show(layout, false)
 end
@@ -3062,7 +3062,7 @@ show_extra_ui = function()
 
   -- {nil, "退出", make_jump_ui_command(layout, nil, "peaceExit()")}, {
   --   readme_btn, "必读", make_jump_ui_command(layout, nil,
-  --                                              "saveConfig('readme_already_read','1');jump_vercel()"),
+  --                                              "saveConfig('readme_already_read','1');jump_readme()"),
   -- }, {nil, "高级设置", make_jump_ui_command(layout, "debug")},
 
   newRow(layout)
@@ -3219,11 +3219,11 @@ jump_github = function()
   runIntent(intent)
   peaceExit()
 end
-jump_vercel = function()
-  local vercel = "arklights"
+jump_readme = function()
+  local prefix = "arklights"
   local intent = {
     action = "android.intent.action.VIEW",
-    uri = "https://" .. vercel .. '.vercel.app/guide.html',
+    uri = "https://" .. prefix .. '.pages.dev/guide.html',
   }
   runIntent(intent)
   while true do ssleep(1) end

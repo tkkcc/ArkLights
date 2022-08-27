@@ -9,12 +9,12 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 
 <p align="center" >
-<a href=https://arklights.vercel.app>使用文档</a>
+<a href=https://arklights.pages.dev>使用文档</a>
 <!-- <a href=https://www.bilibili.com/read/cv16183975>特色功能介绍</a> -->
 <!-- <a href=https://www.bilibili.com/video/BV1LM4y1F7kA>老版日常演示</a> -->
 <a href=https://www.bilibili.com/video/BV11T4y1S7cj>999源石锭速刷记录7时21分</a>
 <a href=https://www.bilibili.com/video/BV1eQ4y1C7Ch>每日任务速通记录35.25s</a>
-<a href=https://arklights.vercel.app/guide.html#%E4%BA%91%E7%AB%AF%E6%8E%A7%E5%88%B6>云控平台</a>
+<a href=https://arklights.pages.dev/guide.html#%E4%BA%91%E7%AB%AF%E6%8E%A7%E5%88%B6>云控平台</a>
 </p>
 <!-- <p align="center" > -->
 <!-- 云控平台开发中！ -->
@@ -43,9 +43,9 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 <!-- [蓝奏云(密码0000)](https://wwa.lanzoui.com/b010qimmf) / -->
 <!-- [github release](https://github.com/tkkcc/ArkLights/releases/download/v0.0.18/arknightsspeedrun2.apk)   -->
 
-[下载明日方舟速通](https://arklights.vercel.app/guide.html)
+[下载明日方舟速通](https://arklights.pages.dev/guide.html)
 
-[设备兼容](https://arklights.vercel.app/guide.html#%E8%AE%BE%E5%A4%87%E5%85%BC%E5%AE%B9)
+[设备兼容](https://arklights.pages.dev/guide.html#%E8%AE%BE%E5%A4%87%E5%85%BC%E5%AE%B9)
 
 ## 开发
 

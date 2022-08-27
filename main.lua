@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "08.25 18:06"
+release_date = "08.27 21:42"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -60,9 +60,9 @@ ui_small_submit_width = -2
 ui_small_submit_height = -2
 network_timeout = 300
 
--- update_source = 'https://arklights.vercel.app'
+-- update_source = 'https://arklights.pages.dev'
 update_source = 'https://gitee.com/bilabila/arknights/raw/master'
-update_source_fallback = 'https://arklights.vercel.app'
+update_source_fallback = update_source
 
 require('util')
 require("point")
