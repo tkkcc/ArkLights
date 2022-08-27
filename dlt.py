@@ -786,7 +786,11 @@ def check(key="", show=True):
             if username in my_account:
                 user2device[username] = device
                 continue
-            serial = dlt.all2serial(" " + password + " ", quiet=True)
+            # serial = dlt.all2serial(username + " " + password + " ", quiet=True)
+            serial = dlt.all2serial(password + " ", quiet=True)
+            # if not serial :
+            #
+            #     serial = dlt.all2serial( " " +password + " "+username, quiet=True)
             if not serial:
                 print("all2serial not found", password)
                 continue
@@ -871,14 +875,14 @@ def check(key="", show=True):
 # every day upload
 def edu(show=False):
     dlt = DLT()
-    # for m in dlt.my(raw=True):
-    #     if not DLT.need_everyday_upload(m["Title"]):
-    #         continue
-    #     if m["SerialNo"] == "21216608634184569102":
-    #         continue
-    #     print(m["Title"])
-    #     check(m["SerialNo"], show=show)
-    #     dlt.submit(m["SerialNo"], show=show)
+    for m in dlt.my(raw=True):
+        if not DLT.need_everyday_upload(m["Title"]):
+            continue
+        if m["SerialNo"] == "21216608634184569102":
+            continue
+        print(m["Title"])
+        check(m["SerialNo"], show=show)
+        dlt.submit(m["SerialNo"], show=show)
     for username in extra_everyday_upload:
         check(username, show=show)
         dlt.submit(username, show=show)
