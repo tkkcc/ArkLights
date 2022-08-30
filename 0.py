@@ -46,7 +46,7 @@ class WindowMgr:
 def run():
     '''自动运行调试 需提前打开任意lua文件'''
     myWindowMgr=WindowMgr()
-    hwnd = myWindowMgr.find_window_wildcard(None,".*?懒人精灵.*?")
+    hwnd = myWindowMgr.find_window_wildcard(None,".*?懒人精灵 - .*?")
     if hwnd != None:
         win32gui.BringWindowToTop(hwnd)
         # 先发送一个alt事件，否则会报错导致后面的设置无效：pywintypes.error: (0, 'SetForegroundWindow', 'No error message is available')

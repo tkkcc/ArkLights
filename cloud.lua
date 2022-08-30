@@ -173,6 +173,29 @@ end
 
 m.stopHeartBeat = function() stopThread(m.heartBeatTid) end
 
+m.sanReport = function()
+  if not m.enabled() then return end
+  local sanText = ocrEx(1672, 0, 1920, 105, 50, 0, 0.77, 0.30, 2.00, true, true)
+  sanText = sanText[1].text
+  index = 1
+  san = {}
+  if sanText ~= nil then
+    for word in string.gmatch(sanText, "%d+") do
+      san[index] = word
+      index = index + 1
+    end
+  else
+    san[1] = 0
+    san[2] = 135
+  end
+  log("san", san[1], "/", san[2])
+  local res, code = httpPost(m.server .. "/sanReport?san=" .. san[1] ..
+                               "&maxSan=" .. san[2] .. "&deviceToken=" ..
+                               m.deviceToken, '', 30,
+                             'Content-Type: application/json')
+  return res, code
+end
+
 restartSimpleMode = function(data)
   if not type(data) == 'table' then return end
   if not table.includes({"daily", "rogue"}, data.taskType) then return end

@@ -20,6 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  剩余理智 = {1672, 0, 1920, 105},
   寻访右 = "1843|580|3162A5",
   fullscreen = {0, 0, screen.width - 1, screen.height - 1},
   后院工坊 = {174, 814},
