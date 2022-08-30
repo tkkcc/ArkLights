@@ -175,7 +175,9 @@ m.stopHeartBeat = function() stopThread(m.heartBeatTid) end
 
 m.sanReport = function()
   if not m.enabled() then return end
-  local sanText = ocrEx(1672, 0, 1920, 105, 50, 0, 0.77, 0.30, 2.00, true, true)
+  local p = point["剩余理智"]
+  local sanText = ocrEx(p[1], p[2], p[3], p[4], 50, 0, 0.77, 0.30, 2.00, true,
+                        true)
   sanText = sanText[1].text
   index = 1
   san = {}

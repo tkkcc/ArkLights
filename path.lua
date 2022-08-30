@@ -2932,7 +2932,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
       zero_san = true
       tap("开始行动蓝")
       ssleep(1)
-      m.sanReport()
+      cloud.sanReport()
       return
     end
 
@@ -2961,7 +2961,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     zero_san = true
     tap("开始行动蓝")
     ssleep(1)
-    m.sanReport()
+    cloud.sanReport()
   end
 end
 
