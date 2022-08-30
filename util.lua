@@ -5319,6 +5319,7 @@ oom_score_adj = function()
 echo -1000 > /proc/$(pidof ]] .. package .. [[:remote)/oom_score_adj
 echo -1000 > /proc/$(pidof ]] .. package .. [[)/oom_score_adj
 echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
+echo -1000 > /proc/$(pidof ]]  .. [[nc)/oom_score_adj
 ' > /dev/null & ]]
 
   exec(cmd)

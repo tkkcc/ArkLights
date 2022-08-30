@@ -221,10 +221,12 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
                 "-c",
                 """'
 ps|grep nc
+echo -1000 > /proc/$(pidof nc)/oom_score_adj
 echo -1000 > /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score_adj
 echo -1000 > /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score_adj
 echo -1000 > /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score_adj
 sleep 1
+cat /proc/$(pidof nc)/oom_score
 cat /proc/$(pidof com.bilabila.arknightsspeedrun2:remote)/oom_score
 cat /proc/$(pidof com.bilabila.arknightsspeedrun2)/oom_score
 cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
