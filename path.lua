@@ -2931,6 +2931,8 @@ path.开始游戏 = function(x, disable_ptrs_check)
       log(2326, idx, times, max_times)
       zero_san = true
       tap("开始行动蓝")
+      ssleep(1)
+      m.sanReport()
       return
     end
 
@@ -2958,6 +2960,8 @@ path.开始游戏 = function(x, disable_ptrs_check)
     "药剂恢复理智取消" or state == '源石恢复理智不足' then
     zero_san = true
     tap("开始行动蓝")
+    ssleep(1)
+    m.sanReport()
   end
 end
 
