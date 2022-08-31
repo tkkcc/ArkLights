@@ -2931,8 +2931,16 @@ path.开始游戏 = function(x, disable_ptrs_check)
       log(2326, idx, times, max_times)
       zero_san = true
       tap("开始行动蓝")
-      ssleep(1)
-      cloud.sanReport()
+      -- 云控理智上报，普通用户跳过
+      if cloud.enabled() then
+        log("云控","理智上报")
+        while appear("主页",5) ~= "主页" do
+          log("云控","未找到主页")
+          ssleep(1)
+          end
+        log("云控","已找到主页")
+        cloud.sanReport()
+      end
       return
     end
 
@@ -2960,8 +2968,16 @@ path.开始游戏 = function(x, disable_ptrs_check)
     "药剂恢复理智取消" or state == '源石恢复理智不足' then
     zero_san = true
     tap("开始行动蓝")
-    ssleep(1)
-    cloud.sanReport()
+    -- 云控理智上报，普通用户跳过
+    if cloud.enabled() then
+      log("云控","理智上报")
+      while appear("主页",5) ~= "主页" do
+        log("云控","未找到主页")
+        ssleep(1)
+      end
+      log("云控","已找到主页")
+      cloud.sanReport()
+    end
   end
 end
 

@@ -174,28 +174,29 @@ end
 m.stopHeartBeat = function() stopThread(m.heartBeatTid) end
 
 m.sanReport = function()
-  if not m.enabled() then return end
+  log("理智上报", m.enabled())
+  -- if not m.enabled() then return true end
   local p = point["剩余理智"]
-  local sanText = ocrEx(p[1], p[2], p[3], p[4], 50, 0, 0.77, 0.30, 2.00, true,
-                        true)
-  sanText = sanText[1].text
+  log("坐标", p)
+  local sanText = ocrEx(p[1], p[2], p[3], p[4]) or {}
+  sanText = (sanText[1] or {}).text or ""
   index = 1
   san = {}
-  if sanText ~= nil then
+  if sanText ~= "" then
+    log("理智", sanText)
     for word in string.gmatch(sanText, "%d+") do
       san[index] = word
       index = index + 1
     end
   else
-    san[1] = 0
-    san[2] = 135
+    log("理智识别失败，启用固定值")
+    san[1] = 20
+    san[2] = 100
   end
-  log("san", san[1], "/", san[2])
   local res, code = httpPost(m.server .. "/sanReport?san=" .. san[1] ..
                                "&maxSan=" .. san[2] .. "&deviceToken=" ..
                                m.deviceToken, '', 30,
                              'Content-Type: application/json')
-  return res, code
 end
 
 restartSimpleMode = function(data)
