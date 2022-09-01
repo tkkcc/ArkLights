@@ -14,7 +14,7 @@ import win32com.client
 
 # 配置全局路径 请确保路径存在
 path = "D:\ArkLights\main"
-pkgPath = "D:\Tools\懒人精灵3.8.1\out\main.lr"
+pkgPath = "D:\Tools\懒人精灵3.8.3\out\main.lr"
 
 
 class WindowMgr:
@@ -125,7 +125,6 @@ def release():
     with open(os.path.join("./release/", 'script.lr.md5'), 'w', encoding='utf-8') as f:
         f.write(md5.hexdigest())
         f.write('\n')
-    
 
 
 if __name__ == '__main__':

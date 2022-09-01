@@ -177,11 +177,12 @@ m.sanReport = function()
   log("理智上报", m.enabled())
   -- if not m.enabled() then return true end
   local p = point["剩余理智"]
-  log("坐标", p)
-  local sanText = ocrEx(p[1], p[2], p[3], p[4]) or {}
-  sanText = (sanText[1] or {}).text or ""
-  index = 1
-  san = {}
+  local ocrHander = createOcr()
+  local sanText = ocrText(ocrHander, p[1], p[2], p[3], p[4], "ffffff-a8a8a8")
+  releaseOcr(ocrHander)
+  sanText = string.gsub(sanText, "\n", "")
+  local index = 1
+  local san = {}
   if sanText ~= "" then
     log("理智", sanText)
     for word in string.gmatch(sanText, "%d+") do
