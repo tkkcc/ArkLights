@@ -120,11 +120,20 @@ def release():
     md5 = hashlib.md5()
     with open(pkgPath, 'rb') as f:
         md5.update(f.read())
-    print(md5.hexdigest())
+    md5Text = md5.hexdigest()
     # 将md5.hexdigest()写入到release目录下的script.lr.md5文件中
     with open(os.path.join("./release/", 'script.lr.md5'), 'w', encoding='utf-8') as f:
         f.write(md5.hexdigest())
         f.write('\n')
+    # 判断输入值是否与md5Text相等
+    if (input("请输入md5值: ") == md5Text):
+        print("md5值正确")
+        # 运行命令
+        os.system("git -C release add -u")
+        os.system("git -C release commit --amend --allow-empty-message --no-edit")
+        os.system("git -C release push --force")
+    else:
+        print("md5值错误")
 
 
 if __name__ == '__main__':

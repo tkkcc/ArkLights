@@ -183,7 +183,7 @@ m.sanReport = function()
   sanText = string.gsub(sanText, "\n", "")
   local index = 1
   local san = {}
-  if sanText ~= "" then
+  if sanText ~= "" and string.match(sanText,"%a+") == nil then
     log("理智", sanText)
     for word in string.gmatch(sanText, "%d+") do
       san[index] = word

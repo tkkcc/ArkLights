@@ -55,8 +55,10 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
     懒人精灵中新建项目main，利用saverun转码为项目文件后调试
     ```sh
-    ./0.sh saverun # in linux
-    ./0.py saverun # in windows
+    # in linux
+    ./0.sh saverun
+    # in windows
+    python3 ./0.py saverun
     ```
     调试时在main.lua中启用日志
     ```txt
@@ -65,9 +67,12 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 1. 发布
     ```sh
+    # in linux
     ./0.sh release
+    # in windows
+    python3 ./0.py release
     ```
-
+    
 1. 数据提取
     ```sh
     # 解包
