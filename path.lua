@@ -432,6 +432,14 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+  月饼 = function()
+    wait(function()
+      tap("月饼右")
+    end, 2)
+    wait(function()
+      tap("月饼确认")
+    end, 2)
+  end,
   主题曲已开放 = function()
     tap("主题曲已开放")
     ssleep(1)
@@ -669,7 +677,7 @@ path.限时活动 = function(retry)
     tap(p)
     appear({
       '活动签到返回', '抽签返回', '感谢庆典返回',
-      '限时开放许可', "限时幸运签",
+      '限时开放许可', "限时幸运签", "月饼",
     })
   elseif findOne("面板赠送一次") and not disable_free_draw then
     tap("面板干员寻访")
@@ -2933,12 +2941,12 @@ path.开始游戏 = function(x, disable_ptrs_check)
       tap("开始行动蓝")
       -- 云控理智上报，普通用户跳过
       if cloud.enabled() then
-        log("云控","理智上报")
-        while appear("主页",5) ~= "主页" do
-          log("云控","未找到主页")
+        log("云控", "理智上报")
+        while appear("主页", 5) ~= "主页" do
+          log("云控", "未找到主页")
           ssleep(1)
-          end
-        log("云控","已找到主页")
+        end
+        log("云控", "已找到主页")
         cloud.sanReport()
       end
       return
@@ -2970,12 +2978,12 @@ path.开始游戏 = function(x, disable_ptrs_check)
     tap("开始行动蓝")
     -- 云控理智上报，普通用户跳过
     if cloud.enabled() then
-      log("云控","理智上报")
-      while appear("主页",5) ~= "主页" do
-        log("云控","未找到主页")
+      log("云控", "理智上报")
+      while appear("主页", 5) ~= "主页" do
+        log("云控", "未找到主页")
         ssleep(1)
       end
-      log("云控","已找到主页")
+      log("云控", "已找到主页")
       cloud.sanReport()
     end
   end
