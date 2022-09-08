@@ -433,12 +433,8 @@ path.bilibili_login_change = update(path.bilibili_login, {
 
 path.fallback = {
   月饼 = function()
-    wait(function()
-      tap("月饼右")
-    end, 2)
-    wait(function()
-      tap("月饼确认")
-    end, 2)
+    wait(function() tap("月饼右") end, 2)
+    wait(function() tap("月饼确认") end, 2)
   end,
   主题曲已开放 = function()
     tap("主题曲已开放")
@@ -4871,58 +4867,6 @@ path.前瞻投资 = function(lighter)
   log(2700)
   if not appear("战略帮助", 10) then return end
 
-  -- 先看作战
-  local fight1ocr = {}
-  if not wait(function()
-    fight1ocr = ocr("第一层作战")
-
-    if #fight1ocr > 0 then
-      local fight1 = fight1ocr[1]
-      -- 只支持三种作战
-      if fight1.text:includes({"意", "外"}) then
-        fight1.text = "意外"
-      elseif fight1.text:includes({"礼", "炮", "队"}) then
-        fight1.text = "礼炮小队"
-      elseif fight1.text:includes({"与", "虫", "伴"}) then
-        fight1.text = "与虫为伴"
-      elseif fight1.text:includes({"驯", "兽", "屋"}) then
-        fight1.text = "驯兽小屋"
-      elseif fight1.text:includes({"死", "斗"}) then
-        fight1.text = "死斗"
-      else
-        log("不知道什么作战：" .. fight1.text)
-        return
-      end
-      return true
-    end
-  end, 5) then
-    stop("不知道第一个作战是什么", 'cur')
-    return
-  end
-  log(fight1ocr)
-
-  local fight1 = fight1ocr[1]
-
-  -- -- 只支持三种作战
-  -- if fight1.text:includes({"意", "外"}) then
-  --   fight1.text = "意外"
-  -- elseif fight1.text:includes({"礼", "炮", "队"}) then
-  --   fight1.text = "礼炮小队"
-  -- elseif fight1.text:includes({"与", "虫", "伴"}) then
-  --   fight1.text = "与虫为伴"
-  -- elseif fight1.text:includes({"驯", "兽", "屋"}) then
-  --   fight1.text = "驯兽小屋"
-  -- else
-  --   toast("不知道什么作战：" .. fight1.text)
-  --   return
-  -- end
-  -- if fight1.text == '死斗' then ssleep(1000) end
-
-  if zl_skip_hard and fight1.text == "驯兽小屋" then
-    in_fight_return = "驯兽小屋重试"
-    return restart()
-  end
-
   -- 幻觉选择性放弃
   if findOne("偏执的") then
     local all = {
@@ -5072,12 +5016,49 @@ path.前瞻投资 = function(lighter)
   end
 
   if not wait(function()
-    tap({fight1.l, fight1.t})
+    tap("第一层作战1")
     if appear("进入界面", 1) then return true end
   end) then
     in_fight_return = "无法进入作战"
     return restart()
   end
+
+  -- check which fight
+  local fight1ocr = {}
+  if not wait(function()
+    fight1ocr = ocr("第一层作战")
+
+    if #fight1ocr > 1 then
+      log("4880", 4880, fight1ocr)
+      local fight1 = fight1ocr[2]
+      -- 只支持三种作战
+      if fight1.text:includes({"意", "外"}) then
+        fight1.text = "意外"
+      elseif fight1.text:includes({"礼", "炮", "队"}) then
+        fight1.text = "礼炮小队"
+      elseif fight1.text:includes({"与", "虫", "伴"}) then
+        fight1.text = "与虫为伴"
+      elseif fight1.text:includes({"驯", "兽", "屋"}) then
+        fight1.text = "驯兽小屋"
+      elseif fight1.text:includes({"死", "斗"}) then
+        fight1.text = "死斗"
+      else
+        log("不知道什么作战：" .. fight1.text)
+        return
+      end
+      return true
+    end
+  end, 5) then
+    stop("不知道第一个作战是什么", 'cur')
+    return
+  end
+  log(fight1ocr)
+  local fight1 = fight1ocr[2]
+  if zl_skip_hard and fight1.text == "驯兽小屋" then
+    in_fight_return = "驯兽小屋重试"
+    return restart()
+  end
+
   -- tap({fight1.l, fight1.t})
   -- if not appear("进入界面") then
   --   return

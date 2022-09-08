@@ -3636,10 +3636,31 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  exit()
+  -- exit()
 
-  yg3 = "ff303030"
-  log(colorDiff(yg3, "ff003030"))
+  -- yg3 = "ff303030"
+  -- log(colorDiff(yg3, "ff003030"))
+  -- local r = {399, 351, 501, 383}
+  -- point.r = {892, 171, 924, 203}
+  -- point.r = {468,358,492,378}
+  -- point.r = {861,175,1003,204}
+  --
+  point.r = {891, 139, 989, 211}
+  -- point.r = {389,320,507,495}
+
+  -- local handle = createOcr("chi-sim")
+  -- local text = ocrText(handle,468,358,492,378,"ffffff-0f0f0f")
+  -- local text = ocrText(handle,468,358,492,378,"000000-0f0f0f")
+
+  ocr("r")
+  ocr("r")
+  ocr("r")
+  ocr("r")
+  ocr("r")
+  ocr("r")
+  log("text", text)
+  -- ocrText("r")
+
   -- path.跳过剧情()
   exit()
   -- while true do
@@ -5319,7 +5340,7 @@ oom_score_adj = function()
 echo -1000 > /proc/$(pidof ]] .. package .. [[:remote)/oom_score_adj
 echo -1000 > /proc/$(pidof ]] .. package .. [[)/oom_score_adj
 echo -1000 > /proc/$(pidof ]] .. package .. [[:acc)/oom_score_adj
-echo -1000 > /proc/$(pidof ]]  .. [[nc)/oom_score_adj
+echo -1000 > /proc/$(pidof ]] .. [[nc)/oom_score_adj
 ' > /dev/null & ]]
 
   exec(cmd)
