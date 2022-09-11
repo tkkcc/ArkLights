@@ -436,15 +436,15 @@ path.fallback = {
     wait(function() tap("月饼右") end, 2)
     wait(function() tap("月饼确认") end, 2)
   end,
-  主题曲已开放 = function()
-    tap("主题曲已开放")
-    ssleep(1)
-    tap("主题曲已开放")
-    ssleep(1)
-    tap("主题曲已开放")
-    ssleep(1)
-    back()
-  end,
+  -- 主题曲已开放 = function()
+  --   tap("主题曲已开放")
+  --   ssleep(1)
+  --   tap("主题曲已开放")
+  --   ssleep(1)
+  --   tap("主题曲已开放")
+  --   ssleep(1)
+  --   back()
+  -- end,
   注册协议 = function()
     tap("注册协议1")
     ssleep(.5)
@@ -1985,7 +1985,7 @@ path.总览换班 = function()
     if i ~= 1 then
       swipd()
       -- TODO wait bottom for stable
-      if not appear(bottom, .2) then reach_bottom = true end
+      if not appear(bottom, 1) then reach_bottom = true end
     end
     if i == 60 then stop('总览换班滑动', 'cur') end
     visitedy = {}

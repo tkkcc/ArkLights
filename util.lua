@@ -1202,6 +1202,17 @@ auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
         -- toast("auto达到超时(s)" .. total_timeout)
         -- restartapp(appid)
         -- return auto(p, fallback, timeout, total_timeout, total_timeout_restart)
+        -- 回归新增内容卡住
+        if findOne("主题曲已开放") then
+          wait(function()
+            tap("主题曲已开放")
+            if not findOne("主题曲已开放") then return true end
+          end, 10)
+          wait(function()
+            back()
+            ssleep(1)
+          end, 2)
+        end
 
         stop("auto超时" .. total_timeout .. 's', 'cur')
       else
@@ -3636,7 +3647,8 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  -- exit()
+  log(findOne("主题曲已开放"))
+  exit()
 
   -- yg3 = "ff303030"
   -- log(colorDiff(yg3, "ff003030"))

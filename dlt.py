@@ -44,8 +44,9 @@ serial_alias = {
     "11": "103.36.202.137:301",
     "12": "103.36.203.97:301",
     "13": "103.36.195.239:301",
+    "13": "103.36.194.176:302",
 }
-daily_device = ["4", "5", "9", "11", "12", "10"]
+daily_device = ["4", "5", "9", "11", "13", "10"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -92,6 +93,90 @@ pm uninstall com.android.phone
 pm uninstall -k --user 0 com.android.phone
 pm uninstall -k --user 0 com.iflytek.inputmethod.miui
 pm uninstall -k --user 0 com.cxinventor.file.explorer
+reboot
+""",
+        )
+
+    def hy3():
+        adb(
+            "shell",
+            """
+rm /system/app/PicoTts/PicoTts.apk # com.svox.pico
+rm /system/app/PrintRecommendationService/PrintRecommendationService.apk # com.android.printservice.recommendation
+rm /system/app/PrintSpooler/PrintSpooler.apk # com.android.printspooler
+rm /system/app/Protips/Protips.apk # com.android.protips
+rm /system/app/UserDictionaryProvider/UserDictionaryProvider.apk # com.android.providers.userdictionary
+rm /system/app/WallpaperBackup/WallpaperBackup.apk # com.android.wallpaperbackup
+rm /data/app/SoftKeyboard/SoftKeyboard.apk # com.example.android.softkeyboard
+rm /data/app/com.android.appstore-1/base.apk # com.android.appstore
+rm /data/app/com.android.camera-1/base.apk # com.android.camera
+rm /data/app/com.android.chrome-1/base.apk # com.android.chrome
+rm /data/app/com.android.location-1/base.apk # com.android.location
+
+rm /data/app/com.android.nfc-1/base.apk # com.android.nfc
+rm /data/app/com.cxinventor.file.explorer-1/base.apk # com.cxinventor.file.explorer
+rm /data/app/com.iflytek.inputmethod.miui-1/base.apk # com.iflytek.inputmethod.miui
+rm /data/app/com.mmbox.xbrowser-1/base.apk # com.mmbox.xbrowser
+rm /data/app/jackpal.androidterm-1/base.apk # jackpal.androidterm
+
+
+rm /system/priv-app/VpnDialogs/VpnDialogs.apk # com.android.vpndialogs
+rm /system/priv-app/InputDevices/InputDevices.apk # com.android.inputdevices
+rm /system/priv-app/MmsService/MmsService.apk # com.android.mms.service
+rm /system/app/OpenWnn/OpenWnn.apk # jp.co.omronsoft.openwnn
+rm /system/priv-app/MtpDocumentsProvider/MtpDocumentsProvider.apk # com.android.mtp
+rm /system/priv-app/ProxyHandler/ProxyHandler.apk # com.android.proxyhandler
+rm /system/app/messaging/messaging.apk # com.android.messaging
+rm /system/app/Fallback/Fallback.apk # com.android.fallback
+rm /system/app/DownloadProviderUi/DownloadProviderUi.apk # com.android.providers.downloads.ui
+rm /system/priv-app/DownloadProvider/DownloadProvider.apk # com.android.providers.downloads
+
+rm /system/priv-app/Shell/Shell.apk # com.android.shell
+rm /system/app/CertInstaller/CertInstaller.apk # com.android.certinstaller
+
+rm /system/priv-app/ManagedProvisioning/ManagedProvisioning.apk # com.android.managedprovisioning
+rm /system/app/CtsShimPrebuilt/CtsShimPrebuilt.apk # com.android.cts.ctsshim
+rm /system/priv-app/MediaProvider/MediaProvider.apk # com.android.providers.media
+rm /system/priv-app/SharedStorageBackup/SharedStorageBackup.apk # com.android.sharedstoragebackup
+
+rm /system/priv-app/SdkSetup/SdkSetup.apk # com.android.sdksetup
+rm /system/priv-app/CtsShimPrivPrebuilt/CtsShimPrivPrebuilt.apk # com.android.cts.priv.ctsshim
+
+rm /system/priv-app/StorageManager/StorageManager.apk # com.android.storagemanager
+rm /system/priv-app/DocumentsUI/DocumentsUI.apk # com.android.documentsui
+rm /system/priv-app/Dialer/Dialer.apk # com.android.dialer
+rm /system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk # com.android.externalstorage
+
+rm /system/app/BookmarkProvider/BookmarkProvider.apk # com.android.bookmarkprovider
+rm /system/app/Camera2/Camera2.apk # com.android.camera2
+rm /system/app/CaptivePortalLogin/CaptivePortalLogin.apk # com.android.captiveportallogin
+rm /system/app/EasterEgg/EasterEgg.apk # com.android.egg
+rm /system/app/KeyChain/KeyChain.apk # com.android.keychain
+rm /system/app/Gallery/Gallery.apk # com.android.gallery
+rm /system/app/LiveWallpapersPicker/LiveWallpapersPicker.apk # com.android.wallpaper.livepicker
+rm /system/app/PacProcessor/PacProcessor.apk # com.android.pacprocessor
+rm /system/priv-app/BackupRestoreConfirmation/BackupRestoreConfirmation.apk # com.android.backupconfirm
+rm /system/priv-app/BlockedNumberProvider/BlockedNumberProvider.apk # com.android.providers.blockednumber
+rm /system/priv-app/CalendarProvider/CalendarProvider.apk # com.android.providers.calendar
+rm /system/priv-app/CallLogBackup/CallLogBackup.apk # com.android.calllogbackup
+rm /system/priv-app/CarrierConfig/CarrierConfig.apk # com.android.carrierconfig
+rm /system/priv-app/CellBroadcastReceiver/CellBroadcastReceiver.apk # com.android.cellbroadcastreceiver
+rm /system/priv-app/Contacts/Contacts.apk # com.android.contacts
+rm /system/priv-app/ContactsProvider/ContactsProvider.apk # com.android.providers.contacts
+rm /system/priv-app/EmergencyInfo/EmergencyInfo.apk # com.android.emergency
+rm /system/priv-app/FusedLocation/FusedLocation.apk # com.android.location.fused
+rm /system/priv-app/TeleService/TeleService.apk # com.android.phone
+rm /system/priv-app/Telecom/Telecom.apk # com.android.server.telecom
+rm /system/priv-app/TelephonyProvider/TelephonyProvider.apk # com.android.providers.telephony
+rm /system/app/BasicDreams/BasicDreams.apk # com.android.dreams.basic
+
+rm /system/priv-app/WallpaperCropper/WallpaperCropper.apk # com.android.wallpapercropper
+rm /system/priv-app/MusicFX/MusicFX.apk # com.android.musicfx
+rm /system/app/Gallery2/Gallery2.apk # com.android.gallery3d
+rm /system/app/PhotoTable/PhotoTable.apk # com.android.dreams.phototable
+rm /system/app/BluetoothMidiService/BluetoothMidiService.apk # com.android.bluetoothmidiservice
+
+
 reboot
 """,
         )
@@ -884,6 +969,8 @@ def edu(show=False):
         if not DLT.need_everyday_upload(m["Title"]):
             continue
         if m["SerialNo"] == "21216608634184569102":
+            continue
+        if m["SerialNo"] == "21216627586068071100":
             continue
         print(m["Title"])
         check(m["SerialNo"], show=show)
