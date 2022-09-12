@@ -377,7 +377,9 @@ path.bilibili_login = {
     tap("bilibili_login")
     disappear("bilibili_login", 15)
     tap("bilibili_login")
-    if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 15) then
+    if not disappear("bilibili_login", 15) then
+    -- if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 15) then
+
       stop("B服登录密码错误或设备数量超限",
            account_idx and 'next' or '')
     end
@@ -1985,7 +1987,12 @@ path.总览换班 = function()
     if i ~= 1 then
       swipd()
       -- TODO wait bottom for stable
-      if not appear(bottom, 1) then reach_bottom = true end
+      if not appear(bottom, 1) then
+        if not findOne('撤下干员') then
+          stop('总览换班滑动异常', 'cur')
+        end
+        reach_bottom = true
+      end
     end
     if i == 60 then stop('总览换班滑动', 'cur') end
     visitedy = {}
