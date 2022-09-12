@@ -2041,7 +2041,7 @@ make_account_ui = function(layout, prefix)
   addTextView(layout, "信用多买")
   ui.addEditText(layout, prefix .. "high_priority_goods", "")
   addTextView(layout, "信用少买")
-  ui.addEditText(layout, prefix .. "low_priority_goods", "碳")
+  ui.addEditText(layout, prefix .. "low_priority_goods", "")
 
   newRow(layout)
   addTextView(layout, "自动招募")
@@ -3649,7 +3649,10 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  log(findOne("主题曲已开放"))
+  -- log(findOne("主题曲已开放"))
+  log(findOne("不要了"))
+  tap({495,516})
+  ssleep(1)
   exit()
 
   -- yg3 = "ff303030"
@@ -4606,6 +4609,10 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do
         table.extend(expand_fight, {"PR-B-2", "PR-A-2", "PR-C-2", "PR-D-2"})
       end
+      for _ = 1, 99 do
+        table.extend(expand_fight, {"PR-B-1", "PR-A-1", "PR-C-1", "PR-D-1"})
+      end
+    elseif table.includes({'PR1'}, v) then
       for _ = 1, 99 do
         table.extend(expand_fight, {"PR-B-1", "PR-A-1", "PR-C-1", "PR-D-1"})
       end

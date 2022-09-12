@@ -46,8 +46,9 @@ serial_alias = {
     "13": "103.36.195.239:301",
     "13": "103.36.194.176:302",
     "14": "218.66.170.11:302",
+    "15": "39.109.36.8:301",
 }
-daily_device = ["4", "5", "9", "11", "14", "10"]
+daily_device = ["4", "5", "9", "11", "14", "10", "12"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -347,6 +348,13 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
             "/data/user/0/" + package + "/assistdir/" + packagehash + "/root/" + name,
         )
 
+    def arch():
+        return adb(
+            "shell",
+            "getprop",
+            "ro.product.cpu.abi",
+        )
+
     def load(name):
         adbpull(name)
         p = path / name
@@ -514,6 +522,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, f"multi_account_user{first_empty_i}fight_ui", fight or "jm hd ce ls ap pr")
         c(x, f"multi_account_user{first_empty_i}max_drug_times", str(99 if drug else 0))
         c(x, f"multi_account_user{first_empty_i}auto_recruit0", not norecruit)
+        c(x, f"multi_account_user{first_empty_i}low_priority_goods", "")
         save("config_multi_account.json", x)
 
         x = load("config_debug.json")
@@ -771,6 +780,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, f"auto_recruit4", True)
         c(x, f"auto_recruit5", True)
         c(x, f"auto_recruit6", False)
+        c(x, f"low_priority_goods", "")
         save("config_main.json", x)
 
         x = load("config_debug.json")

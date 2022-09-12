@@ -5228,10 +5228,10 @@ path.前瞻投资 = function(lighter)
     local p = findOne("不要了")
     log(4233)
     if p and findOne("战略返回") then
-      tap({p[1] + scale(765 - 668), scale(789)})
-      tap({p[1] + scale(765 - 668), scale(789)})
-      tap({p[1] + scale(765 - 668), scale(789)})
-      tap({p[1] + scale(765 - 668), scale(789)})
+      tap({p[1] + scale(765 - 668), scale(774)})
+      tap({p[1] + scale(765 - 668), scale(774)})
+      tap({p[1] + scale(765 - 668), scale(774)})
+      tap({p[1] + scale(765 - 668), scale(774)})
     end
 
     -- 误触到招募券处理
