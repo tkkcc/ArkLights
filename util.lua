@@ -1206,7 +1206,9 @@ auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
         if findOne("主题曲已开放") then
           wait(function()
             tap("主题曲已开放")
-            if not findOne("主题曲已开放") then return true end
+            if not findOne("主题曲已开放") then
+              return true
+            end
           end, 10)
           wait(function()
             back()

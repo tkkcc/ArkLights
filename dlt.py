@@ -45,8 +45,9 @@ serial_alias = {
     "12": "103.36.203.97:301",
     "13": "103.36.195.239:301",
     "13": "103.36.194.176:302",
+    "14": "218.66.170.11:302",
 }
-daily_device = ["4", "5", "9", "11", "13", "10"]
+daily_device = ["4", "5", "9", "11", "14", "10"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -432,7 +433,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         idx=None,
         weekday_only=None,
         drug=None,
-        recruit=None,
+        norecruit=None,
     ):
         weekday_only_list = load("config_debug.json")[
             "multi_account_choice_weekday_only"
@@ -440,7 +441,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
 
         x = load("config_multi_account.json")
         ans = ""
-        ans += "==> 当前账号\n"
+        # ans += "==> 当前账号\n"
         first_empty_i = 0
         for i in range(1, 31):
             if (
@@ -468,14 +469,12 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
                     and int(x["multi_account_user" + str(i) + "max_drug_times"]) > 0
                     else ""
                 )
-                # + (
-                #     (
-                #         " --recruit"
-                #     )
-                #     if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
-                #     and x["multi_account_user" + str(i) + "auto_recruit0"]
-                #     else ""
-                # )
+                + (
+                    (" --norecruit")
+                    if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
+                    and not x["multi_account_user" + str(i) + "auto_recruit0"]
+                    else ""
+                )
                 + (" --weekday-only" if str(i) in weekday_only_list else "")
                 + " --idx="
                 + str(i)
@@ -508,12 +507,13 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         for i in range(1, 13):
             c(x, f"multi_account_user{i}now_job_ui" + str(i), True)
         c(x, f"multi_account_user{i}now_job_ui8", False)
-        if fight or drug:
+        if fight or drug or norecruit:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
         else:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "继承设置")
         c(x, f"multi_account_user{first_empty_i}fight_ui", fight or "jm hd ce ls ap pr")
         c(x, f"multi_account_user{first_empty_i}max_drug_times", str(99 if drug else 0))
+        c(x, f"multi_account_user{first_empty_i}auto_recruit0", not norecruit)
         save("config_multi_account.json", x)
 
         x = load("config_debug.json")

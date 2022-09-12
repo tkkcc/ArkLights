@@ -13,7 +13,7 @@ QQ频道号：[h800n9f23g](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&
 [云控](#云端控制)平台：[github.com/AegirTech](https://github.com/AegirTech)  
 觉得好用请在github上给个star，这是对开发者最大的帮助。
 
-## 最近更新
+<!-- ## 最近更新 -->
 
 <!-- - 可使用[pushplus通知](#qq通知怎么用)，支持微信公众号、邮件等多种渠道。 -->
 <!-- - magisk hide设备需**手动关闭root授权提示**，否则root提示影响脚本识别。 -->
@@ -641,7 +641,7 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 0 m 9 pic 12345
 0 m 9 pic 分钟
 # 华云系统精简
-0 m 9 hy2
+0 m 9 hy3
 # 华云启用root权限
 0 m 9 hy
 

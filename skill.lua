@@ -325,6 +325,7 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
     end
 
     -- 应用全局性技能
+    --
     -- 拉狗徳狗
     local texas = all['bskill_tra_texas1'] or all['bskill_tra_texas2']
     if all['bskill_tra_lappland1'] then
@@ -406,6 +407,13 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
         end
       end
     end
+
+    -- 但书，禁用巫恋
+    if not all['bskill_tra_vodfox'] and goodType == "贵金属" then
+      if all['bskill_tra_against'] then base = (1 + base) * 1.276 - 1 end
+      if all['bskill_tra_against2'] then base = (1 + base) * 1.556 - 1 end
+    end
+
     return base, only_need
   end
 
