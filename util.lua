@@ -2965,6 +2965,7 @@ show_debug_ui = function()
   addTextView(layout, [[
 
 
+以下设置仅用于调试，如有修改后果自负！！！
 
 
 ]])
