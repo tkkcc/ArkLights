@@ -5,7 +5,7 @@ const { searchPlugin } = require('@vuepress/plugin-search')
 module.exports = {
   lang: 'zh-CN',
   title: '明日方舟速通',
-  description: '最快的明日方舟全托管脚本',
+  description: '高效的明日方舟全托管APP',
   theme: defaultTheme({
     repo: 'tkkcc/ArkLights',
     sidebarDepth: 5,

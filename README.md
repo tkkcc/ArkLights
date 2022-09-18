@@ -4,7 +4,7 @@
 ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game helper</a>
 </p>
 
-<p align="center">明日方舟速通 —— 最快的明日方舟全托管脚本</a> </p>
+<p align="center">明日方舟速通 —— 高效的明日方舟全托管APP</a> </p>
 
 
 <p align="center" >
