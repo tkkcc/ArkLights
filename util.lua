@@ -1206,9 +1206,7 @@ auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
         if findOne("主题曲已开放") then
           wait(function()
             tap("主题曲已开放")
-            if not findOne("主题曲已开放") then
-              return true
-            end
+            if not findOne("主题曲已开放") then return true end
           end, 10)
           wait(function()
             back()
@@ -2843,6 +2841,9 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "zero_san_after_fight", "使用1-7清空剩余理智",
                  true)
+  newRow(layout)
+  ui.addCheckBox(layout, "restart_on_crontab_timeout",
+                 "跨定时点结束后重启", true)
 
   newRow(layout)
   addTextView(layout, "QQ通知账号")
@@ -3652,7 +3653,7 @@ predebug_hook = function()
   swipu_flipx = 0
   -- log(findOne("主题曲已开放"))
   log(findOne("不要了"))
-  tap({495,516})
+  tap({495, 516})
   ssleep(1)
   exit()
 
@@ -4720,34 +4721,67 @@ apply_multi_account_setting = function(i, visited)
   end
 end
 
+crontab_next_time = function(text)
+  local config = string.filterSplit(text)
+  local candidate = {}
+  if #config == 0 then return 0 end
+  local current = os.time()
+  for _, v in pairs(config) do
+    local hour_second = v:split(':')
+    local hour = math.round(tonumber(hour_second[1] or 0) or 0)
+    local min = math.round(tonumber(hour_second[2] or 0) or 0)
+    table.insert(candidate, os.time(
+                   update(os.date("*t"), {hour = hour, min = min, sec = 0})))
+    table.insert(candidate, os.time(
+                   update(os.date("*t"), {hour = hour + 24, min = min, sec = 0})))
+  end
+  table.sort(candidate)
+  -- log("candidate", candidate)
+  -- log("#candidate", #candidate)
+  local next_time = table.findv(candidate, function(x) return x > current end)
+  return next_time or 0
+end
+
+check_crontab_on_start = function()
+  if not crontab_enable then return end
+  if #loadConfig("crontab_next_time_on_start", "") > 0 then return end
+  local next_time = crontab_next_time(crontab_text)
+  -- log(4748, "next_time", next_time)
+  saveConfig("crontab_next_time_on_start", str(next_time))
+end
+
 -- 定时执行逻辑：如果到点但脚本还在run则跳过
 check_crontab = function()
   if not crontab_enable then return end
   saveConfig("hideUIOnce", "true")
   saveConfig("restart_mode_hook", '')
+  local next_time_on_start = loadConfig("crontab_next_time_on_start", "")
+  saveConfig("crontab_next_time_on_start", '')
+  local next_time = crontab_next_time(crontab_text)
+  log(4749, "next_time", next_time,next_time_on_start)
+
   local restart = function()
     wait_game_up()
     restartPackage()
   end
-
-  local config = string.filterSplit(crontab_text)
-  local candidate = {}
-  if #config == 0 then return end
-  local current = os.time()
-  for _, v in pairs(config) do
-    -- TODO
-    if v:startsWith("+") then restart() end
-
-    local hour_second = v:split(':')
-    local hour = math.round(tonumber(hour_second[1] or 0) or 0)
-    local min = math.round(tonumber(hour_second[2] or 0) or 0)
-    table.insert(candidate,
-                 os.time(update(os.date("*t"), {hour = hour, min = min})))
-    table.insert(candidate,
-                 os.time(update(os.date("*t"), {hour = hour + 24, min = min})))
+  -- 有+号直接重启
+  if crontab_text:find("+") then
+    toast("无等待重启")
+    restart()
   end
-  table.sort(candidate)
-  local next_time = table.findv(candidate, function(x) return x > current end)
+  -- 跨定时点重启
+  -- log("next_time_on_start", next_time_on_start)
+  -- log("next_time", next_time)
+  -- exit()
+  if next_time == 0 then
+    return
+  end
+  if restart_on_crontab_timeout and str2int(next_time_on_start, next_time) ~=
+    next_time then
+    toast("跨定时点重启")
+    restart()
+  end
+
   toast("下次执行时间：" .. os.date("%H:%M", next_time))
   while true do
     if os.time() >= next_time then break end
@@ -4764,6 +4798,7 @@ setEventCallback = function()
     log("结束")
     saveConfig("hideUIOnce", "false")
     saveConfig("restart_mode_hook", '')
+    saveConfig("crontab_next_time_on_start", '')
     disableRootToast(true)
     console.show()
   end)
@@ -5664,6 +5699,8 @@ update_state_from_debugui = function()
 
   restart_game_interval = str2int(restart_game_interval, 900)
   restart_package_interval = str2int(restart_package_interval, 3600)
+
+  if restart_on_crontab_timeout == nil then restart_on_crontab_timeout = true end
 end
 
 -- 基建心情阈值与QQ号
