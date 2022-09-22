@@ -3408,7 +3408,7 @@ path.活动 = function(x)
     return
   end
   path.跳转("首页")
-  tap("面板活动2")
+  tap("面板活动")
   if not wait(function()
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then path.跳过剧情() end
@@ -3446,7 +3446,7 @@ path.活动 = function(x)
     end, 5) then return end
     return true
   end
-  car_check()
+  -- car_check()
   if not findOne("活动导航1") then return end
 
   if not wait(function()

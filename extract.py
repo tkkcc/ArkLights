@@ -164,6 +164,7 @@ def skillicon2operator(
 def recruit(
     char="ArknightsGameData/zh_CN/gamedata/excel/character_table.json",
     gacha="ArknightsGameData/zh_CN/gamedata/excel/gacha_table.json",
+    to = "lua",
 ):
     char = json.loads(open(char).read())
     gacha = json.loads(open(gacha).read())
@@ -277,26 +278,53 @@ def recruit(
     goodtag = oktag
 
     # 格式化
-    goodtag = [[x[1], int(x[0]), x[2]] for x in goodtag]
+    goodtag = [(x[1], int(x[0]), x[2]) for x in goodtag]
 
     # lua table
     # tag2star = {k: v for k, v in sorted(tag2star.items(), key=lambda x: -x[1])}
     # goodtag = json.dumps(goodtag, ensure_ascii=False)
     # print(tag2star)
+    if to == "lua":
+        goodtag = py2lua(goodtag)
+    elif to == "rust":
+        goodtag = py2rust(goodtag)
+    elif to == "json":
+        goodtag = json.dumps(goodtag, ensure_ascii=False)
 
-    goodtag = py2lua(goodtag)
 
     return goodtag
 
 
 def py2lua(x):
-    if type(x) is list:
+    if type(x) is list or type(x) is tuple:
         ans = "{"
         for i, y in enumerate(x):
             ans += py2lua(y)
             if i < len(x) - 1:
                 ans += ","
         ans += "}"
+        return ans
+    elif type(x) is int:
+        return str(x)
+    elif type(x) is str:
+        return '"' + x + '"'
+
+def py2rust(x):
+    if type(x) is list:
+        ans = "vec!["
+        for i, y in enumerate(x):
+            ans += py2rust(y)
+            if i < len(x) - 1:
+                ans += ","
+        ans += "]"
+        return ans
+    if type(x) is tuple:
+        ans = "("
+        for i, y in enumerate(x):
+            ans += py2rust(y)
+            if i < len(x) - 1:
+                ans += ","
+        ans += ")"
         return ans
     elif type(x) is int:
         return str(x)
@@ -318,6 +346,8 @@ def screencap(stem):
 
 def screencap_distance():
     screencap = Path("screencap")
+    import torch
+    torch.backends.cudnn.enabled = False
     import easyocr
     from PIL import Image
 
@@ -331,6 +361,8 @@ def screencap_distance():
         visible_point = defaultdict(int)
         for (loc, text, confidence) in x:
             text = text.replace("I", "1")
+            text = text.replace("l", "1")
+            text = text.replace(" ", "")
             m = re.search("^.?.-(\d+)$", text)
             if not m:
                 continue

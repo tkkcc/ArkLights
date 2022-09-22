@@ -3573,8 +3573,7 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-9", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
-    "HD-9",
+    "HD-10","HD-9", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
 
     -- "10-2",
     -- "10-3",
@@ -4595,7 +4594,7 @@ parse_fight_config = function(fight_ui)
     end
     if table.find({
       '活动', "DH", "GA", "TC", "IC", "DV", "WR", "IW", "WD", "SN", "SV",
-      "LE",
+      "LE", "NL"
     }, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
@@ -4624,7 +4623,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _, i in pairs({9, 8, 7}) do
+      for _, i in pairs({10, 9, 8}) do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
@@ -4663,7 +4662,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202209010400")
+  hd_open_time_end = parse_time("202210060400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202208251600")
