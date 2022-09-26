@@ -983,11 +983,17 @@ def edu(show=False):
         if m["SerialNo"] == "21216627586068071100":
             continue
         print(m["Title"])
-        check(m["SerialNo"], show=show)
-        dlt.submit(m["SerialNo"], show=show)
+        try:
+            check(m["SerialNo"], show=show)
+            dlt.submit(m["SerialNo"], show=show)
+        except Exception:
+            pass
     for username in extra_everyday_upload:
-        check(username, show=show)
-        dlt.submit(username, show=show)
+        try:
+            check(username, show=show)
+            dlt.submit(username, show=show)
+        except Exception:
+            pass
 
 
 def users():
