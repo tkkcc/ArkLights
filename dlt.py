@@ -47,8 +47,13 @@ serial_alias = {
     "13": "103.36.194.176:302",
     "14": "218.66.170.11:302",
     "15": "39.109.36.48:301",
+    "15": "183.60.24.67:301",
+    "16": "39.109.42.125:301",
+    "17": "183.60.24.16:301",
+    "18": "154.39.78.200:301",
+    "19": "154.39.78.110:301",
 }
-daily_device = ["4", "5", "9", "11", "14", "10", "12"]
+daily_device = ["4", "5", "9", "11", "14", "10", "12", "18","19"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -95,7 +100,6 @@ pm uninstall com.android.phone
 pm uninstall -k --user 0 com.android.phone
 pm uninstall -k --user 0 com.iflytek.inputmethod.miui
 pm uninstall -k --user 0 com.cxinventor.file.explorer
-reboot
 """,
         )
 
@@ -103,6 +107,7 @@ reboot
         adb(
             "shell",
             """
+setprop persist.sys.timezone Asia/Shanghai
 rm /system/app/PicoTts/PicoTts.apk # com.svox.pico
 rm /system/app/PrintRecommendationService/PrintRecommendationService.apk # com.android.printservice.recommendation
 rm /system/app/PrintSpooler/PrintSpooler.apk # com.android.printspooler
@@ -179,7 +184,6 @@ rm /system/app/PhotoTable/PhotoTable.apk # com.android.dreams.phototable
 rm /system/app/BluetoothMidiService/BluetoothMidiService.apk # com.android.bluetoothmidiservice
 
 
-reboot
 """,
         )
 
@@ -277,7 +281,6 @@ rm /system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk # com.an
 # rm /system/priv-app/StatementService/StatementService.apk # com.android.statementservice
 # rm /system/priv-app/ExtServices/ExtServices.apk # android.ext.services
 # rm /system/app/ExtShared/ExtShared.apk # android.ext.shared
-reboot
 """,
         )
 
