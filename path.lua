@@ -3408,7 +3408,7 @@ path.活动 = function(x)
     return
   end
   path.跳转("首页")
-  tap("面板活动")
+  tap("面板活动2")
   if not wait(function()
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then path.跳过剧情() end
@@ -4405,6 +4405,10 @@ path.前瞻投资 = function(lighter)
 
     if not wait(function()
       if findOne("常规行动") then return true end
+      if findOne("选择傀影与猩红孤钻") then 
+        tap("选择傀影与猩红孤钻") 
+        ssleep(1) 
+      end
       tap("进入主题")
     end, 5) then return end
   end
@@ -4944,17 +4948,20 @@ path.前瞻投资 = function(lighter)
   for col = 1, 2 do
     local unexpect
     if findOne("第一层不期而遇" .. col .. "入口列表1") then
+      log("第" .. col .. "列 " .. "3关卡状态")
       unexpect = {
         "第一层不期而遇" .. col .. "列表1",
         "第一层不期而遇" .. col .. "列表3",
         "第一层不期而遇" .. col .. "列表5",
       }
     elseif findOne("第一层不期而遇" .. col .. "入口列表2") then
+      log("第" .. col .. "列 " .. "2关卡状态")
       unexpect = {
         "第一层不期而遇" .. col .. "列表2",
         "第一层不期而遇" .. col .. "列表4",
       }
     else
+      log("第" .. col .. "列 " .. "1关卡状态")
       unexpect = {"第一层不期而遇" .. col .. "列表3"}
     end
     for k, v in pairs(unexpect) do
