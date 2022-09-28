@@ -4991,7 +4991,8 @@ path.前瞻投资 = function(lighter)
     in_fight_return = "第二列没找到不期而遇"
     return restart()
   end
-  log(unexpect1ocr, unexpect2ocr)
+  log("第二列 ", unexpect1ocr)
+  log("第三列 ", unexpect2ocr)
 
   log(2723)
   -- 根据不期而遇来选择路径，只有边上两个均为不期而遇才行
