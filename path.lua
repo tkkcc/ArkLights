@@ -3746,7 +3746,7 @@ path.访问好友 = function()
     if findAny({"访问下位灰", "访问下位橘"}) and
       not findOne("好友列表") then return true end
     -- if not findOne("好友列表") then return true end
-  end, 10) then return end -- 无好友或网络超时10秒
+  end, 30) then return end -- 无好友或网络超时10秒
   log(2256)
   if speedrun then
     disappear("正在提交反馈至神经", network_timeout)
@@ -3754,8 +3754,7 @@ path.访问好友 = function()
     return
   end
 
-  if not wait(function()
-
+  if not wait(function(reset_wait_start_time)
     if not disable_communication_check and
       findOne("今日参与交流已达上限") then
       log("今日参与交流已达上限")
@@ -3769,8 +3768,10 @@ path.访问好友 = function()
       return true
     end
     tap("访问下位橘")
-    disappear("正在提交反馈至神经", network_timeout)
-  end, 60) then return end
+    if findOne("正在提交反馈至神经") then
+      reset_wait_start_time()
+    end
+  end, 30) then return end
   log(2257)
 end
 
