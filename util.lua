@@ -4662,7 +4662,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202210060400")
+  hd_open_time_end = parse_time("202110060400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202208251600")
