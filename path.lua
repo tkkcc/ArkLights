@@ -378,7 +378,7 @@ path.bilibili_login = {
     disappear("bilibili_login", 15)
     tap("bilibili_login")
     if not disappear("bilibili_login", 15) then
-    -- if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 15) then
+      -- if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 15) then
 
       stop("B服登录密码错误或设备数量超限",
            account_idx and 'next' or '')
@@ -564,6 +564,7 @@ path.fallback = {
       scale(950 - 1080 // 2), scale(100) do tap({screen.width // 2, v}) end
     return path.fallback.签到返回()
   end,
+  国庆签到返回 = function() return path.fallback.活动签到返回() end,
   返回确认 = function()
     log(191)
     leaving_jump = false
@@ -647,9 +648,10 @@ path.fallback = {
     -- 基建内返回太快会卡
     local x = appear({
       "返回确认", "返回确认2", "返回确认3", "活动公告返回",
-      "签到返回", "签到返回黄", "活动签到返回", "抽签返回",
-      "战略返回", '感谢庆典返回', '限时开放许可',
-      "限时幸运签", "线索传递界面", "阿米娅", "可露希尔",
+      "签到返回", "签到返回黄", "活动签到返回",
+      "国庆签到返回", "抽签返回", "战略返回",
+      '感谢庆典返回', '限时开放许可', "限时幸运签",
+      "线索传递界面", "阿米娅", "可露希尔",
     }, .1)
     log(251, x)
     if x then return tap(path.fallback[x]) end
@@ -674,8 +676,8 @@ path.限时活动 = function(retry)
   if p then
     tap(p, true)
     appear({
-      '活动签到返回', '抽签返回', '感谢庆典返回',
-      '限时开放许可', "限时幸运签", "月饼",
+      '活动签到返回', '国庆签到返回', '抽签返回',
+      '感谢庆典返回', '限时开放许可', "限时幸运签", "月饼",
     })
   elseif findOne("面板赠送一次") and not disable_free_draw then
     tap("面板干员寻访")
@@ -931,8 +933,8 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
       log(208)
       appear({
         target, "活动公告返回", "签到返回", "签到返回黄",
-        "活动签到返回", "抽签返回", "单选确认框", "返回3",
-        "阿米娅",
+        "活动签到返回", "国庆签到返回", "抽签返回",
+        "单选确认框", "返回3", "阿米娅",
       }, timeout)
       log(209)
     end,
@@ -3768,9 +3770,7 @@ path.访问好友 = function()
       return true
     end
     tap("访问下位橘")
-    if findOne("正在提交反馈至神经") then
-      reset_wait_start_time()
-    end
+    if findOne("正在提交反馈至神经") then reset_wait_start_time() end
   end, 30) then return end
   log(2257)
 end
@@ -4406,9 +4406,9 @@ path.前瞻投资 = function(lighter)
 
     if not wait(function()
       if findOne("常规行动") then return true end
-      if findOne("选择傀影与猩红孤钻") then 
-        tap("选择傀影与猩红孤钻") 
-        ssleep(1) 
+      if findOne("选择傀影与猩红孤钻") then
+        tap("选择傀影与猩红孤钻")
+        ssleep(1)
       end
       tap("进入主题")
     end, 5) then return end
