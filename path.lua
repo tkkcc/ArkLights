@@ -4406,11 +4406,11 @@ path.前瞻投资 = function(lighter)
 
     if not wait(function()
       if findOne("常规行动") then return true end
-      if findOne("选择傀影与猩红孤钻") then
-        tap("选择傀影与猩红孤钻")
-        ssleep(1)
+      if findOne("傀影与猩红孤钻") then
+        tap("进入主题")
+      else
+        tap("集成战略列表1")
       end
-      tap("进入主题")
     end, 5) then return end
   end
 
@@ -5343,7 +5343,7 @@ path.前瞻投资 = function(lighter)
     end
     if findOne("战略帮助") then return true end
     -- 需要提前退出
-    if not findOne("战略返回") and appear("战略帮助") then
+    if not appear("战略返回", 1) and appear("战略帮助") then
       return true
     end
     tap("不期而遇第三选项")
@@ -5390,7 +5390,7 @@ path.前瞻投资 = function(lighter)
       end, 5) then return end
     end
     if findOne("战略帮助") then return true end
-    if not findOne("战略返回") and appear("战略帮助") then
+    if not appear("战略返回", 1) and appear("战略帮助") then
       return true
     end
     tap("不期而遇第三选项")

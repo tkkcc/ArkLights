@@ -3651,8 +3651,65 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   -- log(findOne("主题曲已开放"))
-  log(findOne("不要了"))
-  tap({495, 516})
+  -- local col=1
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表1"))
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表2"))
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表3"))
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表4"))
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表5"))
+  -- log("===")
+  -- col=2
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表1"))
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表2"))
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表3"))
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表4"))
+  -- log(findOne("第一层不期而遇" .. col .. "入口列表5"))
+  -- log(findOne("不要了"))
+  -- tap({495, 516})
+  local buy = function()
+    local p = appear(point["战略商品列表"], 1)
+    p = findAny(point["战略商品列表"])
+    if not p then return end
+    if not wait(function()
+      local x, y = point[p]:match("(%d+)" .. coord_delimeter .. "(%d+)")
+      tap({tonumber(x) - scale(111), tonumber(y) - scale(100)})
+      if disappear(p, 1) then return true end
+    end) then return end
+
+    disappear("诡意行商离开", 1)
+    if not wait(function(reset_wait_start_time)
+      tap("诡意行商确认投资")
+      if findOne("诡意行商离开") then return true end
+      if findOne("确认招募") then
+        local start_time = time()
+        if not wait(function(reset_wait_start_time2)
+          if findOne("编队") then return true end
+          if findOne("返回确认界面") then
+            if time() - start_time < 2000 then
+              tap("左取消")
+            else
+              tap("右确认")
+            end
+            disappear("返回确认界面")
+            ssleep(.5)
+          end
+          if findOne("正在提交反馈至神经") then
+            reset_wait_start_time()
+            reset_wait_start_time2()
+          end
+          tap("近卫招募列表" .. 1)
+          findTap("确认招募")
+          tap("开包skip")
+        end, 10) then return end
+      end
+      if findOne("正在提交反馈至神经") then
+        reset_wait_start_time()
+      end
+    end, 10) then return end
+    return true
+  end
+  ssleep(1)
+  buy()
   ssleep(1)
   exit()
 
