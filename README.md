@@ -13,6 +13,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 <a href=https://www.bilibili.com/video/BV1eQ4y1C7Ch>每日任务速通记录35.25s</a>
 <a href=https://arklights.pages.dev/guide.html#%E4%BA%91%E7%AB%AF%E6%8E%A7%E5%88%B6>云控平台</a>
 </p>
+
 ![](cover.jpg)
 
 ## 什么是明日方舟速通
@@ -28,7 +29,7 @@ ArkLights，即为明日方舟速通，是一款基于Lua开发的明日方舟�
 - 理智顶液使用
 - 信用访问与购买
 - 线索交流
-- 集成战略 （为什么速通不再更新水月肉鸽内容？）
+- 集成战略 （[为什么速通不再更新水月肉鸽内容？](https://arklights.pages.dev/guide.html#%E5%85%B6%E4%BB%96)）
 - 等等...
 
 速通囊括了游戏内绝大部分的操作，且高速，安全，可信，部署成本极低。
