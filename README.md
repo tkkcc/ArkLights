@@ -16,35 +16,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 
 ![](cover.jpg)
 
-## 什么是明日方舟速通
-
-ArkLights，即为明日方舟速通，是一款基于Lua开发的明日方舟全托管APP，具有**高速**，**高鲁棒性**的特点。本项目基于图色识别开发，运行于真实游戏环境中，目前鹰角网络默许此类图色脚本的存在，托管于速通的账号不会被封禁。
-
-## 它能做什么
-
-- 全图导航代理作战
-- 自动邮件收取
-- 自动公招
-- 科学的基建换班收菜
-- 理智顶液使用
-- 信用访问与购买
-- 线索交流
-- 集成战略 （[为什么速通不再更新水月肉鸽内容？](https://arklights.pages.dev/guide.html#%E5%85%B6%E4%BB%96)）
-- 等等...
-
-速通囊括了游戏内绝大部分的操作，且高速，安全，可信，部署成本极低。
-
-## 使用方法
-
-请查阅 [使用文档](https://arklights.pages.dev)
-
-文档内解释了绝大部分的问题，请仔细阅读。我们欢迎任何有价值的问题，但是在提问前，**请确保您已经仔细阅读使用文档**。
-
-## 支持这个项目 ❤
-
-公益项目，请点击右上方的`Star`，这对开发者来说十分重要。
-
-## Development
+### Development
 
 1. 内置函数参考[懒人精灵无障碍模式IDE](http://bbs.lrappsoft.com/forum.php?mod=forumdisplay&fid=2)内文档
 
