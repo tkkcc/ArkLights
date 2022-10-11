@@ -3514,7 +3514,8 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
   openPermissionSetting()
   toast("请开启无障碍权限")
   if not wait(function() return isAccessibilityServiceRun() end, 60) then
-    stop("开启无障碍权限超时", 'cur')
+    toast("开启无障碍权限超时")
+    restartPackage()
   end
   toast("已开启无障碍权限")
 end
@@ -3566,14 +3567,18 @@ appops set ]] .. package .. [[ SYSTEM_ALERT_WINDOW allow
     p = findOne({text = '立即开始'})
     if p then clickNodeFalse(p) end
     ssleep(1)
-  end, 60) then stop("开启录屏权限超时", 'cur') end
+  end, 60) then
+    toast("开启录屏权限超时")
+    restartPackage()
+  end
 end)
 
 test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-10","HD-9", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7", "HD-8",
+    "HD-10", "HD-9", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7",
+    "HD-8",
 
     -- "10-2",
     -- "10-3",
@@ -4651,7 +4656,7 @@ parse_fight_config = function(fight_ui)
     end
     if table.find({
       '活动', "DH", "GA", "TC", "IC", "DV", "WR", "IW", "WD", "SN", "SV",
-      "LE", "NL"
+      "LE", "NL",
     }, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
@@ -4814,7 +4819,7 @@ check_crontab = function()
   local next_time_on_start = loadConfig("crontab_next_time_on_start", "")
   saveConfig("crontab_next_time_on_start", '')
   local next_time = crontab_next_time(crontab_text)
-  log(4749, "next_time", next_time,next_time_on_start)
+  log(4749, "next_time", next_time, next_time_on_start)
 
   local restart = function()
     wait_game_up()
@@ -4829,9 +4834,7 @@ check_crontab = function()
   -- log("next_time_on_start", next_time_on_start)
   -- log("next_time", next_time)
   -- exit()
-  if next_time == 0 then
-    return
-  end
+  if next_time == 0 then return end
   if restart_on_crontab_timeout and str2int(next_time_on_start, next_time) ~=
     next_time then
     toast("跨定时点重启")
