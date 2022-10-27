@@ -1203,16 +1203,31 @@ auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
         -- restartapp(appid)
         -- return auto(p, fallback, timeout, total_timeout, total_timeout_restart)
         -- 回归新增内容卡住
-        if findOne("主题曲已开放") then
-          wait(function()
-            tap("主题曲已开放")
-            if not findOne("主题曲已开放") then return true end
-          end, 10)
-          wait(function()
-            back()
-            ssleep(1)
-          end, 2)
+        -- if findOne("主题曲已开放") then
+
+        -- local txt = ocr('fullscreen')
+        --
+        -- for _, t in pairs(txt) do
+        --   tap(t.l, t.r)
+        --   ssleep(1)
+        -- end
+
+        wait(function()
+          tap("主题曲已开放")
+          ssleep(1)
+          -- if not findOne("主题曲已开放") then return true end
+        end, 10)
+
+        wait(function()
+          back()
+          ssleep(1)
+        end, 2)
+
+        for w = 150, screen.width - 50, 20 do
+          for h = 50, screen.height - 50, 20 do tap({w, h}) end
         end
+
+        -- end
 
         stop("auto超时" .. total_timeout .. 's', 'cur')
       else
