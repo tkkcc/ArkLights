@@ -359,7 +359,7 @@ path.bilibili_login = {
   --   if not findOne()
   --   tap("返回")
   -- end,
-  bilibili_username_inputbox = function()
+  bilibili_username_inputbox = disable_game_up_check_wrapper(function()
     log(149)
     -- 把输入法关了
     wait(function()
@@ -384,9 +384,10 @@ path.bilibili_login = {
            account_idx and 'next' or '')
     end
     -- 小米
-    appearTap({text = "存储"}, 1)
-    appear({"bilibili_change2", "captcha"})
-  end,
+    -- appearTap({text = "存储"}, 1)
+
+    appear({"bilibili_change2", "captcha", "B服安全验证"})
+  end),
   bilibili_oneclicklogin = function()
     tap("bilibili_oneclicklogin")
     appear({"bilibili_ok", "bilibili_change2"}, 5)
@@ -412,6 +413,42 @@ path.bilibili_login = {
     disappear("bilibili_change2", 10)
     log(271)
   end,
+  B服安全验证 = disable_game_up_check_wrapper(function()
+    -- 等待加载出图
+    if not appear("B服安全验证提交", 10) then return end
+
+    log(1)
+    if #strOr(captcha_username) == 0 or #strOr(captcha_password) == 0 then
+      stop("B服安全验证需要图鉴账密", account_idx and 'next' or '')
+    end
+
+    log(2)
+    local box = findOne("B服安全验证框")
+    log("box", box)
+    if not box then return end
+    box = box.bounds
+
+    log(3)
+    bilibili_captcha_times = (bilibili_captcha_times or 0) + 1
+    if bilibili_captcha_times > 5 then
+      stop("B服安全验证5次失败", account_idx and 'next' or '')
+    end
+
+    log(4)
+    if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
+      log(5)
+      ssleep(0.5)
+      tap("B服安全验证提交")
+      if appear("B服安全验证失败") then
+        ssleep(1.0)
+        back()
+        -- tap("B服安全验证关闭")
+      end
+      log(6)
+      disappear("B服安全验证", 5)
+    end
+    log(7)
+  end),
 }
 
 path.bilibili_login_change = update(path.bilibili_login, {

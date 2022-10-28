@@ -1199,37 +1199,25 @@ auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
         -- should be a hook, by defualt restartapp
         -- 应对进关卡黑屏、启动游戏黑屏、卡死
 
-        -- toast("auto达到超时(s)" .. total_timeout)
-        -- restartapp(appid)
-        -- return auto(p, fallback, timeout, total_timeout, total_timeout_restart)
-        -- 回归新增内容卡住
-        -- if findOne("主题曲已开放") then
-
-        -- local txt = ocr('fullscreen')
-        --
-        -- for _, t in pairs(txt) do
-        --   tap(t.l, t.r)
-        --   ssleep(1)
-        -- end
+        -- 新增界面卡住、回归任务
 
         wait(function()
           tap("主题曲已开放")
-          ssleep(1)
-          -- if not findOne("主题曲已开放") then return true end
-        end, 10)
+          ssleep(.5)
+        end, 5)
 
         wait(function()
           back()
-          ssleep(1)
+          ssleep(.5)
         end, 2)
 
-        for w = 150, screen.width - 50, 20 do
-          for h = 50, screen.height - 50, 20 do tap({w, h}) end
+        -- 全屏点一遍
+        for w = 150, screen.width - 50, 50 do
+          for h = 50, screen.height - 50, 50 do tap({w, h}) end
         end
 
-        -- end
-
         stop("auto超时" .. total_timeout .. 's', 'cur')
+
       else
         return true
       end
@@ -2790,6 +2778,14 @@ show_debug_ui = function()
   --               make_jump_ui_command(layout, ))
 
   newRow(layout)
+  addTextView(layout, "图鉴用户名")
+  ui.addEditText(layout, "captcha_username", "")
+
+  newRow(layout)
+  addTextView(layout, "图鉴密码")
+  ui.addEditText(layout, "captcha_password", "")
+
+  newRow(layout)
   addTextView(layout, "审判庭服务地址")
   ui.addEditText(layout, "cloud_server", "")
 
@@ -3670,7 +3666,10 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  -- log(findOne("主题曲已开放"))
+  log(ocr("fullscreen"))
+  -- log(findOne("B服安全验证框"))
+  exit()
+
   -- local col=1
   -- log(findOne("第一层不期而遇" .. col .. "入口列表1"))
   -- log(findOne("第一层不期而遇" .. col .. "入口列表2"))
@@ -4716,6 +4715,7 @@ parse_fight_config = function(fight_ui)
 end
 
 update_state_from_ui = function()
+  bilibili_captcha_times = 0
 
   disable_clue_unlock = account_idx and
                           table.includes(multi_account_disable_clue_unlock,
@@ -5927,17 +5927,17 @@ force_height = str2int(force_height, 0)
 -- b服选点验证码打码
 -- 接打码平台 http://www.ttshitu.com/
 
-trySolvePointSelectionCapture = function()
+trySolvePointSelectionCapture = function(username,password,rect)
 
   -- 截图验证码 794,348,1138,745
-  local p = point["选点验证码识别区域"]
+  -- local p = point["选点验证码识别区域"]
   local img = getWorkPath() .. "/capture.jpg"
-  snapShot(img, p[1], p[2], p[3], p[4])
+  snapShot(img, rect.l,rect.t,rect.r,rect.b)
   local img_base64 = base64(img)
 
   local data = {
-    username = "",
-    password = "",
+    username = username,
+    password = password,
     typeid = "19",
     image = img_base64,
   }
@@ -5946,9 +5946,12 @@ trySolvePointSelectionCapture = function()
     "Content-Type: application/json;charset=UTF-8")
   if code == 200 then
     local status, data = pcall(JsonDecode, res)
-    local ans = data.data.result
+    data = data or {}
+    local ans = get(data, "data", "result") or ""
     local x,y = string.match(ans, "(%d+),(%d+)")
-    local ans_p = { p[1] + x, p[2] + y }
+    x = x or 0
+    y = y or 0
+    local ans_p = { rect.l + x, rect.t + y }
     tap(ans_p)
     return true
   end

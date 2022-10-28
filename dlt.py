@@ -78,6 +78,13 @@ def mode(serial, f="help", *args, **kwargs):
     def install(path=""):
         adb("install", path)
 
+    # 设置图鉴用户名密码
+    def captcha(username,password):
+        x = load("config_debug.json")
+        c(x, "captcha_username", username)
+        c(x, "captcha_password", password)
+        save("config_debug.json", x)
+
     def hyi():
         # 华云 系统精简
         adb(
@@ -1051,6 +1058,9 @@ def session():
                 break
         else:
             cur.push(n)
+
+    
+
 
 
 if __name__ == "__main__":
