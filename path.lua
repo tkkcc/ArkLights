@@ -585,7 +585,10 @@ path.fallback = {
         last_time_tap_return = time()
       end
       -- 干员/皮肤界面用返回键没用，这时按基建右上角
-    end, 30) then stop("返回键30秒超时", 'cur') end
+    end, 30) then
+      auto_total_timeout_hook()
+      stop("返回键30秒超时", 'cur')
+    end
     if x then return tap(path.fallback[x]) end
   end,
   回归返回 = function()

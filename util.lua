@@ -1188,6 +1188,27 @@ zoom = function(retry)
   return zoom(retry + 1)
 end
 
+auto_total_timeout_hook = function()
+
+  -- 应对进关卡黑屏、启动游戏黑屏、卡死
+
+  -- 新增界面卡住、回归任务
+
+  wait(function()
+    tap("主题曲已开放")
+    ssleep(.5)
+  end, 5)
+
+  wait(function()
+    back()
+    ssleep(.5)
+  end, 2)
+
+  -- 全屏点一遍
+  for w = 150, screen.width - 50, 50 do
+    for h = 50, screen.height - 50, 50 do tap({w, h}) end
+  end
+end
 -- 为什么auto要有两组状态： 第二组状态点唯一性不足，比如返回与邮件同时出现时，需要的是邮件。没有优先级。
 auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
   if type(p) == "function" then return p() end
@@ -1197,25 +1218,8 @@ auto = function(p, fallback, timeout, total_timeout, total_timeout_restart)
     if total_timeout and time() - start_time > total_timeout * 1000 then
       if total_timeout_restart then
         -- should be a hook, by defualt restartapp
-        -- 应对进关卡黑屏、启动游戏黑屏、卡死
 
-        -- 新增界面卡住、回归任务
-
-        wait(function()
-          tap("主题曲已开放")
-          ssleep(.5)
-        end, 5)
-
-        wait(function()
-          back()
-          ssleep(.5)
-        end, 2)
-
-        -- 全屏点一遍
-        for w = 150, screen.width - 50, 50 do
-          for h = 50, screen.height - 50, 50 do tap({w, h}) end
-        end
-
+        auto_total_timeout_hook()
         stop("auto超时" .. total_timeout .. 's', 'cur')
 
       else
@@ -5927,12 +5931,12 @@ force_height = str2int(force_height, 0)
 -- b服选点验证码打码
 -- 接打码平台 http://www.ttshitu.com/
 
-trySolvePointSelectionCapture = function(username,password,rect)
+trySolvePointSelectionCapture = function(username, password, rect)
 
   -- 截图验证码 794,348,1138,745
   -- local p = point["选点验证码识别区域"]
   local img = getWorkPath() .. "/capture.jpg"
-  snapShot(img, rect.l,rect.t,rect.r,rect.b)
+  snapShot(img, rect.l, rect.t, rect.r, rect.b)
   local img_base64 = base64(img)
 
   local data = {
@@ -5941,21 +5945,19 @@ trySolvePointSelectionCapture = function(username,password,rect)
     typeid = "19",
     image = img_base64,
   }
-  
-  local res, code = httpPost("http://api.ttshitu.com/predict", JsonEncode(data), 30,
-    "Content-Type: application/json;charset=UTF-8")
+
+  local res, code = httpPost("http://api.ttshitu.com/predict", JsonEncode(data),
+                             30, "Content-Type: application/json;charset=UTF-8")
   if code == 200 then
     local status, data = pcall(JsonDecode, res)
     data = data or {}
     local ans = get(data, "data", "result") or ""
-    local x,y = string.match(ans, "(%d+),(%d+)")
+    local x, y = string.match(ans, "(%d+),(%d+)")
     x = x or 0
     y = y or 0
-    local ans_p = { rect.l + x, rect.t + y }
+    local ans_p = {rect.l + x, rect.t + y}
     tap(ans_p)
     return true
   end
 
 end
-
-
