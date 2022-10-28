@@ -5923,3 +5923,36 @@ end
 loadUIConfig({"debug"})
 force_width = str2int(force_width, 0)
 force_height = str2int(force_height, 0)
+
+-- b服选点验证码打码
+-- 接打码平台 http://www.ttshitu.com/
+
+trySolvePointSelectionCapture = function()
+
+  -- 截图验证码 794,348,1138,745
+  local p = point["选点验证码识别区域"]
+  local img = getWorkPath() .. "/capture.jpg"
+  snapShot(img, p[1], p[2], p[3], p[4])
+  local img_base64 = base64(img)
+
+  local data = {
+    username = "",
+    password = "",
+    typeid = "19",
+    image = img_base64,
+  }
+  
+  local res, code = httpPost("http://api.ttshitu.com/predict", JsonEncode(data), 30,
+    "Content-Type: application/json;charset=UTF-8")
+  if code == 200 then
+    local status, data = pcall(JsonDecode, res)
+    local ans = data.data.result
+    local x,y = string.match(ans, "(%d+),(%d+)")
+    local ans_p = { p[1] + x, p[2] + y }
+    tap(ans_p)
+    return true
+  end
+
+end
+
+
