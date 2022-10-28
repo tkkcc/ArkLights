@@ -12,7 +12,9 @@ QQ频道号：[h800n9f23g](https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&
 github源码：[github.com/tkkcc/ArkLights](https://github.com/tkkcc/ArkLights)  
 觉得好用请在github上点个star。
 
-<!-- ## 最近更新 -->
+## 最近更新
+
+- [B服打码](#登陆出现点击验证码)
 
 <!-- - 可使用[pushplus通知](#qq通知怎么用)，支持微信公众号、邮件等多种渠道。 -->
 <!-- - magisk hide设备需**手动关闭root授权提示**，否则root提示影响软件识别。 -->
@@ -582,6 +584,12 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 #### 登陆出现滑动验证码
 
 一段时间内多次登陆时出现，会自动解。
+
+#### 登陆出现点击验证码
+
+在 http://www.ttshitu.com 注册账号，充值几块钱积分，不用买流量包。将用户名密码填到高级设置。
+
+1次识别1分钱，5次打码失败跳过当前账号。
 
 ## 安全性
 
