@@ -5951,6 +5951,10 @@ trySolvePointSelectionCapture = function(username, password, rect)
   if code == 200 then
     local status, data = pcall(JsonDecode, res)
     data = data or {}
+    ttshitu_last_id = get(data, "data", "id") or ""
+    local success = get(data, "success") or false
+    if not success then return end
+
     local ans = get(data, "data", "result") or ""
     local x, y = string.match(ans, "(%d+),(%d+)")
     x = x or 0
@@ -5960,4 +5964,13 @@ trySolvePointSelectionCapture = function(username, password, rect)
     return true
   end
 
+end
+
+ttshitu_report = function()
+  if not ttshitu_last_id then return end
+  local data = {id = ttshitu_last_id}
+  local ret, code = httpPost("http://api.ttshitu.com/reporterror.json",
+                             JsonEncode(data), 30,
+                             "Content-Type: application/json;charset=UTF-8")
+  log(ret, code)
 end

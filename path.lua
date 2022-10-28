@@ -447,6 +447,7 @@ path.bilibili_login = {
       end
 
       if appear({"B服安全验证失败", "B服安全验证失败320DPI"}) then
+        ttshitu_report()
         ssleep(1.0)
         back()
       end
