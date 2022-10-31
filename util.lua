@@ -1194,7 +1194,9 @@ auto_total_timeout_hook = function()
 
   -- 新增界面卡住、回归任务
 
+  local known = {"面板", "主页"}
   wait(function()
+    if findAny(known) then return true end
     tap("主题曲已开放")
     ssleep(.5)
   end, 5)
@@ -1204,9 +1206,14 @@ auto_total_timeout_hook = function()
     ssleep(.5)
   end, 2)
 
+  if findAny(known) then return true end
+
   -- 全屏点一遍
   for w = 150, screen.width - 50, 50 do
-    for h = 50, screen.height - 50, 50 do tap({w, h}) end
+    for h = 50, screen.height - 50, 50 do
+      if findAny(known) then return true end
+      tap({w, h})
+    end
   end
 end
 -- 为什么auto要有两组状态： 第二组状态点唯一性不足，比如返回与邮件同时出现时，需要的是邮件。没有优先级。
