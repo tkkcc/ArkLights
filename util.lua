@@ -2009,7 +2009,8 @@ all_job = {
   "信用购买", "公开招募", "任务收集", "限时活动",
 }
 
-now_job = table.filter(all_job, function(x) return x ~= "副手换人" end)
+-- now_job = table.filter(all_job, function(x) return x ~= "副手换人" end)
+now_job = table.filter(all_job, function(x) return true end)
 
 make_account_ui = function(layout, prefix)
   layout = layout or "main"
@@ -2061,7 +2062,7 @@ make_account_ui = function(layout, prefix)
   ui.addCheckBox(layout, prefix .. "auto_recruit1", "车", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit4", "4", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit5", "5", true)
-  ui.addCheckBox(layout, prefix .. "auto_recruit6", "6", false)
+  ui.addCheckBox(layout, prefix .. "auto_recruit6", "6", true)
 
   -- local max_checkbox_one_row = getScreen().width //200
   local max_checkbox_one_row = 3
@@ -3620,11 +3621,11 @@ test_fight_hook = function()
 -- "11-19",
 -- "11-20",
 
-    -- "HD-10", "HD-9", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7",
-    -- "HD-8",
+    "HD-10", "HD-9", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7",
+    "HD-8",
 
-    "10-9",
-    "9-9",
+    -- "10-9",
+    -- "9-9",
     -- "10-3",
     -- "10-4",
     -- "10-5",
@@ -3700,12 +3701,14 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   -- log(ocr("fullscreen"))
-  -- log(findOne("当前进度列表8"))
+  log(findOne("HD-8"))
+  log(point["HD-8"])
   -- log(findOne("当前进度列表9"))
   -- log(findOne("当前进度列表10"))
   -- log(findOne("当前进度列表11"))
-  log(point["当前进度列表12"])
-  log(findOne("当前进度列表12"))
+  -- log(point["当前进度列表12"])
+  -- log(findOne("当前进度列表12"))
+  -- log(findOne("活动导航2"))
   -- log(findOne("B服安全验证框"))
   exit()
 
@@ -4708,8 +4711,7 @@ parse_fight_config = function(fight_ui)
       v = extrajianpin2name[v]
     end
     if table.find({
-      '活动', "DH", "GA", "TC", "IC", "DV", "WR", "IW", "WD", "SN", "SV",
-      "LE", "NL",
+      '活动'
     }, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
@@ -4778,17 +4780,17 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202110060400")
+  hd_open_time_end = parse_time("202211220400")
 
   -- 资源关全天开放时间段
-  all_open_time_start = parse_time("202208251600")
-  all_open_time_end = parse_time("202209080400")
+  all_open_time_start = parse_time("202211151600")
+  all_open_time_end = parse_time("202211290400")
   update_open_time()
 
   -- 危机合约时间段，只为加速平时的信用交易所
   during_crisis_contract = false
-  local crisis_contract_start = parse_time("202205191600")
-  local crisis_contract_end = parse_time("202206020400")
+  local crisis_contract_start = parse_time("202211151600")
+  local crisis_contract_end = parse_time("202211290400")
   local current = parse_time()
   if crisis_contract_start < current and current < crisis_contract_end then
     during_crisis_contract = true
