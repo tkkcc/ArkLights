@@ -485,6 +485,10 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+  产业合作洽谈会 = function()
+    wait(function() tap("产业合作洽谈会策略") end, 2)
+    back()
+  end,
   月饼 = function()
     wait(function() tap("月饼右") end, 2)
     wait(function() tap("月饼确认") end, 2)
@@ -732,6 +736,7 @@ path.限时活动 = function(retry)
     appear({
       '活动签到返回', '国庆签到返回', '抽签返回',
       '感谢庆典返回', '限时开放许可', "限时幸运签", "月饼",
+      '产业合作洽谈会',
     })
   elseif findOne("面板赠送一次") and not disable_free_draw then
     tap("面板干员寻访")
