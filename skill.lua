@@ -267,6 +267,10 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
       -- log(266, icon, goodType, base)
       if icon == 'bskill_tra_spd3' then
         base = base + 0.35
+      elseif icon == 'bskill_tra_spd&formula1' then
+        base = base + 0.3 + 0.04 -- 近似两种产物
+      elseif icon == 'bskill_tra_spd&meet1' then
+        base = base + 0.4 -- 近似满级会客厅
       elseif icon == 'bskill_tra_spd&cost' then
         base = base + 0.3
       elseif icon == 'bskill_tra_spd&limit7' then
