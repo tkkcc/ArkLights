@@ -354,7 +354,7 @@ def screencap_distance():
     reader = easyocr.Reader(["en", "ch_sim"])
     point = defaultdict(int)
     distance = defaultdict(int)
-    distance[1] = 250
+    distance[1] = 0
     for x in sorted(screencap.glob("*.jpg")):
         x = reader.readtext(str(x))
         print("x",x)
