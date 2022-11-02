@@ -3600,26 +3600,26 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
--- "11-1",
--- "11-2",
--- "11-3",
--- "11-4",
--- "11-5",
--- "11-6",
--- "11-7",
--- "11-8",
--- "11-9",
--- "11-10",
--- "11-11",
--- "11-12",
--- "11-13",
--- "11-14",
--- "11-15",
--- "11-16",
--- "11-17",
--- "11-18",
--- "11-19",
--- "11-20",
+    -- "11-1",
+    -- "11-2",
+    -- "11-3",
+    -- "11-4",
+    -- "11-5",
+    -- "11-6",
+    -- "11-7",
+    -- "11-8",
+    -- "11-9",
+    -- "11-10",
+    -- "11-11",
+    -- "11-12",
+    -- "11-13",
+    -- "11-14",
+    -- "11-15",
+    -- "11-16",
+    -- "11-17",
+    -- "11-18",
+    -- "11-19",
+    -- "11-20",
 
     "HD-10", "HD-9", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7",
     "HD-8",
@@ -3701,8 +3701,17 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   -- log(ocr("fullscreen"))
-  log(findOne("HD-8"))
-  log(point["HD-8"])
+  -- log(findOne("HD-8"))
+  -- log(point["HD-8"])
+
+  local paths = {
+    {
+      point = {{screen.width // 2, scale(600)}, {screen.width // 2, scale(0)}},
+      duration = 500,
+    },
+  }
+  gesture(paths)
+  ssleep(1.5)
   -- log(findOne("当前进度列表9"))
   -- log(findOne("当前进度列表10"))
   -- log(findOne("当前进度列表11"))
@@ -4710,9 +4719,7 @@ parse_fight_config = function(fight_ui)
     elseif table.includes(table.keys(extrajianpin2name), v) then
       v = extrajianpin2name[v]
     end
-    if table.find({
-      '活动'
-    }, startsWithX(v)) then
+    if table.find({'活动'}, startsWithX(v)) then
       local idx = v:gsub(".-(%d+)$", '%1')
       v = "HD-" .. (idx or '')
       -- log(2731, v, idx)
