@@ -3541,6 +3541,10 @@ path.活动 = function(x)
       w = screen.width // 2 + scale(w - 1920 // 2)
       for h = scale(211), scale(900), scale(52) do tap({w, h}) end
     end
+    if not wait(function()
+      if appear("活动导航0",1) then return true end
+      tap("返回")
+    end, 5) then return end
 
   end
   car_check()
@@ -3562,8 +3566,10 @@ path.活动 = function(x)
   end, 5) then return end
 
   local paths = {
-    {point = {{scale(40), scale(600)}, {scale(40), scale(0)}}, duration = 150},
+    {point = {{scale(40), scale(600)}, {scale(40), scale(0)}}, duration = 500},
   }
+  gesture(paths)
+  ssleep(1)
   gesture(paths)
   ssleep(1.5)
 

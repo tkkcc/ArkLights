@@ -1210,10 +1210,8 @@ auto_total_timeout_hook = function()
 
   -- 全屏点一遍
   for w = 150, screen.width - 50, 50 do
-    for h = 50, screen.height - 50, 50 do
-      if findAny(known) then return true end
-      tap({w, h})
-    end
+    if findAny(known) then return true end
+    for h = 50, screen.height - 50, 50 do tap({w, h}) end
   end
 end
 -- 为什么auto要有两组状态： 第二组状态点唯一性不足，比如返回与邮件同时出现时，需要的是邮件。没有优先级。
