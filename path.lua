@@ -377,7 +377,10 @@ path.bilibili_login = {
     tap("bilibili_login")
     disappear("bilibili_login", 15)
     tap("bilibili_login")
-    if not disappear("bilibili_login", 15) then
+    disappear("bilibili_login", 5)
+    login_error_times = (login_error_times or 0) + 1
+
+    if login_error_times > 2 then
       -- if not appear({"bilibili_change2", "captcha", {text = "存储"}}, 15) then
 
       stop("B服登录密码错误或设备数量超限",
