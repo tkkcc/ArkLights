@@ -989,10 +989,10 @@ def edu(show=False):
     for m in dlt.my(raw=True):
         if not DLT.need_everyday_upload(m["Title"]):
             continue
-        if m["SerialNo"] == "21216608634184569102":
-            continue
-        if m["SerialNo"] == "21216627586068071100":
-            continue
+        # if m["SerialNo"] == "21216608634184569102":
+        #     continue
+        # if m["SerialNo"] == "21216627586068071100":
+        #     continue
         print(m["Title"])
         try:
             check(m["SerialNo"], show=show)

@@ -487,8 +487,14 @@ path.bilibili_login_change = update(path.bilibili_login, {
 path.fallback = {
   产业合作洽谈会 = function()
     wait(function() tap("产业合作洽谈会策略") end, 2)
-    back()
-    disappear("产业合作洽谈会")
+    wait(function()
+      tap('返回')
+      back()
+      if appear("面板", 1) then return true end
+    end, 5)
+    path.跳转('首页')
+    -- back()
+    -- disappear("产业合作洽谈会")
   end,
   月饼 = function()
     wait(function() tap("月饼右") end, 2)
@@ -3542,7 +3548,7 @@ path.活动 = function(x)
       for h = scale(211), scale(900), scale(52) do tap({w, h}) end
     end
     if not wait(function()
-      if appear("活动导航0",1) then return true end
+      if appear("活动导航0", 1) then return true end
       tap("返回")
     end, 5) then return end
 
