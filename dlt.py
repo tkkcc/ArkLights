@@ -52,8 +52,9 @@ serial_alias = {
     "17": "183.60.24.16:301",
     "18": "154.39.78.200:301",
     "19": "154.39.78.110:301",
+    "15": "103.36.206.237:301"
 }
-daily_device = ["4", "5", "9", "14", "10"]
+daily_device = ["4", "5", "9", "14", "10","15"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -815,11 +816,11 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, "zero_san_after_fight", True)
         c(x, "max_drug_times_" + str(1) + "day", "99")
         c(x, "max_drug_times_" + str(2) + "day", "99")
-        c(x, "max_drug_times_" + str(3) + "day", "4")
-        c(x, "max_drug_times_" + str(4) + "day", "4")
-        c(x, "max_drug_times_" + str(5) + "day", "4")
-        c(x, "max_drug_times_" + str(6) + "day", "4")
-        c(x, "max_drug_times_" + str(7) + "day", "4")
+        c(x, "max_drug_times_" + str(3) + "day", "1")
+        c(x, "max_drug_times_" + str(4) + "day", "1")
+        c(x, "max_drug_times_" + str(5) + "day", "1")
+        c(x, "max_drug_times_" + str(6) + "day", "1")
+        c(x, "max_drug_times_" + str(7) + "day", "1")
         c(x, "enable_log", False)
         # c(x, "enable_disable_lmk", False)
         # c(x, "disable_killacc", False)
@@ -897,8 +898,8 @@ def check(key="", show=True):
             if username in my_account:
                 user2device[username] = device
                 continue
-            # serial = dlt.all2serial(username + " " + password + " ", quiet=True)
-            serial = dlt.all2serial(password + " ", quiet=True)
+            serial = dlt.all2serial(username + " " + password + " ", quiet=True)
+            # serial = dlt.all2serial(password + " ", quiet=True)
             # if not serial :
             #
             #     serial = dlt.all2serial( " " +password + " "+username, quiet=True)
@@ -917,7 +918,7 @@ def check(key="", show=True):
         # print("serial", serial)
         # print("user", user)
         # exit()
-        mode(device, "pic", user + "*分钟", show=show)
+        mode(device, "pic", user + "\ *分钟", show=show)
 
         return
 
@@ -964,6 +965,15 @@ def check(key="", show=True):
         user = serial2user[serial]
         print(f"0 m {user2device[user]} user {user} '' --idx={user2idx[user]}")
 
+    print("==> over_set")
+    over_set = []
+    for m in dlt.my(raw=True):
+        leave_time = float(m["LeaveTime"][:-2])
+        if leave_time < 16:
+            serial = m["SerialNo"]
+            print(dlt.detail(serial, quiet=True))
+            print("0 check " + serial +";" + "0 last " + serial + " --over")
+
     insane_set = dlt_set - dev_set
     print("==> insane_set", insane_set)
     for serial in insane_set:
@@ -972,15 +982,6 @@ def check(key="", show=True):
         print(f"0 m {next_device} user", end=" ")
         print(dlt.detail(serial, quiet=True))
 
-    print("==> over_set")
-    over_set = []
-    for m in dlt.my(raw=True):
-        leave_time = float(m["LeaveTime"][:-2])
-        if leave_time < 16:
-            serial = m["SerialNo"]
-            print(dlt.detail(serial, quiet=True))
-            print("0 check " + serial)
-            print("0 last --over " + serial)
 
 
 # every day upload
@@ -989,10 +990,6 @@ def edu(show=False):
     for m in dlt.my(raw=True):
         if not DLT.need_everyday_upload(m["Title"]):
             continue
-        # if m["SerialNo"] == "21216608634184569102":
-        #     continue
-        # if m["SerialNo"] == "21216627586068071100":
-        #     continue
         print(m["Title"])
         try:
             check(m["SerialNo"], show=show)

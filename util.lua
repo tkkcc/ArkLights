@@ -1600,7 +1600,11 @@ wait_game_up = function(retry)
     return
   end
 
-  if retry == 2 then closeapp(appid) end
+  if retry == 2 then
+    login_times = (login_times or 0) - 1
+    table.remove(login_time_history or {})
+    closeapp(appid)
+  end
   if retry >= 4 then stop("无法启动游戏", 'cur') end
 
   open(appid)
@@ -1956,6 +1960,7 @@ end
 closeapp = disable_game_up_check_wrapper(closeapp)
 restartapp = function(package)
   login_times = (login_times or 0) - 1
+  table.remove(login_time_history or {})
   closeapp(package)
   wait_game_up()
 end
@@ -4881,6 +4886,7 @@ check_crontab = function()
   saveConfig("crontab_next_time_on_start", '')
   local next_time = crontab_next_time(crontab_text)
   log(4749, "next_time", next_time, next_time_on_start)
+  multi_account_choice_idx = nil
 
   local restart = function()
     wait_game_up()
