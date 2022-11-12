@@ -52,9 +52,9 @@ serial_alias = {
     "17": "183.60.24.16:301",
     "18": "154.39.78.200:301",
     "19": "154.39.78.110:301",
-    "15": "103.36.206.237:301"
+    "15": "103.36.206.237:301",
 }
-daily_device = ["4", "5", "9", "14", "10","15"]
+daily_device = ["4", "5", "9", "14", "10", "15"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -972,7 +972,7 @@ def check(key="", show=True):
         if leave_time < 16:
             serial = m["SerialNo"]
             print(dlt.detail(serial, quiet=True))
-            print("0 check " + serial +";" + "0 last " + serial + " --over")
+            print("0 check " + serial + ";" + "0 last " + serial + " --over")
 
     insane_set = dlt_set - dev_set
     print("==> insane_set", insane_set)
@@ -981,7 +981,6 @@ def check(key="", show=True):
             continue
         print(f"0 m {next_device} user", end=" ")
         print(dlt.detail(serial, quiet=True))
-
 
 
 # every day upload

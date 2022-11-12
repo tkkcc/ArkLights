@@ -3704,8 +3704,10 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   -- log(ocr("fullscreen"))
-  -- log(findOne("HD-8"))
+  log(findOne("常规行动2"))
+  exit()
   -- log(point["HD-8"])
+  --
 
   local paths = {
     {
