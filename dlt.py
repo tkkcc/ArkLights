@@ -53,8 +53,14 @@ serial_alias = {
     "18": "154.39.78.200:301",
     "19": "154.39.78.110:301",
     "15": "103.36.206.237:301",
+    "16": "103.36.206.230:301",
+    "17": "103.36.206.10:301",
+    "18": "103.36.206.112:301",
+    "19": "103.36.206.155:301",
+    "20": "103.36.206.78:301",
 }
-daily_device = ["4", "5", "9", "14", "10", "15"]
+# daily_device = ["4", "5", "9", "14", "10", "15"] #, "16","17","18","19","20"]
+daily_device = ["15", "16", "17", "18", "19", "20"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -86,36 +92,12 @@ def mode(serial, f="help", *args, **kwargs):
         c(x, "captcha_password", password)
         save("config_debug.json", x)
 
-    def hyi():
-        # 华云 系统精简
-        adb(
-            "shell",
-            """
-pm uninstall -k --user 0 com.android.nfc
-pm uninstall -k --user 0 com.android.appstore
-pm uninstall -k --user 0 com.android.location
-pm uninstall -k --user 0 com.android.printspooler
-pm uninstall -k --user 0 com.android.cellbroadcastreceiver
-pm uninstall -k --user 0 com.android.keychain
-pm uninstall -k --user 0 com.android.providers.calendar
-pm uninstall -k --user 0 com.android.dialer
-pm uninstall -k --user 0 com.android.managedprovisioning
-pm uninstall -k --user 0 com.android.messaging
-pm uninstall com.android.location
-pm uninstall android.process.acore
-pm uninstall -k --user 0 android.process.acore
-pm uninstall com.android.phone
-pm uninstall -k --user 0 com.android.phone
-pm uninstall -k --user 0 com.iflytek.inputmethod.miui
-pm uninstall -k --user 0 com.cxinventor.file.explorer
-""",
-        )
-
     def hy3():
         adb(
             "shell",
             """
 setprop persist.sys.timezone Asia/Shanghai
+
 rm /system/app/PicoTts/PicoTts.apk # com.svox.pico
 rm /system/app/PrintRecommendationService/PrintRecommendationService.apk # com.android.printservice.recommendation
 rm /system/app/PrintSpooler/PrintSpooler.apk # com.android.printspooler
@@ -128,12 +110,11 @@ rm /data/app/com.android.camera-1/base.apk # com.android.camera
 rm /data/app/com.android.chrome-1/base.apk # com.android.chrome
 rm /data/app/com.android.location-1/base.apk # com.android.location
 
-rm /data/app/com.android.nfc-1/base.apk # com.android.nfc
+# rm /data/app/com.android.nfc-1/base.apk # com.android.nfc
 rm /data/app/com.cxinventor.file.explorer-1/base.apk # com.cxinventor.file.explorer
 rm /data/app/com.iflytek.inputmethod.miui-1/base.apk # com.iflytek.inputmethod.miui
 rm /data/app/com.mmbox.xbrowser-1/base.apk # com.mmbox.xbrowser
 rm /data/app/jackpal.androidterm-1/base.apk # jackpal.androidterm
-
 
 rm /system/priv-app/VpnDialogs/VpnDialogs.apk # com.android.vpndialogs
 rm /system/priv-app/InputDevices/InputDevices.apk # com.android.inputdevices
@@ -526,7 +507,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, f"multi_account_user{first_empty_i}auto_recruit6", True)
         for i in range(1, 13):
             c(x, f"multi_account_user{i}now_job_ui" + str(i), True)
-        c(x, f"multi_account_user{i}now_job_ui8", False)
+        # c(x, f"multi_account_user{i}now_job_ui8", False)
         if fight or drug or norecruit:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
         else:
@@ -786,7 +767,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, "fight_ui", fight or "jm hd ce ls ap pr")
         for i in range(1, 13):
             c(x, f"now_job_ui" + str(i), True)
-        c(x, f"now_job_ui8", False)
+        # c(x, f"now_job_ui8", False)
         c(x, f"crontab_text", "4:00 12:00 20:00")
         c(x, f"auto_recruit0", True)
         c(x, f"auto_recruit4", True)
@@ -909,10 +890,17 @@ def check(key="", show=True):
             user.append(username)
             user2device[username] = device
             user2idx[username] = i
-            serial2user[serial] = username
-            device_account.append(serial)
+            if type(serial) == list:
+                for serial in serial:
+                    serial2user[serial] = username
+                    device_account.append(serial)
+            else:
+                serial2user[serial] = username
+                device_account.append(serial)
     if key:
         serial = dlt.all2serial(key)
+        if type(serial) == list:
+            serial = serial[0]
         user = serial2user[serial]
         device = user2device[user]
         # print("serial", serial)

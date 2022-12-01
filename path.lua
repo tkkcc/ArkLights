@@ -3482,7 +3482,7 @@ path.活动 = function(x)
   tap("面板活动2")
   if not wait(function()
     if findOne("活动导航0") then return true end
-    if findOne("跳过剧情") then path.跳过剧情() end
+    -- if findOne("跳过剧情") then path.跳过剧情() end
   end, 10) then return end
 
   local car_check = function()
@@ -3556,7 +3556,7 @@ path.活动 = function(x)
     end, 5) then return end
 
   end
-  car_check()
+  -- car_check()
   if not findOne("活动导航0") then return end
 
   if not wait(function()
@@ -3564,25 +3564,23 @@ path.活动 = function(x)
     if not appear("活动导航0", 1) then return true end
   end, 5) then return end
 
-  -- swip(x)
-  -- ssleep(.5)
-  -- tap("作战列表" .. x)
+  swip(x)
+  ssleep(.5)
+  tap("作战列表" .. x)
 
-  appear("活动导航2")
-  if not wait(function()
-    tap("活动导航2")
-    if not appear("活动导航2", 1) then return true end
-  end, 5) then return end
-
-  local paths = {
-    {point = {{scale(40), scale(600)}, {scale(40), scale(0)}}, duration = 500},
-  }
-  gesture(paths)
-  ssleep(1)
-  gesture(paths)
-  ssleep(1.5)
-
-  if not findTap(x) then return end
+  -- appear("活动导航2")
+  -- if not wait(function()
+  --   tap("活动导航2")
+  --   if not appear("活动导航2", 1) then return true end
+  -- end, 5) then return end
+  -- local paths = {
+  --   {point = {{scale(40), scale(600)}, {scale(40), scale(0)}}, duration = 500},
+  -- }
+  -- gesture(paths)
+  -- ssleep(1)
+  -- gesture(paths)
+  -- ssleep(1.5)
+  -- if not findTap(x) then return end
   if not appear("开始行动") then
 
     wait(function()

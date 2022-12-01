@@ -2141,7 +2141,7 @@ show_multi_account_ui = function()
   newRow(layout)
   addTextView(layout, "切号前关闭")
   ui.addCheckBox(layout, "multi_account_end_closeotherapp", "其他服", true)
-  ui.addCheckBox(layout, "multi_account_end_closeapp", "当前服", false)
+  ui.addCheckBox(layout, "multi_account_end_closeapp", "当前服", true)
 
   -- newRow(layout)
   -- addTextView(layout, "单号最大登录次数")
@@ -3623,9 +3623,7 @@ test_fight_hook = function()
     -- "11-18",
     -- "11-19",
     -- "11-20",
-
-    "HD-10", "HD-9", "HD-1", "HD-2", "HD-3", "HD-4", "HD-5", "HD-6", "HD-7",
-    "HD-8",
+    "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2", "HD-1",
 
     -- "10-9",
     -- "9-9",
@@ -3704,7 +3702,9 @@ predebug_hook = function()
   swipu_flipy = 0
   swipu_flipx = 0
   -- log(ocr("fullscreen"))
-  log(findOne("常规行动2"))
+  -- log(findOne("常规行动2"))
+  -- swip("HD-1")
+  tap({361, 14})
   exit()
   -- log(point["HD-8"])
   --
@@ -4752,7 +4752,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _, i in pairs({10, 9, 8}) do
+      for _, i in pairs({10, 9, 8, 7, 6}) do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
@@ -4792,7 +4792,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202211220400")
+  hd_open_time_end = parse_time("202212110400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202211151600")
