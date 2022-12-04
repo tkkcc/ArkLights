@@ -292,6 +292,9 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   daily() {
     ../dlt/dlt.py daily $@
   }
+  a(){
+    ../dlt/dlt.py account_exist "$@"
+  }
   "$@"
   wait
   exit 0

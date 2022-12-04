@@ -678,6 +678,7 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 0 m 9 rg2 --level=155
 # 设置干员技能，设置等级需求125，开打
 0 m 9 rg2 1 0 1 125
+
 ```
 
 #### 平台相关
@@ -699,6 +700,9 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 0 my
 # 检查多打与少打/获取最新截图
 0 check
+# 验证账号密码
+0 a 12345 6789
+0 a 12345 6789 --server
 ```
 
 ## 云端控制

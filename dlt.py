@@ -1045,5 +1045,101 @@ def session():
             cur.push(n)
 
 
+# https://github.com/Nemo2011/bilibili-api/blob/bd95dcb19e598462b08983438fa87f5570045f48/bilibili_api/login.py
+def bilibili_login(username: str, password: str):
+    from bilibili_api.login import (
+        login_with_password,
+        API,
+        httpx,
+        json,
+        encrypt,
+        to_form_urlencoded,
+        time,
+        hashlib,
+        uuid,
+    )
+
+    # from bilibili_api.user import get_self_info
+    # from bilibili_api import settings
+    # from bilibili_api import sync
+    # ans = login_with_password(username,password)
+    # __import__('pdb').set_trace()
+    # from bilibili_api
+
+    api_token = API["password"]["get_token"]
+    sess = httpx.Client()
+    token_data = json.loads(sess.get(api_token["url"]).text)
+    hash_ = token_data["data"]["hash"]
+    key = token_data["data"]["key"]
+    final_password = encrypt(hash_, key, password)
+    login_api = API["password"]["login"]
+    appkey = "bca7e84c2d947ac6"
+    appsec = "60698ba2f68e01ce44738920a0ffe768"
+    datas = {
+        "actionKey": "appkey",
+        "appkey": appkey,
+        "build": 6270200,
+        "captcha": "",
+        "challenge": "",
+        "channel": "bili",
+        "device": "phone",
+        "mobi_app": "android",
+        "password": final_password,
+        "permission": "ALL",
+        "platform": "android",
+        "seccode": "",
+        "subid": 1,
+        "ts": int(time.time()),
+        "username": username,
+        "validate": "",
+    }
+    form_urlencoded = to_form_urlencoded(datas)
+    md5_string = form_urlencoded + appsec
+    hasher = hashlib.md5(md5_string.encode(encoding="utf-8"))
+    datas["sign"] = hasher.hexdigest()
+    login_data = json.loads(
+        sess.request(
+            "POST",
+            login_api["url"],
+            data=datas,
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "User-Agent": "Mozilla/5.0",
+                "Referer": "https://passport.bilibili.com/login",
+            },
+            cookies={"buvid3": str(uuid.uuid1())},
+        ).text
+    )
+    return login_data
+    # __import__('pdb').set_trace()
+
+
+def official_login(username, password):
+    import requests
+
+    res = requests.post(
+        "https://as.hypergryph.com/user/auth/v1/token_by_phone_password",
+        json={"phone": str(username), "password": str(password)},
+    ).json()
+    return res
+
+
+def account_exist(username: str, password: str, server=False):
+    if server:
+        login_data = bilibili_login(username, password)
+        print(login_data)
+        if login_data["code"] == 0:
+            return True
+        else:
+            return False
+    else:
+        login_data = official_login(username, password)
+        print(login_data)
+        if login_data.get("status", -1) in (0,1):
+            return True
+        else:
+            return False
+
+
 if __name__ == "__main__":
     fire.Fire()
