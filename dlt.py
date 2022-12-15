@@ -352,7 +352,10 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         p = path / name
         if not p.exists():
             open(p, "w").write("{}")
-        return defaultdict(str, json.load(open(path / name)))
+        try:
+            return defaultdict(str, json.load(open(path / name)))
+        except:
+            return defaultdict(str,{})
 
     def save(name, data):
         json.dump(data, open(path / name, "w"), ensure_ascii=False)
@@ -507,7 +510,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, f"multi_account_user{first_empty_i}auto_recruit6", True)
         for i in range(1, 13):
             c(x, f"multi_account_user{i}now_job_ui" + str(i), True)
-        # c(x, f"multi_account_user{i}now_job_ui8", False)
+        c(x, f"multi_account_user{i}now_job_ui8", False)
         if fight or drug or norecruit:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
         else:
@@ -767,7 +770,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, "fight_ui", fight or "jm hd ce ls ap pr")
         for i in range(1, 13):
             c(x, f"now_job_ui" + str(i), True)
-        # c(x, f"now_job_ui8", False)
+        c(x, f"now_job_ui8", False)
         c(x, f"crontab_text", "4:00 12:00 20:00")
         c(x, f"auto_recruit0", True)
         c(x, f"auto_recruit4", True)
@@ -1135,7 +1138,7 @@ def account_exist(username: str, password: str, server=False):
     else:
         login_data = official_login(username, password)
         print(login_data)
-        if login_data.get("status", -1) in (0,1):
+        if login_data.get("status", -1) in (0, 1):
             return True
         else:
             return False

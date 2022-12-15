@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 {
   root=$(dirname "$0")
   init() {
@@ -64,7 +64,6 @@
     git -C release commit --amend --allow-empty-message -m ""
     git -C release push --force
 
-   
     cp ../dlt/dlt.py dlt.py
 
     git add -u
@@ -206,7 +205,7 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     find png_noalpha -type f -not -name 'bskill_*' -delete
     touch png_noalpha/.nomedia
     echo -n "==> total "
-    ls png_noalpha|wc -l
+    ls png_noalpha | wc -l
 
     git submodule update --init --recursive --remote
     ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
@@ -292,8 +291,28 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   daily() {
     ../dlt/dlt.py daily $@
   }
-  a(){
+  a() {
     ../dlt/dlt.py account_exist "$@"
+  }
+  g() {
+    # restart genymotion every 8 hours
+    while :; do
+      for ((i = 0; i < 3; ++i)); do
+        genymotion-player --vm-name 8 &
+        sleep 5
+        genymotion-player --vm-name 8 --poweroff
+        sleep 1
+      done
+
+      genymotion-player --vm-name 8 &
+      echo == 1
+      adb connect 127.0.0.1:5555
+      adb -s 127.0.0.1:5555 wait-for-device
+      echo == 2
+      0 m 0 rg2
+      echo == 3
+      sleep $((3600*8))
+    done
   }
   "$@"
   wait

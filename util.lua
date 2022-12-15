@@ -1901,7 +1901,9 @@ captureqqimagedeliver = function(log_level, log_title, log_detail, important)
   if important then notifyqq(img, info, QQ2) end
 
   local img_url
-  if cloud.enabled() or #pushplus_token > 5 then img_url = uploadImg(img_src) end
+  if cloud.enabled() or type(pushplus_token) == 'string' and #pushplus_token > 5 then
+    img_url = uploadImg(img_src)
+  end
 
   -- pushplus
   notifypp(img_url, info, pushplus_token, pushplus_channel)
@@ -3531,8 +3533,7 @@ settings put secure enabled_accessibility_services ]] .. other_services ..
     log(3386, cmd)
     log(3387, out)
     if not wait(function() return isAccessibilityServiceRun() end, 2) then
-      stop("无障碍服务启动失败" ..
-             (after_killacc and "，可勾选禁用重启acc" or ''), 'cur')
+      stop("无障碍服务启动失败", 'cur')
     else
       return
     end
