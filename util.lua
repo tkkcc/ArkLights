@@ -3702,10 +3702,11 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+  -- log(findOne("活动导航0"))
   -- log(ocr("fullscreen"))
   -- log(findOne("常规行动2"))
-  -- swip("HD-1")
-  tap({361, 14})
+  swip("HD-1")
+  -- tap({361, 14})
   exit()
   -- log(point["HD-8"])
   --
@@ -4753,7 +4754,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _, i in pairs({10, 9, 8, 7, 6}) do
+      for _, i in pairs({7, 6, 5}) do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
@@ -4793,7 +4794,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202212110400")
+  hd_open_time_end = parse_time("202212290400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202211151600")
