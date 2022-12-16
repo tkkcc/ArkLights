@@ -128,6 +128,28 @@ path.base = {
     end
   end,
   接管作战 = function()
+    -- 开始计时
+    fight_start_time = fight_start_time or time()
+    local elapsed = time() - fight_start_time
+    local fight_type = get_fight_type(cur_fight)
+
+    -- 一般10分钟，剿灭40分钟
+    local fight_timeout = (table.includes({"剿灭"}, fight_type) and elapsed >
+                            40 * 60 * 1000) or
+                            (not table.includes({"剿灭"}, fight_type) and
+                              elapsed > 10 * 60 * 1000)
+
+    -- 超时跳过当前关
+    if fight_timeout then
+      local info = table.join(qqmessage, ' ') .. " [" .. cur_fight ..
+                     "] 代理超时"
+      captureqqimagedeliver("WARN", "代理超时", info, true)
+      fight_start_time = nil
+      clean_fight(cur_fight)
+      restartapp(appid)
+      return
+    end
+
     -- 超时5分钟后重启游戏
     if not wait(function()
       if not findOne("接管作战") then return true end
@@ -227,6 +249,8 @@ path.base = {
     end
 
     if unfinished then return path.base.接管作战() end
+    -- 清除计时
+    fight_start_time = nil
 
     log("回到首页")
     log("代理结束", cur_fight, "失败次数", fight_failed_times[cur_fight])
