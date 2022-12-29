@@ -520,6 +520,8 @@ pr1 => pr-b-1 pr-a-1 pr-c-1 pr-d-1 pr-b-1 ...
 
 #### QQ通知服务怎么自建
 
+##### 方法1 （可能存在登录风控问题）
+
 <!-- 想提高QQ通知的稳定性与安全性可自建服务。 -->
 
 在一个速通能连接的设备上（模拟器上能连接宿主机、安卓上能连接同设备termux或有公网IP的服务器），用npm安装[qqimagedeliver](https://github.com/tkkcc/qqimagedeliver)
@@ -544,6 +546,12 @@ qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
 
 > 同人教程 可能会有错误内容，请勿以在群内反馈问题  
 > [明日方舟速通: Windows搭建本地通知教程](https://shimo.im/docs/KrkEVQYpXdi4XEAJ)  
+
+##### 方法2 （新版 Mirai方案）
+
+具体教程见仓库文档 [DazeCake/mirai-qqimagedeliver: qqimagedeliver的mirai实现 (github.com)](https://github.com/DazeCake/mirai-qqimagedeliver)
+
+仓库给出的命令为`Ubuntu`环境，`Windows`环境需要手动下载mcl和mirai-qqimagedeliver插件配置
 
 #### QQ通知的设备名怎么设置
 
