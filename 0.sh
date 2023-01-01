@@ -311,7 +311,7 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
       echo == 2
       0 m 0 rg2
       echo == 3
-      sleep $((3600*8))
+      sleep $((3600*4))
     done
   }
   "$@"

@@ -354,12 +354,13 @@ def screencap_distance():
     reader = easyocr.Reader(["en", "ch_sim"])
     point = defaultdict(int)
     distance = defaultdict(int)
-    distance[1] = 380
+    distance[1] = -100
     for x in sorted(screencap.glob("*.jpg")):
         x = reader.readtext(str(x))
         print("x",x)
         visible_point = defaultdict(int)
         for (loc, text, confidence) in x:
+            text = text.replace("IIW", "IW")
             text = text.replace("I", "1")
             text = text.replace("l", "1")
             text = text.replace("- ", "-")

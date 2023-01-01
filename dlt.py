@@ -19,6 +19,7 @@ from collections import Counter
 from collections import deque
 from datetime import datetime, timedelta
 
+from shlex import quote
 import fire
 
 img_path = "tmp.jpg"
@@ -60,7 +61,7 @@ serial_alias = {
     "20": "103.36.206.78:301",
 }
 # daily_device = ["4", "5", "9", "14", "10", "15"] #, "16","17","18","19","20"]
-daily_device = ["15", "16", "17", "18", "19", "20"]
+daily_device = ["15", "18", "19", "20"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -355,7 +356,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         try:
             return defaultdict(str, json.load(open(path / name)))
         except:
-            return defaultdict(str,{})
+            return defaultdict(str, {})
 
     def save(name, data):
         json.dump(data, open(path / name, "w"), ensure_ascii=False)
@@ -507,10 +508,10 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, f"multi_account_user{first_empty_i}auto_recruit1", True)
         c(x, f"multi_account_user{first_empty_i}auto_recruit4", True)
         c(x, f"multi_account_user{first_empty_i}auto_recruit5", True)
-        c(x, f"multi_account_user{first_empty_i}auto_recruit6", True)
+        c(x, f"multi_account_user{first_empty_i}auto_recruit6", False)
         for i in range(1, 13):
-            c(x, f"multi_account_user{i}now_job_ui" + str(i), True)
-        c(x, f"multi_account_user{i}now_job_ui8", False)
+            c(x, f"multi_account_user{first_empty_i}now_job_ui" + str(i), True)
+        c(x, f"multi_account_user{first_empty_i}now_job_ui8", False)
         if fight or drug or norecruit:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
         else:
@@ -775,7 +776,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(x, f"auto_recruit0", True)
         c(x, f"auto_recruit4", True)
         c(x, f"auto_recruit5", True)
-        c(x, f"auto_recruit6", True)
+        c(x, f"auto_recruit6", False)
         c(x, f"low_priority_goods", "")
         save("config_main.json", x)
 

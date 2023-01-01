@@ -2014,7 +2014,7 @@ all_job = {
   "信用购买", "公开招募", "任务收集", "限时活动",
 }
 
--- now_job = table.filter(all_job, function(x) return x ~= "副手换人" end)
+now_job = table.filter(all_job, function(x) return x ~= "副手换人" end)
 now_job = table.filter(all_job, function(x) return true end)
 
 make_account_ui = function(layout, prefix)
@@ -2067,7 +2067,7 @@ make_account_ui = function(layout, prefix)
   ui.addCheckBox(layout, prefix .. "auto_recruit1", "车", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit4", "4", true)
   ui.addCheckBox(layout, prefix .. "auto_recruit5", "5", true)
-  ui.addCheckBox(layout, prefix .. "auto_recruit6", "6", true)
+  ui.addCheckBox(layout, prefix .. "auto_recruit6", "6", false)
 
   -- local max_checkbox_one_row = getScreen().width //200
   local max_checkbox_one_row = 3
@@ -3705,7 +3705,7 @@ predebug_hook = function()
   -- log(findOne("活动导航0"))
   -- log(ocr("fullscreen"))
   -- log(findOne("常规行动2"))
-  swip("HD-1")
+  swip("HD-8")
   -- tap({361, 14})
   exit()
   -- log(point["HD-8"])
@@ -4754,7 +4754,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _, i in pairs({5, 6, 7}) do
+      for _, i in pairs({8, 7, 6}) do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
@@ -4794,7 +4794,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202212290400")
+  hd_open_time_end = parse_time("202301110400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202211151600")
