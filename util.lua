@@ -3702,12 +3702,26 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
+  log(point.行动结束)
   -- log(findOne("活动导航0"))
   -- log(ocr("fullscreen"))
-  -- log(findOne("常规行动2"))
-  swip("HD-8")
+  -- log(findOne("行动结束"))
+  -- exit()
+  -- swip("HD-8")
+  while true do
+
+    state = findAny({
+      "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
+      "单选确认框", "源石恢复理智不足", "当期委托侧边栏",
+      "行动结束",
+    })
+    if state then
+      log(state)
+      exit()
+    end
+  end
   -- tap({361, 14})
-  exit()
+  -- exit()
   -- log(point["HD-8"])
   --
 
