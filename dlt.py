@@ -61,7 +61,7 @@ serial_alias = {
     "20": "103.36.206.78:301",
 }
 # daily_device = ["4", "5", "9", "14", "10", "15"] #, "16","17","18","19","20"]
-daily_device = ["15", "18", "19", "20"]
+daily_device = ["18", "19", "20"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -981,6 +981,9 @@ def edu(show=False):
     for m in dlt.my(raw=True):
         if not DLT.need_everyday_upload(m["Title"]):
             continue
+        if m['SerialNo'] in everyday_upload_blacklist:
+            continue
+
         print(m["Title"])
         try:
             check(m["SerialNo"], show=show)

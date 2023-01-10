@@ -3503,7 +3503,7 @@ path.活动 = function(x)
     return
   end
   path.跳转("首页")
-  tap("面板活动")
+  tap("面板活动2")
   if not wait(function()
     if findOne("活动导航0") then return true end
     -- if findOne("跳过剧情") then path.跳过剧情() end
