@@ -789,6 +789,7 @@ stop = function(msg, mode, nohome, complete)
     home()
   end
   ssleep(2)
+
   if mode == 'next' then restart_account(true) end
   if mode == 'cur' then restart_account(false) end
   exit()
@@ -5280,14 +5281,27 @@ restart_account = function(skip_current)
     wait(function() ssleep(1) end, 3600)
   end
   save_run_state(skip_current)
+
+  local f = loadConfig("restart_mode_hook", '')
+  appendLog("restart_account: " .. f)
+
   restartPackage()
+end
+
+appendLog = function(content)
+  local path = '/sdcard/' .. package
+  mkdir(path)
+  path = path .. '/log.txt'
+  writeFile(path, os.date('%m.%d %H:%M:%S') .. " " .. strOr(content) .. "\n",
+            true)
 end
 
 restart_mode_hook = function()
   -- load(loadConfig("restart_mode_hook", ''))()
   -- saveConfig("restart_mode_hook", '')
   local f = loadConfig("restart_mode_hook", '')
-  -- log("restart_mode_hook",f)
+  appendLog("restart_mode_hook: " .. f)
+
   saveConfig("restart_mode_hook", '')
   load(f)()
 end
