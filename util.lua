@@ -5280,6 +5280,9 @@ restart_account = function(skip_current)
     toast("等待1小时")
     wait(function() ssleep(1) end, 3600)
   end
+  -- 无障碍/录屏服务启动失败时，在这里释放hook
+  if not restart_mode_hook_applied then restart_mode_hook() end
+
   save_run_state(skip_current)
 
   local f = loadConfig("restart_mode_hook", '')
@@ -5304,6 +5307,7 @@ restart_mode_hook = function()
 
   saveConfig("restart_mode_hook", '')
   load(f)()
+  restart_mode_hook_applied = true
 end
 
 check_login_frequency = function()
