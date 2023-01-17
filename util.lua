@@ -3625,6 +3625,7 @@ test_fight_hook = function()
     -- "11-18",
     -- "11-19",
     -- "11-20",
+    -- "HD-9",
     "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2", "HD-1",
 
     -- "10-9",
@@ -3703,12 +3704,13 @@ predebug_hook = function()
 
   swipu_flipy = 0
   swipu_flipx = 0
-  log(point.行动结束)
+  -- log(point.行动结束)
   -- log(findOne("活动导航0"))
   -- log(ocr("fullscreen"))
   -- log(findOne("行动结束"))
   -- exit()
-  -- swip("HD-8")
+  swip("HD-9")
+  exit()
   while true do
 
     state = findAny({
@@ -4809,7 +4811,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202301110400")
+  hd_open_time_end = parse_time("202301310400")
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202211151600")
@@ -5285,8 +5287,8 @@ restart_account = function(skip_current)
 
   save_run_state(skip_current)
 
-  local f = loadConfig("restart_mode_hook", '')
-  appendLog("restart_account: " .. f)
+  -- local f = loadConfig("restart_mode_hook", '')
+  -- appendLog("restart_account: " .. f)
 
   restartPackage()
 end
@@ -5303,7 +5305,7 @@ restart_mode_hook = function()
   -- load(loadConfig("restart_mode_hook", ''))()
   -- saveConfig("restart_mode_hook", '')
   local f = loadConfig("restart_mode_hook", '')
-  appendLog("restart_mode_hook: " .. f)
+  -- appendLog("restart_mode_hook: " .. f)
 
   saveConfig("restart_mode_hook", '')
   load(f)()
