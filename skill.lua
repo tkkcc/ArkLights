@@ -1,66 +1,3 @@
------------  how to download skill image
------------  first open https://prts.wiki/w/%E5%90%8E%E5%8B%A4%E6%8A%80%E8%83%BD%E4%B8%80%E8%A7%88, open console
------------  then paste the following code, copy result and paste into skill.lua
--- let dex2hex = (x)=>{
---     return parseInt(x, 10).toString(16).padStart(2, '0')
--- }
--- let rgb2hex = (r,g,b)=>{
---     return '#' + dex2hex(r) + dex2hex(g) + dex2hex(b)
--- }
---
--- let canvas = document.createElement("canvas")
--- canvas.width = 36
--- canvas.height = 36
--- let context = canvas.getContext("2d")
--- let app = document.querySelector('#mw-content-text').querySelectorAll('tr')
--- // let ans='skill={'
--- let ans = new Set();
---
--- ans = {}
--- for (let tr of app) {
---     if (tr.children.length === 4 && tr.children) {
---         let name = tr.children[1].innerText
---         let description = tr.children[2].innerText
---         let operator = [...tr.children[3].querySelectorAll('a')].map(x=>{
---             let level = x.querySelectorAll('img')[3].dataset.src
---             console.log(typeof(level))
---             level = [0, 1, 2].findIndex(x=>level.indexOf(`_${x}_`) > -1)
---             return x.title + level
---         }
---         )
---
---         let img = tr.children[0].querySelector('img')
---         if (!img)
---             continue
---
---         ans +=  window.location.host+ img.dataset.src+'\n'
---         continue
---         let k = img.dataset.src.split('/').pop()
---         ans[k] = ans[k] || []
---         ans[k].push(...operator.map(x=>x.trim()))
---         continue
---         context.drawImage(img, 0, 0)
---         let data = context.getImageData(0, 0, canvas.width, canvas.height).data
---         let rgbs = []
---         let alphas = []
---         for (let i = 0; i < canvas.width * canvas.height; ++i) {
---             let rgb = rgb2hex(data[i * 4], data[i * 4 + 1], data[i * 4 + 2])
---             let alpha = data[i * 4 + 3]
---             rgbs.push(rgb)
---             alphas.push(alpha)
---         }
---         //operator.forEach(x=> ans.add(x.trim()))
---         ans += `{[[${name.trim()}]],[[${description.trim()}]],{${operator.map(x=>"\"" + x.trim() + "\"").join(',')}},{${rgbs.map(x=>"\"" + x + "\"").join(',')}},{${alphas.map(x=>x).join(',')}} },\n`
---         //     ans.push(    [name,description,operator,rgbs,alphas]    )
---         //     break
---     }
--- }
--- // ans=[...ans].join('')
--- // ans+='}'
--- console.log(ans)
--- // console.log(JSON.stringify(ans))
--- TODO 改为从解包文件获取而非prts
--- finished
 fetchSkillIcon = function()
   toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
@@ -329,7 +266,9 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
     end
 
     -- 应用全局性技能
-    --
+    -- 火哨
+    if all["bskill_tra_share1"] then base = base + (level - 1) * 0.15 end
+
     -- 拉狗徳狗
     local texas = all['bskill_tra_texas1'] or all['bskill_tra_texas2']
     if all['bskill_tra_lappland1'] then
