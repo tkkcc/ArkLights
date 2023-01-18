@@ -3625,7 +3625,7 @@ test_fight_hook = function()
     -- "11-18",
     -- "11-19",
     -- "11-20",
-    -- "HD-9",
+    "HD-9",
     "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2", "HD-1",
 
     -- "10-9",
@@ -3709,7 +3709,7 @@ predebug_hook = function()
   -- log(ocr("fullscreen"))
   -- log(findOne("行动结束"))
   -- exit()
-  swip("HD-9")
+  swip("HD-1")
   exit()
   while true do
 

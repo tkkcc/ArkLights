@@ -1816,15 +1816,15 @@ center = {
 }
 
 distance = {
-  ["HD-1"] = {swip_right_max, -205},
-  ["HD-2"] = {swip_right_max, -353},
-  ["HD-3"] = {swip_right_max, -661},
-  ["HD-4"] = {swip_right_max, -854},
-  ["HD-5"] = {swip_right_max, -1329},
-  ["HD-6"] = {swip_right_max, -1652},
-  ["HD-7"] = {swip_right_max, -1979},
-  ["HD-8"] = {swip_right_max, -2218},
-  ["HD-9"] = {swip_right_max, -2435},
+  ["HD-1"] = {swip_right_max, -136},
+  ["HD-2"] = {swip_right_max, -285},
+  ["HD-3"] = {swip_right_max, -592},
+  ["HD-4"] = {swip_right_max, -786},
+  ["HD-5"] = {swip_right_max, -1260},
+  ["HD-6"] = {swip_right_max, -1584},
+  ["HD-7"] = {swip_right_max, -1910},
+  ["HD-8"] = {swip_right_max, -2150},
+  ["HD-9"] = {swip_right_max, -2366},
 
   ["11-1"] = {swip_right_max, -0},
   ["11-2"] = {swip_right_max, -209},
