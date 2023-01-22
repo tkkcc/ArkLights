@@ -770,8 +770,18 @@ path.限时活动 = function(retry)
     appear({
       '活动签到返回', '国庆签到返回', '抽签返回',
       '感谢庆典返回', '限时开放许可', "限时幸运签", "月饼",
-      '产业合作洽谈会',
+      '产业合作洽谈会', '红包',
     })
+    if findOne('红包') then
+      wait(function()
+        if not findOne("红包") then return true end
+        tap("红包")
+      end, 5)
+      ssleep(1)
+      tap("红包")
+      back()
+    end
+
   elseif findOne("面板赠送一次") and not disable_free_draw then
     tap("面板干员寻访")
     if not appear("赠送一次") then tap("寻访右") end

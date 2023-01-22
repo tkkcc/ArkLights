@@ -1212,7 +1212,10 @@ auto_total_timeout_hook = function()
   -- 全屏点一遍
   for w = 150, screen.width - 50, 50 do
     if findAny(known) then return true end
-    for h = 50, screen.height - 50, 50 do tap({w, h}) end
+    for h = 50, screen.height - 50, 50 do
+      tap({w, h})
+      back()
+    end
   end
 end
 -- 为什么auto要有两组状态： 第二组状态点唯一性不足，比如返回与邮件同时出现时，需要的是邮件。没有优先级。
@@ -3625,8 +3628,7 @@ test_fight_hook = function()
     -- "11-18",
     -- "11-19",
     -- "11-20",
-    "HD-9",
-    "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2", "HD-1",
+    "HD-9", "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2", "HD-1",
 
     -- "10-9",
     -- "9-9",

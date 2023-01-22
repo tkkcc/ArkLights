@@ -20,6 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  红包 ="993|387|FFFFFF,1015|403|000000,1072|879|69020C",
   艺术评论 = "1591|930|FC5715",
   产业合作洽谈会 = "175|114|1FBCB4,1788|139|FFFFFF",
   产业合作洽谈会策略 = {1674, 945},
@@ -1321,6 +1322,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 --]]
 
 center = {
+  红包 = "center_center",
   艺术评论 = "right_center",
   产业合作洽谈会 = "center_center",
   产业合作洽谈会策略 = "center_center",
