@@ -178,7 +178,7 @@ m.sanReport = function()
   -- if not m.enabled() then return true end
   local p = point["剩余理智"]
   local ocrHander = createOcr()
-  local sanText = ocrText(ocrHander, p[1], p[2], p[3], p[4], "ffffff-a8a8a8")
+  local sanText = ocrText(ocrHander, p[1], p[2], p[3], p[4], "ffffff-a8a8a8") or "0/100"
   releaseOcr(ocrHander)
   sanText = string.gsub(sanText, "\n", "")
   local index = 1
@@ -189,10 +189,6 @@ m.sanReport = function()
       san[index] = word
       index = index + 1
     end
-  else
-    log("理智识别失败，启用固定值")
-    san[1] = 20
-    san[2] = 100
   end
   local res, code = httpPost(m.server .. "/sanReport?san=" .. san[1] ..
                                "&maxSan=" .. san[2] .. "&deviceToken=" ..
