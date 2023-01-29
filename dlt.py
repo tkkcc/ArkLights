@@ -436,7 +436,8 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         fight=None,
         idx=None,
         weekday_only=None,
-        drug=None,
+        disable_drug=None,
+        all_drug=None,
         norecruit=None,
     ):
         weekday_only_list = load("config_debug.json")[
@@ -468,9 +469,15 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
                     else ""
                 )
                 + (
-                    (" --drug")
+                    (" --disable-drug")
                     if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
-                    and int(x["multi_account_user" + str(i) + "max_drug_times"]) > 0
+                    and int(x["multi_account_user" + str(i) + "max_drug_times"]) == -1
+                    else ""
+                )
+                + (
+                    (" --all-drug")
+                    if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
+                    and int(x["multi_account_user" + str(i) + "max_drug_times"]) == 99
                     else ""
                 )
                 + (
@@ -512,12 +519,13 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         for i in range(1, 13):
             c(x, f"multi_account_user{first_empty_i}now_job_ui" + str(i), True)
         c(x, f"multi_account_user{first_empty_i}now_job_ui8", False)
-        if fight or drug or norecruit:
+        if fight or all_drug or disable_drug or norecruit:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
         else:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "继承设置")
         c(x, f"multi_account_user{first_empty_i}fight_ui", fight or "jm hd ce ls ap pr")
-        c(x, f"multi_account_user{first_empty_i}max_drug_times", str(99 if drug else 0))
+        c(x, f"multi_account_user{first_empty_i}max_drug_times", str(-1 if disable_drug else 0))
+        c(x, f"multi_account_user{first_empty_i}max_drug_times", str(99 if all_drug else 0))
         c(x, f"multi_account_user{first_empty_i}auto_recruit0", not norecruit)
         c(x, f"multi_account_user{first_empty_i}low_priority_goods", "")
         save("config_multi_account.json", x)
@@ -981,7 +989,7 @@ def edu(show=False):
     for m in dlt.my(raw=True):
         if not DLT.need_everyday_upload(m["Title"]):
             continue
-        if m['SerialNo'] in everyday_upload_blacklist:
+        if m["SerialNo"] in everyday_upload_blacklist:
             continue
 
         print(m["Title"])
