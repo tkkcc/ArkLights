@@ -180,15 +180,13 @@ m.sanReport = function()
   local ocrHander = createOcr()
   local sanText = ocrText(ocrHander, p[1], p[2], p[3], p[4], "ffffff-a8a8a8") or "0/100"
   releaseOcr(ocrHander)
-  sanText = string.gsub(sanText, "\n", "")
+  sanText = string.match(sanText, "[%d]+[/][%d]+")
   local index = 1
   local san = {}
-  if sanText ~= "" and string.match(sanText,"%a+") == nil then
-    log("理智", sanText)
-    for word in string.gmatch(sanText, "%d+") do
-      san[index] = word
-      index = index + 1
-    end
+  log("理智", sanText)
+  for word in string.gmatch(sanText, "%d+") do
+    san[index] = word
+    index = index + 1
   end
   local res, code = httpPost(m.server .. "/sanReport?san=" .. san[1] ..
                                "&maxSan=" .. san[2] .. "&deviceToken=" ..

@@ -13,7 +13,7 @@ import win32com.client
 # win环境下的快速开发脚本
 
 # 配置全局路径 请确保路径存在
-path = "D:\ArkLightsLite\main"
+path = "D:\dev\Lr\ArkLightsLite\main"
 pkgPath = "D:\Tools\懒人精灵3.8.3\out\main.lr"
 
 
