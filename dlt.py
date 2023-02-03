@@ -61,7 +61,7 @@ serial_alias = {
     "20": "103.36.206.78:301",
 }
 # daily_device = ["4", "5", "9", "14", "10", "15"] #, "16","17","18","19","20"]
-daily_device = ["18", "19", "20"]
+daily_device = ["18", "20"]
 rg_device = ["1", "2", "0"]
 oppid = "com.hypergryph.arknights"
 bppid = "com.hypergryph.arknights.bilibili"
@@ -524,8 +524,16 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         else:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "继承设置")
         c(x, f"multi_account_user{first_empty_i}fight_ui", fight or "jm hd ce ls ap pr")
-        c(x, f"multi_account_user{first_empty_i}max_drug_times", str(-1 if disable_drug else 0))
-        c(x, f"multi_account_user{first_empty_i}max_drug_times", str(99 if all_drug else 0))
+        c(
+            x,
+            f"multi_account_user{first_empty_i}max_drug_times",
+            str(-1 if disable_drug else 0),
+        )
+        c(
+            x,
+            f"multi_account_user{first_empty_i}max_drug_times",
+            str(99 if all_drug else 0),
+        )
         c(x, f"multi_account_user{first_empty_i}auto_recruit0", not norecruit)
         c(x, f"multi_account_user{first_empty_i}low_priority_goods", "")
         save("config_multi_account.json", x)

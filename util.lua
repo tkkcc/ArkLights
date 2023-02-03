@@ -3116,11 +3116,14 @@ show_extra_ui = function()
   addTextView(layout, [[以下功能将沿用脚本主页设置]])
 
   newRow(layout)
-  addButton(layout, nil, "战略前瞻投资", make_jump_ui_command(layout, nil,
-                                                                    "extra_mode='战略前瞻投资';lock:remove(main_ui_lock)"))
   addButton(layout, nil, "生息演算(仅720p)",
         make_jump_ui_command(layout, nil,
             "extra_mode='生息演算沙中之火';lock:remove(main_ui_lock)"))
+  newRow(layout)
+
+  newRow(layout)
+  addButton(layout, nil, "战略前瞻投资", make_jump_ui_command(layout, nil,
+                                                                    "extra_mode='战略前瞻投资';lock:remove(main_ui_lock)"))
   newRow(layout)
   addTextView(layout, [[选第]])
   ui.addEditText(layout, "zl_best_operator", [[-1]])
