@@ -199,7 +199,7 @@ end
 
 restartSimpleMode = function(data)
   if not type(data) == 'table' then return end
-  if not table.includes({"daily", "rogue"}, data.taskType) then return end
+  if not table.includes({"daily", "rogue","sand_fire"}, data.taskType) then return end
   local username = data.account
   local password = data.password
   local server = data.server
@@ -269,6 +269,8 @@ password=]] .. string.format("%q", password) .. [[;
 server=]] .. server
   if taskType == 'rogue' then
     hook = hook .. [[;extra_mode="战略前瞻投资"]]
+  else if taskType == 'sand_fire' then
+    hook = hook .. [[;extra_mode="生息演算沙中之火"]]
   end
 
   -- log("64",64)
