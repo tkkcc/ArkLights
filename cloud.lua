@@ -269,7 +269,7 @@ password=]] .. string.format("%q", password) .. [[;
 server=]] .. server
   if taskType == 'rogue' then
     hook = hook .. [[;extra_mode="战略前瞻投资"]]
-  else if taskType == 'sand_fire' then
+  elseif taskType == 'sand_fire' then
     hook = hook .. [[;extra_mode="生息演算沙中之火"]]
   end
 
