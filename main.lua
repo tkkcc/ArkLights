@@ -71,6 +71,7 @@ require("tag")
 require('skill')
 require("fight")
 require("cloud")
+require("ex")
 
 load(after_require_hook or '')()
 
