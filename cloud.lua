@@ -181,7 +181,7 @@ m.sanReport = function()
   local sanText = ocrText(ocrHander, p[1], p[2], p[3], p[4], "ffffff-a8a8a8") or "0/100"
   releaseOcr(ocrHander)
   sanText = string.match(sanText, "[%d]+[/][%d]+")
-  if sanText == "" or sanText == nil or string.gmatch(sanText, "%a+") ~= nil then
+  if sanText == "" or sanText == nil then
     sanText = "0/100"
   end
   local index = 1
