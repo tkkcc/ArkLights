@@ -1,11 +1,11 @@
 -- ===========================================
 --          额外路径
 -- 请所有贡献者在此处添加额外需要的路径
--- 
+--
 -- 命名规范推荐
 --  1. 中文命名
 --  2. 禁止重载path.lua中已有的路径，避免污染
--- 
+--
 -- ===========================================
 
 path.沙中之火 = function()
@@ -14,7 +14,9 @@ path.沙中之火 = function()
         tapUntilCheckedPointColor(sandfire_point.退出, sandfire_point.奖励, "退出当前", 0.3)
     end
     if not sandfire_navigation() then return false end
-    if sandfir_get_reward() then return false end
+    if not sand_fire_unstop then
+        if sandfir_get_reward() then return false end
+    end
     sandfire_check_giveup()
     sandfire_init_fight_group()
     if not sandfir_next() then

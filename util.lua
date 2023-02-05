@@ -3119,6 +3119,7 @@ show_extra_ui = function()
   addButton(layout, nil, "生息演算(仅720p)",
         make_jump_ui_command(layout, nil,
             "extra_mode='生息演算沙中之火';lock:remove(main_ui_lock)"))
+  ui.addCheckBox(layout, "sand_fire_unstop", "打满也不结束", false)
   newRow(layout)
 
   newRow(layout)
