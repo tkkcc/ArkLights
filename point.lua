@@ -20,7 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
-  红包 ="993|387|FFFFFF,1015|403|000000,1072|879|69020C",
+  红包 ="768|769|DBCACA,1152|147|9E0808",
   艺术评论 = "1591|930|FC5715",
   产业合作洽谈会 = "175|114|1FBCB4,1788|139|FFFFFF",
   产业合作洽谈会策略 = {1674, 945},

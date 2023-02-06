@@ -758,7 +758,6 @@ path.fallback = {
 }
 
 path.限时活动 = function(retry)
-  if 1 then return end
   -- 只包含主页红点
   retry = retry or 0
   if retry > 5 then return end
