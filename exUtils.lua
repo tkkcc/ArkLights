@@ -293,7 +293,7 @@ sandfire_navigation = function()
     -- end
     path.跳转("首页")
 
-    tap("面板作战")
+    tap(global_point.活动2)
     if not appear("主页") then return false end
 
     if not tapUntilCheckedPointColor(global_point.面板主活动, sandfire_point.奖励) then return false end
