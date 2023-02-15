@@ -211,8 +211,8 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
 
     # local skill=docs/.vuepress/public/skill.zip
-    # mkdir -p "$(dirname "$skill")"
-    local skill=release/skill.zip
+    local skill=dist/skill.zip
+    mkdir -p "$(dirname "$skill")"
 
     zip $skill -q -r -j png_noalpha
     local md5=$(md5sum $skill | cut -d' ' -f1)
