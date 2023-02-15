@@ -8555,7 +8555,7 @@ end
 hotUpdate = function()
   toast("正在检查更新...")
 
-  if 1 then return end
+  if disable_hotupdate then return end
   -- https://gitee.com/bilabila/arknights/raw/master
   -- local url = 'https://gitee.com/bilabila/arknights/raw/master/script.lr'
   local url = update_source .. '/script.lr'
