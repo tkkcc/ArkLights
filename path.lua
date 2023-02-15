@@ -3793,6 +3793,116 @@ path.活动任务与商店 = function()
   end
 end
 
+path.活动商店 = function()
+  --path.跳转("邮件")
+  path.跳转("首页")
+  tap("面板活动")
+
+
+  local g
+  local success_once
+
+  wait(function()
+    -- if findOne("活动任务一键领取") then return true end
+    tap("活动商店")
+    if not appear("主页", 1) or findOne("活动商店横线") then
+      return true
+    end
+  end)
+
+  g = function()
+    if not wait(function()
+      if findOne("活动商店横线") then return true end
+      tap("开包skip")
+      tap("收取信用有")
+    end) then return end
+
+    log(832)
+
+    -- “剩余” 左上角优先
+    local left = table.cat(map(function(x)
+      point.r = {scale(1), scale(x), screen.width - scale(1), scale(x + 50)}
+      return ocr('r')
+    end, {459, 699, 939}))
+
+    table.sort(left, function(a, b)
+      if math.abs(a.l - b.l) < scale(10) then
+        return a.t < b.t
+      else
+        return a.l < b.l
+      end
+    end)
+    log(left)
+    -- TODO 实际这个剩余范围只需要三行
+    local p1 = table.findv(left,
+                           function(x) return x.text:startsWith("剩余") end)
+    if p1 then p1 = {p1.l, p1.t} end
+    local p2 = findAny(point.活动商店列表)
+    if not p1 and not p2 then return end
+
+    tap("活动商店列表" .. 1)
+    tap(p1)
+    tap(p2)
+
+    if not disappear("活动商店横线") then return end
+    if not appear("活动商店支付") then return end
+
+    if not wait(function()
+      tap("活动商店最多")
+      tap("活动商店支付")
+      if not appear("活动商店支付", 1) or
+        findOne("正在提交反馈至神经") then return true end
+    end, 5) then
+      success_once = false
+      return
+    end
+
+    disappear("正在提交反馈至神经", network_timeout)
+    disappear("主页", 5)
+    if not wait(function()
+      tap("开包skip")
+      tap("收取信用有")
+      if findAny({
+        "活动商店横线", "开始唤醒", "单选确认框",
+        "bilibili_framelayout_only", "面板",
+      }) then return true end
+    end, 10) then return end
+    if findOne("活动商店横线") then success_once = true end
+    return true
+  end
+
+  for i = 1, 4 do
+    if not wait(function()
+      if not findOne("活动导航1") then return true end
+      tap("活动商店")
+    end) then return end
+    if not appear("活动商店横线", 5) then break end
+
+    success_once = false
+    while true do if not g() then break end end
+
+    -- 一个商品都没买到
+    if success_once == false then
+      captureqqimagedeliver("INFO", "活动奖励领取", table.join(qqmessage,
+                                                                     ' ') .. " " ..
+                              "活动奖励领取")
+      break
+    end
+
+    -- 掉线
+    if findAny({
+      "开始唤醒", "bilibili_framelayout_only", "面板", "单选确认框",
+    }) then return path.活动与商店() end
+
+    if not wait(function()
+      tap("收取信用有")
+      tap("开包skip")
+      if findOne("活动商店横线") then tap("返回") end
+      if findOne("活动导航1") then return true end
+    end, 5) then return end
+  end
+end
+
 path["1-11"] = function()
   local x = "1-11"
   if not findOne("开始行动") then return end

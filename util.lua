@@ -3176,6 +3176,10 @@ show_extra_ui = function()
   ui.addCheckBox(layout, "sand_fire_unstop", "打满也不结束", false)
   newRow(layout)
 
+  addButton(layout, nil, "活动商店",
+        make_jump_ui_command(layout, nil,
+            "extra_mode='活动商店';lock:remove(main_ui_lock)"))
+
   newRow(layout)
   addButton(layout, nil, "战略前瞻投资", make_jump_ui_command(layout, nil,
                                                                     "extra_mode='战略前瞻投资';lock:remove(main_ui_lock)"))
