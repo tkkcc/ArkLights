@@ -1909,20 +1909,19 @@ captureqqimagedeliver = function(log_level, log_title, log_detail, important)
     img_url = uploadImg(img_src)
   elseif type(pushplus_token) == 'string' and #pushplus_token > 5 then
     img_url = uploadImg(img_src)
-  elseif #telegram_token > 0 and #telegram_chatid > 0 then
+  elseif type(telegram_token) == 'string' and type(telegram_chatid) == 'string' and
+    #telegram_token > 0 and #telegram_chatid > 0 then
     img_url = uploadImg(img_src)
   else
     img_url = ''
   end
-  
-  --检查url是否正确（有时候图床上传可能会失败）
-  if string.find(img_url, "http") == nil then
-    img_url = ''
-  end
-  
+
+  -- 检查url是否正确（有时候图床上传可能会失败）
+  if string.find(img_url, "http") == nil then img_url = '' end
+
   -- pushplus
   notifypp(img_url, info, pushplus_token, pushplus_channel)
-  
+
   -- tg
   notifytg(img_url, info, telegram_chatid, telegram_token, telegram_api, sync)
 
@@ -2479,32 +2478,34 @@ notifypp = function(img, info, to, channel, sync)
   if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
-
 notifytg = function(imgurl, info, chatid, bottoken, tgapi, sync)
-	imgurl = imgurl or ''
-	info = info or ''
-	chatid = chatid or ''
-    bottoken = bottoken or ''
-    tgapi = tgapi or 'https://api.telegram.org/'
-    local id = lock:add()
-    if #imgurl == 0 then --图片url为空 不发图
-      local tgurl = tgapi ..  bottoken .. '/sendMessage'
-      local param = "chat_id=" .. chatid .. "&text=" .. encodeUrl(info)
-      asynHttpPost(function(code)
-        log("notifytg", code)
-        lock:remove(id)
-        end, tgurl , param)
-      log("notifytg", tgurl, param)
-    else
-      local tgurl = tgapi ..  bottoken .. '/sendPhoto'
-      local param = "chat_id=" .. chatid .. "&photo=" .. encodeUrl(imgurl) .. "&caption=" .. encodeUrl(info)
-      asynHttpPost(function(code)
-        log("notifytg", code)
-        lock:remove(id)
-        end, tgurl, param)
-      log("notifytg", tgurl, param)
-    end
-    if sync then wait(function() return not lock:exist(id) end, 30) end
+  imgurl = imgurl or ''
+  info = info or ''
+  chatid = chatid or ''
+  bottoken = bottoken or ''
+  tgapi = tgapi or 'https://api.telegram.org/'
+  if #chatid == 0 then return end
+
+  local id = lock:add()
+  if #imgurl == 0 then -- 图片url为空 不发图
+    local tgurl = tgapi .. bottoken .. '/sendMessage'
+    local param = "chat_id=" .. chatid .. "&text=" .. encodeUrl(info)
+    asynHttpPost(function(code)
+      log("notifytg", code)
+      lock:remove(id)
+    end, tgurl, param)
+    log("notifytg", tgurl, param)
+  else
+    local tgurl = tgapi .. bottoken .. '/sendPhoto'
+    local param = "chat_id=" .. chatid .. "&photo=" .. encodeUrl(imgurl) ..
+                    "&caption=" .. encodeUrl(info)
+    asynHttpPost(function(code)
+      log("notifytg", code)
+      lock:remove(id)
+    end, tgurl, param)
+    log("notifytg", tgurl, param)
+  end
+  if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
 -- remove unneed elements while preserving cursor
@@ -2934,18 +2935,18 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "pushplus通知渠道(channel)")
   ui.addEditText(layout, "pushplus_channel", "")
-  
+
   newRow(layout)
   addTextView(layout, "Telegram推送api(可不填)")
   ui.addEditText(layout, "telegram_api", "")
-   
+
   newRow(layout)
   addTextView(layout, "Telegram Bot Token")
   ui.addEditText(layout, "telegram_token", "")
-  
+
   newRow(layout)
   addTextView(layout, "Telegram chat ID")
-  ui.addEditText(layout, "telegram_chatid", "") 
+  ui.addEditText(layout, "telegram_chatid", "")
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_save",
@@ -3171,14 +3172,13 @@ show_extra_ui = function()
 
   newRow(layout)
   addButton(layout, nil, "生息演算(仅720p)",
-        make_jump_ui_command(layout, nil,
-            "extra_mode='生息演算沙中之火';lock:remove(main_ui_lock)"))
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='生息演算沙中之火';lock:remove(main_ui_lock)"))
   ui.addCheckBox(layout, "sand_fire_unstop", "打满也不结束", false)
   newRow(layout)
 
-  addButton(layout, nil, "活动商店",
-        make_jump_ui_command(layout, nil,
-            "extra_mode='活动商店';lock:remove(main_ui_lock)"))
+  addButton(layout, nil, "活动商店", make_jump_ui_command(layout, nil,
+                                                              "extra_mode='活动商店';lock:remove(main_ui_lock)"))
 
   newRow(layout)
   addButton(layout, nil, "战略前瞻投资", make_jump_ui_command(layout, nil,
@@ -6062,10 +6062,8 @@ istable = function(x) return type(x) == 'table' end
 
 last_upload_img = ''
 uploadImg = function(img)
---https://www.imgtp.com/index/api.html
-  local ret = uploadFile(
-                  "https://www.imgtp.com/api/upload",
-                  img, 30)
+  -- https://www.imgtp.com/index/api.html
+  local ret = uploadFile("https://www.imgtp.com/api/upload", img, 30)
   -- log('uploadImg', ret)
   local status
   status, ret = pcall(JsonDecode, ret)
