@@ -1036,6 +1036,15 @@ swipe = function(x)
   elseif x == 'left' then
     gesture({
       {
+        point = {{screen.width-100, scale(150)}, {scale(1), scale(150)}},
+        start = 0,
+        duration = 250,
+      },
+    })
+    sleep(100 + 50)
+  elseif x == 'lift' then
+    gesture({
+      {
         point = {{scale(300), scale(150)}, {scale(300), screen.height - 1}},
         start = 0,
         duration = 100,
@@ -3177,8 +3186,8 @@ show_extra_ui = function()
   ui.addCheckBox(layout, "sand_fire_unstop", "打满也不结束", false)
   newRow(layout)
 
-  addButton(layout, nil, "活动商店", make_jump_ui_command(layout, nil,
-                                                              "extra_mode='活动商店';lock:remove(main_ui_lock)"))
+  addButton(layout, nil, "活动任务与商店", make_jump_ui_command(layout, nil,
+                                                              "extra_mode='活动任务与商店';lock:remove(main_ui_lock)"))
 
   newRow(layout)
   addButton(layout, nil, "战略前瞻投资", make_jump_ui_command(layout, nil,
@@ -4877,7 +4886,9 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202301310400")
+  hd_open_time_end = parse_time("202302210400")
+  hd_shop_open_time_end = parse_time("202302240400")--活动商店关闭时间
+  hd_mod = "故事集" --活动类型 "故事集"/"ss" 区分活动任务
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202211151600")
