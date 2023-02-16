@@ -3628,7 +3628,33 @@ end
 
 -- path.活动 = hd_wrapper(path.活动)
 
-path.活动2任务与商店 = function()
+path.活动任务与商店 = function()
+
+  local t = parse_time()
+  if t >= hd_open_time_end and t<=hd_shop_open_time_end then
+    for k, _ in pairs(point) do
+      if k:startsWith("活动2") then
+        local rk = k:sub(1, 6) .. k:sub(8)
+        point[rk] = point[k]
+        rfl[rk] = rfl[k]
+      end
+    end
+    point.面板活动 = point.面板活动2
+    rfl.面板活动 = rfl.面板活动2
+  end
+
+  if hd_mod == "故事集" then
+    path.活动商店()
+    path.故事集提交碎片()
+  elseif hd_mod == "ss" then
+    path.ss活动任务与商店()
+  end
+
+end
+
+
+
+path.ss活动2任务与商店 = function()
 
   for k, _ in pairs(point) do
     if k:startsWith("活动2") then
@@ -3641,10 +3667,10 @@ path.活动2任务与商店 = function()
   point.面板活动 = point.面板活动2
   rfl.面板活动 = rfl.面板活动2
 
-  return path.活动任务与商店()
+  return path.ss活动任务与商店()
 end
 
-path.活动任务与商店 = function()
+path.ss活动任务与商店 = function()
   path.跳转("邮件")
   path.跳转("首页")
   tap("面板作战")
@@ -3693,7 +3719,7 @@ path.活动任务与商店 = function()
     end, 15) then return end
   end
 
-  if not appear("主页", 1) then return path.活动任务与商店() end
+  if not appear("主页", 1) then return path.ss活动任务与商店() end
   captureqqimagedeliver("INFO", "活动任务领取",
                         table.join(qqmessage, ' ') .. " " ..
                           "活动任务领取")
@@ -3782,7 +3808,7 @@ path.活动任务与商店 = function()
     -- 掉线
     if findAny({
       "开始唤醒", "bilibili_framelayout_only", "面板", "单选确认框",
-    }) then return path.活动与商店() end
+    }) then return path.ss活动任务与商店() end
 
     if not wait(function()
       tap("收取信用有")
@@ -3892,7 +3918,7 @@ path.活动商店 = function()
     -- 掉线
     if findAny({
       "开始唤醒", "bilibili_framelayout_only", "面板", "单选确认框",
-    }) then return path.活动与商店() end
+    }) then return path.活动商店() end
 
     if not wait(function()
       tap("收取信用有")
@@ -3901,6 +3927,85 @@ path.活动商店 = function()
       if findOne("活动导航1") then return true end
     end, 5) then return end
   end
+end
+
+path.故事集提交碎片 = function()
+  --path.跳转("邮件")
+  path.跳转("首页")
+  tap("面板活动")
+
+
+    wait(function()
+      tap("故事入口")
+      if findOne("故事界面") then
+        return true
+      end
+    end)
+
+  local g
+  local success_once
+
+  g  = function()
+
+    if not wait(function()
+      if findOne("故事界面") then return true end
+      tap("确认提交事相碎片")
+    end) then return end
+
+
+    local p1 = findAny(point.故事集列表)
+    if not p1 then  
+    	swipe("left") 
+        ssleep(3)
+    	p1 = findAny(point.故事集列表)
+    end
+
+    tap(p1)
+
+    if p1 then
+    	ssleep()
+    	if not wait(function()
+    	  tap("确认提交事相碎片")
+    	  if not appear("确认提交事相碎片", 1) or
+    	    findOne("正在提交反馈至神经") then return true end
+    	end, 5) then
+    	  success_once = false
+    	  return
+    	end
+        else
+        return
+	end
+    
+    disappear("正在提交反馈至神经", network_timeout)
+    if findOne("事相碎片不足") then success_once = true return end
+    return true
+  end
+
+  for i = 1, 3 do
+    if not wait(function()
+      if not findOne("活动导航1") then return true end
+      tap("故事入口")
+    end) then return end
+    if not appear("故事界面", 5) then break end
+
+    success_once = false
+    while true do if not g() then break end end
+
+    -- 一个商品都没买到
+    if success_once == false then
+      captureqqimagedeliver("INFO", "提交事相碎片", table.join(qqmessage,
+                                                                     ' ') .. " " ..
+                              "提交事相碎片")
+      break
+    end
+
+    -- 掉线
+    if findAny({
+      "开始唤醒", "bilibili_framelayout_only", "面板", "单选确认框",
+    }) then return path.故事集提交碎片() end
+
+  end
+
 end
 
 path["1-11"] = function()
