@@ -54,6 +54,8 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
     ./extracy.py screencap 1,2,3
     ./extracy.py screencap_distance
     ```
+    
+    更多说明请参考 [开发与贡献指南](./docs/development.md)
 
 <!-- ### Star History -->
 <!---->
