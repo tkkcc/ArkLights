@@ -3512,6 +3512,10 @@ path.活动 = function(x)
     clean_hdfight()
     return
   end
+  if hd_mod == "故事集" then
+    clean_hdfight()
+    return
+  end
   path.跳转("首页")
   tap("面板活动2")
   if not wait(function()
@@ -3649,6 +3653,26 @@ path.活动任务与商店 = function()
   elseif hd_mod == "ss" then
     path.ss活动任务与商店()
   end
+
+  if t<=hd2_shop_open_time_end then
+    for k, _ in pairs(point) do
+      if k:startsWith("活动2") then
+        local rk = k:sub(1, 6) .. k:sub(8)
+        point[rk] = point[k]
+        rfl[rk] = rfl[k]
+      end
+    end
+    point.面板活动 = point.面板活动2
+    rfl.面板活动 = rfl.面板活动2
+  end
+  if hd2_mod == "故事集" then
+    path.活动商店()
+    path.故事集提交碎片()
+  elseif hd2_mod == "ss" then
+    path.ss活动任务与商店()
+  end
+
+
 
 end
 
