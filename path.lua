@@ -3635,7 +3635,7 @@ end
 path.活动任务与商店 = function()
 
   local t = parse_time()
-  if t >= hd_open_time_end and t<=hd_shop_open_time_end then
+  if t > hd_open_time_end and t<hd_shop_open_time_end then
     for k, _ in pairs(point) do
       if k:startsWith("活动2") then
         local rk = k:sub(1, 6) .. k:sub(8)
@@ -3647,12 +3647,12 @@ path.活动任务与商店 = function()
     rfl.面板活动 = rfl.面板活动2
   end
 
-  if hd_mod == "故事集" then
+--[[   if hd_mod == "故事集" then
     path.活动商店()
     path.故事集提交碎片()
   elseif hd_mod == "ss" then
     path.ss活动任务与商店()
-  end
+  end ]]
 
   if t<=hd2_shop_open_time_end then
     for k, _ in pairs(point) do
@@ -3846,8 +3846,13 @@ end
 path.活动商店 = function()
   --path.跳转("邮件")
   path.跳转("首页")
-  tap("面板活动")
+  tap("面板作战")
 
+  if not wait(function()
+    tap("作战主页列表2")
+    if findOne("活动导航2") then return true end
+    if findOne("跳过剧情") then path.跳过剧情() end
+  end, 10) then return end
 
   local g
   local success_once
@@ -3923,7 +3928,7 @@ path.活动商店 = function()
 
   for i = 1, 4 do
     if not wait(function()
-      if not findOne("活动导航1") then return true end
+      if not findOne("活动导航2") then return true end
       tap("活动商店")
     end) then return end
     if not appear("活动商店横线", 5) then break end
@@ -3948,7 +3953,7 @@ path.活动商店 = function()
       tap("收取信用有")
       tap("开包skip")
       if findOne("活动商店横线") then tap("返回") end
-      if findOne("活动导航1") then return true end
+      if findOne("活动导航2") then return true end
     end, 5) then return end
   end
 end
@@ -4005,9 +4010,9 @@ path.故事集提交碎片 = function()
     return true
   end
 
-  for i = 1, 3 do
+  for i = 1, 2 do
     if not wait(function()
-      if not findOne("活动导航1") then return true end
+      if not findOne("活动导航2") then return true end
       tap("故事入口")
     end) then return end
     if not appear("故事界面", 5) then break end
