@@ -3961,7 +3961,14 @@ end
 path.故事集提交碎片 = function()
   --path.跳转("邮件")
   path.跳转("首页")
-  tap("面板活动")
+  tap("面板作战")
+
+  if not wait(function()
+    tap("作战主页列表2")
+    if findOne("活动导航2") then return true end
+    if findOne("跳过剧情") then path.跳过剧情() end
+  end, 10) then return end
+
 
 
     wait(function()
