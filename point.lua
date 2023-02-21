@@ -1395,8 +1395,8 @@ center = {
   活动商店最多 = "center_center",
   故事界面 = "center_center",
   故事入口 = "center_center",
-  确认提交事相碎片 = "right_center",
-  事相碎片不足 = "center_center",
+  确认提交事相碎片 = "center_center",
+  事相碎片不足 = "right_center",
 
   面板活动2 = "right_center",
   活动2商店="center_center",
