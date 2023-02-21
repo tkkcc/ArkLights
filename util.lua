@@ -3187,7 +3187,7 @@ show_extra_ui = function()
   newRow(layout)
 
   addButton(layout, nil, "活动任务与商店", make_jump_ui_command(layout, nil,
-                                                              "extra_mode='活动任务与商店';lock:remove(main_ui_lock)"))
+                                                              "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
 
   newRow(layout)
   addButton(layout, nil, "战略前瞻投资", make_jump_ui_command(layout, nil,
