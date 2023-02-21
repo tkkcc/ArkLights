@@ -51,7 +51,7 @@
     local lr=release/${1:-script.lr}
     git add -u
     # cd release
-    cp /F:/software/懒人精灵3.8.3/out/main.lr $lr
+    cp /F/software/懒人精灵3.8.3/out/main.lr $lr
     # cp ../README.md README.md
     numfmt --to=iec $(stat -c %s $lr)
 
@@ -116,7 +116,7 @@
 
   save() {
     sed -i -r 's/^(release_date =).+$/\1 "'"$(date +'%m.%d %k:%M')"'"/' main.lua
-    local dst_dir=/F:/software/懒人精灵3.6.0/script/main
+    local dst_dir=/F/software/懒人精灵3.6.0/script/main
     dst="$dst_dir"/脚本
     mkdir -p $dst
     while IFS= read -r -d '' f; do
