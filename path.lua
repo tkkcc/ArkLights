@@ -3647,13 +3647,14 @@ path.活动任务与商店 = function()
     rfl.面板活动 = rfl.面板活动2
   end
 
---[[   if hd_mod == "故事集" then
+  if hd_mod == "故事集" then
     path.活动商店()
     path.故事集提交碎片()
   elseif hd_mod == "ss" then
     path.ss活动任务与商店()
-  end ]]
-
+  end 
+  
+--[[
   if t<=hd2_shop_open_time_end then
     for k, _ in pairs(point) do
       if k:startsWith("活动2") then
@@ -3671,11 +3672,10 @@ path.活动任务与商店 = function()
   elseif hd2_mod == "ss" then
     path.ss活动任务与商店()
   end
-
+]]
 
 
 end
-
 
 
 path.ss活动2任务与商店 = function()
@@ -3695,27 +3695,27 @@ path.ss活动2任务与商店 = function()
 end
 
 path.ss活动任务与商店 = function()
-  path.跳转("邮件")
-  path.跳转("首页")
-  tap("面板作战")
 
-  if not wait(function()
+  path.跳转("首页")
+
+
+  --[[if not wait(function()
     tap("作战主页列表1")
     if findOne("活动导航1") then return true end
     if findOne("跳过剧情") then path.跳过剧情() end
-  end, 10) then return end
+  end, 10) then return end]]
 
-  -- if not wait(function()
-  --   tap("活动任务")
-  --   if not findOne("活动导航1") then return true end
-  -- end, 5) then return end
+  if not wait(function()
+ 	 tap("面板活动")
+      if appear("活动导航0", 1) then return true end
+    end, 5) then return end
 
   local g
   local success_once
 
   if not wait(function()
     tap("活动任务")
-    if disappear("活动导航1", 1) then return true end
+    if disappear("活动导航0", 1) then return true end
   end, 5) then return end
 
   local got = false
@@ -3748,7 +3748,7 @@ path.ss活动任务与商店 = function()
                         table.join(qqmessage, ' ') .. " " ..
                           "活动任务领取")
   tap("返回")
-  if not appear("活动导航1") then return end
+  if not appear("活动导航0") then return end
 
   g = function()
     if not wait(function()
@@ -3813,7 +3813,7 @@ path.ss活动任务与商店 = function()
 
   for i = 1, 4 do
     if not wait(function()
-      if not findOne("活动导航1") then return true end
+      if not findOne("活动导航0") then return true end
       tap("活动商店")
     end) then return end
     if not appear("活动商店横线", 5) then break end
@@ -3838,7 +3838,7 @@ path.ss活动任务与商店 = function()
       tap("收取信用有")
       tap("开包skip")
       if findOne("活动商店横线") then tap("返回") end
-      if findOne("活动导航1") then return true end
+      if findOne("活动导航0") then return true end
     end, 5) then return end
   end
 end
