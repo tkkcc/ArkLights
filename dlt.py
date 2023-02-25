@@ -527,12 +527,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         c(
             x,
             f"multi_account_user{first_empty_i}max_drug_times",
-            str(-1 if disable_drug else 0),
-        )
-        c(
-            x,
-            f"multi_account_user{first_empty_i}max_drug_times",
-            str(99 if all_drug else 0),
+            str(-1 if disable_drug else (99 if all_drug else 0)),
         )
         c(x, f"multi_account_user{first_empty_i}auto_recruit0", not norecruit)
         c(x, f"multi_account_user{first_empty_i}low_priority_goods", "")

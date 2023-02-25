@@ -198,7 +198,11 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     echo $md5 >release/skill.zip.md5
   }
   buildingskill() {
-    local png=$root/arknights_extract/assets/torappu/dynamicassets/arts/building/skills
+    
+    # local png=$root/arknights_extract/assets/torappu/dynamicassets/arts/building/skills
+    # ==> 自己解没有铎铃基建图标，先用泰迪的
+    local png='Arknights-Bot-Resource/building_skill'
+
     rm -rf png_noalpha
     mkdir png_noalpha
     noalpha $png png_noalpha
