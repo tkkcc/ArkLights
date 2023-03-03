@@ -3635,7 +3635,7 @@ end
 path.活动任务与商店 = function()
 
   local t = parse_time()
-  if t > hd_open_time_end and t<hd_shop_open_time_end then
+  if t > hd_open_time_end and t<hd_shop_open_time_end and t < hd2_open_time_end then
     for k, _ in pairs(point) do
       if k:startsWith("活动2") then
         local rk = k:sub(1, 6) .. k:sub(8)
@@ -3695,20 +3695,24 @@ path.ss活动2任务与商店 = function()
 end
 
 path.ss活动任务与商店 = function()
-
+  path.跳转("邮件")
   path.跳转("首页")
 
+  local t = parse_time()
+  if t > hd_open_time_end and t<hd_shop_open_time_end then
+        tap("面板作战")
+    if not wait(function()
 
-  --[[if not wait(function()
-    tap("作战主页列表1")
-    if findOne("活动导航1") then return true end
-    if findOne("跳过剧情") then path.跳过剧情() end
-  end, 10) then return end]]
-
-  if not wait(function()
- 	 tap("面板活动")
-      if appear("活动导航0", 1) then return true end
-    end, 5) then return end
+      tap("作战主页列表2")
+      if findOne("活动导航0") then return true end
+      if findOne("跳过剧情") then path.跳过剧情() end
+    end, 10) then return end
+  else
+      if not wait(function()
+        tap("面板活动")
+          if appear("活动导航0", 1) then return true end
+        end, 5) then return end
+  end
 
   local g
   local success_once
@@ -3846,13 +3850,21 @@ end
 path.活动商店 = function()
   --path.跳转("邮件")
   path.跳转("首页")
-  tap("面板作战")
 
-  if not wait(function()
-    tap("作战主页列表2")
-    if findOne("活动导航2") then return true end
-    if findOne("跳过剧情") then path.跳过剧情() end
-  end, 10) then return end
+  local t = parse_time()
+  if t > hd_open_time_end and t<hd_shop_open_time_end then
+      tap("面板作战")
+   if not wait(function()
+      tap("作战主页列表2")
+      if findOne("活动导航0") then return true end
+      if findOne("跳过剧情") then path.跳过剧情() end
+    end, 10) then return end
+  else
+      if not wait(function()
+        tap("面板活动")
+          if appear("活动导航0", 1) then return true end
+        end, 5) then return end
+  end
 
   local g
   local success_once
@@ -3961,14 +3973,21 @@ end
 path.故事集提交碎片 = function()
   --path.跳转("邮件")
   path.跳转("首页")
-  tap("面板作战")
 
-  if not wait(function()
-    tap("作战主页列表2")
-    if findOne("活动导航2") then return true end
-    if findOne("跳过剧情") then path.跳过剧情() end
-  end, 10) then return end
-
+  local t = parse_time()
+  if t > hd_open_time_end and t<hd_shop_open_time_end then
+         tap("面板作战")
+    if not wait(function()
+      tap("作战主页列表2")
+      if findOne("活动导航0") then return true end
+      if findOne("跳过剧情") then path.跳过剧情() end
+    end, 10) then return end
+  else
+      if not wait(function()
+        tap("面板活动")
+          if appear("活动导航0", 1) then return true end
+        end, 5) then return end
+  end
 
 
     wait(function()
