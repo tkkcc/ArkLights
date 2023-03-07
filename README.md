@@ -46,7 +46,7 @@ ArkLights is the <b> lightning fast</b> and <b> fully managed</b> Arknights game
 1. 数据提取
     ```sh
     # 解包
-    ./0.sh extract
+    https://github.com/jxr2006/ArkAssetsTool
     # 提取基建图标数据
     ./0.sh buildingskill
     # 提取公招保底组合

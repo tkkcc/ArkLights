@@ -200,18 +200,27 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
   buildingskill() {
     
     # local png=$root/arknights_extract/assets/torappu/dynamicassets/arts/building/skills
-    # ==> 自己解没有铎铃基建图标，先用泰迪的
-    local png='Arknights-Bot-Resource/building_skill'
+    local png='../ArkAssetsTool/ArkAssets/spritepack/[unpack]building_ui_buff_skills_h1_0'
 
-    rm -rf png_noalpha
-    mkdir png_noalpha
-    noalpha $png png_noalpha
+    # ==> paint background
+    local png_noalpha=png_noalpha
+    rm -rf $png_noalpha
+    mkdir $png_noalpha
+    noalpha $png $png_noalpha
+
+    # ==> remove prefix
+    while IFS= read -r -d '' f; do
+      mv $png_noalpha/"$f" $png_noalpha/"${f#(Sprite)}"
+    done < <(find $png_noalpha -maxdepth 1 -type f -printf '%P\0')
+
+    # ==> only bskill
     find png_noalpha -type f -not -name 'bskill_*' -delete
-    touch png_noalpha/.nomedia
+
     echo -n "==> total "
     ls png_noalpha | wc -l
 
-    git submodule update --init --recursive --remote
+    touch png_noalpha/.nomedia
+    # git submodule update --init --recursive --remote
     ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
 
     # local skill=docs/.vuepress/public/skill.zip

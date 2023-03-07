@@ -137,8 +137,8 @@ def avator2operator(src="ArknightsGameData/zh_CN/gamedata/excel/character_table.
 
 
 def skillicon2operator(
-    char="ArknightsGameData/zh_CN/gamedata/excel/character_table.json",
-    build="ArknightsGameData/zh_CN/gamedata/excel/building_data.json",
+    char="../ArkAssetsTool/ArkAssets/gamedata/excel/[unpack]character_table/character_table.json",
+    build="../ArkAssetsTool/ArkAssets/gamedata/excel/[unpack]building_data/building_data.json",
 ):
     char = json.loads(open(char).read())
     build = json.loads(open(build).read())
@@ -162,8 +162,8 @@ def skillicon2operator(
 
 
 def recruit(
-    char="ArknightsGameData/zh_CN/gamedata/excel/character_table.json",
-    gacha="ArknightsGameData/zh_CN/gamedata/excel/gacha_table.json",
+    char="../ArkAssetsTool/D:/ArkAssets/gamedata/excel/[unpack]character_table/character_table.json",
+    gacha="../ArkAssetsTool/D:/ArkAssets/gamedata/excel/[unpack]gacha_table/gacha_table.json",
     to = "lua",
 ):
     char = json.loads(open(char).read())

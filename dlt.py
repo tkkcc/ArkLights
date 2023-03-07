@@ -439,6 +439,7 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         disable_drug=None,
         all_drug=None,
         norecruit=None,
+        noactivity=None,
     ):
         weekday_only_list = load("config_debug.json")[
             "multi_account_choice_weekday_only"
@@ -481,9 +482,15 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
                     else ""
                 )
                 + (
-                    (" --norecruit")
+                    (" --norecruit=true")
                     if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
                     and not x["multi_account_user" + str(i) + "auto_recruit0"]
+                    else ""
+                )
+                + (
+                    (" --noactivity=true")
+                    if x["multi_account_inherit_toggle" + str(i)] == "独立设置"
+                    and not x["multi_account_user" + str(i) + "now_job_ui12"]
                     else ""
                 )
                 + (" --weekday-only" if str(i) in weekday_only_list else "")
@@ -519,11 +526,12 @@ cat /proc/$(pidof com.bilabila.arknightsspeedrun2:acc)/oom_score
         for i in range(1, 13):
             c(x, f"multi_account_user{first_empty_i}now_job_ui" + str(i), True)
         c(x, f"multi_account_user{first_empty_i}now_job_ui8", False)
-        if fight or all_drug or disable_drug or norecruit:
+        if fight or all_drug or disable_drug or norecruit or noactivity:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "独立设置")
         else:
             c(x, f"multi_account_inherit_toggle{first_empty_i}", "继承设置")
         c(x, f"multi_account_user{first_empty_i}fight_ui", fight or "jm hd ce ls ap pr")
+        c(x, f"multi_account_user{first_empty_i}now_job_ui12", not noactivity)
         c(
             x,
             f"multi_account_user{first_empty_i}max_drug_times",
