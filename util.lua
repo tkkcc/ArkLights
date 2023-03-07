@@ -3784,6 +3784,7 @@ predebug_hook = function()
   -- log(ocr("fullscreen"))
   -- log(findOne("行动结束"))
   -- exit()
+  -- tap("活动导航1")
   swip("HD-1")
   exit()
   while true do
@@ -4846,7 +4847,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _, i in pairs({9, 8, 7}) do
+      for _, i in pairs({8, 7, 6}) do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
@@ -4886,7 +4887,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202303030400")
+  hd_open_time_end = parse_time("202303210400")
   hd_shop_open_time_end = parse_time("202303070400")--活动商店关闭时间
   hd2_open_time_end = parse_time("202303210400")
   hd2_shop_open_time_end = parse_time("202302240400")--活动2商店关闭时间

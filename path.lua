@@ -720,6 +720,20 @@ path.fallback = {
     disappear("限时幸运签", 10)
     return path.fallback.签到返回()
   end,
+  祈愿牌返回 = function()
+    -- "158|157|92928A,728|577|876E3D,1016|619|B38375"
+    for w = 237, 1092 + 100, 225 do
+      w = screen.width // 2 + scale(w - 1920 // 2)
+      for h = 237, 865+100, 225 do
+        tap({w, scale(h)})
+      end
+    end
+    ssleep(.5)
+    tap("祈愿牌确认")
+    -- ssleep(.25)
+    -- disappear("祈愿牌确认", 10)
+    return path.fallback.签到返回()
+  end,
   限时开放许可 = function()
     wait(function() tap("开始作业") end, 1)
     wait(function()
@@ -758,7 +772,6 @@ path.fallback = {
 }
 
 path.限时活动 = function(retry)
-  if 1 then return 1 end
 
   -- 只包含主页红点
   retry = retry or 0
@@ -772,7 +785,7 @@ path.限时活动 = function(retry)
     appear({
       '活动签到返回', '国庆签到返回', '抽签返回',
       '感谢庆典返回', '限时开放许可', "限时幸运签", "月饼",
-      '产业合作洽谈会', '红包',
+      '产业合作洽谈会', '红包', "祈愿牌返回"
     })
     if findOne('红包') then
       wait(function()
@@ -3596,11 +3609,31 @@ path.活动 = function(x)
     end, 5) then return end
 
   end
-  -- car_check()
-  if not findOne("活动导航0") then return end
 
+  local car_check = function()
+    if car_checked then return end
+    car_checked = true
+    fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) - 1
+    if not appear("用餐区域", 1) then return end
+
+    if not wait(function()
+      tap("用餐区域")
+      if disappear("用餐区域", 1) then return true end
+    end, 5) then return end
+
+    wait(function() tap({screen.width // 2, screen.height * 3 // 4}) end, 1)
+    wait(function() tap("用餐") end, 1)
+    if not wait(function()
+      if appear("活动导航0", 1) then return true end
+      back()
+      -- tap("返回")
+    end, 5) then return end
+  end
+  car_check()
+  if not findOne("活动导航0") then return end
   if not wait(function()
     tap("活动导航1")
+    ssleep(.5)
     if not appear("活动导航0", 1) then return true end
   end, 5) then return end
 
@@ -3637,7 +3670,8 @@ end
 path.活动任务与商店 = function()
 
   local t = parse_time()
-  if t > hd_open_time_end and t<hd_shop_open_time_end and t < hd2_open_time_end then
+  if t > hd_open_time_end and t < hd_shop_open_time_end and t <
+    hd2_open_time_end then
     for k, _ in pairs(point) do
       if k:startsWith("活动2") then
         local rk = k:sub(1, 6) .. k:sub(8)
@@ -3654,9 +3688,9 @@ path.活动任务与商店 = function()
     path.故事集提交碎片()
   elseif hd_mod == "ss" then
     path.ss活动任务与商店()
-  end 
-  
---[[
+  end
+
+  --[[
   if t<=hd2_shop_open_time_end then
     for k, _ in pairs(point) do
       if k:startsWith("活动2") then
@@ -3676,9 +3710,7 @@ path.活动任务与商店 = function()
   end
 ]]
 
-
 end
-
 
 path.ss活动2任务与商店 = function()
 
@@ -3701,8 +3733,8 @@ path.ss活动任务与商店 = function()
   path.跳转("首页")
 
   local t = parse_time()
-  if t > hd_open_time_end and t<hd_shop_open_time_end then
-        tap("面板作战")
+  if t > hd_open_time_end and t < hd_shop_open_time_end then
+    tap("面板作战")
     if not wait(function()
 
       tap("作战主页列表2")
@@ -3710,10 +3742,10 @@ path.ss活动任务与商店 = function()
       if findOne("跳过剧情") then path.跳过剧情() end
     end, 10) then return end
   else
-      if not wait(function()
-        tap("面板活动")
-          if appear("活动导航0", 1) then return true end
-        end, 5) then return end
+    if not wait(function()
+      tap("面板活动")
+      if appear("活动导航0", 1) then return true end
+    end, 5) then return end
   end
 
   local g
@@ -3850,22 +3882,22 @@ path.ss活动任务与商店 = function()
 end
 
 path.活动商店 = function()
-  --path.跳转("邮件")
+  -- path.跳转("邮件")
   path.跳转("首页")
 
   local t = parse_time()
-  if t > hd_open_time_end and t<hd_shop_open_time_end then
-      tap("面板作战")
-   if not wait(function()
+  if t > hd_open_time_end and t < hd_shop_open_time_end then
+    tap("面板作战")
+    if not wait(function()
       tap("作战主页列表2")
       if findOne("活动导航0") then return true end
       if findOne("跳过剧情") then path.跳过剧情() end
     end, 10) then return end
   else
-      if not wait(function()
-        tap("面板活动")
-          if appear("活动导航0", 1) then return true end
-        end, 5) then return end
+    if not wait(function()
+      tap("面板活动")
+      if appear("活动导航0", 1) then return true end
+    end, 5) then return end
   end
 
   local g
@@ -3973,68 +4005,67 @@ path.活动商店 = function()
 end
 
 path.故事集提交碎片 = function()
-  --path.跳转("邮件")
+  -- path.跳转("邮件")
   path.跳转("首页")
 
   local t = parse_time()
-  if t > hd_open_time_end and t<hd_shop_open_time_end then
-         tap("面板作战")
+  if t > hd_open_time_end and t < hd_shop_open_time_end then
+    tap("面板作战")
     if not wait(function()
       tap("作战主页列表2")
       if findOne("活动导航0") then return true end
       if findOne("跳过剧情") then path.跳过剧情() end
     end, 10) then return end
   else
-      if not wait(function()
-        tap("面板活动")
-          if appear("活动导航0", 1) then return true end
-        end, 5) then return end
+    if not wait(function()
+      tap("面板活动")
+      if appear("活动导航0", 1) then return true end
+    end, 5) then return end
   end
 
-
-    wait(function()
-      tap("故事入口")
-      if findOne("故事界面") then
-        return true
-      end
-    end)
+  wait(function()
+    tap("故事入口")
+    if findOne("故事界面") then return true end
+  end)
 
   local g
   local success_once
 
-  g  = function()
+  g = function()
 
     if not wait(function()
       if findOne("故事界面") then return true end
       tap("确认提交事相碎片")
     end) then return end
 
-
     local p1 = findAny(point.故事集列表)
-    if not p1 then  
-    	swipe("left") 
-        ssleep(3)
-    	p1 = findAny(point.故事集列表)
+    if not p1 then
+      swipe("left")
+      ssleep(3)
+      p1 = findAny(point.故事集列表)
     end
 
     tap(p1)
 
     if p1 then
-    	ssleep()
-    	if not wait(function()
-    	  tap("确认提交事相碎片")
-    	  if not appear("确认提交事相碎片", 1) or
-    	    findOne("正在提交反馈至神经") then return true end
-    	end, 5) then
-    	  success_once = false
-    	  return
-    	end
-        else
+      ssleep()
+      if not wait(function()
+        tap("确认提交事相碎片")
+        if not appear("确认提交事相碎片", 1) or
+          findOne("正在提交反馈至神经") then return true end
+      end, 5) then
+        success_once = false
         return
-	end
-    
+      end
+    else
+      return
+    end
+
     disappear("正在提交反馈至神经", network_timeout)
-    if findOne("事相碎片不足") then success_once = true return end
+    if findOne("事相碎片不足") then
+      success_once = true
+      return
+    end
     return true
   end
 
