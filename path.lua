@@ -3737,7 +3737,7 @@ path.ss活动任务与商店 = function()
     tap("面板作战")
     if not wait(function()
 
-      tap("作战主页列表2")
+      tap("作战主页列表1")
       if findOne("活动导航0") then return true end
       if findOne("跳过剧情") then path.跳过剧情() end
     end, 10) then return end
@@ -3760,7 +3760,7 @@ path.ss活动任务与商店 = function()
   wait(function()
     -- if findOne("活动任务一键领取") then return true end
     tap("活动任务一键领取")
-    if not appear("主页", 1) or findOne("正在提交反馈至神经") then
+    if not appear("怪猎联动返回", 1) or findOne("正在提交反馈至神经") then
       got = true
       return true
     end
@@ -3768,24 +3768,24 @@ path.ss活动任务与商店 = function()
 
   if got then
     disappear("正在提交反馈至神经", network_timeout)
-    disappear("主页", 5)
+    disappear("怪猎联动返回", 5)
     if not wait(function()
       tap("开包skip")
       tap("活动任务一键领取")
       local p = findAny({
         "主页", "单选确认框", "开始唤醒",
-        "bilibili_framelayout_only", "面板",
+        "bilibili_framelayout_only", "面板","怪猎联动返回",
       })
       log(2779, p)
       if p then return true end
     end, 15) then return end
   end
 
-  if not appear("主页", 1) then return path.ss活动任务与商店() end
+  if not appear("怪猎联动返回", 1) then return path.ss活动任务与商店() end
   captureqqimagedeliver("INFO", "活动任务领取",
                         table.join(qqmessage, ' ') .. " " ..
                           "活动任务领取")
-  tap("返回")
+  tap("怪猎联动返回")
   if not appear("活动导航0") then return end
 
   g = function()
@@ -3849,6 +3849,46 @@ path.ss活动任务与商店 = function()
     return true
   end
 
+  --怪猎炼金
+  local gl
+  gl = function()
+    if not wait(function()
+      if findOne("怪猎联动放入素材") then return true end
+      tap("开包skip")
+      tap("收取信用有")
+    end) then return end
+
+    log(832)
+
+    tap("怪猎联动放入素材")
+
+    if not wait(function()
+      tap("怪猎联动炼金")
+      tap("开包skip")
+      tap("收取信用有")
+      if not appear("怪猎联动放入素材", 1) or
+        findOne("正在提交反馈至神经") then return true end
+    end, 5) then
+      success_once = false
+      return
+    end
+
+    disappear("正在提交反馈至神经", network_timeout)
+    disappear("主页", 5)
+    if not wait(function()
+      tap("开包skip")
+      tap("收取信用有")
+      if findAny({
+        "怪猎联动放入素材", "开始唤醒", "单选确认框",
+        "bilibili_framelayout_only", "面板",
+      }) then return true end
+    end, 10) then return end
+    if findOne("怪猎联动放入素材") then success_once = true end
+    return true
+  end
+
+
+
   for i = 1, 4 do
     if not wait(function()
       if not findOne("活动导航0") then return true end
@@ -3857,7 +3897,7 @@ path.ss活动任务与商店 = function()
     if not appear("活动商店横线", 5) then break end
 
     success_once = false
-    while true do if not g() then break end end
+    while true do if not gl() then break end end
 
     -- 一个商品都没买到
     if success_once == false then
