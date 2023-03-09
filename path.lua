@@ -724,12 +724,16 @@ path.fallback = {
     -- "158|157|92928A,728|577|876E3D,1016|619|B38375"
     for w = 237, 1092 + 100, 225 do
       w = screen.width // 2 + scale(w - 1920 // 2)
-      for h = 237, 865+100, 225 do
+      for h = 237, 865 + 100, 225 do
         tap({w, scale(h)})
+        ssleep(.5)
+        tap("祈愿牌确认")
+        ssleep(.5)
       end
+      if not findOne("祈愿牌返回") then break end
     end
-    ssleep(.5)
-    tap("祈愿牌确认")
+    -- ssleep(.5)
+    -- tap("祈愿牌确认")
     -- ssleep(.25)
     -- disappear("祈愿牌确认", 10)
     return path.fallback.签到返回()
@@ -785,7 +789,7 @@ path.限时活动 = function(retry)
     appear({
       '活动签到返回', '国庆签到返回', '抽签返回',
       '感谢庆典返回', '限时开放许可', "限时幸运签", "月饼",
-      '产业合作洽谈会', '红包', "祈愿牌返回"
+      '产业合作洽谈会', '红包', "祈愿牌返回",
     })
     if findOne('红包') then
       wait(function()
@@ -3760,7 +3764,8 @@ path.ss活动任务与商店 = function()
   wait(function()
     -- if findOne("活动任务一键领取") then return true end
     tap("活动任务一键领取")
-    if not appear("怪猎联动返回", 1) or findOne("正在提交反馈至神经") then
+    if not appear("怪猎联动返回", 1) or
+      findOne("正在提交反馈至神经") then
       got = true
       return true
     end
@@ -3774,14 +3779,16 @@ path.ss活动任务与商店 = function()
       tap("活动任务一键领取")
       local p = findAny({
         "主页", "单选确认框", "开始唤醒",
-        "bilibili_framelayout_only", "面板","怪猎联动返回",
+        "bilibili_framelayout_only", "面板", "怪猎联动返回",
       })
       log(2779, p)
       if p then return true end
     end, 15) then return end
   end
 
-  if not appear("怪猎联动返回", 1) then return path.ss活动任务与商店() end
+  if not appear("怪猎联动返回", 1) then
+    return path.ss活动任务与商店()
+  end
   captureqqimagedeliver("INFO", "活动任务领取",
                         table.join(qqmessage, ' ') .. " " ..
                           "活动任务领取")
@@ -3849,7 +3856,7 @@ path.ss活动任务与商店 = function()
     return true
   end
 
-  --怪猎炼金
+  -- 怪猎炼金
   local gl
   gl = function()
     if not wait(function()
@@ -3886,8 +3893,6 @@ path.ss活动任务与商店 = function()
     if findOne("怪猎联动放入素材") then success_once = true end
     return true
   end
-
-
 
   for i = 1, 4 do
     if not wait(function()
