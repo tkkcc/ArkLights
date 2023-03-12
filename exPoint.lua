@@ -32,7 +32,7 @@ point.水月_放弃探索 = "1742|447|721820"
 point.选择未选中状态水月_ = "461|599|4A566C"
 point.选择选中状态水月_ = "449|551|CFBFE8"
 
-update_rfl()
+-- update_rfl()
 
 global_point = {
     活动1 = { 1169, 135 },
