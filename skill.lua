@@ -920,6 +920,7 @@ chooseOperator = function(stationType, goodType, stationLevel,
     best, best_score = controlStationOperatorBest(operator)
   end
   sleep(max(0, 500 - (time() - start_time)))
+  tap("清空选择")
 
   -- 按页数排序
   table.sort(best, function(a, b) return a[5] < b[5] end)

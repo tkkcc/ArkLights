@@ -15,6 +15,10 @@ path.base = {
   下载资源确认 = "下载资源确认",
   资源下载确定 = "资源下载确定",
   start黄框 = function()
+    -- reset login history on app restart
+    login_times = 0
+    table.remove(login_time_history or {})
+
     wait(function()
       tap("适龄提示")
       tap("保持配音")
@@ -496,13 +500,16 @@ path.bilibili_login_change = update(path.bilibili_login, {
   bilibili_oneclicklogin = false,
   bilibili_username_inputbox = true,
   bilibili_change2 = function()
-    wait(function()
-      tap("bilibili_change2")
+    if not wait(function()
+      findTap("bilibili_change2")
       -- if appear({"bilibili_change", "bilibili_account_login"}, .5) then
-      if appear({"bilibili_change", "bilibili_phone_inputbox"}, .5) then
+      if appear({"bilibili_change", "bilibili_phone_inputbox"}, 1) then
         return true
       end
-    end, 5)
+    end, 5) then
+      -- B服卡登录
+      restartapp(appid)
+    end
   end,
   bilibili_change = function()
     tap("bilibili_change")
@@ -2130,6 +2137,8 @@ path.总览换班 = function()
 end
 
 path.基建换班 = function()
+  -- TODO 掉线需要重跑而非继续
+
   -- 极速模式
   if shift_prefer_speed then
     path.宿舍换班()

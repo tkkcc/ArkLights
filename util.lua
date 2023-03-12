@@ -1614,8 +1614,6 @@ wait_game_up = function(retry)
   end
 
   if retry == 2 then
-    login_times = (login_times or 0) - 1
-    table.remove(login_time_history or {})
     closeapp(appid)
   end
   if retry >= 4 then stop("无法启动游戏", 'cur') end
@@ -1987,8 +1985,6 @@ closeapp = function(package)
 end
 closeapp = disable_game_up_check_wrapper(closeapp)
 restartapp = function(package)
-  login_times = (login_times or 0) - 1
-  table.remove(login_time_history or {})
   closeapp(package)
   wait_game_up()
 end
