@@ -9,7 +9,7 @@
 -- disable_dorm_shift=true
 -- disable_manu_shift=true
 -- disable_overview_shift=true
--- disable_hotupdate = true
+disable_hotupdate = true
 -- disable_root_mode = true
 -- no_background_after_run = true
 -- fake_recruit = true
@@ -50,7 +50,7 @@ default_findcolor_confidence = 95 / 100
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "03.13  0:32"
+release_date = "03.13 19:18"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -59,6 +59,7 @@ ui_submit_width = -2
 ui_small_submit_width = -2
 ui_small_submit_height = -2
 network_timeout = 300
+matrixOcr = ocr
 
 -- update_source = 'https://arklights.pages.dev'
 update_source = 'https://gitee.com/bilabila/arknights/raw/master'
@@ -104,7 +105,6 @@ saveConfig("continue_extra_mode", extra_mode or '')
 if cloud.getTaskEnabled() and not cloud_task then
   -- 云控模式冷启动
   -- log("102",102)
-
 elseif not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
     multi_account_enable then
   -- 多帐号模式

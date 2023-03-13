@@ -1,12 +1,12 @@
 -- ===========================================
 --          额外工具类函数
 -- 请所有贡献者在此处添加额外需要的函数
--- 
+--
 -- 函数命名规范推荐
 --  1. 工具 --> 小驼峰
 --  2. 类path函数 --> 下划线
 --  3. 禁止重载utils.lua中已有的函数，避免污染
--- 
+--
 -- 函数注解
 --  请在函数上方添加注解，尽可能的说明函数用途
 -- ===========================================
@@ -23,7 +23,6 @@ findOneStr = function(x, confidence)
     confidence = confidence or default_findcolor_confidence
 
     if type(x) == "string" then
-
         -- 控制截图频率
         local current = time()
         if findOne_interval > 0 and current - findOne_last_time > findOne_interval then
@@ -43,7 +42,6 @@ end
 
 -- 单点找色
 checkPointColor = function(pInfo, confidence)
-
     -- 每5秒确认游戏在前台
     -- if (time() - findOne_game_up_check_last_time > 5000) then
     --     findOne_game_up_check_last_time = time()
@@ -85,13 +83,13 @@ tapUntilCheckedPointColor = function(pTap, pInfo, msg, sleep, time)
     local sleep = sleep or 0
     local time = time or 5
     if wait(function()
-        if checkPointColor(pInfo) then
-            log(msg, "成功")
-            return true
-        end
-        tap({ pTap[1], pTap[2] })
-        ssleep(sleep)
-    end, time) then
+            if checkPointColor(pInfo) then
+                log(msg, "成功")
+                return true
+            end
+            tap({ pTap[1], pTap[2] })
+            ssleep(sleep)
+        end, time) then
         return true
     else
         log("持续点击直到找到指定颜色失败")
@@ -1514,11 +1512,11 @@ end
 sandfire_init_fight_group = function()
     log("等待初始化干员")
     tapUntilCheckedPointColor(sandfire_point.进入演算, sandfire_point.初始化选择干员, "等待初始化干员"
-        , 0.1)
+    , 0.1)
     tapUntilCheckedPointColor(sandfire_point.初始化选择干员, sandfire_point.干员卡空白区域4)
     log("选择第一个干员")
     tapUntilCheckedPointColor(sandfire_point.干员卡空白区域1, sandfire_point.干员卡技能白条, "选择干员"
-        , 0.1)
+    , 0.1)
     log("选择确认")
     tapUntilCheckedPointColor(sandfire_point.干员选择确认, sandfire_point.干员卡外部区域1)
     log("全队补充")
@@ -1538,8 +1536,9 @@ end
 sandfir_enter_fight = function()
     sandfir_zoom_map()
     if not wait(function()
-        return tapUntilCheckedPointColor(sandfire_point.作战关卡, sandfire_point.作战信息, "选择作战", 0.3)
-    end, 5) then
+            return tapUntilCheckedPointColor(sandfire_point.作战关卡, sandfire_point.作战信息, "选择作战",
+            0.3)
+        end, 5) then
         -- exit()
         return false
     end
@@ -1576,16 +1575,18 @@ end
 -- 沙中之火 下一天
 sandfir_next = function()
     if not wait(function()
-        if checkPointColor(sandfire_point.跳过) then
-            tap({ sandfire_point.跳过[1], sandfire_point.跳过[2] })
-        end
-        if checkPointColor(sandfire_point.取消进入下一关) then
-            tap({ sandfire_point.取消进入下一关[1], sandfire_point.取消进入下一关[2] })
-        end
-        if checkPointColor(sandfire_point.驻扎地) then
-            return true
-        end
-    end, 10) then return false end
+            if checkPointColor(sandfire_point.跳过) then
+                tap({ sandfire_point.跳过[1], sandfire_point.跳过[2] })
+            end
+            if checkPointColor(sandfire_point.取消进入下一关) then
+                tap({ sandfire_point.取消进入下一关[1], sandfire_point.取消进入下一关[2] })
+            end
+            if checkPointColor(sandfire_point.驻扎地) then
+                return true
+            end
+        end, 10) then
+        return false
+    end
     if checkPointColor(sandfire_point.下一天紧急) then
         return true
     end
@@ -1617,7 +1618,6 @@ end
 sandfir_get_reward = function()
     log("检查每15分钟领奖励")
     if not sandfir_timer or time() - sandfir_timer > 900 * 1000 then
-
         -- 进入奖励页面
         tapUntilCheckedPointColor(sandfire_point.奖励, sandfire_point.奖励页面)
 
