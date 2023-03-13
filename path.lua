@@ -3931,7 +3931,7 @@ path.ss活动任务与商店 = function()
       tap("开包skip")
       if findOne("活动商店横线") then tap("返回") end
       if findOne("活动导航0") then return true end
-    end, 5) then return en
+    end, 5) then return end
   end
 end
 
