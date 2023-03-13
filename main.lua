@@ -9,7 +9,7 @@
 -- disable_dorm_shift=true
 -- disable_manu_shift=true
 -- disable_overview_shift=true
-disable_hotupdate = true
+-- disable_hotupdate = true
 -- disable_root_mode = true
 -- no_background_after_run = true
 -- fake_recruit = true
