@@ -3899,7 +3899,7 @@ path.ss活动任务与商店 = function()
         "bilibili_framelayout_only", "面板",
       }) then return true end
     end, 10) then return end
-    if findOne("怪猎联动放入素材") then success_once = true end
+    if findOne("怪猎联动炼金值不足") then success_once = true end
     return true
   end
 
