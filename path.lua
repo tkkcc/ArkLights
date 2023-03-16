@@ -733,11 +733,11 @@ path.fallback = {
       w = screen.width // 2 + scale(w - 1920 // 2)
       for h = 237, 865 + 100, 225 do
         tap({w, scale(h)})
-        ssleep(.5)
+        ssleep(.1)
         tap("祈愿牌确认")
-        ssleep(.5)
+        ssleep(.1)
       end
-      if not findOne("祈愿牌返回") then break end
+      -- if not findOne("祈愿牌返回") then break end
     end
     -- ssleep(.5)
     -- tap("祈愿牌确认")
