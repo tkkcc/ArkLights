@@ -1913,7 +1913,7 @@ captureqqimagedeliver = function(log_level, log_title, log_detail, important)
 
   local img_url
   if cloud.enabled() then
-    img_url = uploadImg(img_src)
+    img_url = cloud.uploadImgToInquisition(img_src)
   elseif type(pushplus_token) == 'string' and #pushplus_token > 5 then
     img_url = uploadImg(img_src)
   elseif type(telegram_token) == 'string' and type(telegram_chatid) == 'string' and

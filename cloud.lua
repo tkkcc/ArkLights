@@ -24,15 +24,15 @@ end
 m.setStatus = function(status) m.status = status end
 
 m.enabled =
-  function() return #strOr(m.server) > 0 and #strOr(m.deviceToken) > 0 end
+    function() return #strOr(m.server) > 0 and #strOr(m.deviceToken) > 0 end
 
 m.getTaskEnabled = function() return cloud_get_task and m.enabled() end
 
 m.heartBeat = function()
   -- log("32",32)
-  local data = {status = m.status, deviceToken = m.deviceToken}
+  local data = { status = m.status, deviceToken = m.deviceToken }
   local res, code = httpPost(m.server .. "/heartBeat", JsonEncode(data), 30,
-                             "Content-Type: application/json")
+    "Content-Type: application/json")
   -- log("res,code", res, code)
   return res, code
 end
@@ -40,8 +40,8 @@ end
 m.getTask = function()
   -- log("40",40)
   local res, code = httpGet(m.server .. "/getTask?" .. "deviceToken=" ..
-                              m.deviceToken, 30,
-                            'Content-Type: application/json')
+    m.deviceToken, 30,
+    'Content-Type: application/json')
   return res, code
 end
 
@@ -93,10 +93,27 @@ m.addLog = function(log_level, log_title, log_detail, img_url)
   }
   -- log("data",data)
   local res, code = httpPost(
-                      m.server .. "/addLog?deviceToken=" .. m.deviceToken,
-                      JsonEncode(data), 30, 'Content-Type: application/json')
+    m.server .. "/addLog?deviceToken=" .. m.deviceToken,
+    JsonEncode(data), 30, 'Content-Type: application/json')
   -- log("res,code", res, code)
   return res, code
+end
+
+m.uploadImgToInquisition = function(img_path)
+  local base64Image = getFileBase64(img_path) or ""
+  print(base64Image)
+  local data = {
+    base64Image = base64Image,
+    deviceToken = m.deviceToken
+  }
+  local res, code = httpPost(m.server .. "/uploadImage", JsonEncode(data), 30,
+    "Content-Type: application/json")
+  if code == 200 then
+    status, data = pcall(JsonDecode, res)
+    return data.data
+  else
+    return ""
+  end
 end
 
 m.FAILTASK_LINEBUSY = 'lineBusy'
@@ -108,9 +125,9 @@ m.failTask = function(imageUrl, type)
   imageUrl = imageUrl or ''
   type = type or ''
   local res, code = httpPost(m.server .. "/failTask?deviceToken=" ..
-                               m.deviceToken .. "&imageUrl=" ..
-                               encodeUrl(imageUrl) .. "&type=" .. type, '', 30,
-                             'Content-Type: application/json')
+    m.deviceToken .. "&imageUrl=" ..
+    encodeUrl(imageUrl) .. "&type=" .. type, '', 30,
+    'Content-Type: application/json')
   return res, code
 end
 
@@ -119,17 +136,17 @@ m.completeTask = function(imageUrl)
   if not m.getTaskEnabled() then return end
   imageUrl = imageUrl or ''
   local res, code = httpPost(m.server .. "/completeTask?deviceToken=" ..
-                               m.deviceToken .. "&imageUrl=" ..
-                               encodeUrl(imageUrl), '', 30,
-                             'Content-Type: application/json')
+    m.deviceToken .. "&imageUrl=" ..
+    encodeUrl(imageUrl), '', 30,
+    'Content-Type: application/json')
   return res, code
 end
 
 m.haltComplete = function()
   print("停机上报")
-  local data = {status = m.status, deviceToken = m.deviceToken}
+  local data = { status = m.status, deviceToken = m.deviceToken }
   local res, code = httpPost(m.server .. "/haltComplete", JsonEncode(data), 30,
-                             "Content-Type: application/json")
+    "Content-Type: application/json")
   return res, code
 end
 
@@ -192,14 +209,14 @@ m.sanReport = function()
     index = index + 1
   end
   local res, code = httpPost(m.server .. "/sanReport?san=" .. san[1] ..
-                               "&maxSan=" .. san[2] .. "&deviceToken=" ..
-                               m.deviceToken, '', 30,
-                             'Content-Type: application/json')
+    "&maxSan=" .. san[2] .. "&deviceToken=" ..
+    m.deviceToken, '', 30,
+    'Content-Type: application/json')
 end
 
 restartSimpleMode = function(data)
   if not type(data) == 'table' then return end
-  if not table.includes({"daily", "rogue","sand_fire"}, data.taskType) then return end
+  if not table.includes({ "daily", "rogue", "sand_fire" }, data.taskType) then return end
   local username = data.account
   local password = data.password
   local server = data.server
@@ -254,7 +271,7 @@ restartSimpleMode = function(data)
   -- exit()
   if #strOr(username) == 0 or #strOr(password) == 0 then return end
   -- log("63",61)
-  if not table.includes({0, 1}, server) then return end
+  if not table.includes({ 0, 1 }, server) then return end
   -- log("64",61)
   if not type(config) == 'table' then return end
   -- log("65",61)
@@ -303,56 +320,56 @@ server=]] .. server
   hook = hook .. [[;now_job_ui3=]] .. str(get(config, 'daily', 'friend'))
 
   hook = hook .. [[;now_job_ui4=]] ..
-           str(get(config, 'daily', 'infrastructure', 'harvest'))
+      str(get(config, 'daily', 'infrastructure', 'harvest'))
   hook = hook .. [[;now_job_ui5=]] ..
-           str(get(config, 'daily', 'infrastructure', 'shift'))
+      str(get(config, 'daily', 'infrastructure', 'shift'))
   hook = hook .. [[;now_job_ui6=]] ..
-           str(get(config, 'daily', 'infrastructure', 'acceleration'))
+      str(get(config, 'daily', 'infrastructure', 'acceleration'))
 
   hook = hook .. [[;now_job_ui7=]] ..
-           str(get(config, 'daily', 'infrastructure', 'communication'))
+      str(get(config, 'daily', 'infrastructure', 'communication'))
   hook = hook .. [[;now_job_ui8=]] ..
-           str(get(config, 'daily', 'infrastructure', 'deputy'))
+      str(get(config, 'daily', 'infrastructure', 'deputy'))
   hook = hook .. [[;now_job_ui9=]] .. str(get(config, 'daily', 'credit'))
 
   hook = hook .. [[;now_job_ui10=]] ..
-           str(get(config, 'daily', 'offer', 'enable'))
+      str(get(config, 'daily', 'offer', 'enable'))
   hook = hook .. [[;now_job_ui11=]] .. str(get(config, 'daily', 'task'))
   hook = hook .. [[;now_job_ui12=]] .. str(get(config, 'daily', 'activity'))
 
   hook = hook .. [[;auto_recruit0=]] ..
-           str(get(config, 'daily', 'offer', 'other'))
+      str(get(config, 'daily', 'offer', 'other'))
   hook = hook .. [[;auto_recruit1=]] ..
-           str(get(config, 'daily', 'offer', 'car'))
+      str(get(config, 'daily', 'offer', 'car'))
   hook = hook .. [[;auto_recruit4=]] ..
-           str(get(config, 'daily', 'offer', 'star4'))
+      str(get(config, 'daily', 'offer', 'star4'))
   hook = hook .. [[;auto_recruit5=]] ..
-           str(get(config, 'daily', 'offer', 'star5'))
+      str(get(config, 'daily', 'offer', 'star5'))
   hook = hook .. [[;auto_recruit6=]] ..
-           str(get(config, 'daily', 'offer', 'star6'))
+      str(get(config, 'daily', 'offer', 'star6'))
 
   -- 肉鸽
   hook = hook .. [[;zl_best_operator=]] ..
-           str2int(get(config, 'rogue', 'operator', 'index'))
+      str2int(get(config, 'rogue', 'operator', 'index'))
   hook = hook .. [[;zl_skill_times=]] ..
-           str2int(get(config, 'rogue', 'operator', 'num'))
+      str2int(get(config, 'rogue', 'operator', 'num'))
   hook = hook .. [[;zl_skill_idx=]] ..
-           str2int(get(config, 'rogue', 'operator', 'skill'))
+      str2int(get(config, 'rogue', 'operator', 'skill'))
   hook = hook .. [[;zl_max_coin=]] .. str2int(get(config, 'rogue', 'coin'))
   hook = hook .. [[;zl_max_level=]] .. str2int(get(config, 'rogue', 'level'))
   hook = hook .. [[;zl_more_repertoire=false]]
   hook = hook .. [[;zl_more_experience=true]]
   hook = hook .. [[;zl_skip_coin=]] .. str(get(config, 'rogue', 'skip', 'coin'))
   hook = hook .. [[;zl_skip_hard=]] ..
-           str(get(config, 'rogue', 'skip', 'beast'))
+      str(get(config, 'rogue', 'skip', 'beast'))
   hook = hook .. [[;zl_no_waste=]] ..
-           str(not get(config, 'rogue', 'skip', 'daily'))
+      str(not get(config, 'rogue', 'skip', 'daily'))
   hook = hook .. [[;zl_accept_mg=]] ..
-           str(not get(config, 'rogue', 'skip', 'sensitive'))
+      str(not get(config, 'rogue', 'skip', 'sensitive'))
   hook = hook .. [[;zl_accept_yx=]] ..
-           str(not get(config, 'rogue', 'skip', 'illusion'))
+      str(not get(config, 'rogue', 'skip', 'illusion'))
   hook = hook .. [[;zl_accept_sc=]] ..
-           str(not get(config, 'rogue', 'skip', 'survive'))
+      str(not get(config, 'rogue', 'skip', 'survive'))
 
   -- --- TODO debug
   -- for i = 1,12 do
@@ -361,7 +378,7 @@ server=]] .. server
   -- ---
 
   hook = hook .. [[;saveConfig("restart_mode_hook",]] ..
-           string.format("%q", hook) .. ')'
+      string.format("%q", hook) .. ')'
   log("hook", hook)
   -- ssleep(1000)
   saveConfig("hideUIOnce", "true")
