@@ -3882,6 +3882,10 @@ path.ss活动任务与商店 = function()
       tap("怪猎联动炼金")
       tap("开包skip")
       tap("收取信用有")
+      if findOne("怪猎联动炼金值不足") then 
+        success_once = false
+        return
+       end
       if not appear("怪猎联动放入素材", 1) or
         findOne("正在提交反馈至神经") then return true end
     end, 5) then
@@ -3899,7 +3903,7 @@ path.ss活动任务与商店 = function()
         "bilibili_framelayout_only", "面板",
       }) then return true end
     end, 10) then return end
-    if findOne("怪猎联动炼金值不足") then success_once = true end
+    if findOne("活动商店横线") then success_once = true end
     return true
   end
 
