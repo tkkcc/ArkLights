@@ -3882,7 +3882,11 @@ path.ss活动任务与商店 = function()
       tap("怪猎联动炼金")
       tap("开包skip")
       tap("收取信用有")
-      if not appear("怪猎联动炼金", 1) or
+      if findOne("怪猎联动炼金值不足") then 
+        success_once = false
+        return
+       end
+      if not appear("怪猎联动放入素材", 1) or
         findOne("正在提交反馈至神经") then return true end
     end, 5) then
       success_once = false
