@@ -3892,6 +3892,7 @@ path.ss活动任务与商店 = function()
         success_once = false
         return
        end
+
       if not appear("怪猎联动放入素材") or
         findOne("正在提交反馈至神经") then return true end
     end, 5) then
