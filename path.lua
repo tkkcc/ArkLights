@@ -3877,6 +3877,12 @@ path.ss活动任务与商店 = function()
     log(832)
 
     tap("怪猎联动放入素材")
+    
+    ssleep(1)
+    if not appear("怪猎联动炼金") then
+       success_once = false
+       return 
+    end
 
     if not wait(function()
       tap("怪猎联动炼金")
@@ -3886,7 +3892,7 @@ path.ss活动任务与商店 = function()
         success_once = false
         return
        end
-      if not appear("怪猎联动放入素材", 1) or
+      if not appear("怪猎联动放入素材") or
         findOne("正在提交反馈至神经") then return true end
     end, 5) then
       success_once = false
@@ -3922,6 +3928,7 @@ path.ss活动任务与商店 = function()
       captureqqimagedeliver("INFO", "活动奖励领取", table.join(qqmessage,
                                                                      ' ') .. " " ..
                               "活动奖励领取")
+      tap("怪猎联动返回")
       break
     end
 
@@ -3933,7 +3940,7 @@ path.ss活动任务与商店 = function()
     if not wait(function()
       tap("收取信用有")
       tap("开包skip")
-      if findOne("活动商店横线") then tap("返回") end
+      if findOne("活动商店横线") then tap("怪猎联动返回") end
       if findOne("活动导航0") then return true end
     end, 5) then return end
   end
