@@ -110,7 +110,13 @@ m.uploadImgToInquisition = function(img_path)
     "Content-Type: application/json")
   if code == 200 then
     status, data = pcall(JsonDecode, res)
-    return data.data
+    if data.code == 200 then
+      log("云控日志","截图上传成功")
+      return data.data
+    else
+      log("云控日志","截图上传失败")
+      return ""
+    end
   else
     return ""
   end
