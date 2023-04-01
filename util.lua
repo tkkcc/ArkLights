@@ -1036,7 +1036,7 @@ swipe = function(x)
   elseif x == 'left' then
     gesture({
       {
-        point = {{screen.width-100, scale(150)}, {scale(1), scale(150)}},
+        point = {{screen.width - 100, scale(150)}, {scale(1), scale(150)}},
         start = 0,
         duration = 250,
       },
@@ -1201,6 +1201,9 @@ end
 auto_total_timeout_hook = function()
 
   -- 应对进关卡黑屏、启动游戏黑屏、卡死
+  -- 愚人节
+  if findOne("跳过剧情") then path.跳过剧情() end
+  -- path.跳过剧情()
 
   -- 新增界面卡住、回归任务
 
@@ -1613,9 +1616,7 @@ wait_game_up = function(retry)
     return
   end
 
-  if retry == 2 then
-    closeapp(appid)
-  end
+  if retry == 2 then closeapp(appid) end
   if retry >= 4 then stop("无法启动游戏", 'cur') end
 
   open(appid)
@@ -3182,14 +3183,17 @@ show_extra_ui = function()
   ui.addCheckBox(layout, "sand_fire_unstop", "打满也不结束", false)
   newRow(layout)
 
-  addButton(layout, nil, "活动任务与商店", make_jump_ui_command(layout, nil,
-                                                              "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
+  addButton(layout, nil, "活动任务与商店",
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
 
   newRow(layout)
-  addButton(layout, nil, "傀影与猩红孤钻", make_jump_ui_command(layout, nil,
-                                                                    "extra_mode='战略前瞻投资';lock:remove(main_ui_lock)"))
-  addButton(layout, nil, "水月与深蓝之树(仅720p)", make_jump_ui_command(layout, nil,
-                                                                    "extra_mode='水月与深蓝之树';lock:remove(main_ui_lock)"))
+  addButton(layout, nil, "傀影与猩红孤钻",
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='战略前瞻投资';lock:remove(main_ui_lock)"))
+  addButton(layout, nil, "水月与深蓝之树(仅720p)",
+            make_jump_ui_command(layout, nil,
+                                 "extra_mode='水月与深蓝之树';lock:remove(main_ui_lock)"))
   newRow(layout)
   addTextView(layout, [[选第]])
   ui.addEditText(layout, "zl_best_operator", [[-1]])
@@ -3774,16 +3778,19 @@ predebug_hook = function()
 
   disable_game_up_check = 1
   max_login_times = 10000
+  if findOne("跳过剧情") then path.跳过剧情() end
+  exit()
 
   swipu_flipy = 0
   swipu_flipx = 0
+  path.跳过剧情()
   -- log(point.行动结束)
   -- log(findOne("活动导航0"))
   -- log(ocr("fullscreen"))
   -- log(findOne("行动结束"))
   -- exit()
   -- tap("活动导航1")
-  swip("HD-1")
+  -- swip("HD-1")
   exit()
   while true do
 
@@ -4886,11 +4893,11 @@ update_state_from_ui = function()
 
   -- 活动开放时间段
   hd_open_time_end = parse_time("202303210400")
-  hd_shop_open_time_end = parse_time("202303280400")--活动商店关闭时间
+  hd_shop_open_time_end = parse_time("202303280400") -- 活动商店关闭时间
   hd2_open_time_end = parse_time("202303210400")
-  hd2_shop_open_time_end = parse_time("202302240400")--活动2商店关闭时间
-  hd_mod = "ss" --活动类型 "故事集"/"ss" 区分活动任务
-  hd2_mod = "故事集" 
+  hd2_shop_open_time_end = parse_time("202302240400") -- 活动2商店关闭时间
+  hd_mod = "ss" -- 活动类型 "故事集"/"ss" 区分活动任务
+  hd2_mod = "故事集"
 
   -- 资源关全天开放时间段
   all_open_time_start = parse_time("202303211600")
