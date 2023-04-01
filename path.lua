@@ -357,7 +357,7 @@ path.base = {
   end,
 
   bilibili_framelayout_only = function()
-    auto(path.bilibili_login, nil, 0, 300, true)
+    auto(path.bilibili_login, nil, 0, default_auto_timeout_second, true)
   end,
 
   -- bilibili_account_switch = function() auto(path.bilibili_login) end,
@@ -1149,7 +1149,7 @@ path.跳转 = function(x, disable_quick_jump, disable_postprocess)
   stay_in_dorm_once = x == "基建"
 
   -- 1分钟跳转失败
-  auto(p, path.fallback, 0, 300, true)
+  auto(p, path.fallback, 0, default_auto_timeout_second, true)
 
   -- post processing especially for 基建
   if x == "基建" and not disable_postprocess then zoom() end
@@ -3877,21 +3877,21 @@ path.ss活动任务与商店 = function()
     log(832)
 
     tap("怪猎联动放入素材")
-    
+
     ssleep(1)
     if not appear("怪猎联动炼金") then
-       success_once = false
-       return 
+      success_once = false
+      return
     end
 
     if not wait(function()
       tap("怪猎联动炼金")
       tap("开包skip")
       tap("收取信用有")
-      if findOne("怪猎联动炼金值不足") then 
+      if findOne("怪猎联动炼金值不足") then
         success_once = false
         return
-       end
+      end
 
       if not appear("怪猎联动放入素材") or
         findOne("正在提交反馈至神经") then return true end
@@ -4803,7 +4803,9 @@ path.退出账号 = function()
     [function()
       return findOne("bilibili_framelayout_only") and
                not findOne("bilibili_username_inputbox")
-    end] = function() auto(path.bilibili_login_change, nil, 0, 300, true) end,
+    end] = function()
+      auto(path.bilibili_login_change, nil, 0, default_auto_timeout_second, true)
+    end,
     面板 = function()
       tap("面板设置", true)
       if not appear("返回3") then return end
@@ -4821,7 +4823,7 @@ path.退出账号 = function()
     end,
     bilibili_username_inputbox = true,
     手机验证码登录 = true,
-  }, nil, true), path.fallback, 0, 300)
+  }, nil, true), path.fallback, 0, default_auto_timeout_second)
 end
 
 path.前瞻投资 = function(lighter)

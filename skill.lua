@@ -964,7 +964,10 @@ meetingStationOperatorBest = function(operator)
   local best_score = -1
   local remain = {}
   for _, o in pairs(operator) do
-    if o[1] == "bskill_meet_spd&cost" or o[2] == "bskill_meet_spd&cost" then
+    if table.includes({o[1], o[2]}, 'bskill_meet_spdowned1') then
+      -- 禁用尤里卡
+
+    elseif o[1] == "bskill_meet_spd&cost" or o[2] == "bskill_meet_spd&cost" then
       table.insert(best, 1, o)
     elseif o[1] == "bskill_meet_spdnotowned2" or o[2] ==
       "bskill_meet_spdnotowned2" then
