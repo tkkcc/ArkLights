@@ -271,12 +271,12 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
 
     -- 拉狗徳狗
     local texas = all['bskill_tra_texas1'] or all['bskill_tra_texas2']
-    if all['bskill_tra_lappland1'] then
+    if all['bskill_tra_Lappland1'] then
       if texas then
         storage = storage + 2
         base = base + 0.65
       end
-    elseif all['bskill_tra_lappland2'] then
+    elseif all['bskill_tra_Lappland2'] then
       if texas then
         storage = storage + 4
         base = base + 0.65
@@ -550,7 +550,7 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
         if goodType == '源石' then base = base + 0.35 end
       elseif icon == 'bskill_man_originium1' then
         if goodType == '源石' then base = base + 0.3 end
-      elseif icon == 'bskill_man_constrlv' then
+      elseif icon == 'bskill_man_constrLv' then
         robot = min(64, robot + totalStationLevel)
       elseif icon == 'empty' then
         log('empty')
@@ -740,9 +740,10 @@ findBuildingSkill = function(x1, y1, x2, y2, pngdata)
 
     -- if k == 'bskill_tra_long1' then log(662, score, tmp) end
     -- if k == 'bskill_tra_flow_gc1' then log(663, score, tmp) end
+    -- if k == 'bskill_tra_flow_gc1' then log(663, score, tmp) end
     --
     -- if k == 'bskill_tra_texas1' then log(662, score, tmp) end
-    -- if k == 'bskill_tra_lappland2' then log(663, score, tmp) end
+    -- if k == 'bskill_tra_Lappland2' then log(663, score, tmp) end
     -- if k == 'bskill_meet_spd3' then log(663, score, tmp) end
     -- if k == 'bskill_meet_spd2' then log(662, score, tmp) end
     -- if k == 'bskill_man_spd2' then log(663, score, tmp) end
@@ -844,7 +845,6 @@ initPngdata = function()
   if not manufacturingPngdata['bskill_man_exp2'] then
     stop("基建图标数据异常", 'cur')
   end
-
 end
 
 -- 是否是贸易站，商品类别
@@ -964,13 +964,13 @@ meetingStationOperatorBest = function(operator)
   local best_score = -1
   local remain = {}
   for _, o in pairs(operator) do
-    if table.includes({o[1], o[2]}, 'bskill_meet_spdowned1') then
+    if table.includes({o[1], o[2]}, 'bskill_meet_spdOwned1') then
       -- 禁用尤里卡
 
     elseif o[1] == "bskill_meet_spd&cost" or o[2] == "bskill_meet_spd&cost" then
       table.insert(best, 1, o)
-    elseif o[1] == "bskill_meet_spdnotowned2" or o[2] ==
-      "bskill_meet_spdnotowned2" then
+    elseif o[1] == "bskill_meet_spdNotOwned2" or o[2] ==
+      "bskill_meet_spdNotOwned2" then
       -- 晓歌有人评测过吗
       table.insert(best, 1, o)
     elseif o[1] == "bskill_meet_spd3" or o[2] == "bskill_meet_spd3" then

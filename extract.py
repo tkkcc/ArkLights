@@ -146,7 +146,7 @@ def skillicon2operator(
     char2name = {k: char[k]["name"] for k in char}
     buffid2name = {}
     for c, b in build["buffs"].items():
-        buffid2name[b["buffId"]] = b["skillIcon"].lower()
+        buffid2name[b["buffId"]] = b["skillIcon"]
 
     ans = defaultdict(list)
     for c, b in build["chars"].items():

@@ -214,20 +214,21 @@ prts.wiki/images/a/a0/Bskill_meet_spd1.png
     done < <(find $png_noalpha -maxdepth 1 -type f -printf '%P\0')
 
     # ==> only bskill
-    find png_noalpha -type f -not -name 'bskill_*' -delete
+    find $png_noalpha -type f -not -name 'bskill_*' -delete
 
     echo -n "==> total "
-    ls png_noalpha | wc -l
+    ls $png_noalpha | wc -l
 
-    touch png_noalpha/.nomedia
+    touch $png_noalpha/.nomedia
     # git submodule update --init --recursive --remote
-    ./extract.py skillicon2operator >png_noalpha/skillicon2operator.json
+    ./extract.py skillicon2operator >$png_noalpha/skillicon2operator.json
 
     # local skill=docs/.vuepress/public/skill.zip
     local skill=dist/skill.zip
     mkdir -p "$(dirname "$skill")"
+    rm -rf $skill
 
-    zip $skill -q -r -j png_noalpha
+    zip $skill -q -r -j $png_noalpha
     local md5=$(md5sum $skill | cut -d' ' -f1)
     echo $md5 >$skill.md5
 
