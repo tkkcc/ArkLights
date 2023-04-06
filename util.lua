@@ -3779,6 +3779,13 @@ predebug_hook = function()
   disable_game_up_check = 1
   max_login_times = 10000
   if findOne("跳过剧情") then path.跳过剧情() end
+  -- exit()
+  local tos = findOne("bilibili_tos")
+  if tos then
+    tap({tos.bounds.l + scale(5), tos.bounds.t + scale(5)})
+  else
+    log(3)
+  end
   exit()
 
   swipu_flipy = 0

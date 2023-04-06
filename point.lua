@@ -20,6 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  bilibili_tos = {id="com.hypergryph.arknights.bilibili:id/tv_gsc_phone_terms"},
   祈愿牌确认 = "1524|928|B38375",
   祈愿牌返回 = "1812|151|BFBFBF,1788|150|595959,1815|126|595959,1815|171|595959",
   用餐 = "1692|604|D96A49",

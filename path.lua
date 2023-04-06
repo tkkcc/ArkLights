@@ -380,6 +380,8 @@ path.bilibili_login = {
       if findOne("bilibili_account_login") then return true end
       tap("返回")
     end, 5)
+    local tos = findOne("bilibili_tos")
+    if tos then tap({tos.bounds.l + scale(5), tos.bounds.t + scale(5)}) end
     tap("bilibili_account_login")
     appear("bilibili_username_inputbox")
   end,
@@ -3190,8 +3192,11 @@ path.主线 = function(x)
       -- 从上到下，命中第一篇, 专为还没过3-8的玩家
       ssleep(.5)
       tap("觉醒")
-      tap("幻灭")
       ssleep(.5)
+      tap("觉醒")
+      ssleep(.5)
+      -- tap("幻灭")
+      -- ssleep(.5)
     elseif chapter_index <= 9 then
       -- 只打到3-8，第9章也会解锁，无需特殊处理
       ssleep(.5)
@@ -3202,14 +3207,16 @@ path.主线 = function(x)
     if not appear("怒号光明") then return end
 
     log("1046", chapter)
-    if distance['' .. chapter] then swipc() end
+    -- ssleep(3)
+    -- if distance['' .. chapter] then swipc() end
+    -- tap("作战主线章节列表" .. chapter)
 
     if not wait(function()
       if not findOne("怒号光明") then return true end
-      tap("作战主线章节列表" .. chapter)
+      tap("作战主线章节列表" .. 8)
     end, 3) and not wait(function()
       if not findOne("怒号光明") then return true end
-      tap("作战主线章节列表" .. 8)
+      tap("作战主线章节列表" .. 7)
     end, 3) then return end
     if not appear(table.keys(p), 5) then
       log("无法确认是第几章")
