@@ -466,7 +466,10 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
       if debug_mode then log(427, icon, icons, base, station) end
       all[icon] = (all[icon] or 0) + 1
       -- log(266, icon, goodType, base)
-      if icon == 'bskill_man_exp3' then
+      if icon == 'bskill_man_limit&cost5' then
+        storage[operatoridx] = (storage[operatoridx] or 0) + 10
+
+      elseif icon == 'bskill_man_exp3' then
         if goodType == '作战记录' then base = base + 0.35 end
         -- log(272, base)
       elseif icon == 'bskill_man_exp2' then

@@ -959,7 +959,7 @@ swipu = function(dis)
   -- local max_once_dis = 1080
   -- local freey = scale(150)
   local freey = scale(150)
-  local freex = scale(300)
+  local freex = scale(360/720*1070) -- 第12章左上角
   local max_once_dis = screen.width - scale(300) - freex
 
   for _, d in pairs(dis) do
@@ -3683,6 +3683,27 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
+    -- "12-1",
+    -- "12-2",
+    -- "12-3",
+    -- "12-4",
+    -- "12-5",
+    -- "12-6",
+    -- "12-7",
+    -- "12-8",
+    "12-9",
+    -- "12-10",
+    -- "12-11",
+    -- "12-12",
+    -- "12-13",
+    "12-14",
+    "12-15",
+    "12-16",
+    -- "12-17",
+    -- "12-18",
+    -- "12-19",
+    -- "12-20",
+    --
     -- "11-1",
     -- "11-2",
     -- "11-3",
@@ -3703,7 +3724,7 @@ test_fight_hook = function()
     -- "11-18",
     -- "11-19",
     -- "11-20",
-    "HD-9", "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2", "HD-1",
+    -- "HD-9", "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2", "HD-1",
 
     -- "10-9",
     -- "9-9",
@@ -3778,6 +3799,16 @@ predebug_hook = function()
 
   disable_game_up_check = 1
   max_login_times = 10000
+  swip("12-20")
+  exit()
+
+  -- log(findOne("当前进度列表9"))
+  -- log(findOne("当前进度列表10"))
+  log(findOne("当前进度列表11"))
+  -- log(point["当前进度列表12"])
+  log(findOne("当前进度列表12"))
+  log(findOne("当前进度列表13"))
+  exit()
   if findOne("跳过剧情") then path.跳过剧情() end
   -- exit()
   local tos = findOne("bilibili_tos")
@@ -3824,11 +3855,6 @@ predebug_hook = function()
   }
   gesture(paths)
   ssleep(1.5)
-  -- log(findOne("当前进度列表9"))
-  -- log(findOne("当前进度列表10"))
-  -- log(findOne("当前进度列表11"))
-  -- log(point["当前进度列表12"])
-  -- log(findOne("当前进度列表12"))
   -- log(findOne("活动导航2"))
   -- log(findOne("B服安全验证框"))
   exit()

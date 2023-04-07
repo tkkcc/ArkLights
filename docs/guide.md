@@ -14,6 +14,7 @@ github源码：[github.com/tkkcc/ArkLights](https://github.com/tkkcc/ArkLights)
 
 ## 最近更新
 
+- 10至12章的每个关卡，优先用标准环境，超失败次数后用磨难环境
 - [B服打码](#登陆出现点击验证码)
 
 <!-- - 可使用[pushplus通知](#qq通知怎么用)，支持微信公众号、邮件等多种渠道。 -->
@@ -505,53 +506,25 @@ pr1 => pr-b-1 pr-a-1 pr-c-1 pr-d-1 pr-b-1 ...
 
 #### QQ通知怎么用
 
-<!-- > 先加反馈群，水月头像管理员是机器人。 -->
-<!-- > -->
-<!-- > 创建群聊将数个机器人拉进群，将群号填到速通主界面上`完成后通知QQ`后。 -->
-<!-- > -->
+要自建服务，一般在有公网ip的服务器上建，高手可在termux或宿主机里建
 
-将个人QQ号(需要是机器人好友)或群号(需要是机器人所在群)填到高级设置`QQ通知账号`即可。
-
-目前公开机器人由于风控严重已不再提供，请按下面的教程自建。风控主要和好友数群数以及消息内容消息数量相关，少部分人使用不会风控。
-
-也可以使用pushplus推送，支持多种[通知渠道](http://www.pushplus.plus/doc/guide/api.html#%E4%B8%80%E3%80%81%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%E6%8E%A5%E5%8F%A3)，但有[额度限制](http://www.pushplus.plus/doc/guide/use.html)。在高级设置中填写token即可使用，无需自建服务。自定义webhook编码拼在channel后，即`webhook&webhook=自定义编码`。
-
-高级设置中可设置更多情况的通知。
-
-#### QQ通知服务怎么自建
-
-##### 方法1 （可能存在登录风控问题）
-
-<!-- 想提高QQ通知的稳定性与安全性可自建服务。 -->
-
-在一个速通能连接的设备上（模拟器上能连接宿主机、安卓上能连接同设备termux或有公网IP的服务器），用npm安装[qqimagedeliver](https://github.com/tkkcc/qqimagedeliver)
-```sh
-npm i -g qqimagedeliver
-```
-
-用闲置QQ号登录
-```sh
-qqimagedeliver --username=12345 # 先扫码登录
-qqimagedeliver --username=12345 --password=abcde --maxtry=2 # 再密码登录
-```
-服务器防火墙要开放服务端口(默认49875)
-
-将`服务器IP地址或域名:服务端口`填到高级设置`QQ通知自建服务地址`
-```txt
-82.156.198.12:49875
-```
-用自己QQ加该QQ为好友，将自己QQ填到高级设置`QQ通知账号`
-
-主界面任务全不勾，启动，观察能否收到QQ通知
-
-> 同人教程 可能会有错误内容，请勿以在群内反馈问题  
-> [明日方舟速通: Windows搭建本地通知教程](https://shimo.im/docs/KrkEVQYpXdi4XEAJ)  
-
-##### 方法2 （新版 Mirai方案）
-
-具体教程见仓库文档 [DazeCake/mirai-qqimagedeliver: qqimagedeliver的mirai实现 (github.com)](https://github.com/DazeCake/mirai-qqimagedeliver)
+自建服务教程见仓库文档 [DazeCake/mirai-qqimagedeliver: qqimagedeliver的mirai实现 (github.com)](https://github.com/DazeCake/mirai-qqimagedeliver)
 
 仓库给出的命令为`Ubuntu`环境，`Windows`环境需要手动下载mcl和mirai-qqimagedeliver插件配置
+
+建好后将`服务器IP地址或域名:服务端口`填到高级设置`QQ通知自建服务地址`，将个人QQ号(机器人好友)或群号(机器人所在群)填到高级设置`QQ通知账号`
+
+其他教程：[明日方舟速通: Windows搭建本地通知教程](https://shimo.im/docs/KrkEVQYpXdi4XEAJ)
+
+#### pushplus通知
+
+不用自建服务，但pushplus不提供图床，所以无图
+
+先[pushplus](http://www.pushplus.plus)上注册账号，再在高级设置中填写channel与token。自定义webhook编码拼在channel后，即`webhook&webhook=自定义编码`
+
+#### telegram通知
+
+填写必要的参数即可？
 
 #### QQ通知的设备名怎么设置
 

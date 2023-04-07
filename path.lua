@@ -1203,6 +1203,7 @@ update_state = function()
   no_friend = false
   cur_fight = ''
   fight_failed_times = {}
+  fight_hard_mode = {}
   zero_san = false
   login_error_times = 0
   login_times = 0
@@ -2806,6 +2807,15 @@ get_fight_type = function(x)
   end
 end
 
+get_fight_special_type = function(x)
+  local chapter = x:find("-")
+  chapter = x:sub(1, chapter - 1)
+  chapter = chapter:sub(chapter:find("%d+"))
+  chapter = tonumber(chapter)
+  if chapter ~= nil and chapter >= 10 then return "磨难" end
+  return ""
+end
+
 same_page_fight = function(pre, cur)
   if type(pre) ~= 'string' or type(cur) ~= 'string' then return end
 
@@ -2852,7 +2862,15 @@ path.轮次作战 = function()
     fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
 
     if fight_failed_times[cur_fight] >= max_fight_failed_times then
-      clean_fight(cur_fight)
+      -- 有磨难关卡，切换至磨难再试
+      if get_fight_type(cur_fight) == "主线" and
+        get_fight_special_type(cur_fight) == "磨难" and
+        fight_hard_mode[cur_fight] ~= true then
+        fight_failed_times[cur_fight] = 0
+        fight_hard_mode[cur_fight] = true
+      else
+        clean_fight(cur_fight)
+      end
     end
 
     -- 清光理智: 第一次理智不足时，转为1-7
@@ -2911,8 +2929,8 @@ path.开始游戏 = function(x, disable_ptrs_check)
   if not appear("代理指挥开", .5) then
     tap("代理指挥开1")
     if not appear("代理指挥开", .5) then
-      clean_fight(x)
-      -- fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) + 1
+      -- clean_fight(x)
+      fight_failed_times[cur_fight] = max_fight_failed_times
       if not appear("主页") then back() end
       return path.跳转("首页")
     end
@@ -3137,9 +3155,31 @@ path.主线 = function(x)
     local f = function() return findOne("主页") and findOne(y) end
     return f
   end
-  local go = function()
-    -- TODO 怎么省掉
+
+  -- 普通磨难环境
+  local hard_mode_switch = function()
+    -- 从10章开始有磨难
+    if get_fight_special_type(x) ~= "磨难" then return end
+    -- 选标准还是磨难
+    local hard_mode = fight_hard_mode[x]
+
+    if not findTap("环境选择") then return end
+    ssleep(1) -- 按钮组展开时间
+    if hard_mode then
+      tap("磨难环境")
+    else
+      tap("标准环境")
+    end
+    if not wait(function()
+      tap("空白环境")
+      if findOne("环境选择") then return true end
+    end, 5) then return end
     ssleep(.5)
+  end
+
+  local go = function()
+    ssleep(.5)
+    hard_mode_switch()
     log(928, x)
     swip(x)
     tap("作战列表" .. x)
@@ -3223,8 +3263,9 @@ path.主线 = function(x)
       return
     end
   end
-  -- 10秒内需要完成章节切换
-  auto(p, nil, 5, 5)
+  -- 10秒内需要完成章节/环境切换
+  auto(p, nil, 10, 10)
+
   path.开始游戏(x)
 end
 
