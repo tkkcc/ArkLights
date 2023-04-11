@@ -959,7 +959,7 @@ swipu = function(dis)
   -- local max_once_dis = 1080
   -- local freey = scale(150)
   local freey = scale(150)
-  local freex = scale(360/720*1070) -- 第12章左上角
+  local freex = scale(360 / 720 * 1080) -- 第12章左上角
   local max_once_dis = screen.width - scale(300) - freex
 
   for _, d in pairs(dis) do
@@ -1125,6 +1125,16 @@ swip = function(dis)
   if type(dis) == "string" then dis = distance[dis] end
   if type(dis) ~= "table" then dis = {dis} end
   if not dis then return end
+
+  -- 懒人单次手势不能添加过多定时点，理想是在插入finger时处理，偷懒直接手动切分下距离
+  -- 只处理作战关卡导航中的情况
+  local max_dis_one_gesture = 5000
+  if #dis == 2 and math.abs(dis[1]) == swip_right_max and dis[2] <
+    -max_dis_one_gesture then
+    table.insert(dis, dis[2] + max_dis_one_gesture)
+    dis[2] = -max_dis_one_gesture
+  end
+
   for i, d in pairs(dis) do
     if i ~= 1 then ssleep(0.1) end
     if math.abs(d) == swip_right_max then
@@ -3691,14 +3701,11 @@ test_fight_hook = function()
     -- "12-6",
     -- "12-7",
     -- "12-8",
-    "12-9",
-    -- "12-10",
+    "12-9", -- "12-10",
     -- "12-11",
     -- "12-12",
     -- "12-13",
-    "12-14",
-    "12-15",
-    "12-16",
+    "12-14", "12-15", "12-16",
     -- "12-17",
     -- "12-18",
     -- "12-19",
