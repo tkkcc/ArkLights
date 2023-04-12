@@ -2500,11 +2500,14 @@ notifytg = function(imgurl, info, chatid, bottoken, tgapi, sync)
   chatid = chatid or ''
   bottoken = bottoken or ''
   tgapi = tgapi or 'https://api.telegram.org/'
+  if string.find(tgapi, "http") == nil then tgapi = 'https://' .. tgapi end
+  
   if #chatid == 0 then return end
+  if #bottoken == 0 then return end
 
   local id = lock:add()
   if #imgurl == 0 then -- 图片url为空 不发图
-    local tgurl = tgapi .. bottoken .. '/sendMessage'
+    local tgurl = tgapi .. '/bot' .. bottoken .. '/sendMessage'
     local param = "chat_id=" .. chatid .. "&text=" .. encodeUrl(info)
     asynHttpPost(function(code)
       log("notifytg", code)
@@ -2512,7 +2515,7 @@ notifytg = function(imgurl, info, chatid, bottoken, tgapi, sync)
     end, tgurl, param)
     log("notifytg", tgurl, param)
   else
-    local tgurl = tgapi .. bottoken .. '/sendPhoto'
+    local tgurl = tgapi .. '/bot' .. bottoken .. '/sendPhoto'
     local param = "chat_id=" .. chatid .. "&photo=" .. encodeUrl(imgurl) ..
                     "&caption=" .. encodeUrl(info)
     asynHttpPost(function(code)

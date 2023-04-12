@@ -524,7 +524,13 @@ pr1 => pr-b-1 pr-a-1 pr-c-1 pr-d-1 pr-b-1 ...
 
 #### telegram通知
 
-填写必要的参数即可？
+`Telegram推送api` 默认使用官方api `api.telegram.org` 如果网络无法访问，则需要自行搭建反代（谷歌上搜索，在此不详细阐述）。填写格式为 `https://反代地址` 。
+
+`Telegram Bot Token` 为机器人token，形如 `123456:ABCDEF123456` 。在telegram中向 [@BotFather](https://t.me/BotFather) 申请。（如果不会，自行谷歌）
+
+`Telegram chat ID` 为你的`用户ID`或`频道ID`或`群组ID`（频道和群组ID前的`-`不要省略）。个人id向 [@getuseridbot](https://t.me/getuseridbot) 发送 `/start` 获取。`频道ID`或`群组ID` 在添加 [@get_id_bot](https://t.me/get_id_bot)  后输入 `/my_id@get_id_bot` 获取。（如果不会，自行谷歌）
+
+在图床不可用的情况下只推送文字信息。
 
 #### QQ通知的设备名怎么设置
 
