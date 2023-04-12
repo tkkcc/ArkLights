@@ -2502,8 +2502,7 @@ notifytg = function(imgurl, info, chatid, bottoken, tgapi, sync)
   tgapi = tgapi or 'https://api.telegram.org/'
   if string.find(tgapi, "http") == nil then tgapi = 'https://' .. tgapi end
   
-  if #chatid == 0 then return end
-  if #bottoken == 0 then return end
+  if #chatid == 0 and #bottoken == 0 then return end
 
   local id = lock:add()
   if #imgurl == 0 then -- 图片url为空 不发图
