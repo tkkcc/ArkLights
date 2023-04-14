@@ -2868,6 +2868,7 @@ path.轮次作战 = function()
         fight_hard_mode[cur_fight] ~= true then
         fight_failed_times[cur_fight] = 0
         fight_hard_mode[cur_fight] = true
+        fight_tick = fight_tick - 1
       else
         clean_fight(cur_fight)
       end
