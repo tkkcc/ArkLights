@@ -74,12 +74,18 @@ def run():
             116, 0), win32con.KEYEVENTF_KEYUP, 0)
 
 
-def save():
+def save(forRelease):
     '''保存到懒人精灵工程文件夹'''
     with open("main.lua", "r", encoding='utf-8') as f:
         lines = f.readlines()
         ss = ""
         for line in lines:
+            if not forRelease:
+                if (re.match('-- disable_hotupdate = true', line)):
+                    line = 'disable_hotupdate = true\n'
+            else:
+                if (re.match('disable_hotupdate = true', line)):
+                    line = '-- disable_hotupdate = true\n'
             if (re.match('release_date = ".*"', line)):
                 line = 'release_date = "' + \
                     str(datetime.datetime.now().strftime("%m.%d %H:%M")) + '"\n'
@@ -108,11 +114,16 @@ def save():
 
 def saverun():
     '''保存并运行'''
-    save()
+    save(False)
     run()
 
 
 def release():
+    save(True)
+    ready = not input("已经在懒人打包了吗[Y/n]: ") == 'n' or False
+    if not ready:
+        exit()
+    
     '''发布'''
     # 复制pkgPath到release
     shutil.copy(pkgPath, os.path.join("./release/", 'script.lr'))
@@ -142,7 +153,7 @@ if __name__ == '__main__':
         if arg == 'run':
             run()
         elif arg == 'save':
-            save()
+            save(False)
         elif arg == 'saverun':
             saverun()
         elif arg == 'release':

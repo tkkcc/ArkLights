@@ -545,7 +545,8 @@ mizuki_fight_select = function()
                     -- 共生
                 elseif select_fight:includes({ "共", "生" }) then
                     select_fight = "共生"
-                    -- 射手部队
+                elseif select_fight:includes({ "互", "助" }) then
+                    select_fight = "互助"
                 elseif select_fight:includes({ "射", "手", "部", "队" }) then
                     select_fight = "射手部队"
                     -- 不期而遇
