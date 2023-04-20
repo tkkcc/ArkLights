@@ -188,8 +188,7 @@ path.base = {
         if time() - first_time_see_zero_star > 1200 then zero_star = true end
       end
 
-      if findOne("开始行动") and findOne("代理指挥开") and
-        findOne("主页") then
+      if findOne("开始行动") and findOne("代理指挥开") then
         log(59)
         normal = true
         return true
@@ -3691,13 +3690,20 @@ path.活动 = function(x)
       -- tap("返回")
     end, 5) then return end
   end
-  car_check()
+  -- car_check()
   if not findOne("活动导航0") then return end
   if not wait(function()
-    tap("活动导航1")
+
+    local level = str2int(x:sub(#x), 1)
+    local level2nav = {3, 1, 1, 1, 1, 1, 2, 2, 2, 3}
+    tap("活动导航" .. level2nav[level + 1])
+
+    -- tap("活动导航1")
     ssleep(.5)
     if not appear("活动导航0", 1) then return true end
   end, 5) then return end
+
+  ssleep(2)
 
   swip(x)
   ssleep(.5)
@@ -3727,7 +3733,39 @@ path.活动 = function(x)
   path.开始游戏(x)
 end
 
--- path.活动 = hd_wrapper(path.活动)
+hd_wrapper = function(func)
+  local f = function(...)
+    swipu_flipy = scale(100)
+    -- -- local keys = {"代理指挥开", "开始行动"}
+    -- local keys = {}
+    -- local point_store = {}
+    -- local rfl_store = {}
+    -- local first_point_store = {}
+    --
+    -- for _, k in pairs(keys) do
+    --   point_store[k] = point[k]
+    --   rfl_store[k] = rfl[k]
+    --   first_point_store[k] = first_point[k]
+    --   point[k] = point[k .. "活动"]
+    --   rfl[k] = rfl[k .. "活动"]
+    --   first_point[k] = first_point[k .. "活动"]
+    --
+    -- end
+
+    local ret = func(...)
+
+    -- for _, k in pairs(keys) do
+    --   point[k] = point_store[k]
+    --   rfl[k] = rfl_store[k]
+    --   first_point[k] = first_point_store[k]
+    -- end
+    swipu_flipy = 0
+
+    return ret
+  end
+  return f
+end
+path.活动 = hd_wrapper(path.活动)
 
 path.活动任务与商店 = function()
 

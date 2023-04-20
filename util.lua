@@ -2500,7 +2500,7 @@ notifytg = function(imgurl, info, chatid, bottoken, tgapi, sync)
   bottoken = bottoken or ''
   tgapi = tgapi or 'https://api.telegram.org/'
   if string.find(tgapi, "http") == nil then tgapi = 'https://' .. tgapi end
-  
+
   if #chatid == 0 and #bottoken == 0 then return end
 
   local id = lock:add()
@@ -3694,6 +3694,7 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
+    "HD-10", "HD-9", "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2", "HD-1",
     -- "12-1",
     -- "12-2",
     -- "12-3",
@@ -3702,11 +3703,11 @@ test_fight_hook = function()
     -- "12-6",
     -- "12-7",
     -- "12-8",
-    "12-9", -- "12-10",
+    -- "12-9", -- "12-10",
     -- "12-11",
     -- "12-12",
     -- "12-13",
-    "12-14", "12-15", "12-16",
+    -- "12-14", "12-15", "12-16",
     -- "12-17",
     -- "12-18",
     -- "12-19",
@@ -3807,7 +3808,11 @@ predebug_hook = function()
 
   disable_game_up_check = 1
   max_login_times = 10000
-  swip("12-20")
+
+  log(findOne("开始行动活动"))
+  exit()
+  local f = hd_wrapper(function() swip("HD-10") end)
+  f()
   exit()
 
   -- log(findOne("当前进度列表9"))
@@ -4893,7 +4898,7 @@ parse_fight_config = function(fight_ui)
       for _ = 1, 99 do table.insert(expand_fight, '长期委托2') end
       for _ = 1, 99 do table.insert(expand_fight, '长期委托3') end
     elseif table.includes({'HD'}, v) then
-      for _, i in pairs({8, 7, 6}) do
+      for _, i in pairs({10, 9, 8}) do
         for _ = 1, 99 do table.insert(expand_fight, v .. '-' .. i) end
       end
     elseif table.includes({'HD1'}, v) then
@@ -4933,7 +4938,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202303210400")
+  hd_open_time_end = parse_time("202304300400")
   hd_shop_open_time_end = parse_time("202303280400") -- 活动商店关闭时间
   hd2_open_time_end = parse_time("202303210400")
   hd2_shop_open_time_end = parse_time("202302240400") -- 活动2商店关闭时间
