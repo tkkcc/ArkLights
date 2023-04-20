@@ -1097,7 +1097,6 @@ swipo = function(left, nodelay)
   else
     local x = scale(600)
     local y = scale(533)
-    -- local y2 = scale(900)
     local y2 = scale(900)
     local x2 = scale(1681)
     local y3 = scale(900)

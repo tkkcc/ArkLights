@@ -357,6 +357,11 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
       if all['bskill_tra_against2'] then base = (1 + base) * 1.556 - 1 end
     end
 
+    -- 禁用尤里卡
+    if all['bskill_tra_spd&wt1'] then
+      base = -1
+    end
+
     return base, only_need
   end
 
@@ -744,6 +749,8 @@ findBuildingSkill = function(x1, y1, x2, y2, pngdata)
     -- if k == 'bskill_tra_long1' then log(662, score, tmp) end
     -- if k == 'bskill_tra_flow_gc1' then log(663, score, tmp) end
     -- if k == 'bskill_tra_flow_gc1' then log(663, score, tmp) end
+    -- if k == 'bskill_tra_spd_variable22' then log(662, score, tmp) end
+    -- if k == 'bskill_tra_spd&wt1' then log(663, score, tmp) end
     --
     -- if k == 'bskill_tra_texas1' then log(662, score, tmp) end
     -- if k == 'bskill_tra_Lappland2' then log(663, score, tmp) end
@@ -846,7 +853,12 @@ initPngdata = function()
     end
   end
   if not manufacturingPngdata['bskill_man_exp2'] then
-    stop("基建图标数据异常", 'cur')
+    toast("基建图标数据异常")
+    ssleep(5)
+  end
+  if not tradingPngdata['bskill_tra_spd&wt1'] then
+    toast("基建图标数据异常")
+    ssleep(5)
   end
 end
 
