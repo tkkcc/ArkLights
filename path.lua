@@ -3102,7 +3102,6 @@ path.开始游戏 = function(x, disable_ptrs_check)
           log("云控", "未找到主页")
           -- 备用识别
           log("云控", "备用识别")
-          log("云控", appear("代理券", 1))
           if appear("代理券", 1) then
             log("云控", "备用识别成功")
             break
@@ -3140,13 +3139,12 @@ path.开始游戏 = function(x, disable_ptrs_check)
     zero_san = true
     tap("开始行动蓝")
     -- 云控理智上报，普通用户跳过
-    if not cloud.enabled() then
+    if cloud.enabled() then
       log("云控", "理智上报")
       while appear("主页", 5) ~= "主页" do
         log("云控", "未找到主页")
         -- 备用识别
         log("云控", "备用识别")
-        log("云控", appear("代理券", 1))
         if appear("代理券",1) then
           log("云控", "备用识别成功")
           break
@@ -3154,7 +3152,6 @@ path.开始游戏 = function(x, disable_ptrs_check)
         ssleep(1)
       end
       log("云控", "已找到主页")
-      exit()
       cloud.sanReport()
     end
   end
