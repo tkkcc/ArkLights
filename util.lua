@@ -3194,7 +3194,7 @@ show_extra_ui = function()
   ui.addCheckBox(layout, "sand_fire_unstop", "打满也不结束", false)
   newRow(layout)
 
-  addButton(layout, nil, "活动任务与商店",
+  addButton(layout, nil, "活动任务与商店（愚人号）",
             make_jump_ui_command(layout, nil,
                                  "extra_mode='活动任务与商店';extra_mode_multi=true;lock:remove(main_ui_lock)"))
 
@@ -4939,10 +4939,10 @@ update_state_from_ui = function()
 
   -- 活动开放时间段
   hd_open_time_end = parse_time("202304300400")
-  hd_shop_open_time_end = parse_time("202303280400") -- 活动商店关闭时间
+  hd_shop_open_time_end = parse_time("202305040400") -- 活动商店关闭时间
   hd2_open_time_end = parse_time("202303210400")
   hd2_shop_open_time_end = parse_time("202302240400") -- 活动2商店关闭时间
-  hd_mod = "ss" -- 活动类型 "故事集"/"ss" 区分活动任务
+  hd_mod = "ss" -- 活动类型 "故事集"/"ss" 区分活动任务和是否活动作战
   hd2_mod = "故事集"
 
   -- 资源关全天开放时间段
