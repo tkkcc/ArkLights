@@ -3856,13 +3856,13 @@ path.ss活动任务与商店 = function()
   else
     if not wait(function()
       tap("面板活动")
-      if appear("活动导航0", 1) then return true end
+      if appear("活动导航0") then return true end
     end, 5) then return end
   end
 
   local g
   local success_once
-
+  --[[
   if not wait(function()
     tap("活动任务")
     if disappear("活动导航0", 1) then return true end
@@ -3872,16 +3872,16 @@ path.ss活动任务与商店 = function()
   wait(function()
     -- if findOne("活动任务一键领取") then return true end
     tap("活动任务一键领取")
-    if not appear("怪猎联动返回", 1) or
+    if not appear("主页", 1) or
       findOne("正在提交反馈至神经") then
       got = true
       return true
     end
   end)
-
+  
   if got then
     disappear("正在提交反馈至神经", network_timeout)
-    disappear("怪猎联动返回", 5)
+    disappear("主页", 5)
     if not wait(function()
       tap("开包skip")
       tap("活动任务一键领取")
@@ -3894,14 +3894,23 @@ path.ss活动任务与商店 = function()
     end, 15) then return end
   end
 
-  if not appear("怪猎联动返回", 1) then
+  if not appear("主页", 1) then
     return path.ss活动任务与商店()
   end
   captureqqimagedeliver("INFO", "活动任务领取",
                         table.join(qqmessage, ' ') .. " " ..
                           "活动任务领取")
-  tap("怪猎联动返回")
+  tap("返回")
   if not appear("活动导航0") then return end
+]]
+
+wait(function()
+  -- if findOne("活动任务一键领取") then return true end
+  tap("活动商店")
+  if not appear("主页", 1) or findOne("活动商店横线") then
+    return true
+  end
+end)
 
   g = function()
     if not wait(function()
@@ -3932,7 +3941,7 @@ path.ss活动任务与商店 = function()
     if p1 then p1 = {p1.l, p1.t} end
     local p2 = findAny(point.活动商店列表)
     if not p1 and not p2 then return end
-
+    
     tap("活动商店列表" .. 1)
     tap(p1)
     tap(p2)
@@ -4018,17 +4027,16 @@ path.ss活动任务与商店 = function()
       if not findOne("活动导航0") then return true end
       tap("活动商店")
     end) then return end
-    if not appear("活动商店横线", 5) then break end
+    if not appear("活动商店横线", 10) then break end
 
     success_once = false
-    while true do if not gl() then break end end
+    while true do if not g() then break end end
 
     -- 一个商品都没买到
     if success_once == false then
       captureqqimagedeliver("INFO", "活动奖励领取", table.join(qqmessage,
                                                                      ' ') .. " " ..
                               "活动奖励领取")
-      tap("怪猎联动返回")
       break
     end
 
