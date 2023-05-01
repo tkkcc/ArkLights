@@ -162,8 +162,8 @@ def skillicon2operator(
 
 
 def recruit(
-    char="../ArkAssetsTool/D:/ArkAssets/gamedata/excel/[unpack]character_table/character_table.json",
-    gacha="../ArkAssetsTool/D:/ArkAssets/gamedata/excel/[unpack]gacha_table/gacha_table.json",
+    char="../ArkAssetsTool/ArkAssets/gamedata/excel/[unpack]character_table/character_table.json",
+    gacha="../ArkAssetsTool/ArkAssets/gamedata/excel/[unpack]gacha_table/gacha_table.json",
     to = "lua",
 ):
     char = json.loads(open(char).read())

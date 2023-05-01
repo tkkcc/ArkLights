@@ -520,6 +520,20 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.fallback = {
+  未来序曲 = function()
+    -- "188|529|F3C4A2,1368|199|FF793F,1356|918|393939"
+    local w = scale(1370 - 1920 // 2) + screen.width // 2
+
+    for h = 199, 918, 100 do
+      h = scale(h - 1080 // 2) + screen.height // 2
+      tap({w, h})
+      ssleep(.1)
+      tap("未来序曲领取")
+      ssleep(.1)
+    end
+    back()
+    appear("面板")
+  end,
   产业合作洽谈会 = function()
     wait(function() tap("产业合作洽谈会策略") end, 2)
     wait(function()
@@ -3145,7 +3159,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
         log("云控", "未找到主页")
         -- 备用识别
         log("云控", "备用识别")
-        if appear("代理券",1) then
+        if appear("代理券", 1) then
           log("云控", "备用识别成功")
           break
         end
@@ -3904,13 +3918,13 @@ path.ss活动任务与商店 = function()
   if not appear("活动导航0") then return end
 ]]
 
-wait(function()
-  -- if findOne("活动任务一键领取") then return true end
-  tap("活动商店")
-  if not appear("主页", 1) or findOne("活动商店横线") then
-    return true
-  end
-end)
+  wait(function()
+    -- if findOne("活动任务一键领取") then return true end
+    tap("活动商店")
+    if not appear("主页", 1) or findOne("活动商店横线") then
+      return true
+    end
+  end)
 
   g = function()
     if not wait(function()
@@ -3941,7 +3955,7 @@ end)
     if p1 then p1 = {p1.l, p1.t} end
     local p2 = findAny(point.活动商店列表)
     if not p1 and not p2 then return end
-    
+
     tap("活动商店列表" .. 1)
     tap(p1)
     tap(p2)
