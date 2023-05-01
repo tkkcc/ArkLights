@@ -3694,7 +3694,8 @@ test_fight_hook = function()
   if not test_fight then return end
   -- log(2392)
   fight = {
-    "HD-10", "HD-9", "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2", "HD-1",
+    "HD-10", "HD-9", "HD-8", "HD-7", "HD-6", "HD-5", "HD-4", "HD-3", "HD-2",
+    "HD-1",
     -- "12-1",
     -- "12-2",
     -- "12-3",
@@ -3803,8 +3804,17 @@ predebug_hook = function()
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
+  -- swip('HD-10')
   -- log(shift_prefer_speed)
-  -- exit()
+  wait(function() tap("专项调查提取") end, 5)
+  for _, p in pairs(point["专项调查列表"]) do
+    tap(p)
+    ssleep(.5)
+    tap("专项调查启动")
+    ssleep(.5)
+    tap("右确认")
+  end
+  exit()
 
   disable_game_up_check = 1
   max_login_times = 10000
@@ -4938,7 +4948,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202304300400")
+  hd_open_time_end = parse_time("202305220400")
   hd_shop_open_time_end = parse_time("202305040400") -- 活动商店关闭时间
   hd2_open_time_end = parse_time("202303210400")
   hd2_shop_open_time_end = parse_time("202302240400") -- 活动2商店关闭时间

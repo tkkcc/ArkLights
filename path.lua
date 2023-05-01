@@ -527,9 +527,10 @@ path.fallback = {
     for h = 199, 918, 100 do
       h = scale(h - 1080 // 2) + screen.height // 2
       tap({w, h})
-      ssleep(.1)
+      ssleep(.2)
       tap("未来序曲领取")
-      ssleep(.1)
+      tap("未来序曲领取2")
+      ssleep(.2)
     end
     back()
     appear("面板")
@@ -1190,6 +1191,7 @@ init_state = function() end
 -- 对于单个用户的不同任务
 update_state = function()
   car_checked = false
+  car_check_idx = 1
 
   -- 禁用重复刷模式
   repeat_fight_mode = false
@@ -3608,7 +3610,6 @@ clean_hdfight = function()
 end
 
 path.活动 = function(x)
-  log(3223, x)
   local t = parse_time()
   if t >= hd_open_time_end then
     clean_hdfight()
@@ -3623,7 +3624,7 @@ path.活动 = function(x)
   if not wait(function()
     if findOne("活动导航0") then return true end
     -- if findOne("跳过剧情") then path.跳过剧情() end
-  end, 10) then return end
+  end, 10) then return path.跳过剧情() end
 
   local car_check = function()
     if car_checked then return end
@@ -3716,20 +3717,73 @@ path.活动 = function(x)
       -- tap("返回")
     end, 5) then return end
   end
-  -- car_check()
+
+  local car_check = function()
+    if car_checked then return end
+    car_checked = true
+    if not appear("活动导航0", 1) then return end
+
+    fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) - 1
+
+    if not wait(function()
+      tap("专项调查")
+      if disappear("活动导航0", 1) then return true end
+    end, 5) then return end
+
+    if not wait(function()
+      tap("专项调查提取")
+      appear("主页", 1)
+      if not disappear("主页", 2) and
+        not findOne("正在提交反馈至神经") then return true end
+    end, 10) then return end
+
+    while car_check_idx <= 4 do
+      tap("专项调查列表" .. car_check_idx)
+      car_check_idx = car_check_idx + 1
+      ssleep(2)
+      tap("专项调查启动")
+      if appear("开始行动", 2) then break end
+      tap("右确认")
+      if appear("开始行动", 2) then break end
+      tap("战略确认")
+      ssleep(2)
+    end
+
+    if findOne("开始行动") then
+      -- 重置当前关卡
+      pre_fight = ""
+      cur_fight = "专项调查"
+      fight_tick = fight_tick - 1
+      -- 重置活动处理
+      car_checked = false
+      path.开始游戏()
+      -- 如果战斗胜利，下次再点下这个，领奖励
+      if (fight_failed_times[cur_fight] or 0) < 0 then
+        car_check_idx = car_check_idx - 1
+      end
+      return
+    end
+
+    if not wait(function()
+      if appear("活动导航0", 1) then return true end
+      back()
+    end, 5) then return end
+
+  end
+  car_check()
   if not findOne("活动导航0") then return end
   if not wait(function()
 
-    local level = str2int(x:sub(#x), 1)
-    local level2nav = {3, 1, 1, 1, 1, 1, 2, 2, 2, 3}
-    tap("活动导航" .. level2nav[level + 1])
+    -- local level = str2int(x:sub(#x), 1)
+    -- local level2nav = {3, 1, 1, 1, 1, 1, 2, 2, 2, 3}
+    -- tap("活动导航" .. level2nav[level + 1])
 
-    -- tap("活动导航1")
+    tap("活动导航1")
     ssleep(.5)
     if not appear("活动导航0", 1) then return true end
   end, 5) then return end
 
-  ssleep(2)
+  -- ssleep(2)
 
   swip(x)
   ssleep(.5)
@@ -3791,7 +3845,7 @@ hd_wrapper = function(func)
   end
   return f
 end
-path.活动 = hd_wrapper(path.活动)
+-- path.活动 = hd_wrapper(path.活动)
 
 path.活动任务与商店 = function()
 

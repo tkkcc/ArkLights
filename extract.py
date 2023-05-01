@@ -344,8 +344,8 @@ def screencap(stem):
     )
 
 
-def screencap_distance():
-    screencap = Path("screencap")
+def screencap_distance(path="screencap"):
+    screencap = Path(path)
     import torch
     torch.backends.cudnn.enabled = False
     import easyocr
@@ -363,6 +363,8 @@ def screencap_distance():
         visible_point = defaultdict(int)
         for (loc, text, confidence) in x:
             text = text.replace(" G", "-6")
+            text = text.replace("CI -2", "CW-2")
+            text = text.replace("-G", "-6")
             text = text.replace("-g", "-9")
             text = text.replace("IIW", "IW")
             text = text.replace("IB", "WB")
@@ -375,7 +377,7 @@ def screencap_distance():
             m = re.search("^.?.-(\d+)$", text)
             if not m:
                 continue
-            # print("m",m)
+            print("m",m)
             m = int(m.group(1))
             visible_point[m] = loc[0][0]
             if point[m]:
@@ -394,12 +396,12 @@ def screencap_distance():
         p = point[x]
         p = [x * 1080 // 720 for x in p]
         p[0] = 960 + shift_right * 1080 // 720
-        print(f'["12-{x}"] = ' + "{" + str(p[0]) + "," + str(p[1]) + "},")
+        print(f'["HD-{x}"] = ' + "{" + str(p[0]) + "," + str(p[1]) + "},")
 
     for x in sorted(distance):
         p = distance[x] - shift_right
         p = int(p * 1.13)
-        print(f'["12-{x}"] = ' + "{ swip_right_max, -" + str(p) + "},")
+        print(f'["HD-{x}"] = ' + "{ swip_right_max, -" + str(p) + "},")
 
 
 if __name__ == "__main__":
