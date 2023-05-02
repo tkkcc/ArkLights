@@ -1192,6 +1192,8 @@ init_state = function() end
 update_state = function()
   car_checked = false
   car_check_idx = 1
+  car_check_fight_idx = -1
+  car_check_list = table.shuffle(range(1, 4))
 
   -- 禁用重复刷模式
   repeat_fight_mode = false
@@ -3721,6 +3723,7 @@ path.活动 = function(x)
   local car_check = function()
     if car_checked then return end
     car_checked = true
+    car_check_times = car_check_times + 1
     if not appear("活动导航0", 1) then return end
 
     fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) - 1
@@ -3738,15 +3741,17 @@ path.活动 = function(x)
     end, 10) then return end
 
     while car_check_idx <= 4 do
-      tap("专项调查列表" .. car_check_idx)
+      tap("专项调查列表" .. car_check_list[car_check_idx])
       car_check_idx = car_check_idx + 1
       ssleep(2)
       tap("专项调查启动")
       if appear("开始行动", 2) then break end
       tap("右确认")
       if appear("开始行动", 2) then break end
-      tap("战略确认")
-      ssleep(2)
+      wait(function()
+        if not disappear("主页") then return true end
+        tap("战略确认")
+      end, 5)
     end
 
     if findOne("开始行动") then
@@ -3756,11 +3761,12 @@ path.活动 = function(x)
       fight_tick = fight_tick - 1
       -- 重置活动处理
       car_checked = false
+      car_check_fight_idx = car_check_idx
       path.开始游戏()
-      -- 如果战斗胜利，下次再点下这个，领奖励
-      if (fight_failed_times[cur_fight] or 0) < 0 then
-        car_check_idx = car_check_idx - 1
-      end
+      -- -- 如果战斗胜利，下次再点下这个，领奖励
+      -- if (fight_failed_times[cur_fight] or 0) < 0 then
+      --   car_check_idx = car_check_idx - 1
+      -- end
       return
     end
 
