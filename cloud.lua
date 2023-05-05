@@ -101,7 +101,6 @@ end
 
 m.uploadImgToInquisition = function(img_path)
   local base64Image = getFileBase64(img_path) or ""
-  print(base64Image)
   local data = {
     base64Image = base64Image,
     deviceToken = m.deviceToken
@@ -166,8 +165,8 @@ m.fetchSolveTask = function()
     -- log("res", res)
     local status, data
     status, data = pcall(JsonDecode, res)
-    log("data", data)
-    if type(data) == 'table' and type(data.data) == 'table' then
+    log("云控", data)
+    if type(data) == 'table' and type(data.data) == 'table' and data.code ~= 500 then
       m.solveTask(data.data)
     end
     m.setStatus(1)
@@ -292,6 +291,8 @@ password=]] .. string.format("%q", password) .. [[;
 server=]] .. server
   if taskType == 'rogue' then
     hook = hook .. [[;extra_mode="战略前瞻投资"]]
+  elseif taskType == 'rogue2' then
+    hook = hook .. [[;extra_mode="水月与深蓝之树"]]
   elseif taskType == 'sand_fire' then
     hook = hook .. [[;extra_mode="生息演算沙中之火"]]
   end
