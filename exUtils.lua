@@ -356,8 +356,9 @@ mizuki_help_fight = function(reflashNum)
     local best = table.findv(order, function(x) return name2point[x[1]] end)
     if not best then
         log("助战也找不到所需干员")
-        tap(mizuki_point.刷新助战)
+        tapUntilCheckedPointColor(mizuki_point.刷新助战, mizuki_point.刷新助战中, 5)
         reflashNum = reflashNum + 1
+        ssleep(3)
         return mizuki_help_fight(reflashNum)
     end
     reflashNum = 0
