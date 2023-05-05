@@ -524,16 +524,18 @@ path.fallback = {
     -- "188|529|F3C4A2,1368|199|FF793F,1356|918|393939"
     local w = scale(1370 - 1920 // 2) + screen.width // 2
 
-    for h = 199, 918, 100 do
+    for h = 199, 918, 50 do
       h = scale(h - 1080 // 2) + screen.height // 2
       tap({w, h})
-      ssleep(.2)
-      tap("未来序曲领取")
-      tap("未来序曲领取2")
-      ssleep(.2)
+      ssleep(.5)
     end
+    tap("未来序曲领取")
+    tap("未来序曲领取2")
+    ssleep(1)
     back()
-    appear("面板")
+    if not appear("面板") then
+      tap("开包skip")
+    end
   end,
   产业合作洽谈会 = function()
     wait(function() tap("产业合作洽谈会策略") end, 2)
