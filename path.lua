@@ -359,9 +359,9 @@ path.base = {
   end,
 
   bilibili_framelayout_only = function()
-    cloud.addLog("INFO","开始登录","正在尝试登录","")
+    cloud.addLog("INFO", "开始登录", "正在尝试登录", "")
     auto(path.bilibili_login, nil, 0, default_auto_timeout_second, true)
-    cloud.addLog("INFO","登录成功","已成功登录至游戏","")
+    cloud.addLog("INFO", "登录成功", "已成功登录至游戏", "")
   end,
 
   -- bilibili_account_switch = function() auto(path.bilibili_login) end,
@@ -538,9 +538,7 @@ path.fallback = {
     tap("未来序曲领取2")
     ssleep(1)
     back()
-    if not appear("面板") then
-      tap("开包skip")
-    end
+    if not appear("面板") then tap("开包skip") end
   end,
   产业合作洽谈会 = function()
     wait(function() tap("产业合作洽谈会策略") end, 2)
@@ -857,7 +855,8 @@ path.限时活动 = function(retry)
 
     if cloud.enabled() then
       ssleep(1)
-      captureqqimagedeliver("INFO","活动单抽结果","已成功使用每日单抽")
+      captureqqimagedeliver("INFO", "活动单抽结果",
+                            "已成功使用每日单抽")
     end
 
     -- appear("主页", 2)
@@ -3745,6 +3744,11 @@ path.活动 = function(x)
       if disappear("活动导航0", 1) then return true end
     end, 5) then return end
 
+    wait(function()
+      tap("专项调查提取")
+      ssleep(.5)
+    end, 2)
+
     if not wait(function()
       tap("专项调查提取")
       appear("主页", 1)
@@ -4997,9 +5001,9 @@ path.退出账号 = function()
       return findOne("bilibili_framelayout_only") and
                not findOne("bilibili_username_inputbox")
     end] = function()
-      cloud.addLog("INFO","开始登录","正在尝试登录","")
+      cloud.addLog("INFO", "开始登录", "正在尝试登录", "")
       auto(path.bilibili_login_change, nil, 0, default_auto_timeout_second, true)
-      cloud.addLog("INFO","登录成功","已成功登录至游戏","")
+      cloud.addLog("INFO", "登录成功", "已成功登录至游戏", "")
     end,
     面板 = function()
       tap("面板设置", true)
