@@ -850,10 +850,10 @@ path.限时活动 = function(retry)
       tap("开包skip")
     end, 15) then return end
 
-    -- if cloud.enabled() then
+    if cloud.enabled() then
       ssleep(1)
       captureqqimagedeliver("INFO","活动单抽结果","已成功使用每日单抽")
-    -- end
+    end
 
     -- appear("主页", 2)
     -- disappear("主页", 10)
