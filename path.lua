@@ -30,6 +30,7 @@ path.base = {
 
   账号登录 = function() tap("账号登录") end,
   开始唤醒 = function()
+    cloud.addLog("INFO", "开始登录", "正在尝试登录", "")
     check_login_frequency()
     wait(function()
       tap("开始唤醒")
@@ -38,6 +39,7 @@ path.base = {
   end,
   手机验证码登录 = disable_game_up_check_wrapper(function()
     if appid ~= oppid then return end
+    cloud.addLog("INFO", "开始登录", "正在尝试登录", "")
     if not username or #username == 0 or not password or #password == 0 then
       -- 单账号直接停，多账号跳过
       stop("账号或密码为空", account_idx and 'next' or '')
@@ -125,6 +127,7 @@ path.base = {
     if login_error_times > 1 then
       stop("单选确认框，密码错误？", account_idx and 'next' or '')
     end
+    cloud.addLog("INFO", "登录成功", "已成功登录至游戏", "")
   end),
   正在释放神经递质 = function()
     if not disappear("正在释放神经递质", 1800, 1) then
@@ -356,7 +359,9 @@ path.base = {
   end,
 
   bilibili_framelayout_only = function()
+    cloud.addLog("INFO","开始登录","正在尝试登录","")
     auto(path.bilibili_login, nil, 0, default_auto_timeout_second, true)
+    cloud.addLog("INFO","登录成功","已成功登录至游戏","")
   end,
 
   -- bilibili_account_switch = function() auto(path.bilibili_login) end,
@@ -4992,7 +4997,9 @@ path.退出账号 = function()
       return findOne("bilibili_framelayout_only") and
                not findOne("bilibili_username_inputbox")
     end] = function()
+      cloud.addLog("INFO","开始登录","正在尝试登录","")
       auto(path.bilibili_login_change, nil, 0, default_auto_timeout_second, true)
+      cloud.addLog("INFO","登录成功","已成功登录至游戏","")
     end,
     面板 = function()
       tap("面板设置", true)
