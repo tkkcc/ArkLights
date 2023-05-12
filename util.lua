@@ -2937,6 +2937,10 @@ show_debug_ui = function()
   newRow(layout)
   ui.addCheckBox(layout, "restart_on_crontab_timeout",
                  "跨定时点结束后重启", true)
+  
+  newRow(layout)
+  ui.addCheckBox(layout, "delete_download_floder",
+                 "自动清理download文件夹", false)
 
   newRow(layout)
   addTextView(layout, "QQ通知账号")
