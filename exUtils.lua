@@ -1724,8 +1724,10 @@ end
 
 --删除安卓系统download文件夹中的部分文件(速通会误点下载导致下载一堆客户端)
 delele_download_file = function()
-	exec("su root rm -rf /sdcard/Download/*.apk")
-    exec("su root rm -rf /sdcard/Download/*.crdownload'")
+    --exec("su root rm -rf /sdcard/Download/*.apk")
+    exec("su -c 'find /sdcard/download -name \"*arknights*.apk\" -exec rm {} \\;'")--官服
+    exec("su -c 'find /sdcard/download -name \"*mrfz*.apk\" -exec rm {} \\;'")--b服
+    exec("su root rm -rf /sdcard/Download/*.crdownload'")--浏览器未下载完成文件
 end
 
 --用于下载大文件，自带的函数似乎无法使用
