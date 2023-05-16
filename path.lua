@@ -3952,7 +3952,7 @@ path.ss活动任务与商店 = function()
 
   local g
   local success_once
-  --[[
+  
   if not wait(function()
     tap("活动任务")
     if disappear("活动导航0", 1) then return true end
@@ -3992,8 +3992,8 @@ path.ss活动任务与商店 = function()
                           "活动任务领取")
   tap("返回")
   if not appear("活动导航0") then return end
-]]
 
+--[[
   wait(function()
     -- if findOne("活动任务一键领取") then return true end
     tap("活动商店")
@@ -4001,6 +4001,7 @@ path.ss活动任务与商店 = function()
       return true
     end
   end)
+]]
 
   g = function()
     if not wait(function()
