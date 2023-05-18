@@ -6174,7 +6174,7 @@ trySolvePointSelectionCapture = function(username, password, rect)
   local data = {
     username = username,
     password = password,
-    typeid = "19",
+    typeid = "27",
     image = img_base64,
   }
 
@@ -6188,11 +6188,19 @@ trySolvePointSelectionCapture = function(username, password, rect)
     if not success then return end
 
     local ans = get(data, "data", "result") or ""
-    local x, y = string.match(ans, "(%d+),(%d+)")
-    x = x or 0
-    y = y or 0
-    local ans_p = {rect.l + x, rect.t + y}
-    tap(ans_p)
+    -- local x, y = string.match(ans, "(%d+),(%d+)")
+    -- x = x or 0
+    -- y = y or 0
+    -- local ans_p = {rect.l + x, rect.t + y}
+    -- tap(ans_p)
+    for coord in string.gmatch(ans,"%d+,%d+") do
+      local x, y = string.match(coord, "(%d+),(%d+)")
+      x = x or 0
+      y = y or 0
+      local ans_p = {rect.l + x, rect.t + y}
+      tap(ans_p)
+      ssleep(0.5)
+    end
     return true
   end
 
