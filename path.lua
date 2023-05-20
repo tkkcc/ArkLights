@@ -458,9 +458,13 @@ path.bilibili_login = {
     return path.bilibili_login.B服安全验证()
   end,
   B服安全验证 = disable_game_up_check_wrapper(function()
-    -- 等待加载出图
-    if not appear({"B服安全验证提交", "B服安全验证提交320DPI"}, 10) then
-      return
+    log("等待加载出图")
+    if not appear({"B服安全验证提交", "B服安全验证提交320DPI"}, 5) then
+      log("等待节点识别加载失败")
+      if not checkPointColor({ 823, 605, "BAD9FF" }) then
+        log("等待720p图色识别加载失败")
+        return
+      end
     end
 
     if #strOr(captcha_username) == 0 or #strOr(captcha_password) == 0 then
@@ -481,6 +485,7 @@ path.bilibili_login = {
     if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
       if not findTap("B服安全验证提交") then
         findTap("B服安全验证提交320DPI")
+        tapIfCheckedColor({ 823, 605, "539FFE" }, { 823, 605, "539FFE" })
       end
 
       if appear({"B服安全验证失败", "B服安全验证失败320DPI"}) then
