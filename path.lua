@@ -3892,7 +3892,7 @@ path.活动任务与商店 = function()
 
   if hd_mod == "故事集" then
     path.活动商店()
-    --path.故事集提交碎片()
+    path.故事集提交碎片()
   elseif hd_mod == "ss" then
     path.ss活动任务与商店()
   end
@@ -4172,6 +4172,13 @@ path.活动商店 = function()
   local g
   local success_once
 
+  wait(function()
+    -- if findOne("活动任务一键领取") then return true end
+    tap("活动商店")
+    if not appear("主页", 1) or findOne("活动商店横线") then
+      return true
+    end
+  end)
 
   g = function()
     if not wait(function()
@@ -4236,7 +4243,7 @@ path.活动商店 = function()
 
   for i = 1, 4 do
     if not wait(function()
-      if not findOne("活动导航0") then return true end
+      if not findOne("活动导航2") then return true end
       tap("活动商店")
     end) then return end
     if not appear("活动商店横线", 5) then break end
