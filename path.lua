@@ -4203,7 +4203,7 @@ path.活动商店 = function()
     local p2 = findAny(point.活动商店列表)
     if not p1 and not p2 then return end
 
-    tap("活动商店列表" .. 1)
+    tap("活动商店列表" .. 2)
     tap(p1)
     tap(p2)
 
