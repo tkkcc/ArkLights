@@ -23,7 +23,9 @@ point = {
   专项调查标识 = "1657|40|CF703C,1669|30|101010",
   专项调查提取 = "196|939|D0713C",
   专项调查启动 = "1831|939|B9683C",
-  专项调查列表 = { "136|243|000000","148|387|535353","148|519|606060","148|651|101010"},
+  专项调查列表 = {
+    "136|243|000000", "148|387|535353", "148|519|606060", "148|651|101010",
+  },
   专项调查 = "387|265|FF6902",
   未来序曲 = "282|211|FF6E32,294|175|FFFFFF,216|151|E3E3E3",
   未来序曲领取 = "282|793|F3C4A2",
@@ -483,19 +485,36 @@ point = {
     -- log(32,appid,bppid,findOne("game"),findOne("bgame"))
     return appid == bppid and findOne("game") and not findOne("bgame")
   end,
+  framelayout_only = function()
+    return appid == oppid and findOne("game") and not findOne("ogame")
+  end,
   bilibili_framelayout = {
     class = "android.widget.FrameLayout",
     package = "com.hypergryph.arknights.bilibili",
   },
+  framelayout = {
+    class = "android.widget.FrameLayout",
+    package = "com.hypergryph.arknights",
+  },
   realgame = function() return findOne(appid == oppid and "ogame" or "bgame") end,
   game = function()
-    return findOne(appid == oppid and "ogame" or "bilibili_framelayout")
+    return findOne(appid == oppid and "framelayout" or "bilibili_framelayout")
   end,
   ogame = {class = "android.view.View", package = oppid, desc = 'Game view'},
   bgame = {class = "android.view.View", package = bppid, desc = 'Game view'},
   bilibili_login = {
     id = "com.hypergryph.arknights.bilibili:id/tv_gsc_account_login",
   },
+
+  login = {text = "登 录"},
+  password_login = {text = "密码登录"},
+  username_inputbox = {class = "android.widget.EditText"},
+  login_checkbox = {class = "android.widget.CheckBox"},
+  用户中心 ="112|745|F5F5F5",
+  login_out = {text="退出登录"},
+  yes = {text="是"},
+  login_switch = {text="登录其他账号"},
+
   bilibili_oneclicklogin = {
     id = "com.hypergryph.arknights.bilibili:id/tv_gsc_record_login",
   },

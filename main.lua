@@ -51,7 +51,7 @@ default_auto_timeout_second = 300
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "05.20 14:00"
+release_date = "06.04 22:42"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -95,6 +95,13 @@ update_state_from_debugui()
 check_crontab_on_start()
 cloud.startHeartBeat()
 
+if debug_mode then
+  log("debug_mode")
+  log(findNode({text = "登 录"}))
+  exit()
+
+end
+
 load(before_account_hook or '')()
 
 no_extra_job = {}
@@ -102,7 +109,7 @@ transfer_global_variable("multi_account_user1", "multi_account_user0")
 saveConfig("continue_account", '')
 saveConfig("continue_extra_mode", extra_mode or '')
 
---清理download文件夹
+-- 清理download文件夹
 if delete_download_floder == true then delele_download_file() end
 
 -- log("100",cloud.enabled(),cloud_task)
@@ -110,7 +117,7 @@ if cloud.getTaskEnabled() and not cloud_task then
   -- 云控模式冷启动
   -- log("102",102)
 elseif not crontab_enable_only and (not extra_mode and true or extra_mode_multi) and
-    multi_account_enable then
+  multi_account_enable then
   -- 多帐号模式
 
   -- 分隔临时账号设置
@@ -119,7 +126,7 @@ elseif not crontab_enable_only and (not extra_mode and true or extra_mode_multi)
   if temp_choice_pos then
     multi_account_config_remove_once_choice()
     multi_account_choice = multi_account_choice:sub(temp_choice_pos + 1,
-      #multi_account_choice)
+                                                    #multi_account_choice)
   end
   log("multi_account_choice", multi_account_choice)
 
@@ -157,7 +164,7 @@ elseif not crontab_enable_only and (not extra_mode and true or extra_mode_multi)
     -- log({username, usernote})
     if extra_mode then
       no_extra_job = job
-      job = { extra_mode }
+      job = {extra_mode}
     end
 
     if #username > 0 and #password > 0 then
@@ -165,13 +172,13 @@ elseif not crontab_enable_only and (not extra_mode and true or extra_mode_multi)
     end
 
     saveConfig("continue_account", (not temp_choice_pos and idx == 1) and '' or
-      table.join(table.slice(multi_account_choice, idx), ' '))
+                 table.join(table.slice(multi_account_choice, idx), ' '))
     saveConfig("continue_all_account",
-      (not temp_choice_pos and idx == 1) and '' or
-      table.join(
-        table.extend(table.slice(multi_account_choice, idx),
-          table.slice(multi_account_choice, 1, idx - 1)),
-        ' '))
+               (not temp_choice_pos and idx == 1) and '' or
+                 table.join(
+                   table.extend(table.slice(multi_account_choice, idx),
+                                table.slice(multi_account_choice, 1, idx - 1)),
+                   ' '))
 
     -- 账密有一为空
     local skip_account = false
@@ -194,7 +201,7 @@ elseif not crontab_enable_only then
   test_fight_hook()
   if extra_mode then
     no_extra_job = job
-    job = { extra_mode }
+    job = {extra_mode}
   end
   if #strOr(username) > 0 and #strOr(password) > 0 then
     username = username:trim()
