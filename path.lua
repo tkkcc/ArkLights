@@ -367,6 +367,9 @@ path.base = {
 }
 
 path.bilibili_login = {
+  活动公告返回 = function()
+    return path.fallback.活动公告返回()
+  end,
   同意并继续 = function()
     local p = findNode(point["同意并继续"])
     if p then
@@ -521,6 +524,9 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.login = {
+  活动公告返回 = function()
+    return path.fallback.活动公告返回()
+  end,
   同意并继续 = function()
     local p = findNode(point["同意并继续"])
     if p then

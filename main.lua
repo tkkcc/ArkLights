@@ -51,7 +51,7 @@ default_auto_timeout_second = 300
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "06.04 22:42"
+release_date = "06.05 22:46"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -95,11 +95,12 @@ update_state_from_debugui()
 check_crontab_on_start()
 cloud.startHeartBeat()
 
+-- debug_mode=true
 if debug_mode then
   log("debug_mode")
-  log(findNode({text = "登 录"}))
+  log(findOne("活动公告返回"))
+  log(findOne("framelayout_only"))
   exit()
-
 end
 
 load(before_account_hook or '')()
