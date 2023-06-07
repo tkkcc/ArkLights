@@ -2930,6 +2930,10 @@ show_debug_ui = function()
                  "跨定时点结束后重启", true)
 
   newRow(layout)
+  ui.addCheckBox(layout, "auto_update_gameclient",
+                  "自动更新游戏客户端", false)
+  
+  newRow(layout)
   ui.addCheckBox(layout, "delete_download_floder",
                  "自动清理download文件夹", false)
 

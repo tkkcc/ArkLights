@@ -1677,11 +1677,11 @@ game_check_version = function(pkg)
         status, ret = pcall(JsonDecode, ret)
         latestVersion = get(ret, 'clientVersion')
 		if latestVersion == current_version then
-        	--log(pkg .. "已安装最新版本",latestVersion)
+        	log(pkg .. "已安装最新版本",latestVersion)
            	return true
         end
     end
-    --log(pkg .. "非最新版,当前版本",current_version,"最新版",latestVersion)
+    log(pkg .. "非最新版,当前版本",current_version,"最新版",latestVersion)
     return false
 end
 
@@ -1692,33 +1692,37 @@ get_bilibili_url = function()
     local status
     status,ret = pcall(JsonDecode, ret)
     ret = get(ret, 'data','android_download_link')
-    --log("get_bilibili_url",ret)
-    if type(download_url) == 'string' and #download_url > 0 then
-    	return download_url
+    if type(ret) == 'string' and #ret > 0 then
+    	return ret
     end
     return nil
-end 
+end
 
 --更新游戏
 auto_update_game = function()
+    log("开始检查游戏更新")
 	if game_check_version("com.hypergryph.arknights") == false then
-    	install_game("https://ak.hypergryph.com/downloads/android_lastest")
+        local url = parse_download_url("https://ak.hypergryph.com/downloads/android_lastest")
+    	install_game(url)
     end
     if game_check_version("com.hypergryph.arknights.bilibili") == false then
-    	install_game(get_bilibili_url)
+    	install_game(get_bilibili_url())
 	end
 end
 
 --下载并安装游戏
 install_game = function(url)
+	os.execute("mkdir " .. getWorkPath() .. '/apk/')
 	downloadpath = getWorkPath() .. '/apk/arknights.apk'
     --log("下载地址",url,downloadpath)
-	if download_large_file(url,downloadpath) then
+	if downloadFile(url,downloadpath) == 0 then
     	--使用root权限安装
-        exec("su root sh -c 'pm install " .. downloadpath .. "'")
+        exec("su root sh -c 'pm install -r " .. downloadpath .. "'")
         --删除apk
         exec("su root rm -rf " .. downloadpath)
         --log("install finish",downloadpath)
+    else
+       log("下载失败，请检查网络连接")
     end
 end
 
@@ -1730,17 +1734,17 @@ delele_download_file = function()
     exec("su root rm -rf /sdcard/Download/*.crdownload'")--浏览器未下载完成文件
 end
 
---用于下载大文件，自带的函数似乎无法使用
-download_large_file = function(url, filepath)
-	local http = require('socket.http')
-	local file = io.open(filepath, 'w')
-  	http.TIMEOUT =2000
-    local body, code, headers, status = http.request(url)
-    if code == 200 then
-		file:write(body)
-		file:close()
-		return true
-    else
-		return false
+-- 解析官服重定向地址
+function parse_download_url(url)
+    local http = require("socket.http")
+    local url = url
+    local response, code, headers, status = http.request{
+        url = url,
+        method = "GET",
+        redirect = false -- 禁用自动重定向 防止直接开始下载
+   }
+   if code == 302 then
+    local redirect = headers.location
+    return redirect
   end
 end
