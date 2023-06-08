@@ -1699,9 +1699,11 @@ auto_update_game = function()
     log("开始检查游戏更新")
 	if game_check_version("com.hypergryph.arknights") == false then
         local url = parse_download_url("https://ak.hypergryph.com/downloads/android_lastest")
+        toast("官服更新开始")
     	install_game(url)
     end
     if game_check_version("com.hypergryph.arknights.bilibili") == false then
+        toast("b服更新开始")
     	install_game(get_bilibili_url())
 	end
 end
@@ -1712,7 +1714,8 @@ install_game = function(url)
 	os.execute("mkdir " .. getWorkPath() .. '/apk/')
 	downloadpath = getWorkPath() .. '/apk/arknights.apk'
     log("开始下载",url,downloadpath)
-	if downloadFile(url,downloadpath) == 0 then
+    if downloadFile(url, downloadpath, function(process)
+        if process % 5 == 0 then toast("下载进度："..process.."%") end end) == 0 then --下载进度
     	--使用root权限安装
         exec("su root sh -c 'pm install -r " .. downloadpath .. "'")
         --删除apk
