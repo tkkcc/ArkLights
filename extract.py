@@ -356,7 +356,7 @@ def screencap_distance(path="screencap"):
     point = defaultdict(int)
     distance = defaultdict(int)
     shift_right = 0
-    distance[1] = 0
+    distance[1] = 250
     for x in sorted(screencap.glob("*.jpg")):
         x = reader.readtext(str(x))
         print("x",x)

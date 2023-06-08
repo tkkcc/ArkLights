@@ -3873,7 +3873,7 @@ path.活动 = function(x)
     end, 5) then return end
 
   end
-  car_check()
+  -- car_check()
   if not findOne("活动导航0") then return end
   if not wait(function()
 
