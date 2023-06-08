@@ -1662,12 +1662,8 @@ end
 --检查游戏版本是否是最新
 game_check_version = function(pkg)
 	--log("su root sh -c dumpsys package " .. pkg .. " | grep versionName")
-    local command = io.popen("su -c 'dumpsys package " .. pkg .. " | grep versionName'")
-    local current_version = command:read("*a")
-    command:close()
-    current_version = string.gsub(current_version, " ", "")
-    current_version = string.gsub(current_version, "versionName=", "")
-    current_version = string.gsub(current_version, "\n+", "")
+    local current_version = exec("su root sh -c 'dumpsys package " .. pkg .. " | grep versionName'")
+    current_version = current_version:match("versionName=([^%s]+)")
 	--local current_version = exec("su root sh -c dumpsys package " .. pkg .. " | grep versionName")
     if type(current_version) == 'string' and #current_version > 0  then
         --地址 https://ak-conf.hypergryph.com/config/prod/official/Android/version 
@@ -1712,9 +1708,10 @@ end
 
 --下载并安装游戏
 install_game = function(url)
+  console.show()
 	os.execute("mkdir " .. getWorkPath() .. '/apk/')
 	downloadpath = getWorkPath() .. '/apk/arknights.apk'
-    --log("下载地址",url,downloadpath)
+    log("开始下载",url,downloadpath)
 	if downloadFile(url,downloadpath) == 0 then
     	--使用root权限安装
         exec("su root sh -c 'pm install -r " .. downloadpath .. "'")
@@ -1724,6 +1721,7 @@ install_game = function(url)
     else
        log("下载失败，请检查网络连接")
     end
+  console.dismiss()
 end
 
 --删除安卓系统download文件夹中的部分文件(速通会误点下载导致下载一堆客户端)
