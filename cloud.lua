@@ -4,7 +4,9 @@ cloud = {}
 m = cloud
 
 m.deviceToken = ''
+m.captchaToken = ''
 m.server = ''
+m.captchaServer = 'https://captcha-arkrec.ngworks.cn'
 m.heartBeatTid = -1
 m.status = 1
 
@@ -12,6 +14,17 @@ m.setDeviceToken = function(deviceToken)
   deviceToken = strOr(deviceToken):trim()
   if #deviceToken < 5 then return end
   m.deviceToken = deviceToken
+end
+
+m.setCaptcha = function(server, token)
+  server = strOr(server):trim()
+  server = server:gsub("/+$", '')
+  if #server < 5 then return end
+  m.captchaServer = server
+
+  token = strOr(token):trim()
+  if #token < 5 then return end
+  m.captchaToken = token
 end
 
 m.setServer = function(server)
@@ -110,15 +123,87 @@ m.uploadImgToInquisition = function(img_path)
   if code == 200 then
     status, data = pcall(JsonDecode, res)
     if data.code == 200 then
-      log("云控日志","截图上传成功")
+      log("云控日志", "截图上传成功")
       return data.data
     else
-      log("云控日志","截图上传失败")
+      log("云控日志", "截图上传失败")
       return ""
     end
   else
     return ""
   end
+end
+
+m.captcha = function()
+  -- if m.captchaToken == '' or m.captchaServer == '' then
+  --   return false
+  -- end
+  local text_box = findOne("B服安全验证目标字符")
+  -- log("text_box_右坐标", text_box.bounds.r)
+  local text_slice_box = findOne("B服安全验证目标字符切片")
+  -- log("text_slice_box_右坐标", text_slice_box.bounds.r)
+  local big_image_box = findOne("B服安全验证泛目标图像")
+  local text_pos = { text_slice_box.bounds.r, text_box.bounds.t, big_image_box.bounds.r, text_box.bounds.b }
+  log("目标字符坐标", text_pos)
+  local image_box = findOne("B服安全验证目标图像")
+  local image_pos = { image_box.bounds.l, image_box.bounds.t, image_box.bounds.r, image_box.bounds.b }
+  log("图像坐标", image_pos)
+
+  local img = getWorkPath() .. "/capture_cloud.jpg"
+  snapShot(img, text_pos[1], text_pos[2], text_pos[3], text_pos[4])
+  local text_img_base64 = base64(img)
+  ssleep(.1)
+  snapShot(img, image_pos[1], image_pos[2], image_pos[3], image_pos[4])
+  local image_img_base64 = base64(img)
+
+  local data = {
+    text_base64 = text_img_base64,
+    image_base64 = image_img_base64,
+    token = m.captchaToken
+  }
+
+  local res, code = httpPost(m.captchaServer .. "/captcha/select/base64", JsonEncode(data), 30,
+    "Content-Type: application/json")
+  if code == 200 then
+    status, data = pcall(JsonDecode, res)
+    if data.code == 0 then
+      cloud_captcha_id = data.data.captcha_id or nil
+      log("云控打码数量", #data.data.points)
+      log("云控打码坐标", data.data.points)
+      for _, coord in pairs(data.data.points) do
+        x = coord[1] or 0
+        y = coord[2] or 0
+        tap({ image_pos[1] + x, image_pos[2] + y })
+        ssleep(0.5)
+      end
+      return true
+    else
+      log("云控打码", data.message)
+      return false
+    end
+  else
+    log("云控打码", "网络错误")
+    return false
+  end
+end
+
+m.captcha_report = function()
+  -- if m.captchaToken == '' or m.captchaServer == '' then
+  --   return false
+  -- end
+  if not cloud_captcha_id then
+    return
+  end
+
+  local data = {
+    captcha_id = cloud_captcha_id,
+    token = m.captchaToken
+  }
+
+  local res, code = httpPost(m.captchaServer .. "/captcha/select/report", JsonEncode(data), 30,
+    "Content-Type: application/json")
+  cloud_captcha_id = nil
+  log("云控打码失败上报", res, code)
 end
 
 m.FAILTASK_LINEBUSY = 'lineBusy'

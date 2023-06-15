@@ -55,6 +55,11 @@ point = {
   B服安全验证提交320DPI = "1132|783|BAD9FF",
   B服安全验证失败 = {text = "验证失败"},
   B服安全验证失败320DPI = "1155|847|DE715B",
+  -- B服自建打码切割
+  B服安全验证目标字符 = {level = "14", package = "com.hypergryph.arknights.bilibili"},
+  B服安全验证目标字符切片 = {level = "15", package = "com.hypergryph.arknights.bilibili"},
+  B服安全验证泛目标图像 = {index = "1", level = "14", package = "com.hypergryph.arknights.bilibili"},
+  B服安全验证目标图像 = {index = "1", level = "17", package = "com.hypergryph.arknights.bilibili"},
   -- B服安全验证关闭 = {text = "关闭验证"},
   -- 选点验证码识别区域 = {794, 348, 1138, 745},
   月饼确认 = "1012|967|FF6411",

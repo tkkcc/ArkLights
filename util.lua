@@ -2867,6 +2867,14 @@ show_debug_ui = function()
   ui.addEditText(layout, "cloud_device_token", "")
 
   newRow(layout)
+  addTextView(layout, "审判庭打码地址")
+  ui.addEditText(layout, "cloud_captcha_server", "")
+
+  newRow(layout)
+  addTextView(layout, "审判庭打码标识")
+  ui.addEditText(layout, "cloud_captcha_token", "")
+
+  newRow(layout)
   ui.addCheckBox(layout, "cloud_get_task", "审判庭接受任务", false)
 
   newRow(layout)
@@ -4985,6 +4993,7 @@ update_state_from_debugui = function()
   max_fight_failed_times = str2int(max_fight_failed_times, 2)
   cloud.setDeviceToken(cloud_device_token)
   cloud.setServer(cloud_server)
+  cloud.setCaptcha(cloud_captcha_server, cloud_captcha_token)
   cloud.setStatus(extra_mode == "战略前瞻投资" and 1002 or 1001)
   -- if apk502 then enable_restart_package = true end
   -- enable_restart_package = not disable_restart_package
@@ -5175,7 +5184,7 @@ trySolvePointSelectionCapture = function(username, password, rect)
       y = y or 0
       local ans_p = {rect.l + x, rect.t + y}
       tap(ans_p)
-      ssleep(0.5)
+      ssleep(0.2)
     end
     return true
   end

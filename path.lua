@@ -476,26 +476,77 @@ path.bilibili_login = {
     end
 
     ssleep(.5)
-    if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
+    log("使用云控打码")
+    if cloud.captcha() then
       if not findTap("B服安全验证提交") then
         findTap("B服安全验证提交320DPI")
-        tapIfCheckedColor({823, 605, "539FFE"}, {823, 605, "539FFE"})
+        tapIfCheckedColor({ 823, 605, "539FFE" }, { 823, 605, "539FFE" })
       end
 
-      if appear({"B服安全验证失败", "B服安全验证失败320DPI"}) then
-        ttshitu_report()
-        ssleep(1.0)
-        back()
+      if appear({ "B服安全验证失败", "B服安全验证失败320DPI" }) then
+        cloud.captcha_report()
+        ssleep(3.0)
+
+        log("使用图鉴打码")
+        if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
+          if not findTap("B服安全验证提交") then
+            findTap("B服安全验证提交320DPI")
+            tapIfCheckedColor({ 823, 605, "539FFE" }, { 823, 605, "539FFE" })
+          end
+
+          if appear({ "B服安全验证失败", "B服安全验证失败320DPI" }) then
+            ttshitu_report()
+            ssleep(1.0)
+            back()
+          end
+
+          -- wait(function()
+          --   if not findAny({
+          --         "B服安全验证提交", "B服安全验证提交320DPI",
+          --       }) then
+          --     return true
+          --   end
+          --   ssleep(2)
+          --   back()
+          -- end, 5)
+        end
       end
 
-      wait(function()
+      if wait(function()
         if not findAny({
-          "B服安全验证提交", "B服安全验证提交320DPI",
-        }) then return true end
+              "B服安全验证提交", "B服安全验证提交320DPI",
+            }) then
+          return true
+        end
         ssleep(2)
         back()
-      end, 5)
+      end, 5) then
+        return
+      end
+    else
+      log("使用图鉴打码")
+      if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
+        if not findTap("B服安全验证提交") then
+          findTap("B服安全验证提交320DPI")
+          tapIfCheckedColor({ 823, 605, "539FFE" }, { 823, 605, "539FFE" })
+        end
 
+        if appear({ "B服安全验证失败", "B服安全验证失败320DPI" }) then
+          ttshitu_report()
+          ssleep(1.0)
+          back()
+        end
+
+        wait(function()
+          if not findAny({
+                "B服安全验证提交", "B服安全验证提交320DPI",
+              }) then
+            return true
+          end
+          ssleep(2)
+          back()
+        end, 5)
+      end
     end
     log(7)
   end),
