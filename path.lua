@@ -367,9 +367,7 @@ path.base = {
 }
 
 path.bilibili_login = {
-  活动公告返回 = function()
-    return path.fallback.活动公告返回()
-  end,
+  活动公告返回 = function() return path.fallback.活动公告返回() end,
   同意并继续 = function()
     local p = findNode(point["同意并继续"])
     if p then
@@ -480,10 +478,10 @@ path.bilibili_login = {
     if cloud.captcha() then
       if not findTap("B服安全验证提交") then
         findTap("B服安全验证提交320DPI")
-        tapIfCheckedColor({ 823, 605, "539FFE" }, { 823, 605, "539FFE" })
+        tapIfCheckedColor({823, 605, "539FFE"}, {823, 605, "539FFE"})
       end
 
-      if appear({ "B服安全验证失败", "B服安全验证失败320DPI" }) then
+      if appear({"B服安全验证失败", "B服安全验证失败320DPI"}) then
         cloud.captcha_report()
         ssleep(3.0)
 
@@ -491,10 +489,10 @@ path.bilibili_login = {
         if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
           if not findTap("B服安全验证提交") then
             findTap("B服安全验证提交320DPI")
-            tapIfCheckedColor({ 823, 605, "539FFE" }, { 823, 605, "539FFE" })
+            tapIfCheckedColor({823, 605, "539FFE"}, {823, 605, "539FFE"})
           end
 
-          if appear({ "B服安全验证失败", "B服安全验证失败320DPI" }) then
+          if appear({"B服安全验证失败", "B服安全验证失败320DPI"}) then
             ttshitu_report()
             ssleep(1.0)
             back()
@@ -514,24 +512,20 @@ path.bilibili_login = {
 
       if wait(function()
         if not findAny({
-              "B服安全验证提交", "B服安全验证提交320DPI",
-            }) then
-          return true
-        end
+          "B服安全验证提交", "B服安全验证提交320DPI",
+        }) then return true end
         ssleep(2)
         back()
-      end, 5) then
-        return
-      end
+      end, 5) then return end
     else
       log("使用图鉴打码")
       if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
         if not findTap("B服安全验证提交") then
           findTap("B服安全验证提交320DPI")
-          tapIfCheckedColor({ 823, 605, "539FFE" }, { 823, 605, "539FFE" })
+          tapIfCheckedColor({823, 605, "539FFE"}, {823, 605, "539FFE"})
         end
 
-        if appear({ "B服安全验证失败", "B服安全验证失败320DPI" }) then
+        if appear({"B服安全验证失败", "B服安全验证失败320DPI"}) then
           ttshitu_report()
           ssleep(1.0)
           back()
@@ -539,10 +533,8 @@ path.bilibili_login = {
 
         wait(function()
           if not findAny({
-                "B服安全验证提交", "B服安全验证提交320DPI",
-              }) then
-            return true
-          end
+            "B服安全验证提交", "B服安全验证提交320DPI",
+          }) then return true end
           ssleep(2)
           back()
         end, 5)
@@ -575,9 +567,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.login = {
-  活动公告返回 = function()
-    return path.fallback.活动公告返回()
-  end,
+  活动公告返回 = function() return path.fallback.活动公告返回() end,
   同意并继续 = function()
     local p = findNode(point["同意并继续"])
     if p then
@@ -880,6 +870,16 @@ path.fallback = {
     disappear("限时幸运签", 10)
     return path.fallback.签到返回()
   end,
+  端午签到返回 = function()
+    wait(function()
+      tap("端午签到左")
+      ssleep(.2)
+    end, 1)
+    wait(function()
+      tap("端午签到返回")
+      if appear("面板", 1) then return true end
+    end, 5)
+  end,
   祈愿牌返回 = function()
     -- "158|157|92928A,728|577|876E3D,1016|619|B38375"
     for w = 237, 1092 + 100, 225 do
@@ -936,6 +936,7 @@ path.fallback = {
 }
 
 path.限时活动 = function(retry)
+  -- if 1 then return end
 
   -- 只包含主页红点
   retry = retry or 0
