@@ -874,6 +874,8 @@ path.fallback = {
     wait(function()
       tap("端午签到左")
       ssleep(.2)
+      tap("端午签到中")
+      ssleep(.2)
     end, 1)
     wait(function()
       tap("端午签到返回")

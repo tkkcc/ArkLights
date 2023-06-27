@@ -20,6 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  端午签到中 = "678|951|82A528",
   端午签到左 = "333|948|534F34",
   端午签到返回 = "1785|136|C0C0C0,1765|135|595959,1785|108|595959",
   专项调查标识 = "1657|40|CF703C,1669|30|101010",
@@ -1388,6 +1389,7 @@ autojs提供OCR、图像匹配、速度没测过。OCR看现有明日方舟辅�
 开发过程中测试3种分辨率 720x1280、1920x1080、2400x1080。
 --]]
 center = {
+  端午签到中 = "center_center",
   端午签到返回 = "right_center",
   专项调查标识 = "right_center",
   专项调查启动 = "right_center",
