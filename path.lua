@@ -870,6 +870,19 @@ path.fallback = {
     disappear("限时幸运签", 10)
     return path.fallback.签到返回()
   end,
+  神州返回 = function()
+    wait(function()
+      tap("神州领取1")
+      ssleep(.2)
+      tap("神州领取2")
+      ssleep(.2)
+    end, 2)
+    wait(function()
+      tap("神州返回")
+      if appear("面板", 1) then return true end
+    end, 5)
+
+  end,
   端午签到返回 = function()
     wait(function()
       tap("端午签到左")
