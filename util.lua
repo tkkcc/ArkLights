@@ -1934,6 +1934,10 @@ captureqqimagedeliver = function(log_level, log_title, log_detail, important)
   -- tg
   notifytg(img_url, info, telegram_chatid, telegram_token, telegram_api, sync)
 
+  --企业微信推送
+  local imgmd5 = fileMD5(getWorkPath() .. "/tmp.jpg")
+  notify_wechat(wechat_webhook_url, info, img, imgmd5)
+  
   -- cloud
   cloud.addLog(log_level, log_title, log_detail, img_url)
 
@@ -2517,6 +2521,50 @@ notifytg = function(imgurl, info, chatid, bottoken, tgapi, sync)
   if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
+--企业微信推送
+notify_wechat = function(webhookurl, info, img, md5)
+  webhookurl = webhookurl or ''
+  info = info or ''
+  if #webhookurl == 0 then return end
+  log(webhookurl)
+  if string.find(webhookurl, "#") ~= nil then
+    local result = {}
+    local pattern = string.format("([^%s]+)", "#")
+    webhookurl:gsub(pattern, function(item) table.insert(result, item) end)
+    if #result > 0 then
+      local i = math.random(1, #result)
+      webhookurl = result[i]
+    end
+  end
+  print(webhookurl)
+  if string.find(webhookurl, "weixin.qq.com") == nil then webhookurl = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' .. webhookurl end
+  --推送文字
+  local body = {
+    msgtype="text",
+    text= {
+      content=  info
+    } 
+  }
+  local res, code = httpPost(webhookurl, JsonEncode(body), 15, "Content-Type: application/json;charset=UTF-8")
+  if code ~= 200 then print("Wechat text failed" .. status_code .. res) end
+  --推送图片 因为markdown格式限制4kb 使用文件上传获取media麻烦，故图片文字分开发送
+  if img ~= nil then
+    local body ={
+      msgtype ="image",
+      image ={
+        base64 = img,
+        md5 = md5
+      }
+    }
+    local res, code = httpPost(webhookurl, JsonEncode(body), 15, "Content-Type: application/json;charset=UTF-8")
+    if code == 200 then
+      print("Wechat notify successfully")
+    else
+      print("Wechat picture failed" .. status_code .. res)
+    end
+  end
+end
+
 -- remove unneed elements while preserving cursor
 clean_table = function(t, idx, bad)
   local ans = {}
@@ -2972,6 +3020,10 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "Telegram chat ID")
   ui.addEditText(layout, "telegram_chatid", "")
+
+  newRow(layout)
+  addTextView(layout, "企业微信 webhook地址")
+  ui.addEditText(layout, "wechat_webhook_url", "")
 
   newRow(layout)
   ui.addCheckBox(layout, "qqnotify_save",
