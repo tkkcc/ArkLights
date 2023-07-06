@@ -568,6 +568,14 @@ path.bilibili_login_change = update(path.bilibili_login, {
 
 path.login = {
   活动公告返回 = function() return path.fallback.活动公告返回() end,
+
+  阅读并同意 = function()
+    local p = findNode(point["阅读并同意"])
+    if p then
+      clickNodeFalse(p)
+      disappear("阅读并同意")
+    end
+  end,
   同意并继续 = function()
     local p = findNode(point["同意并继续"])
     if p then
