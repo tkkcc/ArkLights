@@ -586,6 +586,7 @@ path.login = {
   captcha = function() trySolveCapture() end,
   ogame = true,
   username_inputbox = disable_game_up_check_wrapper(function()
+    log(589,login_time_history)
 
     -- 把输入法关了
     wait(function()
@@ -621,8 +622,17 @@ path.login = {
     end
 
     ssleep(.5) -- checkbox 需要延时
-    check_login_frequency()
+    log(626,login_time_history)
+    if debug_mode then
+      ssleep(1000)
+    end
+    -- 开始唤醒时已经check了
+    -- check_login_frequency()
     tap("login")
+    -- -- 多点一次登录
+    -- if not disappear("login") then
+    --   tap("login")
+    -- end
     disappear("login")
     appear({"captcha", "B服安全验证", "B服安全验证320DPI"})
 
