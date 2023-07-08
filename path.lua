@@ -49,14 +49,9 @@ path.base = {
       if not wait(function()
         tap("账号左侧")
         tap("账号")
-        -- if disappear("手机验证码登录", 1) then return true end
         if appear('inputbox', 1) then return true end
       end, 10) then return end
       log(45)
-      -- if not appear('inputbox') then return end
-      -- ssleep(1) -- 等待输入法弹出
-      -- if debug_mode then toast(username) end
-      -- ssleep(.5) -- 等待输入法弹出
       if not wait(function()
         wait(function() input("inputbox", username) end, 1)
         log(45.1)
@@ -73,7 +68,6 @@ path.base = {
 
     if #password > 0 then
       log(44)
-      -- if debug_mode then toast(password) end
       if not wait(function()
         tap("账号左侧")
         tap("密码")
@@ -83,7 +77,6 @@ path.base = {
       log(45)
       -- if not appear('inputbox') then return end
       -- ssleep(1) -- 等待输入法弹出
-      -- if debug_mode then toast(password) end
       -- ssleep(.5) -- 等待输入法弹出
       if not wait(function()
         wait(function() input("inputbox", password) end, 1)
@@ -235,7 +228,8 @@ path.base = {
 
       -- 掉线
       if findAny({
-        "开始唤醒", "bilibili_framelayout_only", "手机验证码登录",
+        "开始唤醒", "bilibili_framelayout_only", "framelayout_only",
+        "手机验证码登录",
       }) then
         home = true
         log(60)
@@ -364,10 +358,16 @@ path.base = {
     cloud.addLog("INFO", "登录成功", "已成功登录至游戏", "")
   end,
 
-  -- bilibili_account_switch = function() auto(path.bilibili_login) end,
+  framelayout_only = function()
+    cloud.addLog("INFO", "开始登录", "正在尝试登录", "")
+    auto(path.login, nil, 0, default_auto_timeout_second, true)
+    cloud.addLog("INFO", "登录成功", "已成功登录至游戏", "")
+  end,
+
 }
 
 path.bilibili_login = {
+  活动公告返回 = function() return path.fallback.活动公告返回() end,
   同意并继续 = function()
     local p = findNode(point["同意并继续"])
     if p then
@@ -441,14 +441,6 @@ path.bilibili_login = {
     appear("bilibili_phone_inputbox")
   end,
   bilibili_change2 = function()
-    if debug_mode then
-      if appear("bilibili_account_switch") then
-        toast(259)
-      else
-        toast(258)
-      end
-      exit()
-    end
     check_login_frequency()
     disappear("bilibili_change2", 10)
     log(271)
@@ -458,9 +450,13 @@ path.bilibili_login = {
     return path.bilibili_login.B服安全验证()
   end,
   B服安全验证 = disable_game_up_check_wrapper(function()
-    -- 等待加载出图
-    if not appear({"B服安全验证提交", "B服安全验证提交320DPI"}, 10) then
-      return
+    log("等待加载出图")
+    if not appear({"B服安全验证提交", "B服安全验证提交320DPI"}, 5) then
+      log("等待节点识别加载失败")
+      if not checkPointColor({823, 605, "BAD9FF"}) then
+        log("等待720p图色识别加载失败")
+        return
+      end
     end
 
     if #strOr(captcha_username) == 0 or #strOr(captcha_password) == 0 then
@@ -478,25 +474,71 @@ path.bilibili_login = {
     end
 
     ssleep(.5)
-    if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
+    log("使用云控打码")
+    if cloud.captcha() then
       if not findTap("B服安全验证提交") then
         findTap("B服安全验证提交320DPI")
+        tapIfCheckedColor({823, 605, "539FFE"}, {823, 605, "539FFE"})
       end
 
       if appear({"B服安全验证失败", "B服安全验证失败320DPI"}) then
-        ttshitu_report()
-        ssleep(1.0)
-        back()
+        cloud.captcha_report()
+        ssleep(3.0)
+
+        log("使用图鉴打码")
+        if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
+          if not findTap("B服安全验证提交") then
+            findTap("B服安全验证提交320DPI")
+            tapIfCheckedColor({823, 605, "539FFE"}, {823, 605, "539FFE"})
+          end
+
+          if appear({"B服安全验证失败", "B服安全验证失败320DPI"}) then
+            ttshitu_report()
+            ssleep(1.0)
+            back()
+          end
+
+          -- wait(function()
+          --   if not findAny({
+          --         "B服安全验证提交", "B服安全验证提交320DPI",
+          --       }) then
+          --     return true
+          --   end
+          --   ssleep(2)
+          --   back()
+          -- end, 5)
+        end
       end
 
-      wait(function()
+      if wait(function()
         if not findAny({
           "B服安全验证提交", "B服安全验证提交320DPI",
         }) then return true end
         ssleep(2)
         back()
-      end, 5)
+      end, 5) then return end
+    else
+      log("使用图鉴打码")
+      if trySolvePointSelectionCapture(captcha_username, captcha_password, box) then
+        if not findTap("B服安全验证提交") then
+          findTap("B服安全验证提交320DPI")
+          tapIfCheckedColor({823, 605, "539FFE"}, {823, 605, "539FFE"})
+        end
 
+        if appear({"B服安全验证失败", "B服安全验证失败320DPI"}) then
+          ttshitu_report()
+          ssleep(1.0)
+          back()
+        end
+
+        wait(function()
+          if not findAny({
+            "B服安全验证提交", "B服安全验证提交320DPI",
+          }) then return true end
+          ssleep(2)
+          back()
+        end, 5)
+      end
     end
     log(7)
   end),
@@ -521,6 +563,104 @@ path.bilibili_login_change = update(path.bilibili_login, {
     tap("bilibili_change")
     -- appear("bilibili_account_login")
     appear("bilibili_phone_inputbox")
+  end,
+}, nil, true)
+
+path.login = {
+  活动公告返回 = function() return path.fallback.活动公告返回() end,
+
+  阅读并同意 = function()
+    local p = findNode(point["阅读并同意"])
+    if p then
+      clickNodeFalse(p)
+      disappear("阅读并同意")
+    end
+  end,
+  同意并继续 = function()
+    local p = findNode(point["同意并继续"])
+    if p then
+      clickNodeFalse(p)
+      disappear("同意并继续")
+    end
+  end,
+  captcha = function() trySolveCapture() end,
+  ogame = true,
+  username_inputbox = disable_game_up_check_wrapper(function()
+    log(589,login_time_history)
+
+    -- 把输入法关了
+    wait(function()
+      if findOne("password_login") then path.login.password_login() end
+      if findOne("login") then return true end
+      tap("返回")
+    end, 2)
+
+    -- 存在两个输入框时，输入帐密
+    if findOne("username_inputbox") then
+      local input_box = findNodes(point["username_inputbox"])
+      if type(input_box) == 'table' and #input_box == 2 then
+        if not username or #username == 0 or not password or #password == 0 then
+          -- 单账号直接停，多账号跳过
+          stop("账号或密码为空", account_idx and 'next' or '')
+        end
+        wait(function() nodeLib.setText(input_box[1], username) end, 1)
+        wait(function() nodeLib.setText(input_box[2], password) end, 1)
+
+        -- 同意登录
+        local checkbox = findNodes(point["login_checkbox"])
+        if type(checkbox) == 'table' and checkbox[#checkbox].checked == false then
+          clickNodeFalse(checkbox[#checkbox])
+        end
+      end
+    end
+
+    login_error_times = (login_error_times or 0) + 1
+    if login_error_times > 2 then
+
+      stop("官服登录密码错误或设备数量超限",
+           account_idx and 'next' or '')
+    end
+
+    ssleep(.5) -- checkbox 需要延时
+    log(626,login_time_history)
+    if debug_mode then
+      ssleep(1000)
+    end
+    -- 开始唤醒时已经check了
+    -- check_login_frequency()
+    tap("login")
+    -- -- 多点一次登录
+    -- if not disappear("login") then
+    --   tap("login")
+    -- end
+    disappear("login")
+    appear({"captcha", "B服安全验证", "B服安全验证320DPI"})
+
+  end),
+
+  login_switch = disable_game_up_check_wrapper(function()
+    check_login_frequency()
+    tap("login")
+    disappear("login")
+    appear({"captcha", "B服安全验证", "B服安全验证320DPI"})
+  end),
+
+  password_login = function()
+    clickNodeFalse(findOne("password_login"))
+    disappear("password_login")
+  end,
+
+  B服安全验证320DPI = function()
+    return path.bilibili_login.B服安全验证()
+  end,
+  B服安全验证 = function() return path.bilibili_login.B服安全验证() end,
+}
+
+path.login_change = update(path.login, {
+  username_inputbox = true,
+  login_switch = function()
+    clickNodeFalse(findOne("login_switch"))
+    disappear("login_switch")
   end,
 }, nil, true)
 
@@ -718,7 +858,7 @@ path.fallback = {
     wait(function()
       if findAny({
         "面板", "开始唤醒", "bilibili_framelayout_only",
-        "活动公告返回",
+        "framelayout_only", "活动公告返回",
       }) then return true end
       tap("左取消")
     end, 5)
@@ -747,6 +887,31 @@ path.fallback = {
     tap("限时幸运签抽取")
     disappear("限时幸运签", 10)
     return path.fallback.签到返回()
+  end,
+  神州返回 = function()
+    wait(function()
+      tap("神州领取1")
+      ssleep(.2)
+      tap("神州领取2")
+      ssleep(.2)
+    end, 2)
+    wait(function()
+      tap("神州返回")
+      if appear("面板", 1) then return true end
+    end, 5)
+
+  end,
+  端午签到返回 = function()
+    wait(function()
+      tap("端午签到左")
+      ssleep(.2)
+      tap("端午签到中")
+      ssleep(.2)
+    end, 1)
+    wait(function()
+      tap("端午签到返回")
+      if appear("面板", 1) then return true end
+    end, 5)
   end,
   祈愿牌返回 = function()
     -- "158|157|92928A,728|577|876E3D,1016|619|B38375"
@@ -804,6 +969,7 @@ path.fallback = {
 }
 
 path.限时活动 = function(retry)
+  -- if 1 then return end
 
   -- 只包含主页红点
   retry = retry or 0
@@ -906,7 +1072,7 @@ path.邮件收取 = function()
     -- local timeout = 0
     if appear({
       "开始唤醒", "账号登录", "返回确认3",
-      "bilibili_framelayout_only",
+      "bilibili_framelayout_only", "framelayout_only",
     }, timeout) then return true end
     back()
 
@@ -3792,7 +3958,7 @@ path.活动 = function(x)
     end, 5) then return end
 
   end
-  car_check()
+  -- car_check()
   if not findOne("活动导航0") then return end
   if not wait(function()
 
@@ -3887,7 +4053,7 @@ path.活动任务与商店 = function()
 
   if hd_mod == "故事集" then
     path.活动商店()
-    path.故事集提交碎片()
+    -- path.故事集提交碎片()
   elseif hd_mod == "ss" then
     path.ss活动任务与商店()
   end
@@ -3952,7 +4118,7 @@ path.ss活动任务与商店 = function()
 
   local g
   local success_once
-  --[[
+
   if not wait(function()
     tap("活动任务")
     if disappear("活动导航0", 1) then return true end
@@ -3962,13 +4128,12 @@ path.ss活动任务与商店 = function()
   wait(function()
     -- if findOne("活动任务一键领取") then return true end
     tap("活动任务一键领取")
-    if not appear("主页", 1) or
-      findOne("正在提交反馈至神经") then
+    if not appear("主页", 1) or findOne("正在提交反馈至神经") then
       got = true
       return true
     end
   end)
-  
+
   if got then
     disappear("正在提交反馈至神经", network_timeout)
     disappear("主页", 5)
@@ -3977,23 +4142,22 @@ path.ss活动任务与商店 = function()
       tap("活动任务一键领取")
       local p = findAny({
         "主页", "单选确认框", "开始唤醒",
-        "bilibili_framelayout_only", "面板", "怪猎联动返回",
+        "bilibili_framelayout_only", "framelayout_only", "面板",
+        "怪猎联动返回",
       })
       log(2779, p)
       if p then return true end
     end, 15) then return end
   end
 
-  if not appear("主页", 1) then
-    return path.ss活动任务与商店()
-  end
+  if not appear("主页", 1) then return path.ss活动任务与商店() end
   captureqqimagedeliver("INFO", "活动任务领取",
                         table.join(qqmessage, ' ') .. " " ..
                           "活动任务领取")
   tap("返回")
   if not appear("活动导航0") then return end
-]]
 
+  --[[
   wait(function()
     -- if findOne("活动任务一键领取") then return true end
     tap("活动商店")
@@ -4001,6 +4165,7 @@ path.ss活动任务与商店 = function()
       return true
     end
   end)
+]]
 
   g = function()
     if not wait(function()
@@ -4056,7 +4221,7 @@ path.ss活动任务与商店 = function()
       tap("收取信用有")
       if findAny({
         "活动商店横线", "开始唤醒", "单选确认框",
-        "bilibili_framelayout_only", "面板",
+        "bilibili_framelayout_only", "framelayout_only", "面板",
       }) then return true end
     end, 10) then return end
     if findOne("活动商店横线") then success_once = true end
@@ -4105,7 +4270,7 @@ path.ss活动任务与商店 = function()
       tap("收取信用有")
       if findAny({
         "怪猎联动放入素材", "开始唤醒", "单选确认框",
-        "bilibili_framelayout_only", "面板",
+        "bilibili_framelayout_only", "framelayout_only", "面板",
       }) then return true end
     end, 10) then return end
     if findOne("活动商店横线") then success_once = true end
@@ -4132,7 +4297,8 @@ path.ss活动任务与商店 = function()
 
     -- 掉线
     if findAny({
-      "开始唤醒", "bilibili_framelayout_only", "面板", "单选确认框",
+      "开始唤醒", "bilibili_framelayout_only", "framelayout_only", "面板",
+      "单选确认框",
     }) then return path.ss活动任务与商店() end
 
     if not wait(function()
@@ -4166,14 +4332,6 @@ path.活动商店 = function()
   local g
   local success_once
 
-  wait(function()
-    -- if findOne("活动任务一键领取") then return true end
-    tap("活动商店")
-    if not appear("主页", 1) or findOne("活动商店横线") then
-      return true
-    end
-  end)
-
   g = function()
     if not wait(function()
       if findOne("活动商店横线") then return true end
@@ -4204,7 +4362,7 @@ path.活动商店 = function()
     local p2 = findAny(point.活动商店列表)
     if not p1 and not p2 then return end
 
-    tap("活动商店列表" .. 1)
+    tap("活动商店列表" .. 2)
     tap(p1)
     tap(p2)
 
@@ -4228,7 +4386,7 @@ path.活动商店 = function()
       tap("收取信用有")
       if findAny({
         "活动商店横线", "开始唤醒", "单选确认框",
-        "bilibili_framelayout_only", "面板",
+        "bilibili_framelayout_only", "framelayout_only", "面板",
       }) then return true end
     end, 10) then return end
     if findOne("活动商店横线") then success_once = true end
@@ -4237,7 +4395,7 @@ path.活动商店 = function()
 
   for i = 1, 4 do
     if not wait(function()
-      if not findOne("活动导航2") then return true end
+      if not findOne("活动导航0") then return true end
       tap("活动商店")
     end) then return end
     if not appear("活动商店横线", 5) then break end
@@ -4255,7 +4413,8 @@ path.活动商店 = function()
 
     -- 掉线
     if findAny({
-      "开始唤醒", "bilibili_framelayout_only", "面板", "单选确认框",
+      "开始唤醒", "bilibili_framelayout_only", "framelayout_only", "面板",
+      "单选确认框",
     }) then return path.活动商店() end
 
     if not wait(function()
@@ -4352,7 +4511,8 @@ path.故事集提交碎片 = function()
 
     -- 掉线
     if findAny({
-      "开始唤醒", "bilibili_framelayout_only", "面板", "单选确认框",
+      "开始唤醒", "bilibili_framelayout_only", "framelayout_only", "面板",
+      "单选确认框",
     }) then return path.故事集提交碎片() end
 
   end
@@ -5005,14 +5165,37 @@ path.退出账号 = function()
       auto(path.bilibili_login_change, nil, 0, default_auto_timeout_second, true)
       cloud.addLog("INFO", "登录成功", "已成功登录至游戏", "")
     end,
+    framelayout_only = false,
+    [function()
+      return findOne("framelayout_only") and not findOne("username_inputbox")
+    end] = function()
+      cloud.addLog("INFO", "开始登录", "正在尝试登录", "")
+      auto(path.login_change, nil, 0, default_auto_timeout_second, true)
+      cloud.addLog("INFO", "登录成功", "已成功登录至游戏", "")
+    end,
     面板 = function()
       tap("面板设置", true)
       if not appear("返回3") then return end
+      -- the old way
       wait(function()
         tap("退出登录" .. (appid == oppid and '' or '2'))
         ssleep(.1)
         tap("右右确认")
       end, 1)
+
+      -- the now way
+      if not wait(function()
+        tap("用户中心")
+        if appear("login_out", 1) then return true end
+      end) then return end
+
+      ssleep(.5)
+      clickNodeFalse(findOne("login_out"))
+      appear("yes")
+      ssleep(.5)
+      clickNodeFalse(findOne("yes"))
+      ssleep(.5)
+
     end,
     --  开始唤醒 = "账号管理",
     开始唤醒 = function()
@@ -5021,6 +5204,7 @@ path.退出账号 = function()
       disappear("开始唤醒")
     end,
     bilibili_username_inputbox = true,
+    username_inputbox = true,
     手机验证码登录 = true,
   }, nil, true), path.fallback, 0, default_auto_timeout_second)
 end
@@ -5285,7 +5469,7 @@ path.前瞻投资 = function(lighter)
         -- 第一次数据更新处理
         if findAny({
           "面板", "活动公告返回", "签到返回", "签到返回黄",
-          "开始唤醒", "bilibili_framelayout_only",
+          "开始唤醒", "bilibili_framelayout_only", "framelayout_only",
         }) then
           jumpout = true
           return true
@@ -5310,7 +5494,7 @@ path.前瞻投资 = function(lighter)
       -- 第一次数据更新处理
       if findAny({
         "面板", "活动公告返回", "签到返回", "签到返回黄",
-        "开始唤醒", "bilibili_framelayout_only",
+        "开始唤醒", "bilibili_framelayout_only", "framelayout_only",
       }) then
         jumpout = true
         return true
@@ -5414,7 +5598,7 @@ path.前瞻投资 = function(lighter)
     -- 第二次数据更新处理
     if findAny({
       "面板", "活动公告返回", "签到返回", "签到返回黄",
-      "开始唤醒", "bilibili_framelayout_only",
+      "开始唤醒", "bilibili_framelayout_only", "framelayout_only",
     }) then
       jumpout = true
       return true
@@ -5883,7 +6067,7 @@ path.前瞻投资 = function(lighter)
       if findAny({
         "战略返回", "面板", "活动公告返回", "签到返回",
         "签到返回黄", "开始唤醒", "常规行动",
-        "bilibili_framelayout_only",
+        "bilibili_framelayout_only", "framelayout_only",
       }) then return true end
       tap("战略确认")
     end, 60)

@@ -358,9 +358,7 @@ tradingStationOperatorBest = function(operator, dormitoryCapacity,
     end
 
     -- 禁用尤里卡
-    if all['bskill_tra_spd&wt1'] then
-      base = -1
-    end
+    if all['bskill_tra_spd&wt1'] then base = -1 end
 
     return base, only_need
   end
@@ -468,7 +466,6 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     -- 应用独立技能效果
     for idx, icon in pairs(table.flatten(icons)) do
       operatoridx = (idx + 1) // 2
-      if debug_mode then log(427, icon, icons, base, station) end
       all[icon] = (all[icon] or 0) + 1
       -- log(266, icon, goodType, base)
       if icon == 'bskill_man_limit&cost5' then
@@ -565,8 +562,6 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
       end
     end
 
-    if debug_mode then log(428, icon, icons, base, station, storage) end
-
     -- 应用全局性技能
     -- 至简
     if all["bskill_man_spd_bd3"] then base = base + (robot // 16) * 0.05 end
@@ -620,15 +615,12 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
     -- 禁止多次减容量
     if table.sum(storage) < -15 then base = -1 end
 
-    if debug_mode then log(428.5, icon, icons, base, station, storage) end
-
     if station_only then
       base = station
       table.extend(only_need, {'bskill_man_spd&trade'})
     else
       base = base + station
     end
-    if debug_mode then log(429, icon, icons, base, station) end
 
     return base, only_need
   end
@@ -646,7 +638,6 @@ manufacturingStationOperatorBest = function(operator, tradingStationNum,
   local best_score = -1
   local best_only_need = {}
   for _, c in pairs(table.combination(range(1, #operator), maxOperator)) do
-    -- if table.equal(c, {1, 2, 3}) then debug_mode=true end
     local s, only_need = score(table.index(operatorIcon, c))
     if s > best_score then
       best = c

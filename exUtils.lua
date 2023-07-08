@@ -1657,3 +1657,95 @@ sandfir_get_reward = function()
         return false
     end
 end
+
+--游戏自动更新，需要有root权限
+--检查游戏版本是否是最新
+game_check_version = function(pkg)
+	--log("su root sh -c dumpsys package " .. pkg .. " | grep versionName")
+    local current_version = exec("su root sh -c 'dumpsys package " .. pkg .. " | grep versionName'")
+    current_version = current_version:match("versionName=([^%s]+)")
+	--local current_version = exec("su root sh -c dumpsys package " .. pkg .. " | grep versionName")
+    if type(current_version) == 'string' and #current_version > 0  then
+        --地址 https://ak-conf.hypergryph.com/config/prod/official/Android/version 
+        --返回格式 {"resVersion":"23-05-04-12-38-30-79f56b","clientVersion":"2.0.01"}
+       	local ret = httpGet("https://ak-conf.hypergryph.com/config/prod/official/Android/version")
+        local status
+        status, ret = pcall(JsonDecode, ret)
+        latestVersion = get(ret, 'clientVersion')
+		if latestVersion == current_version then
+        	log(pkg .. "已安装最新版本",latestVersion)
+           	return true
+        end
+    end
+    log(pkg .. "非最新版,当前版本",current_version,"最新版",latestVersion)
+    return false
+end
+
+--获取b服下载链接
+get_bilibili_url = function()
+	local url = "https://line1-h5-pc-api.biligame.com/game/detail/gameinfo?game_base_id=101772"
+    local ret = httpGet(url)
+    local status
+    status,ret = pcall(JsonDecode, ret)
+    ret = get(ret, 'data','android_download_link')
+    if type(ret) == 'string' and #ret > 0 then
+    	return ret
+    end
+    return nil
+end
+
+--更新游戏
+auto_update_game = function()
+    log("开始检查游戏更新")
+	if game_check_version("com.hypergryph.arknights") == false then
+        local url = parse_download_url("https://ak.hypergryph.com/downloads/android_lastest")
+        toast("官服更新开始")
+    	install_game(url)
+    end
+    if game_check_version("com.hypergryph.arknights.bilibili") == false then
+        toast("b服更新开始")
+    	install_game(get_bilibili_url())
+	end
+end
+
+--下载并安装游戏
+install_game = function(url)
+  console.show()
+	os.execute("mkdir " .. getWorkPath() .. '/apk/')
+	downloadpath = getWorkPath() .. '/apk/arknights.apk'
+    log("开始下载",url,downloadpath)
+    if downloadFile(url, downloadpath, function(process)
+        if process % 5 == 0 then toast("下载进度："..process.."%") end end) == 0 then --下载进度
+    	--使用root权限安装
+        exec("su root sh -c 'pm install -r " .. downloadpath .. "'")
+        --删除apk
+        exec("su root rm -rf " .. downloadpath)
+        --log("install finish",downloadpath)
+    else
+       log("下载失败，请检查网络连接")
+    end
+  console.dismiss()
+end
+
+--删除安卓系统download文件夹中的部分文件(速通会误点下载导致下载一堆客户端)
+delele_download_file = function()
+    --exec("su root rm -rf /sdcard/Download/*.apk")
+    exec("su -c 'find /sdcard/download -name \"*arknights*.apk\" -exec rm {} \\;'")--官服
+    exec("su -c 'find /sdcard/download -name \"*mrfz*.apk\" -exec rm {} \\;'")--b服
+    exec("su root rm -rf /sdcard/Download/*.crdownload'")--浏览器未下载完成文件
+end
+
+-- 解析官服重定向地址
+function parse_download_url(url)
+    local http = require("socket.http")
+    local url = url
+    local response, code, headers, status = http.request{
+        url = url,
+        method = "GET",
+        redirect = false -- 禁用自动重定向 防止直接开始下载
+   }
+   if code == 302 then
+    local redirect = headers.location
+    return redirect
+  end
+end
