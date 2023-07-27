@@ -367,6 +367,8 @@ path.base = {
 }
 
 path.bilibili_login = {
+
+  同意协议 = function() return path.fallback.同意协议() end,
   活动公告返回 = function() return path.fallback.活动公告返回() end,
   同意并继续 = function()
     local p = findNode(point["同意并继续"])
@@ -567,6 +569,7 @@ path.bilibili_login_change = update(path.bilibili_login, {
 }, nil, true)
 
 path.login = {
+  同意协议 = function() return path.fallback.同意协议() end,
   活动公告返回 = function() return path.fallback.活动公告返回() end,
 
   阅读并同意 = function()
@@ -586,7 +589,7 @@ path.login = {
   captcha = function() trySolveCapture() end,
   ogame = true,
   username_inputbox = disable_game_up_check_wrapper(function()
-    log(589,login_time_history)
+    log(589, login_time_history)
 
     -- 把输入法关了
     wait(function()
@@ -622,10 +625,8 @@ path.login = {
     end
 
     ssleep(.5) -- checkbox 需要延时
-    log(626,login_time_history)
-    if debug_mode then
-      ssleep(1000)
-    end
+    log(626, login_time_history)
+    if debug_mode then ssleep(1000) end
     -- 开始唤醒时已经check了
     -- check_login_frequency()
     tap("login")
@@ -657,6 +658,7 @@ path.login = {
 }
 
 path.login_change = update(path.login, {
+
   username_inputbox = true,
   login_switch = function()
     clickNodeFalse(findOne("login_switch"))
@@ -665,6 +667,21 @@ path.login_change = update(path.login, {
 }, nil, true)
 
 path.fallback = {
+  同意协议 = function()
+
+    -- findTap({text = "下一步"})
+
+    -- ssleep(1)
+    local p = findOne("同意协议")
+    if p ~= nil then
+      local left, top = p.bounds.l, p.bounds.t
+      tap({left - scale(10), top + scale(10)})
+    end
+    ssleep(1)
+    findTap({text = "下一步"})
+
+  end,
+
   未来序曲 = function()
     -- "188|529|F3C4A2,1368|199|FF793F,1356|918|393939"
     local w = scale(1370 - 1920 // 2) + screen.width // 2

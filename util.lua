@@ -1934,10 +1934,10 @@ captureqqimagedeliver = function(log_level, log_title, log_detail, important)
   -- tg
   notifytg(img_url, info, telegram_chatid, telegram_token, telegram_api, sync)
 
-  --企业微信推送
+  -- 企业微信推送
   local imgmd5 = fileMD5(getWorkPath() .. "/tmp.jpg")
   notify_wechat(wechat_webhook_url, info, img, imgmd5)
-  
+
   -- cloud
   cloud.addLog(log_level, log_title, log_detail, img_url)
 
@@ -2521,7 +2521,7 @@ notifytg = function(imgurl, info, chatid, bottoken, tgapi, sync)
   if sync then wait(function() return not lock:exist(id) end, 30) end
 end
 
---企业微信推送
+-- 企业微信推送
 notify_wechat = function(webhookurl, info, img, md5)
   webhookurl = webhookurl or ''
   info = info or ''
@@ -2537,26 +2537,20 @@ notify_wechat = function(webhookurl, info, img, md5)
     end
   end
   print(webhookurl)
-  if string.find(webhookurl, "weixin.qq.com") == nil then webhookurl = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' .. webhookurl end
-  --推送文字
-  local body = {
-    msgtype="text",
-    text= {
-      content=  info
-    } 
-  }
-  local res, code = httpPost(webhookurl, JsonEncode(body), 15, "Content-Type: application/json;charset=UTF-8")
+  if string.find(webhookurl, "weixin.qq.com") == nil then
+    webhookurl = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' ..
+                   webhookurl
+  end
+  -- 推送文字
+  local body = {msgtype = "text", text = {content = info}}
+  local res, code = httpPost(webhookurl, JsonEncode(body), 15,
+                             "Content-Type: application/json;charset=UTF-8")
   if code ~= 200 then print("Wechat text failed" .. status_code .. res) end
-  --推送图片 因为markdown格式限制4kb 使用文件上传获取media麻烦，故图片文字分开发送
+  -- 推送图片 因为markdown格式限制4kb 使用文件上传获取media麻烦，故图片文字分开发送
   if img ~= nil then
-    local body ={
-      msgtype ="image",
-      image ={
-        base64 = img,
-        md5 = md5
-      }
-    }
-    local res, code = httpPost(webhookurl, JsonEncode(body), 15, "Content-Type: application/json;charset=UTF-8")
+    local body = {msgtype = "image", image = {base64 = img, md5 = md5}}
+    local res, code = httpPost(webhookurl, JsonEncode(body), 15,
+                               "Content-Type: application/json;charset=UTF-8")
     if code == 200 then
       print("Wechat notify successfully")
     else
@@ -2987,8 +2981,8 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "auto_update_gameclient",
-                  "自动更新游戏客户端", false)
-  
+                 "自动更新游戏客户端", false)
+
   newRow(layout)
   ui.addCheckBox(layout, "delete_download_floder",
                  "自动清理download文件夹", false)
@@ -3866,7 +3860,14 @@ predebug_hook = function()
   zl_skill_times = 100
 
   disable_game_up_check = true
-  swip("HD-8")
+  -- swip("HD-8")
+  -- log(findOne("同意协议"))
+  -- local p = findOne("同意协议")
+  -- if p ~= nil then
+  --   local left, top = p.bounds.l, p.bounds.t
+  --   tap({left - scale(10), top + scale(10)})
+  -- end
+  findTap({text="下一步"})
   exit()
 end
 

@@ -20,6 +20,7 @@ minscale = min(hscale, wscale)
 maxscale = max(hscale, wscale)
 
 point = {
+  同意协议 = {text = "我已阅读并同意以上协议"},
   神州返回 = "1845|115|BFBFBF,1825|114|595959,1846|87|595959,1846|135|595959",
   神州领取1 = "1081|895|9E9E9E",
   神州领取2 = "1578|900|FFFFFF",
@@ -1874,7 +1875,7 @@ center = {
 
 distance = {
 
-    ["HD-1"] = {swip_right_max, -200},
+  ["HD-1"] = {swip_right_max, -200},
   ["HD-2"] = {swip_right_max, -400},
   ["HD-3"] = {swip_right_max, -1100},
   ["HD-4"] = {swip_right_max, -1500},
@@ -1883,7 +1884,6 @@ distance = {
   ["HD-6"] = {swip_right_max, -1900},
   ["HD-7"] = {swip_right_max, -2400},
   ["HD-8"] = {swip_right_max, -2600},
-
 
   ["11-1"] = {swip_right_max, -0},
   ["11-2"] = {swip_right_max, -209},
