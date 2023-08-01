@@ -3860,8 +3860,10 @@ predebug_hook = function()
   zl_skill_times = 100
 
   disable_game_up_check = true
-  -- swip("HD-8")
-  -- log(findOne("同意协议"))
+  swip("HD-2")
+  -- tap("作战列表HD-8")
+
+  log(findOne("就这么决定了"))
   -- local p = findOne("同意协议")
   -- if p ~= nil then
   --   local left, top = p.bounds.l, p.bounds.t
@@ -3990,7 +3992,7 @@ update_state_from_ui = function()
   -- log("fight", fight)
 
   -- 活动开放时间段
-  hd_open_time_end = parse_time("202307280400")
+  hd_open_time_end = parse_time("202308220400")
   hd_shop_open_time_end = parse_time("202306080400") -- 活动商店关闭时间
   hd2_open_time_end = parse_time("202303210400")
   hd2_shop_open_time_end = parse_time("202302240400") -- 活动2商店关闭时间
