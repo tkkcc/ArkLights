@@ -3975,7 +3975,67 @@ path.活动 = function(x)
     end, 5) then return end
 
   end
-  -- car_check()
+
+  local car_check = function()
+    if car_checked then return end
+    car_checked = true
+    car_check_times = car_check_times + 1
+    if not appear("活动导航0", 1) then return end
+
+    fight_failed_times[cur_fight] = (fight_failed_times[cur_fight] or 0) - 1
+
+    if not appearTap("风情街") then return end
+    -- ssleep(1)
+    -- tap("风情街")
+
+    appear("营业奖励")
+
+    if disappear("营业奖励", 1) then
+      tap("左上角返回")
+      appear("营业奖励")
+      ssleep(1)
+    end
+
+    tap("继续营业")
+
+    if not disappear("营业奖励") then return end
+
+    local first_time_see_home = time()
+    wait(function()
+
+      if findOne("主页") then
+        first_time_see_home = first_time_see_home or time()
+        if time() - first_time_see_home > 5000 then return true end
+      else
+        first_time_see_home = nil
+      end
+
+      -- if findTap("就这么决定了") then return end
+      -- if findTap("前往下一轮") then return end
+      tap("前往下一轮")
+      tap("前往下一轮")
+      tap("就这么决定了")
+      tap("就这么决定了")
+      gesture({
+        {
+          point = {
+            {screen.width - scale(50), screen.height // 2},
+            {screen.width - scale(50), 0},
+          },
+          start = 0,
+          duration = 250,
+        },
+      })
+      ssleep(.5)
+    end, 60)
+
+    if not wait(function()
+      if appear("活动导航0", 1) then return true end
+      back()
+    end, 5) then return end
+
+  end
+  car_check()
   if not findOne("活动导航0") then return end
   if not wait(function()
 
