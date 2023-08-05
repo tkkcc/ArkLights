@@ -1,110 +1,149 @@
--- predebug = true
--- always_enable_log = true
--- test_fight = true
--- fake_fight = true
--- prefer_bapp = true
--- zl_disable_log = true
--- enable_drug_24hour = true
--- prefer_speed = true
--- disable_dorm_shift=true
--- disable_manu_shift=true
--- disable_overview_shift=true
--- disable_hotupdate = true
--- disable_root_mode = true
--- no_background_after_run = true
--- fake_recruit = true
--- debug_tag = true
--- during_crisis_contract =true
--- disable_communication_check=true
--- speedrun=true
--- debug = true
--- disable_log = true
--- unsafe_tap = true
--- zl_disable_fight_drop = true
-zl_enable_tap_before_drag = true
-zero_wait_click = true
-check_after_tap = true
-crontab_enable = true
--- enable_simultaneous_tap = true
--- auto_clean_fight=true
--- enable_dorm_check = true
--- fake_transfer= true
--- verbose_fca = true
--- no_dorm = true
--- test_some = true
--- ok_time = 1000
--- ignore_jmfight_enough_check=true
--- use_zhuzhu_game = true
--- no_config_cache = true
--- prefer_bapp_on_android7 = true
--- debug0721 = true
--- longest_tag = true
--- very_slow_state_check = true
-default_findcolor_confidence = 95 / 100
-default_auto_timeout_second = 300
--- default_max_drug_times = 9999
--- default_max_stone_times = 0
--- disable_game_up_check = true
--- skip_snapshot_service_check = true
--- need_show_console = true
--- 设成10以下时，单核机作战导航失败率高，真机基建缩放也会有问题
--- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
-frame_milesecond = 1000 // 30
-milesecond_after_click = frame_milesecond
-release_date = "08.01 20:32"
-ui_submit_color = "#ff0d47a1"
-ui_cancel_color = "#ff1976d2"
-ui_warn_color = "#ff33ccff"
-ui_page_width = -2
-ui_submit_width = -2
-ui_small_submit_width = -2
-ui_small_submit_height = -2
-network_timeout = 300
-matrixOcr = ocr
-
--- update_source = 'https://arklights.pages.dev'
-update_source = 'https://gitee.com/bilabila/arknights/raw/master'
-update_source_fallback = update_source
-
-require('util')
-require("point")
-require("path")
-require("tag")
-require('skill')
-require("fight")
-require("cloud")
-require("ex")
-
+ --predebug = true
+ --always_enable_log = true
+ -- test_fight = true
+ -- fake_fight = true
+ -- prefer_bapp = true
+ -- zl_disable_log = true
+ -- enable_drug_24hour = true
+ -- prefer_speed = true
+ -- disable_dorm_shift=true
+ -- disable_manu_shift=true
+ -- disable_overview_shift=true
+ -- disable_hotupdate = true
+ -- disable_root_mode = true
+ -- no_background_after_run = true
+ -- fake_recruit = true
+ -- debug_tag = true
+ -- during_crisis_contract =true
+ -- disable_communication_check=true
+ -- speedrun=true
+ -- debug = true
+ -- disable_log = true
+ -- unsafe_tap = true
+ -- zl_disable_fight_drop = true
+ zl_enable_tap_before_drag = true
+ zero_wait_click = true
+ check_after_tap = true
+ crontab_enable = true
+ -- enable_simultaneous_tap = true
+ -- auto_clean_fight=true
+ -- enable_dorm_check = true
+ -- fake_transfer= true
+ -- verbose_fca = true
+ -- no_dorm = true
+ -- test_some = true
+ -- ok_time = 1000
+ -- ignore_jmfight_enough_check=true
+ -- use_zhuzhu_game = true
+ -- no_config_cache = true
+ -- prefer_bapp_on_android7 = true
+ -- debug0721 = true
+ -- longest_tag = true
+ -- very_slow_state_check = true
+ default_findcolor_confidence = 95 / 100
+ default_auto_timeout_second = 300
+ -- default_max_drug_times = 9999
+ -- default_max_stone_times = 0
+ -- disable_game_up_check = true
+ -- skip_snapshot_service_check = true
+ -- need_show_console = true
+ -- 设成10以下时，单核机作战导航失败率高，真机基建缩放也会有问题
+ -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
+ frame_milesecond = 1000 // 30
+ milesecond_after_click = frame_milesecond
+ release_date = "08.01 20:32"
+ ui_submit_color = "#ff0d47a1"
+ ui_cancel_color = "#ff1976d2"
+ ui_warn_color = "#ff33ccff"
+ ui_page_width = -2
+ ui_submit_width = -2
+ ui_small_submit_width = -2
+ ui_small_submit_height = -2
+ network_timeout = 300
+ matrixOcr = ocr
+ 
+ -- update_source = 'https://arklights.pages.dev'
+ update_source = 'https://gitee.com/bilabila/arknights/raw/master'
+ update_source_fallback = update_source
+ 
+ require('util')
+ require("point")
+ require("path")
+ require("tag")
+ require('skill')
+ require("fight")
+ require("cloud")
+ require("ex")
+ 
 load(after_require_hook or '')()
 
-consoleInit()
-showControlBar(true)
-setEventCallback()
+consoleInit()--调用控制台
+showControlBar(true)--显示悬浮窗
+setEventCallback()--设置脚本关闭和悬浮窗触控事件
 hotUpdate()
 fetchSkillIcon()
 check_root_mode()
-enable_accessibility_service()
-enable_snapshot_service()
+enable_accessibility_service()--无障碍权限
+enable_snapshot_service()--开启无障碍截图
 remove_old_log()
-detectServer()
+detectServer()--查找游戏服务器对应的app
 predebug_hook()
 showUI()
-loadUIConfig()
+loadUIConfig()--读取ui配置
 restart_mode_hook()
 update_state_from_debugui()
 check_crontab_on_start()
-cloud.startHeartBeat()
+cloud.startHeartBeat()--云控
 
--- debug_mode=true
+
+
+log("抄作业：",copy_homework)
+if copy_homework then
+  ip = pc_ipv4--本机ip
+  local adbPath = adb_adress--adb位置
+  local host = simulator_host--模拟器地址
+  local headers ="Content-Type: application/json"--post请求头
+  simulator_id=""--maa返回的模拟器编号
+  --get maa版本号
+  local ret,time = httpGet("http://" .. ip .. ":8848/API/V1/getVersion")
+  log(ret)  
+        if not ret then 
+          log("未获取到maa版本号") 
+          exit()
+        end
+        ssleep (1) 
+        local t= {
+          adbPath=adbPath,
+          host=host,
+          detailJson="",
+        }
+        ssleep (3)        
+        --请求maa连接模拟器并返回id,这之后ide会和模拟器断开,但是模拟器里面的脚本在继续,后面请用log,不要用print调试
+        --asynHttpGet(callback,"http://" .. ip .. ":8848/API/V1/connect?adbPath="..adbPath .."&host="..host)
+         
+        local res ,code = httpPost("http://" .. ip .. ":8848/API/V1/connect",JsonEncode(t),30,headers)
+        --延时到端口返回json
+        --[===[while not resp ==true do
+        	ssleep (1)
+          log (resp)
+        end
+        ssleep (10)
+        log (resp)]===]
+        
+        if res then simulator_id= JsonDecode(res)["data"]["id"] end
+        log("模拟器id",simulator_id)
+        if not simulator_id or #simulator_id ==0 then exit() end 
+  end
+  
+--debug_mode=true
 if debug_mode then
   log("debug_mode")
-  -- log(findOne("活动公告返回"))
-  -- log(findOne("framelayout_only"))
-  -- log(findOne("login"))
-  -- ssleep(1)
-  -- tap("login")
-  -- exit()
+  
+  
+  
 end
+
+
 
 load(before_account_hook or '')()
 
