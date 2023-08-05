@@ -132,13 +132,13 @@ path.base = {
     fight_start_time = fight_start_time or time()
     local elapsed = time() - fight_start_time
     local fight_type = get_fight_type(cur_fight)
-
+	log("接管作战")
     -- 一般10分钟，剿灭40分钟
     local fight_timeout = (table.includes({"剿灭"}, fight_type) and elapsed >
                             40 * 60 * 1000) or
                             (not table.includes({"剿灭"}, fight_type) and
                               elapsed > 10 * 60 * 1000)
-
+	log(fight_timeout)
     -- 超时跳过当前关
     if fight_timeout then
       local info = table.join(qqmessage, ' ') .. " [" .. cur_fight ..
@@ -154,6 +154,7 @@ path.base = {
     if not wait(function()
       if not findOne("接管作战") then return true end
       -- log(126)
+      --if findOne("跳过剧情") then path.跳过剧情() end
       if findOne("暂停中") and not disappear("暂停中", 5) then
         tap("开包skip")
         disappear("暂停中")
@@ -183,7 +184,7 @@ path.base = {
         -- 实测560秒，给两倍
         if time() - first_time_see_zero_star > 1200 then zero_star = true end
       end
-
+	  
       if findOne("开始行动") and findOne("代理指挥开") then
         log(59)
         normal = true
@@ -3120,11 +3121,13 @@ extrajianpin2name = {
   当前委托 = "当期委托",
 }
 
+
+
 path.开始游戏 = function(x, disable_ptrs_check)
 
   -- 记录石头数量
   save_run_state()
-
+  local need_copy_homework =nil
   log("开始游戏", fight_tick, x)
   if not findOne("开始行动") then return end
   if x == "1-11" then return path["1-11"] end
@@ -3137,14 +3140,19 @@ path.开始游戏 = function(x, disable_ptrs_check)
   -- log(findOne("报酬合成玉已满"))
   -- log(findOne("开始行动"))
   -- safeexit()
-
+  print(copy_homework)
+  
   if not appear("代理指挥开", .5) then
-    tap("代理指挥开1")
-    if not appear("代理指挥开", .5) then
-      -- clean_fight(x)
-      fight_failed_times[cur_fight] = max_fight_failed_times
-      if not appear("主页") then back() end
-      return path.跳转("首页")
+    if copy_homework then
+      need_copy_homework = true    
+    else
+      tap("代理指挥开1")
+      if not appear("代理指挥开", .5) then      
+        -- clean_fight(x)
+        fight_failed_times[cur_fight] = max_fight_failed_times
+        if not appear("主页") then back() end
+        return path.跳转("首页")  
+      end
     end
     -- if not wait(function()
     --   if findOne("代理指挥开") and not disappear("代理指挥开", .5) then
@@ -3172,7 +3180,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     state = findAny({
       "开始行动红", "源石恢复理智取消", "药剂恢复理智取消",
       "单选确认框", "源石恢复理智不足", "当期委托侧边栏",
-      "行动结束",
+      "行动结束"
     })
     -- 剿灭后一直按开始行动导致开始行动界面消失，可能出现下面的界面
     if state == "当前委托侧边栏" then
@@ -3206,6 +3214,10 @@ path.开始游戏 = function(x, disable_ptrs_check)
     return path.base.接管作战()
   elseif state == "开始行动红" then
     no_success_one_loop = 0
+  	if need_copy_homework then
+      maa_copliot(x)
+    else
+    
     if fake_fight then
       log("debug0415", x)
       if not wait(function()
@@ -3235,6 +3247,7 @@ path.开始游戏 = function(x, disable_ptrs_check)
     --   return
     -- end
     if findOne("单选确认框") then return end
+    end
     return path.base.接管作战()
   elseif stone_times < max_stone_times and state == "源石恢复理智取消" or
     drug_times < max_drug_times and state == "药剂恢复理智取消" then
