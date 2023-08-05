@@ -3143,11 +3143,12 @@ path.开始游戏 = function(x, disable_ptrs_check)
   print(copy_homework)
   
   if not appear("代理指挥开", .5) then
-    if copy_homework then
-      need_copy_homework = true    
-    else
-      tap("代理指挥开1")
-      if not appear("代理指挥开", .5) then      
+    tap("代理指挥开1")
+    if not appear("代理指挥开", .5) then
+      if copy_homework then
+        need_copy_homework = true 
+        ssleep (6)--等待右上角提示消失
+      else              
         -- clean_fight(x)
         fight_failed_times[cur_fight] = max_fight_failed_times
         if not appear("主页") then back() end
