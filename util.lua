@@ -3111,7 +3111,32 @@ show_debug_ui = function()
   newRow(layout)
   addTextView(layout, "多账号仅传递线索账号(线索小号)")
   ui.addEditText(layout, "multi_account_disable_clue_unlock", '')
-
+  
+  --抄作业相关
+  newRow(layout)
+  ui.addCheckBox(layout, "copy_homework",
+                   "使用MAA抄作业", false)
+  
+  newRow(layout)
+  addTextView(layout, "adb路径（从maa拷贝）")
+  ui.addEditText(layout, "adb_adress", "")
+  
+  newRow(layout)
+  addTextView(layout, "模拟器地址（从maa拷贝）")
+  ui.addEditText(layout, "simulator_host", "")
+  
+  newRow(layout)
+  addTextView(layout, "电脑ipv4地址")
+  ui.addEditText(layout, "pc_ipv4", "")
+  
+  newRow(layout)
+  addTextView(layout, "作业存放的文件夹（电脑地址）")
+  ui.addEditText(layout, "homework_folder", "")
+  
+  
+   
+  
+  
   -- newRow(layout)
   -- ui.addCheckBox(layout, "enable_keepalive",
   --                "保活模式(需关root通知与“X正在运行”通知)",
@@ -3853,23 +3878,38 @@ test_fight_hook = function()
   exit()
 end
 
+maa_copliot =function (x)
+    log ("开始抄作业",x)  
+    local headers ="Content-Type: application/json"--post请求头
+    --[===[local resp  ]===]  
+    log (homework_folder.."\\" .. x..".json")
+    --通过接口调用抄作业
+    local t2={id=simulator_id,type="Copilot",params={enable=true,filename= homework_folder.."\\" .. x..".json" ,formation=true}}
+    log (JsonEncode(t2))
+    log ("post作业，唤起抄作业流程")
+    function callback(response,code)
+      print(response)
+      resp=response
+    end
+    --[===[asynHttpPost(callback,"http://" .. pc_ipv4 .. ":8848/API/V1/appendTaskAndStart",JsonEncode(t2),30,headers)
+    while not resp ==true do
+      	ssleep (1)
+    end]===]
+    local res ,code = httpPost("http://" .. ip .. ":8848/API/V1/appendTaskAndStart",JsonEncode(t2),100,headers)
+    log ("post结束")
+    log ("延时100s防止乱点")
+	ssleep(100)--延时100s防止乱点
+end
+
 predebug_hook = function()
   if not predebug then return end
   tap_interval = -1
   findOne_interval = -1
   zl_skill_times = 100
-
-  disable_game_up_check = true
-  swip("HD-2")
-  -- tap("作战列表HD-8")
-
-  log(findOne("就这么决定了"))
-  -- local p = findOne("同意协议")
-  -- if p ~= nil then
-  --   local left, top = p.bounds.l, p.bounds.t
-  --   tap({left - scale(10), top + scale(10)})
-  -- end
-  findTap({text="下一步"})
+  copy_homework = true
+  
+  --立即结束脚本会跳出来日志窗口影响maa编队,这里计划加个检测 剧情/行动结束/失败 的循环截图判断
+  path.开始游戏("HD-6") 
   exit()
 end
 
