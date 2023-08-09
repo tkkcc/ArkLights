@@ -4012,6 +4012,8 @@ path.活动 = function(x)
 
       -- if findTap("就这么决定了") then return end
       -- if findTap("前往下一轮") then return end
+      tap("右确认")
+      tap("右确认")
       tap("前往下一轮")
       tap("前往下一轮")
       tap("就这么决定了")
