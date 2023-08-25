@@ -1,6 +1,10 @@
 fetchSkillIcon = function()
   toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
+
+  if custom_hotupdate ~= nil then
+    update_source = {custom_hotupdate}
+  end
   
   for i = 1, #update_source do
     url = update_source[i] .. "/skill.zip"

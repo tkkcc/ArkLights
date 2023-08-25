@@ -2575,6 +2575,10 @@ hotUpdate = function()
   local url = nil
   local update_source_fallback = nil
 
+  if custom_hotupdate ~= nil then
+    update_source = {custom_hotupdate}
+  end
+  
   for i = 1, #update_source do
     url = update_source[i] .. "/script.lr"
 	  if beta_mode then url = url .. '.beta' end
@@ -3181,6 +3185,10 @@ show_debug_ui = function()
 
   newRow(layout)
   ui.addCheckBox(layout, "beta_mode", "启用调试更新源", false)
+
+  newRow(layout)
+  addTextView(layout, "自定义更新源地址")
+  ui.addEditText(layout, "custom_hotupdate", "")
 
   newRow(layout)
   ui.addCheckBox(layout, "debug_mode", "启用测试模式", false)
