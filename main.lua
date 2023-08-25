@@ -65,9 +65,9 @@ matrixOcr = ocr
 -- update_source = 'https://arklights.pages.dev'
 update_source = {
   "https://arklights.pages.dev",
-  "https://gh-proxy.com/https://raw.githubusercontent.com/tkkcc/ArkLights/lr/release",
-  "https://ghproxy.com/https://raw.githubusercontent.com/tkkcc/ArkLights/lr/release",
-  "https://raw.githubusercontent.com/tkkcc/ArkLights/lr/release"
+  "https://gh-proxy.com/https://raw.githubusercontent.com/tkkcc/ArkLights/lr/docs/.vuepress/public",
+  "https://ghproxy.com/https://raw.githubusercontent.com/tkkcc/ArkLights/lr/docs/.vuepress/public",
+  "https://raw.githubusercontent.com/tkkcc/ArkLights/lr/docs/.vuepress/public"
 }
 update_source_fallback = ""
 
