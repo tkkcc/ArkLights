@@ -51,7 +51,7 @@ default_auto_timeout_second = 300
 -- 设成1000//30时，真机同时开着B服与官服时会出现点着点着脚本就停（从基建开始做邮件）
 frame_milesecond = 1000 // 30
 milesecond_after_click = frame_milesecond
-release_date = "08.09 19:04"
+release_date = "08.25 18:30"
 ui_submit_color = "#ff0d47a1"
 ui_cancel_color = "#ff1976d2"
 ui_warn_color = "#ff33ccff"
@@ -63,8 +63,13 @@ network_timeout = 300
 matrixOcr = ocr
 
 -- update_source = 'https://arklights.pages.dev'
-update_source = 'https://gitee.com/bilabila/arknights/raw/master'
-update_source_fallback = update_source
+update_source = {
+  "https://arklights.pages.dev",
+  "https://gh-proxy.com/https://raw.githubusercontent.com/tkkcc/ArkLights/lr/release",
+  "https://ghproxy.com/https://raw.githubusercontent.com/tkkcc/ArkLights/lr/release",
+  "https://raw.githubusercontent.com/tkkcc/ArkLights/lr/release"
+}
+update_source_fallback = ""
 
 require('util')
 require("point")

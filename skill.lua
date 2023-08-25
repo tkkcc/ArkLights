@@ -1,38 +1,48 @@
 fetchSkillIcon = function()
   toast("正在检查更新基建图标...")
   if disable_hotupdate then return end
-  local url = update_source .. '/skill.zip'
-  -- log("url", url)
-  -- if beta_mode then url = url .. '.beta' end
-  local md5url = url .. '.md5'
-  local path = getWorkPath() .. '/skill.zip'
-  local extract_path = getWorkPath() .. '/skill'
-  local md5path = path .. '.md5'
-  if downloadFile(md5url, md5path) == -1 then
-    toast("下载基建图标校验数据失败")
-    ssleep(3)
-    return
+  
+  for i = 1, #update_source do
+    url = update_source[i] .. "/skill.zip"
+    update_source_fallback = update_source[i + 1]
+    log("当前更新地址" .. url)
+    local md5url = url .. ".md5"
+    local path = getWorkPath() .. "/skill.zip"
+    local extract_path = getWorkPath() .. "/skill"
+    local md5path = path .. ".md5"
+    if downloadFile(md5url, md5path) == -1 then
+      toast("下载基建图标校验数据失败")
+      ssleep(3)
+      return
+    end
+    local f = io.open(md5path, 'r')
+    local expectmd5 = f:read() or '1'
+    f:close()
+    if #expectmd5 ~= #'b966ddd58fd64b2f963a0c6b61b463ce' and update_source ~= update_source_fallback then
+      log(2405)
+      update_source = update_source_fallback
+	    log("基建图标更新失败，切换更新地址为" .. update_source_fallback)
+      return fetchSkillIcon()
+    end
+    if expectmd5 == loadConfig("skill_md5", "2") then
+      toast("已经是最新版基建图标")
+      return
+    end
+    if downloadFile(url, path) == -1 then
+      toast("下载最新基建图标失败")
+      ssleep(3)
+      return
+    end
+    if fileMD5(path) ~= expectmd5 then
+      toast("基建图标校验失败")
+      ssleep(3)
+      return
+    end
+    unZip(path, extract_path)
+    saveConfig("skill_md5", expectmd5)
+    return restartScript()
   end
-  local f = io.open(md5path, 'r')
-  local expectmd5 = f:read() or '1'
-  f:close()
-  if expectmd5 == loadConfig("skill_md5", "2") then
-    toast("已经是最新版基建图标")
-    return
-  end
-  if downloadFile(url, path) == -1 then
-    toast("下载最新基建图标失败")
-    ssleep(3)
-    return
-  end
-  if fileMD5(path) ~= expectmd5 then
-    toast("基建图标校验失败")
-    ssleep(3)
-    return
-  end
-  unZip(path, extract_path)
-  saveConfig("skill_md5", expectmd5)
-  return restartScript()
+  toast("所有更新源均无法使用")
 end
 
 discover = still_wrapper(function(operators, pngdata, pageid, mood_only)

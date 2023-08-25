@@ -2572,48 +2572,54 @@ end
 hotUpdate = function()
   toast("正在检查更新...")
   if disable_hotupdate then return end
-  -- https://gitee.com/bilabila/arknights/raw/master
-  -- local url = 'https://gitee.com/bilabila/arknights/raw/master/script.lr'
-  local url = update_source .. '/script.lr'
-  if beta_mode then url = url .. '.beta' end
-  local md5url = url .. '.md5'
-  local path = getWorkPath() .. '/newscript.lr'
-  local md5path = path .. '.md5'
-  if downloadFile(md5url, md5path) == -1 then
-    toast("下载校验数据失败")
-    ssleep(3)
-    return
+  local url = nil
+  local update_source_fallback = nil
+
+  for i = 1, #update_source do
+    url = update_source[i] .. "/script.lr"
+	  if beta_mode then url = url .. '.beta' end
+    update_source_fallback = update_source[i + 1]
+    log("当前更新地址" .. url)
+    local md5url = url .. ".md5"
+    local path = getWorkPath() .. "/newscript.lr"
+    local md5path = path .. ".md5"
+    if downloadFile(md5url, md5path) == -1 then
+      toast("下载校验数据失败")
+      ssleep(3)
+      return
+    end
+    local f = io.open(md5path, "r")
+    local expectmd5 = f:read() or "1"
+    f:close()
+    if #expectmd5 ~= #'b966ddd58fd64b2f963a0c6b61b463ce' and update_source ~= update_source_fallback then
+      log(2405)
+      update_source = update_source_fallback
+	    log("脚本更新失败，切换更新地址为" .. update_source_fallback)
+      return hotUpdate()
+    end
+    if expectmd5 == loadConfig("lr_md5", "2") then
+      toast("已经是最新版")
+      return
+    end
+	-- log(3, expectmd5, loadConfig("lr_md5", "2"))
+    if downloadFile(url, path) == -1 then
+      toast("下载最新脚本失败")
+      ssleep(3)
+      return
+    end
+    if fileMD5(path) ~= expectmd5 then
+      toast("脚本校验失败")
+      ssleep(3)
+      return
+    end
+    installLrPkg(path)
+    saveConfig("lr_md5", expectmd5)
+    sleep(1000)
+	-- log(5, expectmd5, loadConfig("lr_md5", "2"))
+    log("已更新至最新")
+    return restartScript()
   end
-  local f = io.open(md5path, 'r')
-  local expectmd5 = f:read() or '1'
-  f:close()
-  if #expectmd5 ~= #'b966ddd58fd64b2f963a0c6b61b463ce' and update_source ~=
-    update_source_fallback then
-    log(2405)
-    update_source = update_source_fallback
-    return hotUpdate()
-  end
-  if expectmd5 == loadConfig("lr_md5", "2") then
-    toast("已经是最新版")
-    return
-  end
-  -- log(3, expectmd5, loadConfig("lr_md5", "2"))
-  if downloadFile(url, path) == -1 then
-    toast("下载最新脚本失败")
-    ssleep(3)
-    return
-  end
-  if fileMD5(path) ~= expectmd5 then
-    toast("脚本校验失败")
-    ssleep(3)
-    return
-  end
-  installLrPkg(path)
-  saveConfig("lr_md5", expectmd5)
-  sleep(1000)
-  -- log(5, expectmd5, loadConfig("lr_md5", "2"))
-  log("已更新至最新")
-  return restartScript()
+  toast("所有更新源均无法使用")
 end
 
 styleButton = function(layout)
