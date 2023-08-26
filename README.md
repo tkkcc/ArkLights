@@ -1,3 +1,9 @@
+本仓库不再维护，请使用
+
+https://github.com/AegirTech/ArkLights
+
+---
+
 <h1 align="center"> ArkLights</h1>
 
 <p align="center">
